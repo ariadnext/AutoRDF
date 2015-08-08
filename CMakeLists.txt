@@ -1,0 +1,72 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+PROJECT( autordf CXX C )
+
+INCLUDE( FindPkgConfig )
+INCLUDE( GNUInstallDirs )
+
+#Used to create symbolic links in shared libraries
+SET(SOLIBVERSION "1.0")
+
+PKG_SEARCH_MODULE( REDLAND REQUIRED redland)
+
+INCLUDE_DIRECTORIES(
+    "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/src"
+    "${PROJECT_BINARY_DIR}/include"
+    "${PROJECT_BINARY_DIR}/src"
+    "${REDLAND_INCLUDE_DIRS}"
+)
+
+LINK_DIRECTORIES(
+    ${LIBRARY_OUTPUT_PATH}
+    ${OPENCV_LIBRARY_DIRS}
+    ${REDLAND_LIBRARY_DIRS}
+)
+
+SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0" )
+SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -O2" )
+SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -fPIC" )
+
+IF("${LIBRARY_TYPE}" STREQUAL "")
+    SET(LIBRARY_TYPE SHARED)
+ENDIF()
+
+IF("${BUILD_TESTS}" STREQUAL "")
+    SET(BUILD_TESTS 1)
+ENDIF()
+
+IF("${BUILD_DOC}" STREQUAL "")
+    SET(BUILD_DOC 0)
+ENDIF()
+
+ADD_SUBDIRECTORY(src/autordf)
+
+#INSTALL(FILES
+#    include/etrace/eTrace.h
+###    include/etrace/TracePoint.h
+#"    include/etrace/SharedTracePoint.h
+#    include/etrace/ModuleRegistry.h
+#    DESTINATION include/etrace
+#)
+
+if(${BUILD_TESTS} STREQUAL "1")
+    ADD_SUBDIRECTORY(tests)
+endif()
+
+IF(BUILD_DOC)
+    # add a target to generate API documentation with Doxygen
+    FIND_PACKAGE(Doxygen)
+    IF(DOXYGEN_FOUND)
+        CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+        ADD_CUSTOM_TARGET(doc ALL
+            ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen" VERBATIM
+        )
+        INSTALL(DIRECTORY
+            ${CMAKE_CURRENT_BINARY_DIR}/doc/html
+            DESTINATION ${CMAKE_INSTALL_DOCDIR}
+        )
+    ENDIF(DOXYGEN_FOUND)
+ENDIF()
