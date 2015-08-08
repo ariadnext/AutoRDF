@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <autordf/StatementList.h>
+
 namespace autordf {
 
 class World;
@@ -13,7 +15,10 @@ class Model {
 public:
     Model();
     Model(const Model&) = delete;
+
     void loadFromFile(const std::string& path);
+
+    StatementList find();
 
 private:
     std::shared_ptr<World> _world;

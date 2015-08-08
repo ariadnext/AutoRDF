@@ -3,9 +3,13 @@ ADD_LIBRARY(
     ${LIBRARY_TYPE}
     World.cpp
     Model.cpp
-    Storage.cpp
     ModelPrivate.cpp
-    Parser Uri.cpp Uri.h)
+    Storage.cpp
+    Parser.cpp
+    Uri.cpp
+    Stream.cpp
+    StatementList.cpp
+StatementConverter.cpp StatementConverter.h)
 TARGET_LINK_LIBRARIES(
     autordf
     ${REDLAND_LIBRARIES}
