@@ -1,0 +1,36 @@
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:foaf="http://xmlns.com/foaf/0.1/"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <foaf:Person>
+        <foaf:name>Jimmy Wales</foaf:name>
+        <foaf:title>Mr.</foaf:title>
+        <foaf:givenName>Jimmy</foaf:givenName>
+        <foaf:familyName>Wales</foaf:familyName>
+        <foaf:mbox rdf:resource="mailto:jwales@bomis.com"/>
+        <foaf:homepage rdf:resource="http://www.jimmywales.com/"/>
+        <foaf:nick>Jimbo</foaf:nick>
+        <foaf:depiction rdf:resource="http://www.jimmywales.com/aus_img_small.jpg"/>
+        <foaf:interest>
+            <rdf:Description rdf:about="http://www.wikimedia.org" rdfs:label="Wikipedia"/>
+        </foaf:interest>
+        <foaf:publications rdf:resource="http://www.jimmywales.com/pubs/publications.rdf"/>
+        <foaf:account>
+            <foaf:OnlineAccount>
+                <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/OnlineChatAccount"/>
+                <foaf:accountServiceHomepage rdf:resource="http://www.freenode.net/"/>
+                <foaf:accountName>jwales</foaf:accountName>
+            </foaf:OnlineAccount>
+        </foaf:account>
+        <foaf:knows>
+            <foaf:Person>
+                <foaf:name>Angela Beesley</foaf:name> <!-- Wikimedia Board of Trustees -->
+            </foaf:Person>
+        </foaf:knows>
+        <foaf:knows>
+            <foaf:Person rdf:about="http://jimmycricket.com/me">
+                <foaf:name>Jimmy Criket</foaf:name>
+            </foaf:Person>
+        </foaf:knows>
+    </foaf:Person>
+</rdf:RDF>

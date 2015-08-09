@@ -18,11 +18,11 @@ public:
     /** Returns the statement we currently point to */
     std::shared_ptr<Statement> getObject();
 
-    /** Returns 0 if stream finished */
-    int next() { return _stream ? librdf_stream_next(_stream) : 0; }
+    /** Returns false if stream finished */
+    bool next() { return _stream ? !librdf_stream_next(_stream) : false; }
 
-    /** Returns != 0 if at end */
-    int end() { return _stream ? librdf_stream_end(_stream) : 1; }
+    /** Returns true if at end */
+    bool end() { return _stream ? librdf_stream_end(_stream) : true; }
 
     librdf_stream *get() const { return _stream; }
 private:

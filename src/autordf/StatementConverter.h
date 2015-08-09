@@ -11,12 +11,12 @@
 namespace autordf {
 class StatementConverter {
 public:
-    static std::shared_ptr<librdf_statement> toLibRdf(const Statement& ours);
-    static std::shared_ptr<Statement> fromLibRdf(librdf_statement* librdf);
+    static std::shared_ptr<librdf_statement> toLibRdfStatement(const Statement &ours);
+    static std::shared_ptr<Statement> fromLibRdfStatement(librdf_statement *librdf);
 
 private:
-    static void toLibRdf(const Node& ours, librdf_node *librdf);
-    static void fromLibRdf(librdf_node *librdf, Node *ours);
+    static librdf_node*toLibRdfNode(const Node &node);;
+    static void fromLibRdfNode(librdf_node *librdf, Node *ours);
 };
 }
 

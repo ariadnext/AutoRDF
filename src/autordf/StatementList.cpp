@@ -29,7 +29,7 @@ bool StatementListIterator::operator==(const self_type& rhs) {
     }
 }
 
-StatementList::StatementList(std::shared_ptr<Stream> stream): _begin(stream), _end(0) {
+StatementList::StatementList(std::shared_ptr<Stream> stream): _begin(stream), _end(0), _cbegin(stream), _cend(0) {
 }
 
 }

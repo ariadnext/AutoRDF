@@ -15,6 +15,6 @@ Stream::~Stream() {
 }
 
 std::shared_ptr<Statement> Stream::getObject() {
-    return StatementConverter::fromLibRdf(librdf_stream_get_object(_stream));
+    return StatementConverter::fromLibRdfStatement(librdf_stream_get_object(_stream));
 }
 }

@@ -1,5 +1,7 @@
 #include <autordf/Node.h>
 
+#include <stdexcept>
+
 namespace autordf {
 
 const char * Node::typeString(Type t) {
@@ -10,11 +12,12 @@ const char * Node::typeString(Type t) {
             return "LITERAL";
         case BLANK:
             return "BLANK";
+        case EMPTY:
+            return "EMPTY";
     }
 }
 
-
-void Node::assertType(const char* prop, Node::Type t) {
+void Node::assertType(const char* prop, Node::Type t) const {
     if ( type != t ) {
         throw std::runtime_error(std::string("Called Node::") + prop + "() on resource type " + typeString(type));
     }
@@ -22,20 +25,38 @@ void Node::assertType(const char* prop, Node::Type t) {
 
 // Only valid if node type is resource;
 const std::string& Node::iri() const {
-    assertTyp("iri", RESOURCE);
-    return _data;
+    assertType("iri", RESOURCE);
+    return _value;
 }
 
 // Only valid if node type is literal
 const std::string& Node::literal() const {
-    assertTyp("literal", LITERAL);
-    return _data;
+    assertType("literal", LITERAL);
+    return _value;
 }
 
 // Blank node id
-const std::string& Node::bnodeid() const {
-    assertTyp("bnodeid", BLANK);
-    return _data;
+const std::string& Node::nodeId() const {
+    assertType("nodeId", BLANK);
+    return _value;
 }
 
+std::ostream& operator<<(std::ostream& os, const Node& n) {
+    switch(n.type) {
+        case Node::RESOURCE:
+            os << "R";
+            break;
+        case Node::LITERAL:
+            os << "L";
+            break;
+        case Node::BLANK:
+            os << "B";
+            break;
+        case Node::EMPTY:
+            os << "E";
+            break;
+    }
+    os << "{" << (n.empty() ? "" : n._value) << "}";
+    return os;
+}
 }

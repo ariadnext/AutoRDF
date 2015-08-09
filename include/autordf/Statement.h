@@ -12,6 +12,7 @@ public:
     Node object;
 };
 
+std::ostream& operator<<(std::ostream& os, const Statement&);
 }
 
 #endif //AUTORDF_STATEMENT_H

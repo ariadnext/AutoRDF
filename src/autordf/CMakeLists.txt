@@ -8,6 +8,8 @@ ADD_LIBRARY(
     Parser.cpp
     Uri.cpp
     Stream.cpp
+    Node.cpp
+    Statement.cpp
     StatementList.cpp
 StatementConverter.cpp StatementConverter.h)
 TARGET_LINK_LIBRARIES(
