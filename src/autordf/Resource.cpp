@@ -1,0 +1,1 @@
+#include "autordf/Resource.h"

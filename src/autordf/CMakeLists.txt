@@ -11,7 +11,8 @@ ADD_LIBRARY(
     Node.cpp
     Statement.cpp
     StatementList.cpp
-StatementConverter.cpp StatementConverter.h)
+    StatementConverter.cpp
+    Resource.cpp)
 TARGET_LINK_LIBRARIES(
     autordf
     ${REDLAND_LIBRARIES}
