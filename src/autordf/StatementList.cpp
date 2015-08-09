@@ -1,6 +1,11 @@
 #include "autordf/StatementList.h"
 
+#include <stdexcept>
+
 #include "autordf/Stream.h"
+#include "autordf/Model.h"
+#include "autordf/ModelPrivate.h"
+#include "autordf/StatementConverter.h"
 
 namespace autordf {
 
@@ -29,7 +34,23 @@ bool StatementListIterator::operator==(const self_type& rhs) {
     }
 }
 
-StatementList::StatementList(std::shared_ptr<Stream> stream): _begin(stream), _end(0), _cbegin(stream), _cend(0) {
+StatementList::iterator StatementList::_END(0);
+StatementList::const_iterator StatementList::_CEND(0);
+
+StatementList::iterator StatementList::begin() {
+    return StatementListIterator(createNewStream());
 }
 
+StatementList::const_iterator StatementList::begin() const {
+    return StatementList::const_iterator(createNewStream());
+}
+
+std::shared_ptr<Stream> StatementList::createNewStream() const {
+    std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(_query));
+    std::shared_ptr<Stream> stream(new Stream(librdf_model_find_statements(_m->_model->get(), search.get())));
+    if ( !stream ) {
+        throw std::runtime_error("Redlang librdf_model_find_statements failed");
+    }
+    return stream;
+}
 }

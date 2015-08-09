@@ -17,7 +17,7 @@ public:
     };
     Type type;
 
-    Node() : type(RESOURCE) {}
+    Node() : type(EMPTY) {}
 
     static const char * typeString(Type t);
 

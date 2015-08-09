@@ -12,7 +12,6 @@
 #include "autordf/Parser.h"
 #include "autordf/Stream.h"
 #include "autordf/Uri.h"
-#include "autordf/StatementConverter.h"
 
 namespace autordf {
 
@@ -41,11 +40,6 @@ void Model::loadFromFile(const std::string& path) {
 }
 
 StatementList Model::find(const Statement& req) {
-    std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(req));
-    std::shared_ptr<Stream> stream(new Stream(librdf_model_find_statements(_model->get(), search.get())));
-    if ( !stream ) {
-        throw std::runtime_error("Redlang librdf_model_find_statements failed");
-    }
-    return autordf::StatementList(stream);
+    return StatementList(req, this);
 }
 }

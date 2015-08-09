@@ -10,6 +10,7 @@ namespace autordf {
 
 class World;
 class ModelPrivate;
+class StatementList;
 
 /**
  * Model ins the Entry point class for reading files using autordf
@@ -29,6 +30,8 @@ public:
 private:
     std::shared_ptr<World> _world;
     std::shared_ptr<ModelPrivate> _model;
+
+    friend class StatementList;
 };
 
 }

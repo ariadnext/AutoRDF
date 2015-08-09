@@ -10,6 +10,7 @@ namespace autordf {
 
 class Stream;
 class Statement;
+class Model;
 
 class StatementListIterator: public std::iterator<std::forward_iterator_tag, Statement> {
     std::shared_ptr<Stream> _stream;
@@ -44,6 +45,7 @@ public:
     bool operator==(const self_type& rhs);
     bool operator!=(const self_type& rhs) { return !operator==(rhs); }
 };
+
 /**
  * Only supposed to be constructed by model class
  */
@@ -52,19 +54,21 @@ public:
     typedef StatementListIterator iterator;
     typedef StatementListIterator const_iterator;
 
-    StatementList(std::shared_ptr<Stream> stream);
+    StatementList(const Statement& query, Model *m) : _query(query), _m(m) {}
 
-    iterator begin() { return _begin; }
-    iterator end() { return _end; }
+    iterator begin();
+    iterator end() { return _END; }
 
-    const_iterator begin() const { return _cbegin; }
-    const_iterator end() const { return _cend; }
+    const_iterator begin() const;
+    const_iterator end() const { return _CEND; }
 
 private:
-    iterator _begin;
-    iterator _end;
-    const_iterator _cbegin;
-    const_iterator _cend;
+    static iterator _END;
+    static const_iterator _CEND;
+    Statement _query;
+    Model    *_m;
+
+    std::shared_ptr<Stream> createNewStream() const;
 };
 
 }
