@@ -14,6 +14,7 @@ ADD_LIBRARY(
     StatementList.cpp
     StatementConverter.cpp
     Resource.cpp
+    ResourceList.cpp
     Property.cpp
     Factory.cpp
 )

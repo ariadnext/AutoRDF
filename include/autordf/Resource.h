@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <list>
+#include <ostream>
 
 #include <autordf/Property.h>
 
@@ -58,12 +59,15 @@ private:
     Factory *_factory;
 
     // Should only be built through Factory
-    Resource(NodeType type, const std::string& name = "") : _name(name) { setType(type); }
+    Resource(NodeType type, const std::string& name) : _name(name) { setType(type); }
 
     void setType(NodeType t);
 
     friend class Factory;
+    friend std::ostream& operator<<(std::ostream& os, const Resource&);
 };
+
+std::ostream& operator<<(std::ostream& os, const Resource&);
 
 }
 

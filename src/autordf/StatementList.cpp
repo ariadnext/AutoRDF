@@ -29,8 +29,10 @@ bool StatementListIterator::operator==(const self_type& rhs) {
     // First handle case of comparison to end(no stream) iterator
     if ( (_stream && _stream->end() && !rhs._stream) || (rhs._stream && rhs._stream->end() && !_stream) ) {
         return true;
+    } else if ( !_stream || !rhs._stream ) {
+        return false;
     } else {
-        return _stream == rhs._stream;
+        throw std::runtime_error("StatementList iterator comparison is only valid when one of the operands is end()");
     }
 }
 
@@ -49,7 +51,7 @@ std::shared_ptr<Stream> StatementList::createNewStream() const {
     std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(_query));
     std::shared_ptr<Stream> stream(new Stream(librdf_model_find_statements(_m->_model->get(), search.get())));
     if ( !stream ) {
-        throw std::runtime_error("Redlang librdf_model_find_statements failed");
+        throw std::runtime_error("Redland librdf_model_find_statements failed");
     }
     return stream;
 }

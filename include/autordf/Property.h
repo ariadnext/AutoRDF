@@ -12,9 +12,7 @@ class Resource;
 class Property {
 public:
     Property() { setType(NodeType::EMPTY); }
-    /**
-     * Only RESOURCE or LITERAL, EMPTY are valid for a property
-     */
+
     NodeType type() const { return _type; }
     const std::string& iri() const { return _iri; }
     const std::string& value() const { return _value; }
@@ -47,6 +45,7 @@ private:
     friend class Factory;
 };
 
+std::ostream& operator<<(std::ostream& os, const Property&);
 }
 
 #endif //AUTORDF_RESOURCE_H

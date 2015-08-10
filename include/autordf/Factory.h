@@ -6,6 +6,7 @@
 #include <autordf/Model.h>
 #include <autordf/Property.h>
 #include <autordf/Resource.h>
+#include <autordf/ResourceList.h>
 
 namespace autordf {
 
@@ -14,7 +15,7 @@ public:
     /**
      * Create blank (anonymous) resource
      */
-    Resource createBlankResource();
+    Resource createBlankResource(const std::string& bnodeid = "");
 
     /**
      * Created named resource (with IRI)
@@ -30,6 +31,16 @@ public:
      * Creates a property of type Resource
      */
     Property createResourceProperty(const std::string& iri);
+
+    /**
+     * Creates a property of type Bllan node
+     */
+    Property createBlankNodeProperty(const std::string& iri);
+
+    /**
+     * Finds all ressources matching given type
+     */
+    ResourceList findByType(const std::string& typeIri);
 };
 
 }

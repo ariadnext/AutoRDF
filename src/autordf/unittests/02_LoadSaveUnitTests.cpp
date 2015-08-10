@@ -28,8 +28,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
     ASSERT_EQ(nullptr, r.getOptionalProperty("http://notthereuri"));
 }
 
-
-TEST(_03_LoadSave, AllProperties) {
+TEST(_02_LoadSave, AllProperties) {
     Factory f;
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
@@ -37,11 +36,25 @@ TEST(_03_LoadSave, AllProperties) {
     ASSERT_EQ(2, r.getPropertyValues("").size());
 }
 
-/*TEST(Model, All) {
-    Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
-    const StatementList& stmtList = ts.find();
-    for(const Statement& stmt: stmtList) {
-        std::cout << stmt << std::endl;
+TEST(_02_LoadSave, findByType) {
+    Factory f;
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+
+    ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
+    for ( const Resource& res : list ) {
+        std::cout << res << std::endl;
     }
-}*/
+    ASSERT_EQ(3, list.size());
+}
+
+TEST(_02_LoadSave, loadPerson) {
+    Factory f;
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+
+    ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
+    Resource person = *list.begin();
+    for (const Property& p : person.getPropertyValues("")) {
+        std::cout << p << std::endl;
+    }
+    ASSERT_EQ(14, person.getPropertyValues("").size());
+}

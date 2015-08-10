@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 #include <autordf/Resource.h>
 #include <autordf/Factory.h>
@@ -61,8 +62,14 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
     if ( name().empty() ) {
         throw std::runtime_error("Cannot get Property on resource with empty name");
     }
+
     Statement request;
-    request.subject.setIri(name());
+    if ( type() == NodeType::RESOURCE ) {
+        request.subject.setIri(name());
+    } else {
+        request.subject.setNodeId(name());
+    }
+
     if ( !iri.empty() ) {
         request.predicate.setIri(iri);
     }
@@ -79,10 +86,28 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
         } else if ( object.type == NodeType::RESOURCE) {
             p = _factory->createResourceProperty(predicate.iri());
             p.setValue(object.iri());
+        } else if ( object.type == NodeType::BLANK) {
+            p = _factory->createBlankNodeProperty(predicate.iri());
+            p.setValue(object.nodeId());
         }
         resp.push_back(p);
     }
     return resp;
 }
 
+std::ostream& operator<<(std::ostream& os, const Resource& r) {
+    switch(r.type()) {
+        case NodeType::RESOURCE:
+            os << "R";
+            break;
+        case NodeType::BLANK:
+            os << "B";
+            break;
+        default:
+            os << "?";
+            break;
+    }
+    os << "{" << r._name << "}";
+    return os;
+}
 }

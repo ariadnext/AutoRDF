@@ -7,11 +7,34 @@
 namespace autordf {
 
 void Property::setType(NodeType t) {
-    if ( t == NodeType::RESOURCE || t == NodeType::LITERAL ||t == NodeType::EMPTY  ) {
-        _type  = t;
-    } else {
-        throw std::runtime_error(std::string("Node type ") + nodeTypeString(t) + " is not allowed for Property");
-    }
+    _type  = t;
 }
 
+std::ostream& operator<<(std::ostream& os, const Property& p) {
+    switch(p.type()) {
+        case NodeType::RESOURCE:
+            os << "R";
+            break;
+        case NodeType::LITERAL:
+            os << "L";
+            break;
+        case NodeType::BLANK:
+            os << "B";
+            break;
+        case NodeType::EMPTY:
+            os << "E";
+            break;
+    }
+    os << "{" << p.iri() << ", " << p.value() << "}";
+    return os;
+}
+
+Resource Property::asResource() const {
+    /*if ( _type == NodeType::RESOURCE ) {
+        return _factory->
+    } else {
+        throw std::runtime_error("Property " + _iri + " is not a resource");
+    }*/
+   // return autordf::Resource();
+}
 }
