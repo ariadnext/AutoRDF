@@ -4,22 +4,15 @@
 #include <string>
 #include <ostream>
 
+#include <autordf/NodeType.h>
+
 namespace autordf {
 
 class Node {
 public:
-    enum Type {
-        RESOURCE,
-        LITERAL,
-        BLANK,
-        EMPTY // Empty is the only value that is not reflected on RDF data
-              // It is used solely to merely identify node absence
-    };
-    Type type;
+    NodeType type;
 
-    Node() : type(EMPTY) {}
-
-    static const char * typeString(Type t);
+    Node() : type(NodeType::EMPTY) {}
 
     // Only valid if node type is resource;
     const std::string& iri() const;
@@ -29,25 +22,25 @@ public:
     const std::string& nodeId() const;
 
     // Set type type Resource, and set IRI as value
-    void setIri(const std::string& value) { type = RESOURCE; _value = value; }
+    void setIri(const std::string& value) { type = NodeType::RESOURCE; _value = value; }
 
     // Set type type Literal, and set Literal as value
-    void setLiteral(const std::string& value) { type = LITERAL; _value = value; }
+    void setLiteral(const std::string& value) { type = NodeType::LITERAL; _value = value; }
 
     // Set type type Blank Node, and set node id as value
-    void setNodeId(const std::string& value) { type = BLANK; _value = value; }
+    void setNodeId(const std::string& value) { type = NodeType::BLANK; _value = value; }
 
     // Are we empty ?
-    bool empty() const { return type == EMPTY; }
+    bool empty() const { return type == NodeType::EMPTY; }
 
     // Empties the node
-    void clear() { type = EMPTY; _value.clear(); }
+    void clear() { type = NodeType::EMPTY; _value.clear(); }
 
 private:
     std::string _value;
 
     // Makes sure we are right type when accessing dedicated property
-    void assertType(const char* prop, Node::Type t) const;
+    void assertType(const char* prop, NodeType t) const;
 
     friend class StatementConverter;
     friend std::ostream& operator<<(std::ostream& os, const Node&);

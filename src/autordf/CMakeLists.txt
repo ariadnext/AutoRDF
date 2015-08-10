@@ -9,10 +9,14 @@ ADD_LIBRARY(
     Uri.cpp
     Stream.cpp
     Node.cpp
+    NodeType.cpp
     Statement.cpp
     StatementList.cpp
     StatementConverter.cpp
-    Resource.cpp)
+    Resource.cpp
+    Property.cpp
+    Factory.cpp
+)
 TARGET_LINK_LIBRARIES(
     autordf
     ${REDLAND_LIBRARIES}

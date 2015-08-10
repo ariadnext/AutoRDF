@@ -7,7 +7,7 @@
 
 using namespace autordf;
 
-TEST(Model, Iterators) {
+TEST(_01_Model, Iterators) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
     StatementList allStatements = ts.find();
@@ -16,7 +16,7 @@ TEST(Model, Iterators) {
     ASSERT_EQ(4, std::distance(allStatementsConst.begin(), allStatementsConst.end()));
 }
 
-TEST(Model, SearchByPredicate) {
+TEST(_01_Model, SearchByPredicate) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
@@ -26,7 +26,7 @@ TEST(Model, SearchByPredicate) {
     ASSERT_EQ(3, std::distance(stmtList.begin(), stmtList.end()));
 }
 
-TEST(Model, SearchBySubject) {
+TEST(_01_Model, SearchBySubject) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
@@ -36,7 +36,7 @@ TEST(Model, SearchBySubject) {
     ASSERT_EQ(2, std::distance(stmtList.begin(), stmtList.end()));
 }
 
-TEST(Model, SearchByObject) {
+TEST(_01_Model, SearchByObject) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
@@ -46,11 +46,11 @@ TEST(Model, SearchByObject) {
     ASSERT_EQ(1, std::distance(stmtList.begin(), stmtList.end()));
 }
 
-/*TEST(Model, All) {
+TEST(DISABLED_01_Model, All) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
     const StatementList& stmtList = ts.find();
     for(const Statement& stmt: stmtList) {
         std::cout << stmt << std::endl;
     }
-}*/
+}

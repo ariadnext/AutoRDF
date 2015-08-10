@@ -10,7 +10,7 @@ librdf_node* StatementConverter::toLibRdfNode(const Node &node) {
     librdf_node *lrdfNode = 0;
     World w;
     switch (node.type) {
-        case Node::RESOURCE: {
+        case NodeType::RESOURCE: {
             librdf_uri *uri = librdf_new_uri(w.get(), reinterpret_cast<const unsigned char *>(node.iri().c_str()));
             if (!uri) {
                 throw std::runtime_error(std::string("Failed to construct URI from value: ") + node.iri());
@@ -21,13 +21,13 @@ librdf_node* StatementConverter::toLibRdfNode(const Node &node) {
             }
             break;
         }
-        case Node::LITERAL:
+        case NodeType::LITERAL:
             lrdfNode = librdf_new_node_from_literal(w.get(),  reinterpret_cast<const unsigned char *>(node.literal().c_str()), 0, 0);
             if (!lrdfNode) {
                 throw std::runtime_error(std::string("Failed to construct node from literal: ") + node.literal());
             }
             break;
-        case Node::BLANK:
+        case NodeType::BLANK:
             lrdfNode = librdf_new_node_from_blank_identifier(w.get(), reinterpret_cast<const unsigned char *>(node.nodeId().c_str()));
             if (!lrdfNode) {
                 throw std::runtime_error(std::string("Failed to construct node from blank identifier: ") + node.nodeId());
@@ -57,14 +57,14 @@ std::shared_ptr<librdf_statement> StatementConverter::toLibRdfStatement(const St
 
 void StatementConverter::fromLibRdfNode(librdf_node *lrdfnode, Node *node) {
     if (librdf_node_is_resource(lrdfnode)) {
-        node->type = Node::RESOURCE;
+        node->type = NodeType::RESOURCE;
         librdf_uri *uri = librdf_node_get_uri(lrdfnode);
         node->_value = reinterpret_cast<const char *>(librdf_uri_as_string(uri));
     } else if (librdf_node_is_literal(lrdfnode)) {
-        node->type = Node::LITERAL;
+        node->type = NodeType::LITERAL;
         node->_value = reinterpret_cast<const char *>(librdf_node_get_literal_value(lrdfnode));
     } else if (librdf_node_is_blank(lrdfnode)) {
-        node->type = Node::BLANK;
+        node->type = NodeType::BLANK;
         node->_value = reinterpret_cast<const char *>(librdf_node_get_blank_identifier(lrdfnode));
     } else {
         throw std::runtime_error("librdf_node_get_type: unknown node type encountered");
