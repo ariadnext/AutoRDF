@@ -10,6 +10,16 @@ void Property::setType(NodeType t) {
     _type  = t;
 }
 
+Resource Property::asResource() const {
+    if ( _type == NodeType::RESOURCE ) {
+        return _factory->createIRIResource(_value);
+    } else if ( _type == NodeType::BLANK ) {
+        return _factory->createBlankResource(_value);
+    } else {
+        throw std::runtime_error("Property " + _iri + " is not a resource");
+    }
+}
+
 std::ostream& operator<<(std::ostream& os, const Property& p) {
     switch(p.type()) {
         case NodeType::RESOURCE:
@@ -29,12 +39,4 @@ std::ostream& operator<<(std::ostream& os, const Property& p) {
     return os;
 }
 
-Resource Property::asResource() const {
-    /*if ( _type == NodeType::RESOURCE ) {
-        return _factory->
-    } else {
-        throw std::runtime_error("Property " + _iri + " is not a resource");
-    }*/
-   // return autordf::Resource();
-}
 }

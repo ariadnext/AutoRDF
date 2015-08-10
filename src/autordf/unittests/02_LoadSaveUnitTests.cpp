@@ -57,4 +57,9 @@ TEST(_02_LoadSave, loadPerson) {
         std::cout << p << std::endl;
     }
     ASSERT_EQ(14, person.getPropertyValues("").size());
+
+    ASSERT_EQ("jwales", person
+            .getProperty("http://xmlns.com/foaf/0.1/account").asResource()
+            .getProperty("http://xmlns.com/foaf/0.1/accountName").value());
+
 }

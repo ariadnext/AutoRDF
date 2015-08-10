@@ -22,7 +22,7 @@ public:
     template<typename T> T as() const;
 
     // Convert to Resource
-    // Only valid if Type is Resource
+    // Only valid if Type is Resource or Blank Node
     // @throw NotAResourceException if not the case
     Resource asResource() const;
 
