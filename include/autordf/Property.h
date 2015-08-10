@@ -17,6 +17,7 @@ public:
     const std::string& iri() const { return _iri; }
     const std::string& value() const { return _value; }
     void setValue(const std::string& value) { _value = value; }
+    void setValue(const Resource& res);
 
     // Converters
     template<typename T> T as() const;

@@ -11,7 +11,7 @@ using namespace autordf;
 
 TEST(_02_LoadSave, OneProperty) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_EQ("Jimmy Criket", r.getProperty("http://xmlns.com/foaf/0.1/name").value());
@@ -20,7 +20,7 @@ TEST(_02_LoadSave, OneProperty) {
 
 TEST(_02_LoadSave, PropertyNotThere) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_THROW(r.getProperty("http://notthereuri"), std::runtime_error);
@@ -30,7 +30,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
 
 TEST(_02_LoadSave, AllProperties) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_EQ(2, r.getPropertyValues("").size());
@@ -38,7 +38,7 @@ TEST(_02_LoadSave, AllProperties) {
 
 TEST(_02_LoadSave, findByType) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
     for ( const Resource& res : list ) {
@@ -49,7 +49,7 @@ TEST(_02_LoadSave, findByType) {
 
 TEST(_02_LoadSave, loadPerson) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
     Resource person = *list.begin();

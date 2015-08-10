@@ -62,6 +62,8 @@ public:
     const_iterator begin() const;
     const_iterator end() const { return _CEND; }
 
+    size_t size() const { return std::distance(begin(), end()); }
+
 private:
     static iterator _END;
     static const_iterator _CEND;

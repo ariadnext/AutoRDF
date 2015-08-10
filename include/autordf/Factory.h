@@ -33,7 +33,7 @@ public:
     Property createResourceProperty(const std::string& iri);
 
     /**
-     * Creates a property of type Bllan node
+     * Creates a property of type Blank node
      */
     Property createBlankNodeProperty(const std::string& iri);
 

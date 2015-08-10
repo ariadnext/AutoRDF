@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include <autordf/Factory.h>
+#include <autordf/Resource.h>
 
 namespace autordf {
 
@@ -39,4 +40,8 @@ std::ostream& operator<<(std::ostream& os, const Property& p) {
     return os;
 }
 
+void Property::setValue(const Resource &res) {
+    setType(res.type());
+    _value = res.name();
+}
 }
