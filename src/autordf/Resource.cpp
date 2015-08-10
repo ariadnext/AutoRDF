@@ -67,7 +67,7 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
     } else {
-        request.subject.setNodeId(name());
+        request.subject.setBNodeId(name());
     }
 
     if ( !iri.empty() ) {
@@ -110,4 +110,5 @@ std::ostream& operator<<(std::ostream& os, const Resource& r) {
     os << "{" << r._name << "}";
     return os;
 }
+
 }

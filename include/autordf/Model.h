@@ -41,8 +41,10 @@ public:
     // throws an exception on error;
     void remove(const Statement& stmt);
 
-private:
+protected:
     std::shared_ptr<World> _world;
+
+private:
     std::shared_ptr<ModelPrivate> _model;
     std::string _baseUri;
 
