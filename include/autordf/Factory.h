@@ -25,17 +25,7 @@ public:
     /**
      * Creates a property of type Literal
      */
-    Property createLiteralProperty(const std::string& iri);
-
-    /**
-     * Creates a property of type Resource
-     */
-    Property createResourceProperty(const std::string& iri);
-
-    /**
-     * Creates a property of type Blank node
-     */
-    Property createBlankNodeProperty(const std::string& iri);
+    Property createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
 
     /**
      * Finds all ressources matching given type

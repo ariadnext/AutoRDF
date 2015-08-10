@@ -61,5 +61,18 @@ TEST(_02_LoadSave, loadPerson) {
     ASSERT_EQ("jwales", person
             .getProperty("http://xmlns.com/foaf/0.1/account").asResource()
             .getProperty("http://xmlns.com/foaf/0.1/accountName").value());
+}
 
+TEST(_02_LoadSave, saveResource) {
+    Factory f;
+
+    Resource person = f.createIRIResource("http://my/own/resource");
+    Resource place = f.createBlankResource();
+    Property myPlaceProp = f.createProperty("http://my/own/placeprop");
+    myPlaceProp.setValue(place);
+    person.addProperty(myPlaceProp);
+
+    Property placeName = f.createProperty("http://my/own/placename");
+    placeName.setValue("Place des pizzas");
+    place.addProperty(placeName);
 }

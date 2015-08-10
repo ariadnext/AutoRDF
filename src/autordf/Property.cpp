@@ -17,8 +17,20 @@ Resource Property::asResource() const {
     } else if ( _type == NodeType::BLANK ) {
         return _factory->createBlankResource(_value);
     } else {
-        throw std::runtime_error("Property " + _iri + " is not a resource");
+        throw std::runtime_error("Unable to convert Property " + _iri + " as resource");
     }
+}
+
+void Property::setValue(const Resource &res) {
+    setType(res.type());
+    _value = res.name();
+}
+
+void Property::setValue(const std::string &val, bool setLiteralType) {
+    if ( setLiteralType ) {
+        setType(NodeType::LITERAL);
+    }
+    _value = val;
 }
 
 std::ostream& operator<<(std::ostream& os, const Property& p) {
@@ -38,10 +50,5 @@ std::ostream& operator<<(std::ostream& os, const Property& p) {
     }
     os << "{" << p.iri() << ", " << p.value() << "}";
     return os;
-}
-
-void Property::setValue(const Resource &res) {
-    setType(res.type());
-    _value = res.name();
 }
 }

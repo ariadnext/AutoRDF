@@ -64,7 +64,7 @@ TEST(_01_Model, AddSaveEraseStatement) {
 
     read1.remove(st);
     const StatementList& stmtList1 = read1.find();
-    ASSERT_EQ(0, stmtList.size());
+    ASSERT_EQ(0, stmtList1.size());
 }
 
 TEST(DISABLED_01_Model, All) {

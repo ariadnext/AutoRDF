@@ -79,20 +79,41 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
     for (const Statement& triple: foundTriples) {
         const Node& object = triple.object;
         const Node& predicate = triple.predicate;
-        Property p;
+        Property p = _factory->createProperty(predicate.iri(), object.type);
         if ( object.type == NodeType::LITERAL) {
-            p = _factory->createLiteralProperty(predicate.iri());
-            p.setValue(object.literal());
+            p.setValue(object.literal(), false);
         } else if ( object.type == NodeType::RESOURCE) {
-            p = _factory->createResourceProperty(predicate.iri());
-            p.setValue(object.iri());
+            p.setValue(object.iri(), false);
         } else if ( object.type == NodeType::BLANK) {
-            p = _factory->createBlankNodeProperty(predicate.iri());
-            p.setValue(object.bNodeId());
+            p.setValue(object.bNodeId(), false);
         }
         resp.push_back(p);
     }
     return resp;
+}
+
+void Resource::addProperty(const Property &p) {
+    Statement addreq;
+    if ( type() == NodeType::RESOURCE ) {
+        addreq.subject.setIri(name());
+    } else {
+        addreq.subject.setBNodeId(name());
+    }
+    addreq.predicate.setIri(p.iri());
+    switch(p.type()) {
+        case NodeType::RESOURCE:
+            addreq.object.setIri(p.value());
+            break;
+        case NodeType::BLANK:
+            addreq.object.setBNodeId(p.value());
+            break;
+        case NodeType::LITERAL:
+            addreq.object.setLiteral(p.value());
+            break;
+        case NodeType::EMPTY:
+            throw std::runtime_error("Unable to add an Empty property!");
+    }
+    _factory->add(addreq);
 }
 
 std::ostream& operator<<(std::ostream& os, const Resource& r) {

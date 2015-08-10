@@ -16,7 +16,7 @@ public:
     NodeType type() const { return _type; }
     const std::string& iri() const { return _iri; }
     const std::string& value() const { return _value; }
-    void setValue(const std::string& value) { _value = value; }
+    void setValue(const std::string& value, bool setLiteralType = true);
     void setValue(const Resource& res);
 
     // Converters
@@ -39,7 +39,7 @@ private:
     Factory *_factory;
 
     // Should only be built through Factory
-    Property(NodeType t, const std::string& iri) : _iri(iri) { setType(t); }
+    Property(NodeType t, const std::string& iri, Factory *f) : _iri(iri), _factory(f) { setType(t); }
 
     void setType(NodeType t);
 

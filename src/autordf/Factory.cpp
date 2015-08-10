@@ -1,34 +1,36 @@
 #include "autordf/Factory.h"
 
+#include <librdf.h>
+
+#include <stdexcept>
+
+#include "autordf/World.h"
+
 namespace autordf {
 
-Resource Factory::createBlankResource(const std::string& bnodeid) {
-    Resource r(NodeType::BLANK, bnodeid);
-    r._factory = this;
+Resource Factory::createBlankResource(const std::string &bnodeid) {
+    std::string id = bnodeid;
+    if ( id.empty() ) {
+        std::shared_ptr<librdf_node> lrdfnode(
+                librdf_new_node_from_blank_identifier(_world->get(), nullptr),
+                librdf_free_node);
+        if ( !lrdfnode ) {
+            throw std::runtime_error("Unable to allocate blank node identifier");
+        }
+        id = reinterpret_cast<const char *>(librdf_node_get_blank_identifier(lrdfnode.get()));
+    }
+
+    Resource r(NodeType::BLANK, id, this);
     return r;
 }
 
 Resource Factory::createIRIResource(const std::string &iri) {
-    Resource r(NodeType::RESOURCE, iri);
-    r._factory = this;
+    Resource r(NodeType::RESOURCE, iri, this);
     return r;
 }
 
-Property Factory::createLiteralProperty(const std::string &iri) {
-    Property p(NodeType::LITERAL, iri);
-    p._factory = this;
-    return p;
-}
-
-Property Factory::createResourceProperty(const std::string &iri) {
-    Property p(NodeType::RESOURCE, iri);
-    p._factory = this;
-    return p;
-}
-
-Property Factory::createBlankNodeProperty(const std::string &iri) {
-    Property p(NodeType::BLANK, iri);
-    p._factory = this;
+Property Factory::createProperty(const std::string &iri, NodeType type) {
+    Property p(type, iri, this);
     return p;
 }
 

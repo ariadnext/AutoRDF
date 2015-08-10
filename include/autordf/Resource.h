@@ -50,6 +50,8 @@ public:
      */
     std::list<Property> getPropertyValues(const std::string& iri) const;
 
+    void addProperty(const Property& p);
+
 private:
     NodeType _type;
 
@@ -59,7 +61,7 @@ private:
     Factory *_factory;
 
     // Should only be built through Factory
-    Resource(NodeType type, const std::string& name) : _name(name) { setType(type); }
+    Resource(NodeType type, const std::string& name, Factory *f) : _name(name), _factory(f) { setType(type); }
 
     void setType(NodeType t);
 
