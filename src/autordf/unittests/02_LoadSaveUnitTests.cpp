@@ -101,10 +101,10 @@ TEST(_02_LoadSave, deleteProperties) {
     drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("blue"));
     ASSERT_EQ(5, f.find().size());
 
-    drawing.removeAllProperties("http://my/own/color");
+    drawing.removeProperties("http://my/own/color");
     ASSERT_EQ(3, f.find().size());
 
-    drawing.removeAllProperties("");
+    drawing.removeProperties("");
     ASSERT_EQ(0, f.find().size());
 
     ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("nonexistent")), std::runtime_error);

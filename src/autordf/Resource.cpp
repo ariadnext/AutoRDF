@@ -129,7 +129,7 @@ void Resource::removeSingleProperty(const Property &p) {
     _factory->remove(rmreq);
 }
 
-void Resource::removeAllProperties(const std::string &iri) {
+void Resource::removeProperties(const std::string &iri) {
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
@@ -152,7 +152,7 @@ void Resource::setProperties(const std::list<Property>& list) {
     std::set<std::string> removedProps;
     for (const Property& p: list) {
         if ( !removedProps.count(p.iri()) ) {
-            removeAllProperties(p.iri());
+            removeProperties(p.iri());
         }
     }
     for (const Property& p : list) {

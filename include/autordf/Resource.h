@@ -56,6 +56,10 @@ public:
      */
     void addProperty(const Property& p);
 
+    // Remove all properties matching iri in the list, then
+    // Add properties one by one
+    void setProperties(const std::list<Property>& list);
+
     // What if not present ? throw an error
     void removeSingleProperty(const Property& p);
 
@@ -63,11 +67,12 @@ public:
      * Remove all  properties matching iri
      * If iri is empty, remove *All* object properties
      */
-    void removeAllProperties(const std::string& iri);
+    void removeProperties(const std::string &iri);
 
-    // Remove all properties matching iri in the list, then
-    // Add properties one by one
-    void setProperties(const std::list<Property>& list);
+    /**
+     * Removes a ressource, i.e. delete all its attributes
+     */
+    void remove() { return removeProperties(""); }
 
 private:
     NodeType _type;
