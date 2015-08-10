@@ -16,8 +16,8 @@ public:
     NodeType type() const { return _type; }
     const std::string& iri() const { return _iri; }
     const std::string& value() const { return _value; }
-    void setValue(const std::string& value, bool setLiteralType = true);
-    void setValue(const Resource& res);
+    Property& setValue(const std::string& value, bool setLiteralType = true);
+    Property& setValue(const Resource& res);
 
     // Converters
     template<typename T> T as() const;

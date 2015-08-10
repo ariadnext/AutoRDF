@@ -21,16 +21,18 @@ Resource Property::asResource() const {
     }
 }
 
-void Property::setValue(const Resource &res) {
+Property& Property::setValue(const Resource &res) {
     setType(res.type());
     _value = res.name();
+    return *this;
 }
 
-void Property::setValue(const std::string &val, bool setLiteralType) {
+Property& Property::setValue(const std::string &val, bool setLiteralType) {
     if ( setLiteralType ) {
         setType(NodeType::LITERAL);
     }
     _value = val;
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Property& p) {

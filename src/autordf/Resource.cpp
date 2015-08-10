@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include <set>
 
 #include <autordf/Resource.h>
 #include <autordf/Factory.h>
@@ -59,10 +60,6 @@ Property Resource::getProperty(const std::string& iri) const {
  * Lists all values for property matching iri name
  */
 std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
-    if ( name().empty() ) {
-        throw std::runtime_error("Cannot get Property on resource with empty name");
-    }
-
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
@@ -92,6 +89,22 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
     return resp;
 }
 
+void Resource::propertyAsNode(const Property& p, Node *n) {
+    switch(p.type()) {
+        case NodeType::RESOURCE:
+            n->setIri(p.value());
+            break;
+        case NodeType::BLANK:
+            n->setBNodeId(p.value());
+            break;
+        case NodeType::LITERAL:
+            n->setLiteral(p.value());
+            break;
+        case NodeType::EMPTY:
+            throw std::runtime_error("Unable to add an Empty property!");
+    }
+}
+
 void Resource::addProperty(const Property &p) {
     Statement addreq;
     if ( type() == NodeType::RESOURCE ) {
@@ -100,20 +113,51 @@ void Resource::addProperty(const Property &p) {
         addreq.subject.setBNodeId(name());
     }
     addreq.predicate.setIri(p.iri());
-    switch(p.type()) {
-        case NodeType::RESOURCE:
-            addreq.object.setIri(p.value());
-            break;
-        case NodeType::BLANK:
-            addreq.object.setBNodeId(p.value());
-            break;
-        case NodeType::LITERAL:
-            addreq.object.setLiteral(p.value());
-            break;
-        case NodeType::EMPTY:
-            throw std::runtime_error("Unable to add an Empty property!");
-    }
+    propertyAsNode(p, &addreq.object);
     _factory->add(addreq);
+}
+
+void Resource::removeSingleProperty(const Property &p) {
+    Statement rmreq;
+    if ( type() == NodeType::RESOURCE ) {
+        rmreq.subject.setIri(name());
+    } else {
+        rmreq.subject.setBNodeId(name());
+    }
+    rmreq.predicate.setIri(p.iri());
+    propertyAsNode(p, &rmreq.object);
+    _factory->remove(rmreq);
+}
+
+void Resource::removeAllProperties(const std::string &iri) {
+    Statement request;
+    if ( type() == NodeType::RESOURCE ) {
+        request.subject.setIri(name());
+    } else {
+        request.subject.setBNodeId(name());
+    }
+
+    if ( !iri.empty() ) {
+        request.predicate.setIri(iri);
+    }
+    StatementList foundTriples = _factory->find(request);
+
+    std::list<Property> resp;
+    for (const Statement& triple: foundTriples) {
+        _factory->remove(triple);
+    }
+}
+
+void Resource::setProperties(const std::list<Property>& list) {
+    std::set<std::string> removedProps;
+    for (const Property& p: list) {
+        if ( !removedProps.count(p.iri()) ) {
+            removeAllProperties(p.iri());
+        }
+    }
+    for (const Property& p : list) {
+        addProperty(p);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Resource& r) {

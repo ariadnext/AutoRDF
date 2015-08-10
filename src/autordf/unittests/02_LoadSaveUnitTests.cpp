@@ -81,3 +81,31 @@ TEST(_02_LoadSave, saveResource) {
 
     f.saveToFile("/tmp/test_saveResource.ttl", "http://my/own/");
 }
+
+TEST(_02_LoadSave, deleteProperties) {
+    Factory f;
+
+    Resource drawing = f.createIRIResource("http://my/own/drawing");
+
+    drawing.addProperty(f.createProperty("http://my/own/color").setValue("red"));
+    drawing.addProperty(f.createProperty("http://my/own/color").setValue("green"));
+    drawing.addProperty(f.createProperty("http://my/own/color").setValue("blue"));
+    drawing.addProperty(f.createProperty("http://my/own/shape").setValue("circle"));
+    drawing.addProperty(f.createProperty("http://my/own/shape").setValue("rectangle"));
+    drawing.addProperty(f.createProperty("http://my/own/backround").setValue("dots"));
+
+    EXPECT_EQ(6, f.find().size());
+
+    f.saveToFile("/tmp/test_deleteProperties.ttl", "http://my/own/");
+
+    drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("blue"));
+    ASSERT_EQ(5, f.find().size());
+
+    drawing.removeAllProperties("http://my/own/color");
+    ASSERT_EQ(3, f.find().size());
+
+    drawing.removeAllProperties("");
+    ASSERT_EQ(0, f.find().size());
+
+    ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("nonexistent")), std::runtime_error);
+}

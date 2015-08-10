@@ -9,6 +9,7 @@
 
 namespace autordf {
 
+class Node;
 class Factory;
 
 class Resource {
@@ -50,7 +51,23 @@ public:
      */
     std::list<Property> getPropertyValues(const std::string& iri) const;
 
+    /**
+     * Adds a property to the resource. Property should not be empty
+     */
     void addProperty(const Property& p);
+
+    // What if not present ? throw an error
+    void removeSingleProperty(const Property& p);
+
+    /**
+     * Remove all  properties matching iri
+     * If iri is empty, remove *All* object properties
+     */
+    void removeAllProperties(const std::string& iri);
+
+    // Remove all properties matching iri in the list, then
+    // Add properties one by one
+    void setProperties(const std::list<Property>& list);
 
 private:
     NodeType _type;
@@ -64,6 +81,8 @@ private:
     Resource(NodeType type, const std::string& name, Factory *f) : _name(name), _factory(f) { setType(type); }
 
     void setType(NodeType t);
+
+    static void propertyAsNode(const Property& p, Node *n);
 
     friend class Factory;
     friend std::ostream& operator<<(std::ostream& os, const Resource&);
