@@ -40,7 +40,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
     ::fclose(f);
 }
 
-void Model::saveToFile(const std::string& path, const char *format) {
+void Model::saveToFile(const std::string& path, const std::string& baseUri, const char *format) {
     if ( !format ) {
         format = librdf_parser_guess_name2(_world->get(), NULL, NULL, reinterpret_cast<const unsigned char *>(path.c_str()));
     }
@@ -53,7 +53,7 @@ void Model::saveToFile(const std::string& path, const char *format) {
         throw std::runtime_error("Failed to construct RDF serializer");
     }
 
-    if ( librdf_serializer_serialize_model_to_file(s.get(), path.c_str(), NULL, _model->get()) ) {
+    if ( librdf_serializer_serialize_model_to_file(s.get(), path.c_str(), baseUri.length() ? Uri(baseUri).get() : nullptr, _model->get()) ) {
         throw std::runtime_error("Failed to export RDF model to file");
     }
 }

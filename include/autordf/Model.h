@@ -27,7 +27,7 @@ public:
     // Save model to file.
     // If no format is supplied, auto-detection is guessed
     // from provided file name
-    void saveToFile(const std::string& path, const char *format = 0);
+    void saveToFile(const std::string& path, const std::string& baseUri = "", const char *format = 0);
 
     // Search for statements in model
     // If no filter is given, gives back all elements from model

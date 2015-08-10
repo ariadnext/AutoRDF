@@ -75,4 +75,9 @@ TEST(_02_LoadSave, saveResource) {
     Property placeName = f.createProperty("http://my/own/placename");
     placeName.setValue("Place des pizzas");
     place.addProperty(placeName);
+
+    Resource test = f.createIRIResource("shortName");
+    test.addProperty(placeName);
+
+    f.saveToFile("/tmp/test_saveResource.ttl", "http://my/own/");
 }
