@@ -23,8 +23,8 @@ const std::string& Node::literal() const {
 }
 
 // Blank node id
-const std::string& Node::nodeId() const {
-    assertType("nodeId", NodeType::BLANK);
+const std::string& Node::bNodeId() const {
+    assertType("bNodeId", NodeType::BLANK);
     return _value;
 }
 

@@ -9,7 +9,7 @@ void ResourceListIterator::sync() {
         if ( _stmtit->subject.type == NodeType::RESOURCE ) {
             _current = std::make_shared<Resource>(_f->createIRIResource(_stmtit->subject.iri()));
         } else if ( _stmtit->subject.type == NodeType::BLANK ){
-            _current = std::make_shared<Resource>(_f->createBlankResource(_stmtit->subject.nodeId()));
+            _current = std::make_shared<Resource>(_f->createBlankResource(_stmtit->subject.bNodeId()));
         }
         _inSync = true;
     }

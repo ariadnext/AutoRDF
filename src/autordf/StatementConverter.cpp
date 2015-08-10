@@ -28,9 +28,10 @@ librdf_node* StatementConverter::toLibRdfNode(const Node &node) {
             }
             break;
         case NodeType::BLANK:
-            lrdfNode = librdf_new_node_from_blank_identifier(w.get(), reinterpret_cast<const unsigned char *>(node.nodeId().c_str()));
+            lrdfNode = librdf_new_node_from_blank_identifier(w.get(), reinterpret_cast<const unsigned char *>(node.bNodeId().c_str()));
             if (!lrdfNode) {
-                throw std::runtime_error(std::string("Failed to construct node from blank identifier: ") + node.nodeId());
+                throw std::runtime_error(std::string("Failed to construct node from blank identifier: ") +
+                                         node.bNodeId());
             }
             break;
         default:

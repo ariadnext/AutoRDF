@@ -88,7 +88,7 @@ std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
             p.setValue(object.iri());
         } else if ( object.type == NodeType::BLANK) {
             p = _factory->createBlankNodeProperty(predicate.iri());
-            p.setValue(object.nodeId());
+            p.setValue(object.bNodeId());
         }
         resp.push_back(p);
     }

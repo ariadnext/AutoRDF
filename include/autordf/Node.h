@@ -19,7 +19,7 @@ public:
     // Only valid if node type is literal
     const std::string& literal() const;
     // Only valid if node blank
-    const std::string& nodeId() const;
+    const std::string&bNodeId() const;
 
     // Set type type Resource, and set IRI as value
     void setIri(const std::string& value) { type = NodeType::RESOURCE; _value = value; }
