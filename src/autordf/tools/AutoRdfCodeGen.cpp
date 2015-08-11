@@ -4,16 +4,20 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <set>
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <algorithm>
 
-#include <autordf/Object.h>
 #include <autordf/Factory.h>
+#include <autordf/Object.h>
 
 namespace autordf {
 namespace tools {
+
+//FIXME: make that a parameter
+std::string nameSpace = "http://xmlns.com/foaf/0.1/";
 
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl";
@@ -82,7 +86,7 @@ void extractRDFS(const Object& o, RDFSEntity *rdfs) {
 }
 
 void extractProperty(const Object& o, Property *prop) {
-    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "#domains");
+    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "#domain");
     for ( const PropertyValue& value: domainList ) {
         prop->domains.push_back(value);
     }
@@ -110,6 +114,7 @@ void run() {
     for ( auto const& owlDataProperty : owlDataProperties) {
         auto p = std::make_shared<DataProperty>();
         extractRDFS(owlDataProperty, p.get());
+        extractProperty(owlDataProperty, p.get());
         DataProperty::uri2Ptr[p->rdfname] = p;
     }
 
@@ -118,16 +123,22 @@ void run() {
     for ( auto const& owlObjectProperty : owlObjectProperties) {
         auto p = std::make_shared<ObjectProperty>();
         extractRDFS(owlObjectProperty, p.get());
+        extractProperty(owlObjectProperty, p.get());
         ObjectProperty::uri2Ptr[p->rdfname] = p;
     }
 
     // Make links between properties and classes
+    std::set<std::string> wildCardProperties({OWL + "#Thing"});
     for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
         for(const std::string& currentDomain : dataProperty.domains) {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
                 klassIt->second->dataProperties.push_back(dataPropertyMapItem.second);
+            } else if ( wildCardProperties.count(currentDomain) ) {
+                for ( auto& klassMapPair : klass::uri2Ptr ) {
+                    klassMapPair.second->dataProperties.push_back(dataPropertyMapItem.second);
+                }
             } else {
                 std::cerr << "Property " << dataProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
@@ -139,6 +150,10 @@ void run() {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
                 klassIt->second->objectProperties.push_back(objectPropertyMapItem.second);
+            } else if ( wildCardProperties.count(currentDomain) ) {
+                for ( auto& klassMapPair : klass::uri2Ptr ) {
+                    klassMapPair.second->objectProperties.push_back(objectPropertyMapItem.second);
+                }
             } else {
                 std::cerr << "Property " << objectProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
@@ -202,7 +217,7 @@ void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpa
 }
 
 std::ostream& indent(std::ostream& os, int numIndent) {
-    for (unsigned int i = 0; i < numIndent; ++i) {
+    for (unsigned int i = 0; i < numIndent * 4; ++i) {
         os << ' ';
     }
     return os;
@@ -222,7 +237,31 @@ void writeRDFSEntityComment(std::ofstream& ofs, const RDFSEntity& e, unsigned in
 }
 
 void generateDataProperty(std::ofstream& ofs, const DataProperty& property) {
+    ofs << std::endl;
+    writeRDFSEntityComment(ofs, property, 1);
+    indent(ofs, 1) << "autordf::PropertyValue " << property.genCppName() << "() const {" << std::endl;
+    indent(ofs, 2) <<     "return getPropertyValue(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << property.genCppName() << "Optional() const {" << std::endl;
+    indent(ofs, 2) <<     "return getOptionalPropertyValue(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << "std::list<autordf::PropertyValue> " << property.genCppName() << "List() const {" << std::endl;
+    indent(ofs, 2) <<     "return getPropertyValueList(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+}
 
+void generateObjectProperty(std::ofstream& ofs, const ObjectProperty& property) {
+    ofs << std::endl;
+    writeRDFSEntityComment(ofs, property, 1);
+    indent(ofs, 1) << "autordf::Object " << property.genCppName() << "() const {" << std::endl;
+    indent(ofs, 2) <<     "return getObject(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "Optional() const {" << std::endl;
+    indent(ofs, 2) <<     "return getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << "std::list<autordf::Object> " << property.genCppName() << "List() const {" << std::endl;
+    indent(ofs, 2) <<     "return getObjectList(\"" << property.rdfname << "\");" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
 }
 
 void generateCode(const klass& kls, const std::string& cppNameSpace) {
@@ -243,7 +282,34 @@ void generateCode(const klass& kls, const std::string& cppNameSpace) {
 
     writeRDFSEntityComment(ofs, kls, 0);
     ofs << "class " << cppName << ": public autordf::Object {" << std::endl;
+    indent(ofs, 1) << "#define AUTORDF_RDFTYPEIRI \"" << kls.rdfname << "\"" << std::endl;
+    ofs << "public:" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
+    indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Build us using the same underlying resource as the other object" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << cppName << "(const Object& other) : autordf::Object(other) {}" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "static std::list<" << cppName << "> find() {" << std::endl;
+    indent(ofs, 2) << "return findHelper<" << cppName << ">(AUTORDF_RDFTYPEIRI);" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
 
+    for ( const std::shared_ptr<DataProperty>& prop : kls.dataProperties) {
+        generateDataProperty(ofs, *prop);
+    }
+
+    for ( const std::shared_ptr<ObjectProperty>& prop : kls.objectProperties) {
+        generateObjectProperty(ofs, *prop);
+    }
+
+    ofs << std::endl;
+    indent(ofs, 1) << "#undef AUTORDF_RDFTYPEIRI" << std::endl;
     ofs << "};" << std::endl;
     ofs << std::endl;
     ofs << "}" << std::endl;
@@ -258,7 +324,7 @@ void generateCode(const klass& kls, const std::string& cppNameSpace) {
 int main(int argc, char **argv) {
     autordf::Factory f;
     autordf::Object::setFactory(&f);
-    f.loadFromFile(argv[1], "http://xmlns.com/foaf/0.1/Person");
+    f.loadFromFile(argv[1], autordf::tools::nameSpace);
     autordf::tools::run();
     return 0;
 }

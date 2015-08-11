@@ -5,6 +5,12 @@ ADD_EXECUTABLE(
     testcodegen
     TestCodeGen.cpp
 )
+TARGET_LINK_LIBRARIES(
+    testcodegen
+    autordf
+    boost_system
+    boost_filesystem
+)
 
 ADD_CUSTOM_COMMAND(
     OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf.h"

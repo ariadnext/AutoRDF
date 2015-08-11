@@ -15,6 +15,9 @@ void Object::setFactory(Factory *f) {
 Object::Object(const std::string &iri) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
 }
 
+Object::Object(const Object& other) : _r(other._r) {
+}
+
 Object::Object(Resource r) : _r(r) {
 }
 
@@ -123,12 +126,7 @@ Object Object::clone(const std::string& iri) {
 }
 
 std::list<Object> Object::findByType(const std::string& iri) {
-    const ResourceList& rl = _factory->findByType(iri);
-    std::list<Object> objList;
-    for(const Resource& r : rl) {
-        objList.push_back(Object(r));
-    }
-    return objList;
+    return findHelper<Object>(iri);
 }
 
 namespace {

@@ -5,9 +5,10 @@
 #include <list>
 #include <ostream>
 
+#include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
-// FIXME: maybe remove ?
 #include <autordf/Resource.h>
+#include <autordf/ResourceList.h>
 
 namespace autordf {
 
@@ -34,6 +35,11 @@ public:
      * creates an anonymous (aka blank) object
      */
     Object(const std::string& iri = "");
+
+    /**
+     * Build us using the same underlying resource as the other object
+     */
+    Object(const Object& obj);
 
     /**
      * Return object iri, or empty if it is a blank node
@@ -84,9 +90,11 @@ public:
      * Provides ultra-fast trans-typing to another Object descendant
      */
     template<typename T> T as() {
-        T object;
-        object._r = _r;
-        return object;
+        return T(*this);
+    }
+
+    template<typename T> const T as() const {
+        return T(*this);
     }
 
     /**
@@ -106,7 +114,7 @@ public:
     /**
      * Returns all Objects matching type specified as IRI
      */
-    static std::list<Object> findByType(const std::string& iri = "");
+    static std::list<Object> findByType(const std::string& typeIRI = "");
 
     /**
      * Dumps objects content to stream
@@ -114,6 +122,19 @@ public:
      * @param indentLevel: How much layer of tabs to insert
      */
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
+
+protected:
+    /**
+     * Offered to descendants
+     */
+    template<typename T> static std::list<T> findHelper(const std::string& iri) {
+        const ResourceList& rl = _factory->findByType(iri);
+        std::list<T> objList;
+        for(const Resource& r : rl) {
+            objList.push_back(T(r));
+        }
+        return objList;
+    }
 
 private:
     Resource _r;
