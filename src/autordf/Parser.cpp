@@ -21,7 +21,11 @@ Parser::~Parser() {
 
 std::shared_ptr<Parser> Parser::guessFromUri(const Uri& uri) {
     const char * name = librdf_parser_guess_name2(World().get(), NULL, NULL, uri.uc_str());
-    return std::make_shared<Parser>(name);
+    if ( name ) {
+        return std::make_shared<Parser>(name);
+    } else {
+        return 0;
+    }
 }
 
 }

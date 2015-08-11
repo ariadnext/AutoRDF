@@ -29,6 +29,9 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
 
     try {
         std::shared_ptr<Parser> p = Parser::guessFromUri(Uri(path));
+        if ( !p ) {
+            throw std::runtime_error("File format not recognized");
+        }
         if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, Uri(baseUri).get(), _model->get()) ) {
             throw std::runtime_error("Failed to read model from file");
         }
