@@ -36,6 +36,11 @@ public:
     Object(const std::string& iri = "");
 
     /**
+     * Return object iri, or empty if it is a blank node
+     */
+    const std::string& iri() const;
+
+    /**
      * Gets given property as Object
      * Property should be set.
      * @throw if property not set

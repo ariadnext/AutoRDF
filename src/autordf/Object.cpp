@@ -18,6 +18,15 @@ Object::Object(const std::string &iri) : _r(iri.empty() ? _factory->createBlankN
 Object::Object(Resource r) : _r(r) {
 }
 
+const std::string& Object::iri() const {
+    if ( _r.type() == NodeType::RESOURCE ) {
+        return _r.name();
+    } else {
+        static const std::string& EMPTY="";
+        return EMPTY;
+    }
+}
+
 Object Object::getObject(const std::string &propertyIRI) const {
     return Object(_r.getProperty(propertyIRI).asResource());
 }
@@ -181,4 +190,5 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
     }
     return os;
 }
+
 }
