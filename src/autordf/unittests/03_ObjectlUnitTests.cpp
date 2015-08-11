@@ -65,6 +65,8 @@ TEST(_03_Object, Accessors) {
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
     ASSERT_EQ(std::list<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name"));
+    ASSERT_EQ(std::list<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineAccount", "http://xmlns.com/foaf/0.1/OnlineChatAccount"}),
+              account.getPropertyValueList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
 
     // Trying to access a value as a ressource
     ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/name"), std::exception);
