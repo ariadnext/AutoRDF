@@ -98,6 +98,11 @@ public:
      */
     static std::list<Object> findByType(const std::string& iri = "");
 
+    /**
+     * Dumps objects content to stream
+     * @param recurse: if > 0, go down resource hierarchy by recurse level
+     * @param indentLevel: How much layer of tabs to insert
+     */
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
 private:
