@@ -183,9 +183,10 @@ void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameS
 
     std::string protector = upperCppNameSpace + "_" + upperClassName;
 
-    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
     ofs << "#ifndef " << protector << std::endl;
     ofs << "#define " << protector << std::endl;
+    ofs << std::endl;
+    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
     ofs << std::endl;
 }
 
@@ -200,6 +201,30 @@ void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpa
     ofs << "#endif // " <<  protector << std::endl;
 }
 
+std::ostream& indent(std::ostream& os, int numIndent) {
+    for (unsigned int i = 0; i < numIndent; ++i) {
+        os << ' ';
+    }
+    return os;
+}
+
+void writeRDFSEntityComment(std::ofstream& ofs, const RDFSEntity& e, unsigned int numIndent) {
+    if ( !e.label.empty() || !e.comment.empty() ) {
+        indent(ofs, numIndent) << "/**" << std::endl;
+        if ( !e.label.empty() ) {
+            indent(ofs, numIndent) << " * " << e.label << std::endl;
+        }
+        if ( !e.comment.empty() ) {
+            indent(ofs, numIndent) << " * " << e.comment << std::endl;
+        }
+        indent(ofs, numIndent) << " */" << std::endl;
+    }
+}
+
+void generateDataProperty(std::ofstream& ofs, const DataProperty& property) {
+
+}
+
 void generateCode(const klass& kls, const std::string& cppNameSpace) {
     std::string cppName = kls.genCppName();
     std::string fileName = cppNameSpace + "/" + cppName + ".h";
@@ -210,9 +235,14 @@ void generateCode(const klass& kls, const std::string& cppNameSpace) {
 
     generateCodeProptectorBegin(ofs, cppNameSpace, cppName);
 
+    ofs << "#include <autordf/Object.h>" << std::endl;
+    ofs << std::endl;
+
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
     ofs << std::endl;
-    ofs << "class " << cppName << " {" << std::endl;
+
+    writeRDFSEntityComment(ofs, kls, 0);
+    ofs << "class " << cppName << ": public autordf::Object {" << std::endl;
 
     ofs << "};" << std::endl;
     ofs << std::endl;
