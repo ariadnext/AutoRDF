@@ -1,8 +1,10 @@
-#ifndef AUTORDF_RESOURCE_H
-#define AUTORDF_RESOURCE_H
+#ifndef AUTORDF_PROPERTY_H
+#define AUTORDF_PROPERTY_H
 
 #include <string>
+
 #include <autordf/NodeType.h>
+#include <autordf/PropertyValue.h>
 
 namespace autordf {
 
@@ -15,12 +17,9 @@ public:
 
     NodeType type() const { return _type; }
     const std::string& iri() const { return _iri; }
-    const std::string& value() const { return _value; }
-    Property& setValue(const std::string& value, bool setLiteralType = true);
+    const PropertyValue& value() const { return _value; }
+    Property& setValue(const PropertyValue& value, bool setLiteralType = true);
     Property& setValue(const Resource& res);
-
-    // Converters
-    template<typename T> T as() const;
 
     // Convert to Resource
     // Only valid if Type is Resource or Blank Node
@@ -34,7 +33,7 @@ public:
 private:
     NodeType _type;
     std::string _iri;
-    std::string _value;
+    PropertyValue _value;
 
     Factory *_factory;
 
@@ -49,4 +48,4 @@ private:
 std::ostream& operator<<(std::ostream& os, const Property&);
 }
 
-#endif //AUTORDF_RESOURCE_H
+#endif //AUTORDF_PROPERTY_H

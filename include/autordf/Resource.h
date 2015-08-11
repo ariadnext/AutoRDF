@@ -1,5 +1,5 @@
-#ifndef AUTORDF_PROPERTY_H
-#define AUTORDF_PROPERTY_H
+#ifndef AUTORDF_RESOURCE_H
+#define AUTORDF_RESOURCE_H
 
 #include <memory>
 #include <list>
@@ -53,26 +53,34 @@ public:
 
     /**
      * Adds a property to the resource. Property should not be empty
+     * @returns a reference to current object
      */
-    void addProperty(const Property& p);
+    Resource& addProperty(const Property& p);
 
-    // Remove all properties matching iri in the list, then
-    // Add properties one by one
-    void setProperties(const std::list<Property>& list);
+    /** Remove all properties matching iri in the list, then
+     * Add properties one by one
+     * @returns a reference to current object
+     */
+    Resource& setProperties(const std::list<Property>& list);
 
-    // What if not present ? throw an error
-    void removeSingleProperty(const Property& p);
+    /**
+     * What if not present ? throw an error
+     * @returns a reference to current object
+     */
+    Resource& removeSingleProperty(const Property& p);
 
     /**
      * Remove all  properties matching iri
      * If iri is empty, remove *All* object properties
+     * @returns a reference to current object
      */
-    void removeProperties(const std::string &iri);
+    Resource& removeProperties(const std::string &iri);
 
     /**
      * Removes a ressource, i.e. delete all its attributes
+     * @returns a reference to current object
      */
-    void remove() { return removeProperties(""); }
+    Resource& remove() { return removeProperties(""); }
 
 private:
     NodeType _type;
@@ -97,4 +105,4 @@ std::ostream& operator<<(std::ostream& os, const Resource&);
 
 }
 
-#endif //AUTORDF_PROPERTY_H
+#endif //AUTORDF_RESOURCE_H

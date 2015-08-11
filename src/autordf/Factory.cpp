@@ -8,7 +8,7 @@
 
 namespace autordf {
 
-Resource Factory::createBlankResource(const std::string &bnodeid) {
+Resource Factory::createBlankNodeResource(const std::string &bnodeid) {
     std::string id = bnodeid;
     if ( id.empty() ) {
         std::shared_ptr<librdf_node> lrdfnode(

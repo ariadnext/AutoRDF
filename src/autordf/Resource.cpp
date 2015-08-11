@@ -14,7 +14,7 @@ void Resource::setType(NodeType t) {
     if ( t == NodeType::RESOURCE || t == NodeType::BLANK ) {
         _type = t;
     } else {
-        throw std::runtime_error(std::string("Node type ") + nodeTypeString(t) + " is not allowed for Resource");
+        throw std::runtime_error(std::string("Node type ") + nodeTypeString(t) + " is not allowed for createBlankNodeResource");
     }
 }
 
@@ -105,7 +105,7 @@ void Resource::propertyAsNode(const Property& p, Node *n) {
     }
 }
 
-void Resource::addProperty(const Property &p) {
+Resource& Resource::addProperty(const Property &p) {
     Statement addreq;
     if ( type() == NodeType::RESOURCE ) {
         addreq.subject.setIri(name());
@@ -115,9 +115,10 @@ void Resource::addProperty(const Property &p) {
     addreq.predicate.setIri(p.iri());
     propertyAsNode(p, &addreq.object);
     _factory->add(addreq);
+    return *this;
 }
 
-void Resource::removeSingleProperty(const Property &p) {
+Resource& Resource::removeSingleProperty(const Property &p) {
     Statement rmreq;
     if ( type() == NodeType::RESOURCE ) {
         rmreq.subject.setIri(name());
@@ -127,9 +128,10 @@ void Resource::removeSingleProperty(const Property &p) {
     rmreq.predicate.setIri(p.iri());
     propertyAsNode(p, &rmreq.object);
     _factory->remove(rmreq);
+    return *this;
 }
 
-void Resource::removeProperties(const std::string &iri) {
+Resource& Resource::removeProperties(const std::string &iri) {
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
@@ -146,9 +148,10 @@ void Resource::removeProperties(const std::string &iri) {
     for (const Statement& triple: foundTriples) {
         _factory->remove(triple);
     }
+    return *this;
 }
 
-void Resource::setProperties(const std::list<Property>& list) {
+Resource& Resource::setProperties(const std::list<Property>& list) {
     std::set<std::string> removedProps;
     for (const Property& p: list) {
         if ( !removedProps.count(p.iri()) ) {
@@ -158,6 +161,7 @@ void Resource::setProperties(const std::list<Property>& list) {
     for (const Property& p : list) {
         addProperty(p);
     }
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Resource& r) {

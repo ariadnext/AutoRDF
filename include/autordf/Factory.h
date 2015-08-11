@@ -15,7 +15,7 @@ public:
     /**
      * Create blank (anonymous) resource
      */
-    Resource createBlankResource(const std::string& bnodeid = "");
+    Resource createBlankNodeResource(const std::string &bnodeid = "");
 
     /**
      * Created named resource (with IRI)

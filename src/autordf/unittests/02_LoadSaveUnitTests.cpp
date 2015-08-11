@@ -40,7 +40,7 @@ TEST(_02_LoadSave, findByType) {
     Factory f;
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
-    ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
+    const ResourceList& list = f.findByType("http://xmlns.com/foaf/0.1/Person");
     for ( const Resource& res : list ) {
         std::cout << res << std::endl;
     }
@@ -67,7 +67,7 @@ TEST(_02_LoadSave, saveResource) {
     Factory f;
 
     Resource person = f.createIRIResource("http://my/own/resource");
-    Resource place = f.createBlankResource();
+    Resource place = f.createBlankNodeResource();
     Property myPlaceProp = f.createProperty("http://my/own/placeprop");
     myPlaceProp.setValue(place);
     person.addProperty(myPlaceProp);

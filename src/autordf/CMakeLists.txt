@@ -17,6 +17,7 @@ ADD_LIBRARY(
     ResourceList.cpp
     Property.cpp
     Factory.cpp
+    Object.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf

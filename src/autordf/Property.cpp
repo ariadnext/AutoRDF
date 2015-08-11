@@ -15,7 +15,7 @@ Resource Property::asResource() const {
     if ( _type == NodeType::RESOURCE ) {
         return _factory->createIRIResource(_value);
     } else if ( _type == NodeType::BLANK ) {
-        return _factory->createBlankResource(_value);
+        return _factory->createBlankNodeResource(_value);
     } else {
         throw std::runtime_error("Unable to convert Property " + _iri + " as resource");
     }
@@ -27,7 +27,7 @@ Property& Property::setValue(const Resource &res) {
     return *this;
 }
 
-Property& Property::setValue(const std::string &val, bool setLiteralType) {
+Property& Property::setValue(const PropertyValue& val, bool setLiteralType) {
     if ( setLiteralType ) {
         setType(NodeType::LITERAL);
     }
