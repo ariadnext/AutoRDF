@@ -15,6 +15,11 @@ class Factory;
 
 /**
  * Common Ancestor to all generated classes
+ * When copied, Objects are implicitly shared, with backend storage
+ * provided by librdf.
+ * New objects can be created in two ways:
+ *  - Using Object(const std::string& iri) constructor
+ *  - Using the clone() method
  */
 class Object {
 public:
