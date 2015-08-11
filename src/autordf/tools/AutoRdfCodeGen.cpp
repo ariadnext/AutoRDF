@@ -250,18 +250,49 @@ void generateDataProperty(std::ofstream& ofs, const DataProperty& property) {
     indent(ofs, 1) << "}" << std::endl;
 }
 
+std::string findCppClassNameForProperty(const ObjectProperty& property) {
+    std::string cppClassName;
+    auto kit = klass::uri2Ptr.find(property.range);
+    if ( kit != klass::uri2Ptr.end() ) {
+        cppClassName = kit->second->genCppName();
+    }
+    return cppClassName;
+}
+
 void generateObjectProperty(std::ofstream& ofs, const ObjectProperty& property) {
+    // First try to test if its range refers to a known class
+    std::string cppClassName = findCppClassNameForProperty(property);
+
     ofs << std::endl;
     writeRDFSEntityComment(ofs, property, 1);
-    indent(ofs, 1) << "autordf::Object " << property.genCppName() << "() const {" << std::endl;
-    indent(ofs, 2) <<     "return getObject(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-    indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "Optional() const {" << std::endl;
-    indent(ofs, 2) <<     "return getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-    indent(ofs, 1) << "std::list<autordf::Object> " << property.genCppName() << "List() const {" << std::endl;
-    indent(ofs, 2) <<     "return getObjectList(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
+    if ( cppClassName.empty() ) {
+        indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "() const {" << std::endl;
+        indent(ofs, 2) <<     "return std::make_shared<autordf::Object>(getObject(\"" << property.rdfname << "\"));" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << "std::shared_ptr<" << cppClassName << "> " << property.genCppName() << "() const {" << std::endl;
+        indent(ofs, 2) <<     "return std::make_shared<" << cppClassName << ">(getObject(\"" << property.rdfname << "\"));" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+    if ( cppClassName.empty() ) {
+        indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 2) <<     "return getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << "std::shared_ptr<" << cppClassName << "> " << property.genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 2) <<     "auto result = getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
+        indent(ofs, 2) <<     "return result ? std::make_shared<" << cppClassName << ">(*result) : nullptr;" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+    if ( cppClassName.empty() ) {
+        indent(ofs, 1) << "std::list<std::shared_ptr<autordf::Object> > " << property.genCppName() << "List() const {" << std::endl;
+        indent(ofs, 2) <<     "return getObjectList(\"" << property.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << "std::list<std::shared_ptr<" << cppClassName << "> > " << property.genCppName() << "List() const {" << std::endl;
+        indent(ofs, 2) <<     "return getObjectListImpl<typename std::shared_ptr<" << cppClassName << "> >(\"" << property.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
 }
 
 void generateCode(const klass& kls, const std::string& cppNameSpace) {
@@ -278,6 +309,18 @@ void generateCode(const klass& kls, const std::string& cppNameSpace) {
     ofs << std::endl;
 
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    ofs << std::endl;
+    //get forward declarations includes
+    std::set<std::string> cppImports;
+    for ( const std::shared_ptr<ObjectProperty> p : kls.objectProperties) {
+        const std::string& val = findCppClassNameForProperty(*p);
+        if ( !val.empty() && (val != cppName) ) {
+            cppImports.insert(val);
+        }
+    }
+    for ( const std::string& cppClassName : cppImports ) {
+        ofs << "class " << cppClassName << ";" << std::endl;
+    }
     ofs << std::endl;
 
     writeRDFSEntityComment(ofs, kls, 0);

@@ -1,5 +1,4 @@
 #include <autordf/Object.h>
-#include <stdexcept>
 #include <set>
 
 #include "autordf/Factory.h"
@@ -43,16 +42,8 @@ std::shared_ptr<Object> Object::getOptionalObject(const std::string &propertyIRI
     }
 }
 
-std::list<Object> Object::getObjectList(const std::string &propertyIRI) const {
-    if ( propertyIRI.empty() ) {
-        throw std::runtime_error("Calling Object::getObjectList() with empty IRI is forbidden");
-    }
-    std::list<Object> objList;
-    const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
-    for (const Property& prop: propList) {
-        objList.push_back(Object(prop.asResource()));
-    }
-    return objList;
+std::list<std::shared_ptr<Object> > Object::getObjectList(const std::string &propertyIRI) const {
+    return getObjectListImpl<std::shared_ptr<Object> >(propertyIRI);
 }
 
 void Object::setObject(const std::string &propertyIRI, const Object &obj) {

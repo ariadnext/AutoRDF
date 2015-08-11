@@ -4,6 +4,7 @@
 #include <memory>
 #include <list>
 #include <ostream>
+#include <stdexcept>
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
@@ -63,7 +64,7 @@ public:
     /**
      * Returns the list of object
      */
-    std::list<Object> getObjectList(const std::string& propertyIRI) const;
+    std::list<std::shared_ptr<Object> > getObjectList(const std::string& propertyIRI) const;
 
     /**
      * Sets object to given property
@@ -89,12 +90,12 @@ public:
     /**
      * Provides ultra-fast trans-typing to another Object descendant
      */
-    template<typename T> T as() {
-        return T(*this);
+    template<typename T> std::shared_ptr<T> as() {
+        return  std::shared_ptr<T>(new T(*this));
     }
 
-    template<typename T> const T as() const {
-        return T(*this);
+    template<typename T> const std::shared_ptr<T> as() const {
+        return  std::shared_ptr<T>(new T(*this));
     }
 
     /**
@@ -132,6 +133,21 @@ protected:
         std::list<T> objList;
         for(const Resource& r : rl) {
             objList.push_back(T(r));
+        }
+        return objList;
+    }
+
+    /**
+     * Offered to descendants
+     */
+    template<typename T> std::list<T> getObjectListImpl(const std::string &propertyIRI) const {
+        if ( propertyIRI.empty() ) {
+            throw std::runtime_error("Calling getObjectListImpl() with empty IRI is forbidden");
+        }
+        std::list<T> objList;
+        const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        for (const Property& prop: propList) {
+            objList.push_back(T(new typename T::element_type(prop.asResource())));
         }
         return objList;
     }
