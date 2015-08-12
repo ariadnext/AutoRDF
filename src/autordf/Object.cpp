@@ -42,8 +42,8 @@ std::shared_ptr<Object> Object::getOptionalObject(const std::string &propertyIRI
     }
 }
 
-std::list<std::shared_ptr<Object> > Object::getObjectList(const std::string &propertyIRI) const {
-    return getObjectListImpl<std::shared_ptr<Object> >(propertyIRI);
+std::list<Object> Object::getObjectList(const std::string &propertyIRI) const {
+    return getObjectListImpl<Object>(propertyIRI);
 }
 
 void Object::setObject(const std::string &propertyIRI, const Object &obj) {

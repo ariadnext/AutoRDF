@@ -26,7 +26,7 @@ class ObjectProperty;
 class DataProperty;
 class klass;
 
-void generateCode(const klass& kls, const std::string& cppNameSpace);
+void generateHeaderCode(const klass& kls, const std::string& cppNameSpace);
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 
@@ -170,7 +170,7 @@ void run() {
         }
     }
     for ( auto const& klassMapItem: klass::uri2Ptr) {
-        generateCode(*klassMapItem.second, cppNameSpace);
+        generateHeaderCode(*klassMapItem.second, cppNameSpace);
     }
 
     //Generate all inclusions file
@@ -236,7 +236,7 @@ void writeRDFSEntityComment(std::ofstream& ofs, const RDFSEntity& e, unsigned in
     }
 }
 
-void generateDataProperty(std::ofstream& ofs, const DataProperty& property) {
+void generateDataPropertyDeclaration(std::ofstream& ofs, const DataProperty& property) {
     ofs << std::endl;
     writeRDFSEntityComment(ofs, property, 1);
     indent(ofs, 1) << "autordf::PropertyValue " << property.genCppName() << "() const {" << std::endl;
@@ -259,20 +259,18 @@ std::string findCppClassNameForProperty(const ObjectProperty& property) {
     return cppClassName;
 }
 
-void generateObjectProperty(std::ofstream& ofs, const ObjectProperty& property) {
+void generateObjectPropertyDeclaration(std::ofstream& ofs, const ObjectProperty& property) {
     // First try to test if its range refers to a known class
     std::string cppClassName = findCppClassNameForProperty(property);
 
     ofs << std::endl;
     writeRDFSEntityComment(ofs, property, 1);
     if ( cppClassName.empty() ) {
-        indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) <<     "return std::make_shared<autordf::Object>(getObject(\"" << property.rdfname << "\"));" << std::endl;
+        indent(ofs, 1) << "autordf::Object " << property.genCppName() << "() const {" << std::endl;
+        indent(ofs, 2) <<     "return getObject(\"" << property.rdfname << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "std::shared_ptr<" << cppClassName << "> " << property.genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) <<     "return std::make_shared<" << cppClassName << ">(getObject(\"" << property.rdfname << "\"));" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << cppClassName << " " << property.genCppName() << "() const;" << std::endl;
     }
     if ( cppClassName.empty() ) {
         indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "Optional() const {" << std::endl;
@@ -285,17 +283,15 @@ void generateObjectProperty(std::ofstream& ofs, const ObjectProperty& property) 
         indent(ofs, 1) << "}" << std::endl;
     }
     if ( cppClassName.empty() ) {
-        indent(ofs, 1) << "std::list<std::shared_ptr<autordf::Object> > " << property.genCppName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "std::list<autordf::Object> " << property.genCppName() << "List() const {" << std::endl;
         indent(ofs, 2) <<     "return getObjectList(\"" << property.rdfname << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "std::list<std::shared_ptr<" << cppClassName << "> > " << property.genCppName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return getObjectListImpl<typename std::shared_ptr<" << cppClassName << "> >(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::list<" << cppClassName << "> " << property.genCppName() << "List() const;" << std::endl;
     }
 }
 
-void generateCode(const klass& kls, const std::string& cppNameSpace) {
+void generateHeaderCode(const klass& kls, const std::string& cppNameSpace) {
     std::string cppName = kls.genCppName();
     std::string fileName = cppNameSpace + "/" + cppName + ".h";
     std::ofstream ofs(fileName);
@@ -344,11 +340,11 @@ void generateCode(const klass& kls, const std::string& cppNameSpace) {
     indent(ofs, 1) << "}" << std::endl;
 
     for ( const std::shared_ptr<DataProperty>& prop : kls.dataProperties) {
-        generateDataProperty(ofs, *prop);
+        generateDataPropertyDeclaration(ofs, *prop);
     }
 
     for ( const std::shared_ptr<ObjectProperty>& prop : kls.objectProperties) {
-        generateObjectProperty(ofs, *prop);
+        generateObjectPropertyDeclaration(ofs, *prop);
     }
 
     ofs << std::endl;

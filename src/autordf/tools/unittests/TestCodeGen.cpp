@@ -13,7 +13,7 @@ int main() {
 
     // We can do that
     std::list<autordf::Object> list = autordf::Object::findByType("http://xmlns.com/foaf/0.1/Person");
-    std::shared_ptr<foaf::Person> p1 = list.front().as<foaf::Person>();
+    foaf::Person p1 = list.front().as<foaf::Person>();
 
     // Or directly
     std::list<foaf::Person> list2 = foaf::Person::find();
@@ -22,7 +22,7 @@ int main() {
     // FIXME: why is givenName Lost ?
     std::cout << "name = " << p2.name() << std::endl;
     std::cout << "  knows : ";
-    for ( const auto& o : p2.knowsList() ) {
-        std::cout << o->as<foaf::Person>()->name() << ", ";
+    for ( const foaf::Person& o : p2.knowsList() ) {
+        std::cout << o.name() << ", ";
     }
 }
