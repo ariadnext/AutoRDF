@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <map>
 
 #include <autordf/StatementList.h>
 
@@ -41,12 +42,31 @@ public:
     // throws an exception on error;
     void remove(const Statement& stmt);
 
+    /**
+     * Maps a XML namespace to its prefix
+     */
+    const std::string& nsToPrefix(const std::string& ns) const;
+
+    /**
+     * Maps a XML prefix to its namespace
+     */
+    const std::string& prefixToNs(const std::string& prefix) const;
+
+    /**
+     * Returns the list of namespaces known in this model in a map prefix --< IRI
+     */
+    const std::map<std::string, std::string>& namespacesPrefixes() const { return _namespacesPrefixes; }
+
+    void addNamespacePrefix(const std::string& prefix, const std::string& ns);
+
 protected:
     std::shared_ptr<World> _world;
 
 private:
     std::shared_ptr<ModelPrivate> _model;
     std::string _baseUri;
+    // Prefixes seen during parsing prefix --> IRI
+    std::map<std::string, std::string> _namespacesPrefixes;
 
     friend class StatementList;
 };

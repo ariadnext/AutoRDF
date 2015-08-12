@@ -16,6 +16,17 @@ TEST(_01_Model, Iterators) {
     ASSERT_EQ(4, std::distance(allStatementsConst.begin(), allStatementsConst.end()));
 }
 
+TEST(_01_Model, SeenPrefixes) {
+    Model ts;
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    for ( auto const& pair : ts.namespacesPrefixes() ) {
+        std::cout << pair.first << ": " << pair.second << std::endl;
+    }
+    ASSERT_EQ("http://xmlns.com/foaf/0.1/", ts.prefixToNs("foaf") );
+    ASSERT_EQ("foaf", ts.nsToPrefix("http://xmlns.com/foaf/0.1/") );
+    ASSERT_EQ(3, ts.namespacesPrefixes().size());
+}
+
 TEST(_01_Model, SearchByPredicate) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");

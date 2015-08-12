@@ -19,8 +19,8 @@ namespace tools {
 //FIXME: make that a parameter
 std::string nameSpace = "http://xmlns.com/foaf/0.1/";
 
-static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema";
-static const std::string OWL  = "http://www.w3.org/2002/07/owl";
+static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
+static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
 
 class ObjectProperty;
 class DataProperty;
@@ -35,6 +35,7 @@ class RDFSEntity {
 public:
     // Object iri
     std::string rdfname;
+    // Object prefix
     std::string comment;
     std::string label;
 
@@ -76,22 +77,22 @@ std::map<std::string, std::shared_ptr<ObjectProperty> > ObjectProperty::uri2Ptr;
 
 void extractRDFS(const Object& o, RDFSEntity *rdfs) {
     rdfs->rdfname = o.iri();
-    std::shared_ptr<PropertyValue> comment = o.getOptionalPropertyValue(RDFS + "#comment");
+    std::shared_ptr<PropertyValue> comment = o.getOptionalPropertyValue(RDFS + "comment");
     if (comment) {
         rdfs->comment = *comment;
     }
-    std::shared_ptr<PropertyValue> label = o.getOptionalPropertyValue(RDFS + "#label");
+    std::shared_ptr<PropertyValue> label = o.getOptionalPropertyValue(RDFS + "label");
     if (label) {
         rdfs->label = *label;
     }
 }
 
 void extractProperty(const Object& o, Property *prop) {
-    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "#domain");
+    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "domain");
     for ( const PropertyValue& value: domainList ) {
         prop->domains.push_back(value);
     }
-    std::list<PropertyValue> rangeList = o.getPropertyValueList(RDFS + "#range");
+    std::list<PropertyValue> rangeList = o.getPropertyValueList(RDFS + "range");
     if ( rangeList.size() == 1 ) {
         prop->range = rangeList.front();
     } else if ( rangeList.size() > 1 ) {
@@ -103,7 +104,7 @@ void extractProperty(const Object& o, Property *prop) {
 
 void run() {
     // Gather classes
-    const std::list<Object>& rdfsClasses = Object::findByType(RDFS + "#Class");
+    const std::list<Object>& rdfsClasses = Object::findByType(RDFS + "Class");
     for ( auto const& rdfsClass : rdfsClasses) {
         auto k = std::make_shared<klass>();
         extractRDFS(rdfsClass, k.get());
@@ -111,7 +112,7 @@ void run() {
     }
 
     // Gather data Properties
-    const std::list<Object>& owlDataProperties = Object::findByType(OWL + "#DatatypeProperty");
+    const std::list<Object>& owlDataProperties = Object::findByType(OWL + "DatatypeProperty");
     for ( auto const& owlDataProperty : owlDataProperties) {
         auto p = std::make_shared<DataProperty>();
         extractRDFS(owlDataProperty, p.get());
@@ -120,7 +121,7 @@ void run() {
     }
 
     // Gather object Properties
-    const std::list<Object>& owlObjectProperties = Object::findByType(OWL + "#ObjectProperty");
+    const std::list<Object>& owlObjectProperties = Object::findByType(OWL + "ObjectProperty");
     for ( auto const& owlObjectProperty : owlObjectProperties) {
         auto p = std::make_shared<ObjectProperty>();
         extractRDFS(owlObjectProperty, p.get());
@@ -129,7 +130,7 @@ void run() {
     }
 
     // Make links between properties and classes
-    std::set<std::string> wildCardProperties({OWL + "#Thing"});
+    std::set<std::string> wildCardProperties({OWL + "Thing"});
     for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
         for(const std::string& currentDomain : dataProperty.domains) {

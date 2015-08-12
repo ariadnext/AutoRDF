@@ -35,6 +35,14 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
         if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, Uri(baseUri).get(), _model->get()) ) {
             throw std::runtime_error("Failed to read model from file");
         }
+        int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
+        for ( unsigned int i = 0; i < prefixCount; ++i ) {
+            const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
+            librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
+            if ( prefix && uri ) {
+                _namespacesPrefixes[prefix] = reinterpret_cast<char*>(librdf_uri_as_string(uri));
+            }
+        }
     }
     catch(...) {
         ::fclose(f);
@@ -81,5 +89,22 @@ void Model::remove(const Statement &stmt) {
         ss << "Unable to remove '" << stmt << "' statement";
         throw std::runtime_error(ss.str());
     }
+}
+
+const std::string& Model::nsToPrefix(const std::string& ns) const {
+    for ( auto const& p : _namespacesPrefixes) {
+        if ( p.second == ns ) {
+            return p.first;
+        }
+    }
+    throw std::out_of_range("Namespace " + ns + " not found in Model namespace map");
+}
+
+const std::string& Model::prefixToNs(const std::string& prefix) const {
+    return _namespacesPrefixes.at(prefix);
+}
+
+void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns) {
+    _namespacesPrefixes[prefix] = ns;
 }
 }
