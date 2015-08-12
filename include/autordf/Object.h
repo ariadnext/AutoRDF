@@ -89,6 +89,7 @@ public:
 
     /**
      * Provides ultra-fast trans-typing to another Object descendant
+     * This is syntaxic sugar to say myobj.as<T>() instead of T(myobj)
      */
     template<typename T> T as() {
         return T(*this);

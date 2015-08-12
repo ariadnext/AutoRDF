@@ -27,6 +27,7 @@ class DataProperty;
 class klass;
 
 void generateHeaderCode(const klass& kls, const std::string& cppNameSpace);
+void generateCppCode(const klass& kls, const std::string& cppNameSpace);
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 
@@ -171,6 +172,7 @@ void run() {
     }
     for ( auto const& klassMapItem: klass::uri2Ptr) {
         generateHeaderCode(*klassMapItem.second, cppNameSpace);
+        generateCppCode(*klassMapItem.second, cppNameSpace);
     }
 
     //Generate all inclusions file
@@ -190,6 +192,10 @@ void run() {
     generateCodeProptectorEnd(ofs, cppNameSpace, cppNameSpace);
 }
 
+void addBoilerPlate(std::ofstream& ofs) {
+    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
+}
+
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
     std::string upperCppNameSpace = cppNameSpace;
     std::transform(upperCppNameSpace.begin(), upperCppNameSpace.end(), upperCppNameSpace.begin(), ::toupper);
@@ -201,7 +207,7 @@ void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameS
     ofs << "#ifndef " << protector << std::endl;
     ofs << "#define " << protector << std::endl;
     ofs << std::endl;
-    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
+    addBoilerPlate(ofs);
     ofs << std::endl;
 }
 
@@ -277,10 +283,7 @@ void generateObjectPropertyDeclaration(std::ofstream& ofs, const ObjectProperty&
         indent(ofs, 2) <<     "return getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "std::shared_ptr<" << cppClassName << "> " << property.genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 2) <<     "auto result = getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 2) <<     "return result ? std::make_shared<" << cppClassName << ">(*result) : nullptr;" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<" << cppClassName << "> " << property.genCppName() << "Optional() const;" << std::endl;
     }
     if ( cppClassName.empty() ) {
         indent(ofs, 1) << "std::list<autordf::Object> " << property.genCppName() << "List() const {" << std::endl;
@@ -289,6 +292,39 @@ void generateObjectPropertyDeclaration(std::ofstream& ofs, const ObjectProperty&
     } else {
         indent(ofs, 1) << "std::list<" << cppClassName << "> " << property.genCppName() << "List() const;" << std::endl;
     }
+}
+
+void generateObjectPropertyInstantiation(std::ofstream& ofs, const std::string& currentClassName, const ObjectProperty& property) {
+    // First try to test if its range refers to a known class
+    std::string cppClassName = findCppClassNameForProperty(property);
+    if ( !cppClassName.empty() ) {
+        ofs << cppClassName << " " << currentClassName << "::" << property.genCppName() << "() const {" << std::endl;
+        indent(ofs, 1) << "return getObject(\"" << property.rdfname << "\").as<" << cppClassName << ">();" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+
+        ofs << "std::shared_ptr<" << cppClassName << "> " << currentClassName << "::" << property.genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 1) << "auto result = getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "return result ? std::make_shared<" << cppClassName << ">(*result) : nullptr;" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+
+        ofs << "std::list<" << cppClassName << "> " << currentClassName << "::" << property.genCppName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "return getObjectListImpl<" << cppClassName << ">(\"" <<  property.rdfname << "\");" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+    }
+}
+
+std::set<std::string> getClassImports(const klass& kls) {
+    std::set<std::string> cppImports;
+    for ( const std::shared_ptr<ObjectProperty> p : kls.objectProperties) {
+        const std::string& val = findCppClassNameForProperty(*p);
+        if ( !val.empty() && (val != kls.genCppName()) ) {
+            cppImports.insert(val);
+        }
+    }
+    return cppImports;
 }
 
 void generateHeaderCode(const klass& kls, const std::string& cppNameSpace) {
@@ -307,13 +343,7 @@ void generateHeaderCode(const klass& kls, const std::string& cppNameSpace) {
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
     ofs << std::endl;
     //get forward declarations includes
-    std::set<std::string> cppImports;
-    for ( const std::shared_ptr<ObjectProperty> p : kls.objectProperties) {
-        const std::string& val = findCppClassNameForProperty(*p);
-        if ( !val.empty() && (val != cppName) ) {
-            cppImports.insert(val);
-        }
-    }
+    std::set<std::string> cppImports = getClassImports(kls);
     for ( const std::string& cppClassName : cppImports ) {
         ofs << "class " << cppClassName << ";" << std::endl;
     }
@@ -354,6 +384,35 @@ void generateHeaderCode(const klass& kls, const std::string& cppNameSpace) {
     ofs << "}" << std::endl;
 
     generateCodeProptectorEnd(ofs, cppNameSpace, cppName);
+}
+
+void generateCppCode(const klass& kls, const std::string& cppNameSpace) {
+    std::string cppName = kls.genCppName();
+    std::string fileName = cppNameSpace + "/" + cppName + ".cpp";
+    std::ofstream ofs(fileName);
+    if (!ofs.is_open()) {
+        throw std::runtime_error("Unable to open " + cppNameSpace + " file");
+    }
+
+    ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
+    ofs << std::endl;
+    addBoilerPlate(ofs);
+    ofs << std::endl;
+
+    // Generate class imports
+    std::set<std::string> cppImports = getClassImports(kls);
+    for ( const std::string& cppClassName : cppImports ) {
+        ofs << "#include <" << cppNameSpace << "/" << cppClassName << ".h>" << std::endl;
+    }
+    ofs << std::endl;
+
+    ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    ofs << std::endl;
+
+    for ( const std::shared_ptr<ObjectProperty>& prop : kls.objectProperties) {
+        generateObjectPropertyInstantiation(ofs, kls.genCppName(), *prop);
+    }
+    ofs << "}" << std::endl;
 }
 
 }
