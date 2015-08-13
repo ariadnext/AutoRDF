@@ -16,9 +16,6 @@
 namespace autordf {
 namespace tools {
 
-//FIXME: make that a parameter
-std::string nameSpace = "http://xmlns.com/foaf/0.1/";
-
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
 
@@ -475,8 +472,11 @@ int main(int argc, char **argv) {
     f.addNamespacePrefix("owl", autordf::tools::OWL);
     f.addNamespacePrefix("rdfs", autordf::tools::RDFS);
 
+    //FIXME: Read thath from command line
+    std::string baseURI = "http://";
+
     autordf::Object::setFactory(&f);
-    f.loadFromFile(argv[1], autordf::tools::nameSpace);
+    f.loadFromFile(argv[1], baseURI);
     autordf::tools::run();
     return 0;
 }
