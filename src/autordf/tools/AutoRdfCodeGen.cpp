@@ -26,8 +26,14 @@ class ObjectProperty;
 class DataProperty;
 class klass;
 
-void generateHeaderCode(const klass& kls, const std::string& cppNameSpace);
-void generateCppCode(const klass& kls, const std::string& cppNameSpace);
+std::ostream& indent(std::ostream& os, int numIndent) {
+    for (unsigned int i = 0; i < numIndent * 4; ++i) {
+        os << ' ';
+    }
+    return os;
+}
+
+void addBoilerPlate(std::ofstream& ofs);
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 
@@ -64,6 +70,19 @@ public:
         return genCppNameSpace() + "::" + genCppName();
     }
 
+    void generateComment(std::ofstream& ofs, unsigned int numIndent) const {
+        if ( !label.empty() || !comment.empty() ) {
+            indent(ofs, numIndent) << "/**" << std::endl;
+            if ( !label.empty() ) {
+                indent(ofs, numIndent) << " * " << label << std::endl;
+            }
+            if ( !comment.empty() ) {
+                indent(ofs, numIndent) << " * " << comment << std::endl;
+            }
+            indent(ofs, numIndent) << " */" << std::endl;
+        }
+    }
+
     static void setModel(Model *m) {
         _m = m;
     }
@@ -78,6 +97,12 @@ class klass : public RDFSEntity {
 public:
     std::list<std::shared_ptr<DataProperty> > dataProperties;
     std::list<std::shared_ptr<ObjectProperty> > objectProperties;
+
+    std::set<std::shared_ptr<klass> > getClassDependencies() const;
+
+    void generateDeclaration() const;
+
+    void generateDefinition() const;
 
     // iri to klass map
     static std::map<std::string, std::shared_ptr<klass> > uri2Ptr;
@@ -94,13 +119,27 @@ class DataProperty : public Property {
 public:
     // iri to Property map
     static std::map<std::string, std::shared_ptr<DataProperty> > uri2Ptr;
+
+    void generateDeclaration(std::ofstream& ofs) const {
+        ofs << std::endl;
+        generateComment(ofs, 1);
+        indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
+        indent(ofs, 2) <<     "return getPropertyValue(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 2) <<     "return getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
+        indent(ofs, 2) <<     "return getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
 };
 std::map<std::string, std::shared_ptr<DataProperty> > DataProperty::uri2Ptr;
 
 class ObjectProperty : public Property {
 public:
 
-    // Retunrs class for this property, or nullptr if no class is registered
+    // Returns class for this property, or nullptr if no class is registered
     std::shared_ptr<klass> findClass() const {
         auto kit = klass::uri2Ptr.find(range);
         if ( kit != klass::uri2Ptr.end() ) {
@@ -109,10 +148,164 @@ public:
         return nullptr;
     }
 
+    void generateDeclaration(std::ofstream& ofs) const {
+        auto propertyClass = findClass();
+
+        ofs << std::endl;
+        generateComment(ofs, 1);
+        if ( !propertyClass ) {
+            indent(ofs, 1) << "autordf::Object " << genCppName() << "() const {" << std::endl;
+            indent(ofs, 2) <<     "return getObject(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
+        }
+        if ( !propertyClass ) {
+            indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << genCppName() << "Optional() const {" << std::endl;
+            indent(ofs, 2) <<     "return getOptionalObject(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
+        }
+        if ( !propertyClass ) {
+            indent(ofs, 1) << "std::list<autordf::Object> " << genCppName() << "List() const {" << std::endl;
+            indent(ofs, 2) <<     "return getObjectList(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << "std::list<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "List() const;" << std::endl;
+        }
+    }
+
+    void generateDefinition(std::ofstream& ofs, const std::string& currentClassName) {
+        auto propertyClass = findClass();
+        if ( propertyClass ) {
+            ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
+            indent(ofs, 1) << "return getObject(\"" << rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
+            ofs << "}" << std::endl;
+            ofs << std::endl;
+
+            ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
+            indent(ofs, 1) << "auto result = getOptionalObject(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
+            ofs << "}" << std::endl;
+            ofs << std::endl;
+
+            ofs << "std::list<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "List() const {" << std::endl;
+            indent(ofs, 1) << "return getObjectListImpl<" << propertyClass->genCppNameWithNamespace() << ">(\"" <<  rdfname << "\");" << std::endl;
+            ofs << "}" << std::endl;
+            ofs << std::endl;
+        }
+    }
+
     // iri to Property map
     static std::map<std::string, std::shared_ptr<ObjectProperty> > uri2Ptr;
 };
 std::map<std::string, std::shared_ptr<ObjectProperty> > ObjectProperty::uri2Ptr;
+
+std::set<std::shared_ptr<klass> > klass::getClassDependencies() const {
+    std::set<std::shared_ptr<klass> > deps;
+    for ( const std::shared_ptr<ObjectProperty> p : objectProperties) {
+        auto val = p->findClass();
+        if ( val && (val->genCppName() != genCppName()) ) {
+            deps.insert(val);
+        }
+    }
+    return deps;
+}
+
+void klass::generateDeclaration() const {
+    std::string cppName = genCppName();
+    std::string fileName = genCppNameSpace() + "/" + cppName + ".h";
+    std::ofstream ofs(fileName);
+    if (!ofs.is_open()) {
+        throw std::runtime_error("Unable to open " + genCppNameSpace() + " file");
+    }
+
+    generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
+
+    ofs << "#include <autordf/Object.h>" << std::endl;
+    ofs << std::endl;
+
+    //get forward declarations
+    std::set<std::shared_ptr<klass> >  cppClassDeps = getClassDependencies();
+    for ( const std::shared_ptr<klass>& cppClassDep : cppClassDeps ) {
+        ofs << "namespace " << cppClassDep->genCppNameSpace() << " { class " << cppClassDep->genCppName() << "; }" << std::endl;
+    }
+    ofs << std::endl;
+
+    ofs << "namespace " << genCppNameSpace() << " {" << std::endl;
+    ofs << std::endl;
+
+    generateComment(ofs, 0);
+    ofs << "class " << cppName << ": public autordf::Object {" << std::endl;
+    indent(ofs, 1) << "#define AUTORDF_RDFTYPEIRI \"" << rdfname << "\"" << std::endl;
+    ofs << "public:" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
+    indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Build us using the same underlying resource as the other object" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << cppName << "(const Object& other) : autordf::Object(other) {}" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "static std::list<" << cppName << "> find() {" << std::endl;
+    indent(ofs, 2) << "return findHelper<" << cppName << ">(AUTORDF_RDFTYPEIRI);" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+
+    for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
+        prop->generateDeclaration(ofs);
+    }
+
+    for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
+        prop->generateDeclaration(ofs);
+    }
+
+    ofs << std::endl;
+    indent(ofs, 1) << "#undef AUTORDF_RDFTYPEIRI" << std::endl;
+    ofs << "};" << std::endl;
+    ofs << std::endl;
+    ofs << "}" << std::endl;
+
+    generateCodeProptectorEnd(ofs, genCppNameSpace(), cppName);
+}
+
+void klass::generateDefinition() const {
+    std::string cppName = genCppName();
+    std::string cppNameSpace = genCppNameSpace();
+    std::string fileName = cppNameSpace + "/" + cppName + ".cpp";
+    std::ofstream ofs(fileName);
+    if (!ofs.is_open()) {
+        throw std::runtime_error("Unable to open " + cppNameSpace + " file");
+    }
+
+    ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
+    ofs << std::endl;
+    addBoilerPlate(ofs);
+    ofs << std::endl;
+
+    // Generate class imports
+    std::set<std::shared_ptr<klass> > cppDeps = getClassDependencies();
+    for ( const std::shared_ptr<klass>& cppDep : cppDeps ) {
+        ofs << "#include <" << cppDep->genCppNameSpace() << "/" << cppDep->genCppName() << ".h>" << std::endl;
+    }
+    ofs << std::endl;
+
+    ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    ofs << std::endl;
+
+    for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
+        prop->generateDefinition(ofs, cppName);
+    }
+    ofs << "}" << std::endl;
+}
+
+void addBoilerPlate(std::ofstream& ofs) {
+    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
+}
 
 void extractRDFS(const Object& o, RDFSEntity *rdfs) {
     rdfs->rdfname = o.iri();
@@ -221,8 +414,8 @@ void run() {
             }
         }
 
-        generateHeaderCode(*klassMapItem.second, cppNameSpace);
-        generateCppCode(*klassMapItem.second, cppNameSpace);
+        klassMapItem.second->generateDeclaration();
+        klassMapItem.second->generateDefinition();
     }
 
     //Generate all inclusions file
@@ -243,10 +436,6 @@ void run() {
         ofs << std::endl;
         generateCodeProptectorEnd(ofs, cppNameSpace, cppNameSpace);
     }
-}
-
-void addBoilerPlate(std::ofstream& ofs) {
-    ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
 }
 
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
@@ -273,189 +462,6 @@ void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpa
     std::string protector = upperCppNameSpace + "_" + upperClassName;
 
     ofs << "#endif // " <<  protector << std::endl;
-}
-
-std::ostream& indent(std::ostream& os, int numIndent) {
-    for (unsigned int i = 0; i < numIndent * 4; ++i) {
-        os << ' ';
-    }
-    return os;
-}
-
-void writeRDFSEntityComment(std::ofstream& ofs, const RDFSEntity& e, unsigned int numIndent) {
-    if ( !e.label.empty() || !e.comment.empty() ) {
-        indent(ofs, numIndent) << "/**" << std::endl;
-        if ( !e.label.empty() ) {
-            indent(ofs, numIndent) << " * " << e.label << std::endl;
-        }
-        if ( !e.comment.empty() ) {
-            indent(ofs, numIndent) << " * " << e.comment << std::endl;
-        }
-        indent(ofs, numIndent) << " */" << std::endl;
-    }
-}
-
-void generateDataPropertyDeclaration(std::ofstream& ofs, const DataProperty& property) {
-    ofs << std::endl;
-    writeRDFSEntityComment(ofs, property, 1);
-    indent(ofs, 1) << "autordf::PropertyValue " << property.genCppName() << "() const {" << std::endl;
-    indent(ofs, 2) <<     "return getPropertyValue(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-    indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << property.genCppName() << "Optional() const {" << std::endl;
-    indent(ofs, 2) <<     "return getOptionalPropertyValue(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-    indent(ofs, 1) << "std::list<autordf::PropertyValue> " << property.genCppName() << "List() const {" << std::endl;
-    indent(ofs, 2) <<     "return getPropertyValueList(\"" << property.rdfname << "\");" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-}
-
-void generateObjectPropertyDeclaration(std::ofstream& ofs, const ObjectProperty& property) {
-    auto propertyClass = property.findClass();
-
-    ofs << std::endl;
-    writeRDFSEntityComment(ofs, property, 1);
-    if ( !propertyClass ) {
-        indent(ofs, 1) << "autordf::Object " << property.genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) <<     "return getObject(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-    } else {
-        indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << property.genCppName() << "() const;" << std::endl;
-    }
-    if ( !propertyClass ) {
-        indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << property.genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 2) <<     "return getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-    } else {
-        indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << property.genCppName() << "Optional() const;" << std::endl;
-    }
-    if ( !propertyClass ) {
-        indent(ofs, 1) << "std::list<autordf::Object> " << property.genCppName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return getObjectList(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-    } else {
-        indent(ofs, 1) << "std::list<" << propertyClass->genCppNameWithNamespace()  << "> " << property.genCppName() << "List() const;" << std::endl;
-    }
-}
-
-void generateObjectPropertyInstantiation(std::ofstream& ofs, const std::string& currentClassName, const ObjectProperty& property) {
-    auto propertyClass = property.findClass();
-    if ( propertyClass ) {
-        ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << property.genCppName() << "() const {" << std::endl;
-        indent(ofs, 1) << "return getObject(\"" << property.rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
-        ofs << "}" << std::endl;
-        ofs << std::endl;
-
-        ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << property.genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 1) << "auto result = getOptionalObject(\"" << property.rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
-        ofs << "}" << std::endl;
-        ofs << std::endl;
-
-        ofs << "std::list<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << property.genCppName() << "List() const {" << std::endl;
-        indent(ofs, 1) << "return getObjectListImpl<" << propertyClass->genCppNameWithNamespace() << ">(\"" <<  property.rdfname << "\");" << std::endl;
-        ofs << "}" << std::endl;
-        ofs << std::endl;
-    }
-}
-
-std::set<std::shared_ptr<klass> > getClassClassDependencies(const klass& kls) {
-    std::set<std::shared_ptr<klass> > cppImports;
-    for ( const std::shared_ptr<ObjectProperty> p : kls.objectProperties) {
-        auto val = p->findClass();
-        if ( val && (val->genCppName() != kls.genCppName()) ) {
-            cppImports.insert(val);
-        }
-    }
-    return cppImports;
-}
-
-void generateHeaderCode(const klass& kls, const std::string& cppNameSpace) {
-    std::string cppName = kls.genCppName();
-    std::string fileName = cppNameSpace + "/" + cppName + ".h";
-    std::ofstream ofs(fileName);
-    if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + cppNameSpace + " file");
-    }
-
-    generateCodeProptectorBegin(ofs, cppNameSpace, cppName);
-
-    ofs << "#include <autordf/Object.h>" << std::endl;
-    ofs << std::endl;
-
-    //get forward declarations
-    std::set<std::shared_ptr<klass> >  cppClassDeps = getClassClassDependencies(kls);
-    for ( const std::shared_ptr<klass>& cppClassDep : cppClassDeps ) {
-        ofs << "namespace " << cppClassDep->genCppNameSpace() << " { class " << cppClassDep->genCppName() << "; }" << std::endl;
-    }
-    ofs << std::endl;
-
-    ofs << "namespace " << cppNameSpace << " {" << std::endl;
-    ofs << std::endl;
-
-    writeRDFSEntityComment(ofs, kls, 0);
-    ofs << "class " << cppName << ": public autordf::Object {" << std::endl;
-    indent(ofs, 1) << "#define AUTORDF_RDFTYPEIRI \"" << kls.rdfname << "\"" << std::endl;
-    ofs << "public:" << std::endl;
-    ofs << std::endl;
-    indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
-    indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
-    indent(ofs, 1) << " */" << std::endl;
-    indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
-    ofs << std::endl;
-    indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Build us using the same underlying resource as the other object" << std::endl;
-    indent(ofs, 1) << " */" << std::endl;
-    indent(ofs, 1) << cppName << "(const Object& other) : autordf::Object(other) {}" << std::endl;
-    ofs << std::endl;
-    indent(ofs, 1) << "static std::list<" << cppName << "> find() {" << std::endl;
-    indent(ofs, 2) << "return findHelper<" << cppName << ">(AUTORDF_RDFTYPEIRI);" << std::endl;
-    indent(ofs, 1) << "}" << std::endl;
-
-    for ( const std::shared_ptr<DataProperty>& prop : kls.dataProperties) {
-        generateDataPropertyDeclaration(ofs, *prop);
-    }
-
-    for ( const std::shared_ptr<ObjectProperty>& prop : kls.objectProperties) {
-        generateObjectPropertyDeclaration(ofs, *prop);
-    }
-
-    ofs << std::endl;
-    indent(ofs, 1) << "#undef AUTORDF_RDFTYPEIRI" << std::endl;
-    ofs << "};" << std::endl;
-    ofs << std::endl;
-    ofs << "}" << std::endl;
-
-    generateCodeProptectorEnd(ofs, cppNameSpace, cppName);
-}
-
-void generateCppCode(const klass& kls, const std::string& cppNameSpace) {
-    std::string cppName = kls.genCppName();
-    std::string fileName = cppNameSpace + "/" + cppName + ".cpp";
-    std::ofstream ofs(fileName);
-    if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + cppNameSpace + " file");
-    }
-
-    ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
-    ofs << std::endl;
-    addBoilerPlate(ofs);
-    ofs << std::endl;
-
-    // Generate class imports
-    std::set<std::shared_ptr<klass> > cppDeps = getClassClassDependencies(kls);
-    for ( const std::shared_ptr<klass>& cppDep : cppDeps ) {
-        ofs << "#include <" << cppDep->genCppNameSpace() << "/" << cppDep->genCppName() << ".h>" << std::endl;
-    }
-    ofs << std::endl;
-
-    ofs << "namespace " << cppNameSpace << " {" << std::endl;
-    ofs << std::endl;
-
-    for ( const std::shared_ptr<ObjectProperty>& prop : kls.objectProperties) {
-        generateObjectPropertyInstantiation(ofs, kls.genCppName(), *prop);
-    }
-    ofs << "}" << std::endl;
 }
 
 }
