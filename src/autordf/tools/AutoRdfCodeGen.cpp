@@ -92,10 +92,14 @@ Model *RDFSEntity::_m = 0;
 
 class klass : public RDFSEntity {
 public:
+    std::set<std::string> directAncestors;
+
     std::list<std::shared_ptr<DataProperty> > dataProperties;
     std::list<std::shared_ptr<ObjectProperty> > objectProperties;
 
-    std::set<std::shared_ptr<klass> > getClassDependencies() const;
+    std::set<std::shared_ptr<const klass> > getClassDependencies() const;
+
+    std::set<std::shared_ptr<const klass> > getAllAncestors() const;
 
     void generateInterfaceDeclaration() const;
 
@@ -201,8 +205,8 @@ public:
 };
 std::map<std::string, std::shared_ptr<ObjectProperty> > ObjectProperty::uri2Ptr;
 
-std::set<std::shared_ptr<klass> > klass::getClassDependencies() const {
-    std::set<std::shared_ptr<klass> > deps;
+std::set<std::shared_ptr<const klass> > klass::getClassDependencies() const {
+    std::set<std::shared_ptr<const klass> > deps;
     for ( const std::shared_ptr<ObjectProperty> p : objectProperties) {
         auto val = p->findClass();
         if ( val && (val->genCppName() != genCppName()) ) {
@@ -210,6 +214,17 @@ std::set<std::shared_ptr<klass> > klass::getClassDependencies() const {
         }
     }
     return deps;
+}
+
+std::set<std::shared_ptr<const klass> > klass::getAllAncestors() const {
+    std::set<std::shared_ptr<const klass> > all;
+    for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ++ancestor ) {
+        all.insert(uri2Ptr[*ancestor]);
+        for ( std::shared_ptr<const klass> more : uri2Ptr[*ancestor]->getAllAncestors() ) {
+            all.insert(more);
+        }
+    }
+    return all;
 }
 
 void klass::generateDeclaration() const {
@@ -224,13 +239,20 @@ void klass::generateDeclaration() const {
 
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpace() << "/I" << cppName << ".h>" << std::endl;
+    for ( const std::string& ancestor: directAncestors ) {
+        ofs << "#include <" << uri2Ptr[ancestor]->genCppNameSpace() << "/I" << uri2Ptr[ancestor]->genCppName() << ".h>" << std::endl;
+    }
     ofs << std::endl;
 
     ofs << "namespace " << genCppNameSpace() << " {" << std::endl;
     ofs << std::endl;
 
     generateComment(ofs, 0);
-    ofs << "class " << cppName << ": public autordf::Object, public " << "I" << cppName << " {" << std::endl;
+    ofs << "class " << cppName << ": public autordf::Object";
+    for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ++ancestor ) {
+        ofs << ", public " << uri2Ptr[*ancestor]->genCppNameSpace() << "::I" << uri2Ptr[*ancestor]->genCppName();
+    }
+    ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
@@ -274,8 +296,8 @@ void klass::generateInterfaceDeclaration() const {
     ofs << std::endl;
 
     //get forward declarations
-    std::set<std::shared_ptr<klass> > cppClassDeps = getClassDependencies();
-    for ( const std::shared_ptr<klass>& cppClassDep : cppClassDeps ) {
+    std::set<std::shared_ptr<const klass> > cppClassDeps = getClassDependencies();
+    for ( const std::shared_ptr<const klass>& cppClassDep : cppClassDeps ) {
         ofs << "namespace " << cppClassDep->genCppNameSpace() << " { class " << cppClassDep->genCppName() << "; }" << std::endl;
     }
     // Add forward declaration for our own class
@@ -286,7 +308,8 @@ void klass::generateInterfaceDeclaration() const {
     ofs << std::endl;
 
     generateComment(ofs, 0);
-    ofs << "class " << cppName << " {" << std::endl;
+    ofs << "class " << cppName << " ";
+    ofs << " {" << std::endl;
     ofs << "public:" << std::endl;
     indent(ofs, 1) << "// IRI for rfds type name" << std::endl;
     indent(ofs, 1) << "static const std::string& TYPEIRI;" << std::endl;
@@ -326,8 +349,8 @@ void klass::generateInterfaceDefinition() const {
     ofs << std::endl;
 
     // Generate class imports
-    std::set<std::shared_ptr<klass> > cppDeps = getClassDependencies();
-    for ( const std::shared_ptr<klass>& cppDep : cppDeps ) {
+    std::set<std::shared_ptr<const klass> > cppDeps = getClassDependencies();
+    for ( const std::shared_ptr<const klass>& cppDep : cppDeps ) {
         ofs << "#include <" << cppDep->genCppNameSpace() << "/" << cppDep->genCppName() << ".h>" << std::endl;
     }
     // Include our own class
@@ -363,6 +386,14 @@ void extractRDFS(const Object& o, RDFSEntity *rdfs) {
     }
 }
 
+void extractClass(const Object& o, klass *kls) {
+    const std::list<PropertyValue>& subClasses = o.getPropertyValueList(RDFS + "subClassOf");
+    for ( const PropertyValue& pv : subClasses) {
+        kls->directAncestors.insert(pv);
+    }
+    kls->directAncestors.insert(OWL + "Thing");
+}
+
 void extractProperty(const Object& o, Property *prop) {
     std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "domain");
     for ( const PropertyValue& value: domainList ) {
@@ -381,8 +412,13 @@ void extractProperty(const Object& o, Property *prop) {
 void run() {
     // A well known classes:
     // FIXME add coments
+    auto rdfsResource = std::make_shared<klass>();
+    rdfsResource->rdfname = RDFS + "Resource";
+    klass::uri2Ptr[rdfsResource->rdfname] = rdfsResource;
+
     auto owlThing = std::make_shared<klass>();
     owlThing->rdfname = OWL + "Thing";
+    owlThing->directAncestors.insert(rdfsResource->rdfname);
     klass::uri2Ptr[owlThing->rdfname] = owlThing;
 
     // Gather classes
@@ -390,6 +426,7 @@ void run() {
     for ( auto const& rdfsClass : rdfsClasses) {
         auto k = std::make_shared<klass>();
         extractRDFS(rdfsClass, k.get());
+        extractClass(rdfsClass, k.get());
         klass::uri2Ptr[k->rdfname] = k;
     }
 
@@ -411,19 +448,27 @@ void run() {
         ObjectProperty::uri2Ptr[p->rdfname] = p;
     }
 
+    // Remove reference to unexisting classes
+    for ( auto const& klasses : klass::uri2Ptr) {
+        std::set<std::string>& directAncestors = klasses.second->directAncestors;
+        for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ) {
+            if ( klass::uri2Ptr.find(*ancestor) == klass::uri2Ptr.end() ) {
+                std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", skipping" << std::endl;
+                ancestor = directAncestors.erase(ancestor);
+            } else {
+                ++ancestor;
+            }
+        }
+    }
+
     // Make links between properties and classes
-    std::set<std::string> wildCardProperties({OWL + "Thing"});
     for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
         for(const std::string& currentDomain : dataProperty.domains) {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
                 klassIt->second->dataProperties.push_back(dataPropertyMapItem.second);
-            } else if ( wildCardProperties.count(currentDomain) ) {
-                for ( auto& klassMapPair : klass::uri2Ptr ) {
-                    klassMapPair.second->dataProperties.push_back(dataPropertyMapItem.second);
-                }
-            } else {
+            } else  {
                 std::cerr << "Property " << dataProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
         }
@@ -434,11 +479,7 @@ void run() {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
                 klassIt->second->objectProperties.push_back(objectPropertyMapItem.second);
-            } else if ( wildCardProperties.count(currentDomain) ) {
-                for ( auto& klassMapPair : klass::uri2Ptr ) {
-                    klassMapPair.second->objectProperties.push_back(objectPropertyMapItem.second);
-                }
-            } else {
+            } else  {
                 std::cerr << "Property " << objectProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
         }
