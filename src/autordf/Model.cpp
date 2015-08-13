@@ -40,7 +40,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
             const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
             librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
             if ( prefix && uri ) {
-                _namespacesPrefixes[prefix] = reinterpret_cast<char*>(librdf_uri_as_string(uri));
+                addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
             }
         }
     }
@@ -105,6 +105,11 @@ const std::string& Model::prefixToNs(const std::string& prefix) const {
 }
 
 void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns) {
-    _namespacesPrefixes[prefix] = ns;
+    auto it = _namespacesPrefixes.find(prefix);
+    if ( it == _namespacesPrefixes.end() ) {
+        _namespacesPrefixes[prefix] = ns;
+    } else if ( it->second != ns ) {
+        throw std::runtime_error("Unable to add prefix " + prefix + "-->" + ns + " mappping: already registered to " + it->second);
+    }
 }
 }
