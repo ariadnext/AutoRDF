@@ -231,7 +231,6 @@ void klass::generateDeclaration() const {
 
     generateComment(ofs, 0);
     ofs << "class " << cppName << ": public autordf::Object, public " << "I" << cppName << " {" << std::endl;
-    indent(ofs, 1) << "#define AUTORDF_RDFTYPEIRI \"" << rdfname << "\"" << std::endl;
     ofs << "public:" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
@@ -246,15 +245,14 @@ void klass::generateDeclaration() const {
     indent(ofs, 1) << cppName << "(const Object& other) : autordf::Object(other) {}" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "static std::list<" << cppName << "> find() {" << std::endl;
-    indent(ofs, 2) << "return findHelper<" << cppName << ">(AUTORDF_RDFTYPEIRI);" << std::endl;
+    indent(ofs, 2) << "return findHelper<" << cppName << ">(I" << cppName << "::TYPEIRI);" << std::endl;
     indent(ofs, 1) << "}" << std::endl;
+    ofs << std::endl;
 
     ofs << "private:" << std::endl;
 
     indent(ofs, 1) << "Object& object() { return *this; }" << std::endl;
     indent(ofs, 1) << "const Object& object() const { return *this; }" << std::endl;
-    ofs << std::endl;
-    indent(ofs, 1) << "#undef AUTORDF_RDFTYPEIRI" << std::endl;
     ofs << "};" << std::endl;
     ofs << std::endl;
     ofs << "}" << std::endl;
@@ -289,8 +287,9 @@ void klass::generateInterfaceDeclaration() const {
 
     generateComment(ofs, 0);
     ofs << "class " << cppName << " {" << std::endl;
-    indent(ofs, 1) << "#define AUTORDF_RDFTYPEIRI \"" << rdfname << "\"" << std::endl;
     ofs << "public:" << std::endl;
+    indent(ofs, 1) << "// IRI for rfds type name" << std::endl;
+    indent(ofs, 1) << "static const std::string& TYPEIRI;" << std::endl;
 
     for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
         prop->generateDeclaration(ofs);
@@ -305,8 +304,6 @@ void klass::generateInterfaceDeclaration() const {
     indent(ofs, 1) << "virtual autordf::Object& object() = 0;" << std::endl;
     indent(ofs, 1) << "virtual const autordf::Object& object() const = 0;" << std::endl;
 
-    ofs << std::endl;
-    indent(ofs, 1) << "#undef AUTORDF_RDFTYPEIRI" << std::endl;
     ofs << "};" << std::endl;
     ofs << std::endl;
     ofs << "}" << std::endl;
@@ -338,6 +335,9 @@ void klass::generateInterfaceDefinition() const {
     ofs << std::endl;
 
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    ofs << std::endl;
+
+    ofs << "const std::string& " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
     ofs << std::endl;
 
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
