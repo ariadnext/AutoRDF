@@ -428,6 +428,7 @@ void run() {
         extractRDFS(rdfsClass, k.get());
         extractClass(rdfsClass, k.get());
         klass::uri2Ptr[k->rdfname] = k;
+        std::cout << k->rdfname << std::endl;
     }
 
     // Gather data Properties

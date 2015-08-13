@@ -42,14 +42,6 @@ ENDIF()
 
 ADD_SUBDIRECTORY(src/autordf)
 
-#INSTALL(FILES
-#    include/etrace/eTrace.h
-###    include/etrace/TracePoint.h
-#"    include/etrace/SharedTracePoint.h
-#    include/etrace/ModuleRegistry.h
-#    DESTINATION include/etrace
-#)
-
 if(${BUILD_TESTS} STREQUAL "1")
     ADD_SUBDIRECTORY(tests)
 endif()
