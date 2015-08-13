@@ -125,9 +125,8 @@ public:
      */
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
-protected:
     /**
-     * Offered to descendants
+     * Offered to interfaces
      */
     template<typename T> static std::list<T> findHelper(const std::string& iri) {
         const ResourceList& rl = _factory->findByType(iri);
@@ -139,7 +138,7 @@ protected:
     }
 
     /**
-     * Offered to descendants
+     * Offered to interfaces
      */
     template<typename T> std::list<T> getObjectListImpl(const std::string &propertyIRI) const {
         if ( propertyIRI.empty() ) {
