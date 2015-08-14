@@ -34,20 +34,21 @@ void addBoilerPlate(std::ofstream& ofs);
 void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 
+// Checks an returns if available registered prefix for IRI
+std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
+    for ( const std::pair<std::string, std::string>& prefixMapItem : model->namespacesPrefixes() ) {
+        const std::string& iri = prefixMapItem.second;
+        if ( rdfiri.substr(0, iri.length()) == iri ) {
+            return prefixMapItem.first;
+        }
+    }
+    return "";
+}
+
 class RDFSEntity {
 public:
     // Object iri
     std::string rdfname;
-
-    std::string rdfPrefix () const {
-        for ( const std::pair<std::string, std::string>& prefixMapItem : _m->namespacesPrefixes() ) {
-            const std::string iri = prefixMapItem.second;
-            if ( rdfname.substr(0, iri.length()) == iri ) {
-                return prefixMapItem.first;
-            }
-        }
-        throw std::runtime_error("No prefix found for " + rdfname + " RDF resource ");
-    }
 
     // rdfs comment
     std::string comment;
@@ -60,7 +61,12 @@ public:
     }
 
     std::string genCppNameSpace() const {
-        return rdfPrefix();
+        std::string prefix = rdfPrefix(rdfname, _m);
+        if ( !prefix.empty() ) {
+            return prefix;
+        } else {
+            throw std::runtime_error("No prefix found for " + rdfname + " RDF resource, unable to use it as C++ namespace");
+        }
     }
 
     std::string genCppNameWithNamespace() const {
@@ -83,6 +89,8 @@ public:
     static void setModel(Model *m) {
         _m = m;
     }
+
+    static const Model* model() { return _m; }
 
 private:
     static Model *_m;
@@ -409,6 +417,29 @@ void extractProperty(const Object& o, Property *prop) {
     }
 }
 
+void extractClass(const Object& rdfsClass) {
+    auto k = std::make_shared<klass>();
+    extractRDFS(rdfsClass, k.get());
+    extractClass(rdfsClass, k.get());
+    klass::uri2Ptr[k->rdfname] = k;
+}
+
+void extractClasses(const std::string& classTypeIRI) {
+    const std::list<Object>& classes = Object::findByType(classTypeIRI);
+    for ( auto const& rdfsclass : classes) {
+        if ( klass::uri2Ptr.find(rdfsclass.iri()) == klass::uri2Ptr.end() ) {
+            if ( !rdfPrefix(rdfsclass.iri(), klass::model()).empty() ) {
+                auto k = std::make_shared<klass>();
+                extractRDFS(rdfsclass, k.get());
+                extractClass(rdfsclass, k.get());
+                klass::uri2Ptr[k->rdfname] = k;
+            } else {
+                std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
+            }
+        }
+    }
+}
+
 void run() {
     // A well known classes:
     // FIXME add coments
@@ -422,14 +453,8 @@ void run() {
     klass::uri2Ptr[owlThing->rdfname] = owlThing;
 
     // Gather classes
-    const std::list<Object>& rdfsClasses = Object::findByType(RDFS + "Class");
-    for ( auto const& rdfsClass : rdfsClasses) {
-        auto k = std::make_shared<klass>();
-        extractRDFS(rdfsClass, k.get());
-        extractClass(rdfsClass, k.get());
-        klass::uri2Ptr[k->rdfname] = k;
-        std::cout << k->rdfname << std::endl;
-    }
+    extractClasses(OWL + "Class");
+    extractClasses(RDFS + "Class");
 
     // Gather data Properties
     const std::list<Object>& owlDataProperties = Object::findByType(OWL + "DatatypeProperty");
@@ -454,7 +479,7 @@ void run() {
         std::set<std::string>& directAncestors = klasses.second->directAncestors;
         for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ) {
             if ( klass::uri2Ptr.find(*ancestor) == klass::uri2Ptr.end() ) {
-                std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", skipping" << std::endl;
+                std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", ignoring ancestor" << std::endl;
                 ancestor = directAncestors.erase(ancestor);
             } else {
                 ++ancestor;
