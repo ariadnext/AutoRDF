@@ -57,6 +57,9 @@ public:
 
     std::string genCppName() const {
         std::string cppname = rdfname.substr(rdfname.find_last_of("/#:") + 1);
+        if ( !::isalpha(cppname[0]) ) {
+            cppname = "_" + cppname;
+        }
         return cppname;
     }
 
@@ -586,6 +589,8 @@ int main(int argc, char **argv) {
     // Hardcode some prefixes
     f.addNamespacePrefix("owl", autordf::tools::OWL);
     f.addNamespacePrefix("rdfs", autordf::tools::RDFS);
+    //FIXME
+    f.addNamespacePrefix("mrd", "http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#");
 
     //FIXME: Read thath from command line
     std::string baseURI = "http://";
