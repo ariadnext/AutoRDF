@@ -446,14 +446,14 @@ void extractClasses(const std::string& classTypeIRI) {
 void run() {
     // A well known classes:
     // FIXME add coments
-    auto rdfsResource = std::make_shared<klass>();
-    rdfsResource->rdfname = RDFS + "Resource";
-    klass::uri2Ptr[rdfsResource->rdfname] = rdfsResource;
-
     auto owlThing = std::make_shared<klass>();
     owlThing->rdfname = OWL + "Thing";
-    owlThing->directAncestors.insert(rdfsResource->rdfname);
     klass::uri2Ptr[owlThing->rdfname] = owlThing;
+
+    auto rdfsResource = std::make_shared<klass>();
+    rdfsResource->rdfname = RDFS + "Resource";
+    rdfsResource->directAncestors.insert(owlThing->rdfname);
+    klass::uri2Ptr[rdfsResource->rdfname] = rdfsResource;
 
     // Gather classes
     extractClasses(OWL + "Class");
