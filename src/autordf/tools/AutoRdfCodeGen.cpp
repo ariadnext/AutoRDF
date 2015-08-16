@@ -18,6 +18,7 @@ namespace autordf {
 namespace tools {
 
 std::string outdir = ".";
+bool verbose = false;
 
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
@@ -447,6 +448,9 @@ void extractClasses(const std::string& classTypeIRI) {
     for ( auto const& rdfsclass : classes) {
         if ( klass::uri2Ptr.find(rdfsclass.iri()) == klass::uri2Ptr.end() ) {
             if ( !rdfPrefix(rdfsclass.iri(), klass::model()).empty() ) {
+                if ( verbose ) {
+                    std::cout << "Found class " << rdfsclass.iri() << std::endl;
+                }
                 auto k = std::make_shared<klass>();
                 extractRDFS(rdfsclass, k.get());
                 extractClass(rdfsclass, k.get());
@@ -477,6 +481,9 @@ void run() {
     // Gather data Properties
     const std::list<Object>& owlDataProperties = Object::findByType(OWL + "DatatypeProperty");
     for ( auto const& owlDataProperty : owlDataProperties) {
+        if ( verbose ) {
+            std::cout << "Found data property " << owlDataProperty.iri() << std::endl;
+        }
         auto p = std::make_shared<DataProperty>();
         extractRDFS(owlDataProperty, p.get());
         extractProperty(owlDataProperty, p.get());
@@ -486,6 +493,9 @@ void run() {
     // Gather object Properties
     const std::list<Object>& owlObjectProperties = Object::findByType(OWL + "ObjectProperty");
     for ( auto const& owlObjectProperty : owlObjectProperties) {
+        if ( verbose ) {
+            std::cout << "Found object property " << owlObjectProperty.iri() << std::endl;
+        }
         auto p = std::make_shared<ObjectProperty>();
         extractRDFS(owlObjectProperty, p.get());
         extractProperty(owlObjectProperty, p.get());
@@ -593,7 +603,6 @@ void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpa
 
 int main(int argc, char **argv) {
     autordf::Factory f;
-    bool verbose = false;
 
     std::stringstream usage;
     usage << "Usage: " << argv[0] << " [-v] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n";
@@ -612,7 +621,7 @@ int main(int argc, char **argv) {
                     std::getline(ss, prefix, ':');
                     std::string ns;
                     ss >> ns;
-                    if ( verbose ) {
+                    if ( autordf::tools::verbose ) {
                         std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
                         f.addNamespacePrefix(prefix, ns);
                     }
@@ -623,7 +632,7 @@ int main(int argc, char **argv) {
                 autordf::tools::outdir = optarg;
                 break;
             case 'v':
-                verbose = true;
+                autordf::tools::verbose = true;
                 break;
             case 'h':
             default: /* '?' */
@@ -650,7 +659,7 @@ int main(int argc, char **argv) {
     autordf::tools::RDFSEntity::setModel(&f);
     autordf::Object::setFactory(&f);
     while ( optind < argc ) {
-        if ( verbose ) {
+        if ( autordf::tools::verbose ) {
             std::cout << "Loading " << argv[optind] << " into model." << std::endl;
         }
         f.loadFromFile(argv[optind], baseURI);

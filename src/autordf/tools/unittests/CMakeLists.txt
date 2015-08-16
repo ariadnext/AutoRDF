@@ -48,10 +48,10 @@ INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/mrd")
 ADD_EXECUTABLE(
     testmrd
     TestMrd.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x34.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x36.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x44.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I3x30.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x34.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x36.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x44.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_3x30.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
@@ -98,10 +98,10 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x34.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x36.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x44.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I3x30.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x34.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x36.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x44.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_3x30.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
