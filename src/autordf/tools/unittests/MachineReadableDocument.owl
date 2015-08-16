@@ -1,0 +1,882 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY mrd "http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" >
+]>
+
+
+<rdf:RDF xmlns="http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#"
+     xml:base="http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:mrd="http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#">
+    <owl:Ontology rdf:about="http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzInstance -->
+
+    <owl:AnnotationProperty rdf:about="&mrd;mrzInstance"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#remark -->
+
+    <owl:AnnotationProperty rdf:about="&mrd;remark">
+        <rdfs:comment xml:lang="fr">Stoque les remarques liées à un modèle de document.
+Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:AnnotationProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MachineReadableZone -->
+
+    <owl:ObjectProperty rdf:about="&mrd;MachineReadableZone"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#checkRange -->
+
+    <owl:ObjectProperty rdf:about="&mrd;checkRange">
+        <rdfs:range rdf:resource="&mrd;MRZCheckDigit"/>
+        <rdfs:domain rdf:resource="&mrd;MRZRange"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#documentFormat -->
+
+    <owl:ObjectProperty rdf:about="&mrd;documentFormat">
+        <rdfs:range rdf:resource="&mrd;DocumentFormat"/>
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#documentSpecimen -->
+
+    <owl:ObjectProperty rdf:about="&mrd;documentSpecimen">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;Specimen"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#documentType -->
+
+    <owl:ObjectProperty rdf:about="&mrd;documentType">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;DocumentType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#issuingCountry -->
+
+    <owl:ObjectProperty rdf:about="&mrd;issuingCountry">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;IssuingCountry"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#length -->
+
+    <owl:ObjectProperty rdf:about="&mrd;length">
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzRangeProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckDigitPos -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzCheckDigitPos">
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzCheckDigitProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckDigitProperty2 -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzCheckDigitProperty2">
+        <rdfs:domain rdf:resource="&mrd;MRZCheckDigit"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzChecker -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzChecker">
+        <rdfs:range rdf:resource="&mrd;MRZChecker"/>
+        <rdfs:domain rdf:resource="&mrd;MRZInstance"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckerProperty -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzCheckerProperty">
+        <rdfs:domain rdf:resource="&mrd;MRZChecker"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckerRange -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzCheckerRange">
+        <rdfs:range rdf:resource="&mrd;MRZRange"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzCheckerProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldDataType -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzFieldDataType">
+        <rdfs:range rdf:resource="&mrd;MRZFieldDataType"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzFieldProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldProperty2 -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzFieldProperty2">
+        <rdfs:domain rdf:resource="&mrd;MRZField"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldRange -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzFieldRange">
+        <rdfs:range rdf:resource="&mrd;MRZRange"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzFieldProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldType -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzFieldType">
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzFieldProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFormat -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzFormat">
+        <rdfs:range rdf:resource="&mrd;MRZFormat"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzInstance -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzInstance">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;MRZInstance"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzParser -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzParser">
+        <rdfs:domain rdf:resource="&mrd;MRZInstance"/>
+        <rdfs:range rdf:resource="&mrd;MRZParser"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzRangeProperty2 -->
+
+    <owl:ObjectProperty rdf:about="&mrd;mrzRangeProperty2">
+        <rdfs:domain rdf:resource="&mrd;MRZRange"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#start -->
+
+    <owl:ObjectProperty rdf:about="&mrd;start">
+        <rdfs:subPropertyOf rdf:resource="&mrd;mrzRangeProperty2"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#type -->
+
+    <owl:ObjectProperty rdf:about="&mrd;type">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;DocumentType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MachineReadableZone -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;MachineReadableZone"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#firstIssuingDate -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;firstIssuingDate">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#id -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;id">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#lastIssuingDate -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;lastIssuingDate">
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#length -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;length">
+        <rdfs:range rdf:resource="&xsd;unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckDigitPos -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;mrzCheckDigitPos">
+        <rdfs:range rdf:resource="&xsd;unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckDigitProperty -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;mrzCheckDigitProperty"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldProperty -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;mrzFieldProperty"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFieldType -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;mrzFieldType"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzRangeProperty -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;mrzRangeProperty"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#specimenLines -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;specimenLines">
+        <rdfs:domain rdf:resource="&mrd;ExactSpecimen"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#start -->
+
+    <owl:DatatypeProperty rdf:about="&mrd;start">
+        <rdfs:range rdf:resource="&xsd;unsignedInt"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Date -->
+
+    <owl:Class rdf:about="&mrd;Date">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFieldDataType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DiplomaticPassport -->
+
+    <owl:Class rdf:about="&mrd;DiplomaticPassport">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentSubType"/>
+        <rdfs:comment xml:lang="fr">Passeport Diplomatique</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentFormat -->
+
+    <owl:Class rdf:about="&mrd;DocumentFormat">
+        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentModel -->
+
+    <owl:Class rdf:about="&mrd;DocumentModel">
+        <rdfs:comment xml:lang="fr">Un modèle de document. Contient de nombreuses propriétés.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentSubType -->
+
+    <owl:Class rdf:about="&mrd;DocumentSubType"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentType -->
+
+    <owl:Class rdf:about="&mrd;DocumentType">
+        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
+        <rdfs:comment rdf:datatype="&xsd;string">Type principal de document</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DrivingLicense -->
+
+    <owl:Class rdf:about="&mrd;DrivingLicense">
+        <rdfs:label xml:lang="fr">Permis de conduire</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Enum -->
+
+    <owl:Class rdf:about="&mrd;Enum"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ExactSpecimen -->
+
+    <owl:Class rdf:about="&mrd;ExactSpecimen">
+        <rdfs:subClassOf rdf:resource="&mrd;Specimen"/>
+        <rdfs:comment xml:lang="fr">Un spécimen spécifié par une MRZ qui complète</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FirstNames -->
+
+    <owl:Class rdf:about="&mrd;FirstNames">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZField"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID0 -->
+
+    <owl:Class rdf:about="&mrd;ID0">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID1 -->
+
+    <owl:Class rdf:about="&mrd;ID1">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID2 -->
+
+    <owl:Class rdf:about="&mrd;ID2">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#IdentityCard -->
+
+    <owl:Class rdf:about="&mrd;IdentityCard">
+        <rdfs:label xml:lang="fr">Carte d&apos;identité</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#IssuingCountry -->
+
+    <owl:Class rdf:about="&mrd;IssuingCountry">
+        <rdfs:label xml:lang="fr">Pays d&apos;émission du document</rdfs:label>
+        <rdfs:isDefinedBy>http://www.dbpedia.org/resource/Country</rdfs:isDefinedBy>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#LastNames -->
+
+    <owl:Class rdf:about="&mrd;LastNames">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZField"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZCheckDigit -->
+
+    <owl:Class rdf:about="&mrd;MRZCheckDigit">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZChecker -->
+
+    <owl:Class rdf:about="&mrd;MRZChecker">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:comment xml:lang="fr">Représente un vérifieur de MRZ, conforme ou non conforme à la norme ICAO 9303.
+Un vérifieur est chargé de recalculer les checksums sur les MRZ</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZField -->
+
+    <owl:Class rdf:about="&mrd;MRZField">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFieldDataType -->
+
+    <owl:Class rdf:about="&mrd;MRZFieldDataType">
+        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFormat -->
+
+    <owl:Class rdf:about="&mrd;MRZFormat">
+        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZInstance -->
+
+    <owl:Class rdf:about="&mrd;MRZInstance">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:comment xml:lang="fr">Une instance de MRZ est l&apos;association d&apos;un parseur de MRZ avec un vérifeur de MRZ</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZParser -->
+
+    <owl:Class rdf:about="&mrd;MRZParser">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:comment xml:lang="fr">Représente un parseur de MRZ, conforme ou non conforme à la norme ICAO 9303.
+Un parseur est chargé de l&quot;extraction, de la découpe de l&apos;information trouvée sur la MRZ</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZRange -->
+
+    <owl:Class rdf:about="&mrd;MRZRange">
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:comment xml:lang="fr">Une suite de caractères contigus dans la MRZ.
+Le début est compté en nombre de caractères depuis le début de la MRZ (0 étant le premier caractère de la MRZ)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MachineReadableZone -->
+
+    <owl:Class rdf:about="&mrd;MachineReadableZone"/>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#NamesAndFirstNames -->
+
+    <owl:Class rdf:about="&mrd;NamesAndFirstNames">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFieldDataType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#NamesOrFirstNames -->
+
+    <owl:Class rdf:about="&mrd;NamesOrFirstNames">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFieldDataType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Number -->
+
+    <owl:Class rdf:about="&mrd;Number">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFieldDataType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Passport -->
+
+    <owl:Class rdf:about="&mrd;Passport">
+        <rdfs:label xml:lang="fr">Passeport</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#RegExp -->
+
+    <owl:Class rdf:about="&mrd;RegExp">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFieldDataType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ResidencePermit -->
+
+    <owl:Class rdf:about="&mrd;ResidencePermit">
+        <rdfs:label rdf:datatype="&xsd;string">Titre de séjour</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Specimen -->
+
+    <owl:Class rdf:about="&mrd;Specimen">
+        <rdfs:comment xml:lang="fr">Un specimen de document</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#StandardCheckDigit -->
+
+    <owl:Class rdf:about="&mrd;StandardCheckDigit">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZCheckDigit"/>
+        <rdfs:comment xml:lang="fr">Représente un check digit calculé par l&apos;algorithme par défaut</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#TemporaryPassport -->
+
+    <owl:Class rdf:about="&mrd;TemporaryPassport">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentSubType"/>
+        <rdfs:comment xml:lang="fr">Passeport Temporaire</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Unknown -->
+
+    <owl:Class rdf:about="&mrd;Unknown">
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#VehicleRegistration -->
+
+    <owl:Class rdf:about="&mrd;VehicleRegistration">
+        <rdfs:label rdf:datatype="&xsd;string">Carte grise</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Visa -->
+
+    <owl:Class rdf:about="&mrd;Visa">
+        <rdfs:label xml:lang="fr">Visa</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x34 -->
+
+    <owl:Class rdf:about="&mrd;2x34">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x36 -->
+
+    <owl:Class rdf:about="&mrd;2x36">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x44 -->
+
+    <owl:Class rdf:about="&mrd;2x44">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#3x30 -->
+
+    <owl:Class rdf:about="&mrd;3x30">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x34 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;Format_2x34">
+        <rdf:type rdf:resource="&mrd;2x34"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x36 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;Format_2x36">
+        <rdf:type rdf:resource="&mrd;2x36"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x44 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;Format_2x44">
+        <rdf:type rdf:resource="&mrd;2x44"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_3x30 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;Format_3x30">
+        <rdf:type rdf:resource="&mrd;3x30"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#France -->
+
+    <owl:NamedIndividual rdf:about="&mrd;France">
+        <rdf:type rdf:resource="&mrd;IssuingCountry"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchCNIName -->
+
+    <owl:NamedIndividual rdf:about="&mrd;FrenchCNIName">
+        <rdf:type rdf:resource="&mrd;MRZField"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZChecker -->
+
+    <owl:NamedIndividual rdf:about="&mrd;FrenchMRZChecker">
+        <rdf:type rdf:resource="&mrd;MRZChecker"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZInstance -->
+
+    <owl:NamedIndividual rdf:about="&mrd;FrenchMRZInstance">
+        <rdf:type rdf:resource="&mrd;MRZInstance"/>
+        <mrzFormat rdf:resource="&mrd;Format_2x36"/>
+        <mrzChecker rdf:resource="&mrd;FrenchMRZChecker"/>
+        <mrzParser rdf:resource="&mrd;FrenchMRZParser"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZParser -->
+
+    <owl:NamedIndividual rdf:about="&mrd;FrenchMRZParser">
+        <rdf:type rdf:resource="&mrd;MRZParser"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID-FRA-0 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;ID-FRA-0">
+        <rdf:type rdf:resource="&mrd;DocumentModel"/>
+        <firstIssuingDate rdf:datatype="&xsd;dateTime">2002-05-30T00:00:00</firstIssuingDate>
+        <lastIssuingDate rdf:datatype="&xsd;dateTime">2022-01-01T00:00:00</lastIssuingDate>
+        <remark>La bien connue pièce d&apos;identité française</remark>
+        <issuingCountry rdf:resource="&mrd;France"/>
+        <mrzInstance rdf:resource="&mrd;FrenchMRZInstance"/>
+        <documentSpecimen rdf:resource="&mrd;ID-FRA-0_specimen"/>
+        <documentType rdf:resource="&mrd;identityCard"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID-FRA-0_specimen -->
+
+    <owl:NamedIndividual rdf:about="&mrd;ID-FRA-0_specimen">
+        <rdf:type rdf:resource="&mrd;ExactSpecimen"/>
+        <specimenLines rdf:datatype="&xsd;string">IFRABERTHIER&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;M6666
+&lt;&lt;&lt;&lt;&lt;CORINNE&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;05050</specimenLines>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#cniFirstNameRange -->
+
+    <owl:NamedIndividual rdf:about="&mrd;cniFirstNameRange">
+        <rdf:type rdf:resource="&mrd;MRZRange"/>
+        <rdfs:comment xml:lang="fr">Un range est spécifié par un caractère de début et un caractère de fin.</rdfs:comment>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#id0 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;id0">
+        <rdf:type rdf:resource="&mrd;ID0"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#id1 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;id1">
+        <rdf:type rdf:resource="&mrd;ID1"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#id2 -->
+
+    <owl:NamedIndividual rdf:about="&mrd;id2">
+        <rdf:type rdf:resource="&mrd;ID2"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#identityCard -->
+
+    <owl:NamedIndividual rdf:about="&mrd;identityCard"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&mrd;mrzFieldType">
+        <rdfs:comment xml:lang="fr">Le type de données assocé à ce champ</rdfs:comment>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.5.1) http://owlapi.sourceforge.net -->
+
