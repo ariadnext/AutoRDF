@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <string.h>
+#include <getopt.h>
 
 #include <iostream>
 #include <sstream>
@@ -15,6 +16,8 @@
 
 namespace autordf {
 namespace tools {
+
+std::string outdir = ".";
 
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
@@ -43,6 +46,18 @@ std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
         }
     }
     return "";
+}
+
+void createDirectory(const std::string& relativeDirName) {
+    if ( !relativeDirName.empty() && relativeDirName != "." ) {
+        if ( ::mkdir(relativeDirName.c_str(), S_IRWXG | S_IRWXU | S_IRWXO) != 0 ) {
+            if ( errno != EEXIST ) {
+                std::stringstream ss;
+                ss << "Error while creating output directory: " << ::strerror(errno);
+                throw std::runtime_error(ss.str());
+            }
+        }
+    }
 }
 
 class RDFSEntity {
@@ -240,7 +255,7 @@ std::set<std::shared_ptr<const klass> > klass::getAllAncestors() const {
 
 void klass::generateDeclaration() const {
     std::string cppName = genCppName();
-    std::string fileName = genCppNameSpace() + "/" + cppName + ".h";
+    std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
         throw std::runtime_error("Unable to open " + genCppNameSpace() + " file");
@@ -295,7 +310,7 @@ void klass::generateDeclaration() const {
 
 void klass::generateInterfaceDeclaration() const {
     std::string cppName = "I" + genCppName();
-    std::string fileName = genCppNameSpace() + "/" + cppName + ".h";
+    std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
         throw std::runtime_error("Unable to open " + genCppNameSpace() + " file");
@@ -348,7 +363,7 @@ void klass::generateInterfaceDeclaration() const {
 void klass::generateInterfaceDefinition() const {
     std::string cppName = "I" + genCppName();
     std::string cppNameSpace = genCppNameSpace();
-    std::string fileName = cppNameSpace + "/" + cppName + ".cpp";
+    std::string fileName = outdir + "/" + cppNameSpace + "/" + cppName + ".cpp";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
         throw std::runtime_error("Unable to open " + cppNameSpace + " file");
@@ -520,13 +535,7 @@ void run() {
         // created directory if needed
         std::string cppNameSpace = klassMapItem.second->genCppNameSpace();
         cppNameSpaces.insert(cppNameSpace);
-        if ( ::mkdir(cppNameSpace.c_str(), S_IRWXG | S_IRWXU | S_IRWXO) != 0 ) {
-            if ( errno != EEXIST ) {
-                std::stringstream ss;
-                ss << "Error while creating output directory: " << ::strerror(errno);
-                throw std::runtime_error(ss.str());
-            }
-        }
+        createDirectory( outdir + "/" + cppNameSpace);
 
         klassMapItem.second->generateInterfaceDeclaration();
         klassMapItem.second->generateInterfaceDefinition();
@@ -535,7 +544,7 @@ void run() {
 
     //Generate all inclusions file
     for ( const std::string& cppNameSpace : cppNameSpaces ) {
-        std::string fileName = cppNameSpace + "/" + cppNameSpace + ".h";
+        std::string fileName = outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h";
         std::ofstream ofs(fileName);
         if (!ofs.is_open()) {
             throw std::runtime_error("Unable to open " + cppNameSpace + " file");
@@ -582,21 +591,74 @@ void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpa
 }
 }
 
-
 int main(int argc, char **argv) {
     autordf::Factory f;
-    autordf::tools::RDFSEntity::setModel(&f);
+    bool verbose = false;
+
+    std::stringstream usage;
+    usage << "Usage: " << argv[0] << " [-v] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n";
+    usage << "\t" << "Processes an OWL file, and generates C++ classes from it in current directory\n";
+    usage << "\t" << "namespacemap:\t Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.\n";
+    usage << "\t" << "outdir:\t Folder where to generate files in. If it does not exit it will be created. Defaults to current directory." << ".\n";
+    usage << "\t" << "-v:\t Turn verbose output on." << ".\n";
+
+    int opt;
+    while ((opt = ::getopt(argc, argv, "n:o:vh")) != -1) {
+        switch (opt) {
+            case 'n': {
+                {
+                    std::stringstream ss(optarg);
+                    std::string prefix;
+                    std::getline(ss, prefix, ':');
+                    std::string ns;
+                    ss >> ns;
+                    if ( verbose ) {
+                        std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
+                        f.addNamespacePrefix(prefix, ns);
+                    }
+                }
+                break;
+            }
+            case 'o':
+                autordf::tools::outdir = optarg;
+                break;
+            case 'v':
+                verbose = true;
+                break;
+            case 'h':
+            default: /* '?' */
+                std::cerr << usage.str();
+                std::cerr.flush();
+                return 1;
+        }
+    }
+
+
+    if (optind >= argc) {
+        std::cerr << "Expected argument after options" << std::endl;
+        return 1;
+    }
+
+    autordf::tools::createDirectory(autordf::tools::outdir);
+
     // Hardcode some prefixes
     f.addNamespacePrefix("owl", autordf::tools::OWL);
     f.addNamespacePrefix("rdfs", autordf::tools::RDFS);
-    //FIXME
-    f.addNamespacePrefix("mrd", "http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#");
-
-    //FIXME: Read thath from command line
+    //FIXME: Read that from command line
     std::string baseURI = "http://";
 
+    autordf::tools::RDFSEntity::setModel(&f);
     autordf::Object::setFactory(&f);
-    f.loadFromFile(argv[1], baseURI);
+    while ( optind < argc ) {
+        if ( verbose ) {
+            std::cout << "Loading " << argv[optind] << " into model." << std::endl;
+        }
+        f.loadFromFile(argv[optind], baseURI);
+        optind++;
+    }
     autordf::tools::run();
     return 0;
 }
+
+//FIXME: Add inverse functional  / functional to model
+//    Handle functional

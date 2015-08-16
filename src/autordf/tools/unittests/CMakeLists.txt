@@ -1,23 +1,21 @@
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
-
-SET_PROPERTY(SOURCE TestCodeGen.cpp APPEND PROPERTY OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf.h")
+INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/foaf")
 
 ADD_EXECUTABLE(
     testcodegen
     TestCodeGen.cpp
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IAgent.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IDocument.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IGroup.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IImage.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/ILabelProperty.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineChatAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineEcommerceAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineGamingAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOrganization.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IPerson.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IPersonalProfileDocument.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IProject.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IAgent.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IGroup.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IImage.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/ILabelProperty.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineChatAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineEcommerceAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineGamingAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOrganization.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
 )
 
 TARGET_LINK_LIBRARIES(
@@ -29,19 +27,118 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IAgent.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IDocument.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IGroup.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IImage.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/ILabelProperty.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineChatAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineEcommerceAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOnlineGamingAccount.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IOrganization.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IPerson.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IPersonalProfileDocument.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/foaf/IProject.cpp"
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.rdf"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IAgent.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IGroup.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IImage.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/ILabelProperty.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineChatAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineEcommerceAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineGamingAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOrganization.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
+    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -o foaf "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.rdf"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
+)
+
+INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/mrd")
+ADD_EXECUTABLE(
+    testmrd
+    TestMrd.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x34.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x36.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x44.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I3x30.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentModel.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentSubType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDrivingLicense.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IEnum.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IExactSpecimen.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID0.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID1.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID2.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIdentityCard.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIssuingCountry.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ILastNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZCheckDigit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZChecker.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZField.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFieldDataType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFormat.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZInstance.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZParser.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZRange.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMachineReadableZone.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesAndFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesOrFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INumber.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IRegExp.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IResidencePermit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ISpecimen.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IStandardCheckDigit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ITemporaryPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IUnknown.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVehicleRegistration.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVisa.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+    testmrd
+    autordf
+)
+
+ADD_CUSTOM_COMMAND(
+    OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x34.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x36.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I2x44.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I3x30.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentModel.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentSubType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDrivingLicense.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IEnum.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IExactSpecimen.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID0.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID1.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID2.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIdentityCard.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIssuingCountry.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ILastNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZCheckDigit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZChecker.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZField.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFieldDataType.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFormat.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZInstance.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZParser.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZRange.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMachineReadableZone.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesAndFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesOrFirstNames.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INumber.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IRegExp.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IResidencePermit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ISpecimen.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IStandardCheckDigit.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ITemporaryPassport.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IUnknown.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVehicleRegistration.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVisa.cpp
+    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -v -o mrd -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
 )

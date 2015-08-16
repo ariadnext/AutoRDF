@@ -1,4 +1,5 @@
 #include <autordf/Factory.h>
+#include <owl/owl.h>
 #include <foaf/foaf.h>
 
 #include <boost/filesystem.hpp>
