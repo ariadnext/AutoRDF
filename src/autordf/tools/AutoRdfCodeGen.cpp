@@ -19,6 +19,7 @@ namespace tools {
 
 std::string outdir = ".";
 bool verbose = false;
+bool generateAllInOne = false;
 
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
@@ -259,7 +260,7 @@ void klass::generateDeclaration() const {
     std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + genCppNameSpace() + " file");
+        throw std::runtime_error("Unable to open " + fileName + " file");
     }
 
     generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
@@ -314,7 +315,7 @@ void klass::generateInterfaceDeclaration() const {
     std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + genCppNameSpace() + " file");
+        throw std::runtime_error("Unable to open " + fileName + " file");
     }
 
     generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
@@ -367,7 +368,7 @@ void klass::generateInterfaceDefinition() const {
     std::string fileName = outdir + "/" + cppNameSpace + "/" + cppName + ".cpp";
     std::ofstream ofs(fileName);
     if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + cppNameSpace + " file");
+        throw std::runtime_error("Unable to open " + fileName + " file");
     }
 
     ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
@@ -557,7 +558,7 @@ void run() {
         std::string fileName = outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h";
         std::ofstream ofs(fileName);
         if (!ofs.is_open()) {
-            throw std::runtime_error("Unable to open " + cppNameSpace + " file");
+            throw std::runtime_error("Unable to open " + fileName + " file");
         }
 
         generateCodeProptectorBegin(ofs, cppNameSpace, cppNameSpace);
@@ -569,6 +570,21 @@ void run() {
         }
         ofs << std::endl;
         generateCodeProptectorEnd(ofs, cppNameSpace, cppNameSpace);
+    }
+
+    //Generate all in one cpp file
+    if ( generateAllInOne ) {
+        std::string fileName = outdir + "/AllInOne.cpp";
+        std::ofstream ofs(fileName);
+        if (!ofs.is_open()) {
+            throw std::runtime_error("Unable to open " + fileName + " file");
+        }
+
+        for ( auto const& klassMapItem: klass::uri2Ptr) {
+            const klass& cls = *klassMapItem.second;
+            ofs << "#include \"" << cls.genCppNameSpace() << "/I" << cls.genCppName() << ".cpp" << "\"" << std::endl;
+        }
+        ofs << std::endl;
     }
 }
 
@@ -605,14 +621,14 @@ int main(int argc, char **argv) {
     autordf::Factory f;
 
     std::stringstream usage;
-    usage << "Usage: " << argv[0] << " [-v] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n";
+    usage << "Usage: " << argv[0] << " [-v] [-a] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n";
     usage << "\t" << "Processes an OWL file, and generates C++ classes from it in current directory\n";
     usage << "\t" << "namespacemap:\t Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.\n";
     usage << "\t" << "outdir:\t Folder where to generate files in. If it does not exit it will be created. Defaults to current directory." << ".\n";
     usage << "\t" << "-v:\t Turn verbose output on." << ".\n";
-
+    usage << "\t" << "-a:\t Generate one cpp file that includes all the other called AllInOne.cpp" << ".\n";
     int opt;
-    while ((opt = ::getopt(argc, argv, "n:o:vh")) != -1) {
+    while ((opt = ::getopt(argc, argv, "avhn:o:")) != -1) {
         switch (opt) {
             case 'n': {
                 {
@@ -623,8 +639,8 @@ int main(int argc, char **argv) {
                     ss >> ns;
                     if ( autordf::tools::verbose ) {
                         std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
-                        f.addNamespacePrefix(prefix, ns);
                     }
+                    f.addNamespacePrefix(prefix, ns);
                 }
                 break;
             }
@@ -633,6 +649,9 @@ int main(int argc, char **argv) {
                 break;
             case 'v':
                 autordf::tools::verbose = true;
+                break;
+            case 'a':
+                autordf::tools::generateAllInOne = true;
                 break;
             case 'h':
             default: /* '?' */

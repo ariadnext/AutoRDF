@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/foaf")
-
 ADD_EXECUTABLE(
     testcodegen
     TestCodeGen.cpp
@@ -17,6 +15,7 @@ ADD_EXECUTABLE(
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
 )
+SET_TARGET_PROPERTIES(testcodegen PROPERTIES INCLUDE_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/foaf")
 
 TARGET_LINK_LIBRARIES(
     testcodegen
@@ -44,52 +43,12 @@ ADD_CUSTOM_COMMAND(
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
 )
 
-INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/mrd")
 ADD_EXECUTABLE(
     testmrd
     TestMrd.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x34.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x36.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x44.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_3x30.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentModel.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentSubType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDrivingLicense.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IEnum.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IExactSpecimen.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID0.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID1.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID2.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIdentityCard.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIssuingCountry.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ILastNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZCheckDigit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZChecker.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZField.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFieldDataType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFormat.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZInstance.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZParser.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZRange.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMachineReadableZone.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesAndFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesOrFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INumber.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IRegExp.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IResidencePermit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ISpecimen.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IStandardCheckDigit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ITemporaryPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IUnknown.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVehicleRegistration.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVisa.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/AllInOne.cpp
 )
+SET_TARGET_PROPERTIES(testmrd PROPERTIES INCLUDE_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/mrd")
 
 TARGET_LINK_LIBRARIES(
     testmrd
@@ -98,47 +57,7 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x34.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x36.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_2x44.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/I_3x30.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDate.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDiplomaticPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentFormat.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentModel.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentSubType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDocumentType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IDrivingLicense.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IEnum.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IExactSpecimen.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID0.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID1.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IID2.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIdentityCard.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IIssuingCountry.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ILastNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZCheckDigit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZChecker.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZField.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFieldDataType.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZFormat.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZInstance.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZParser.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMRZRange.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IMachineReadableZone.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesAndFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INamesOrFirstNames.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/INumber.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IRegExp.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IResidencePermit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ISpecimen.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IStandardCheckDigit.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/ITemporaryPassport.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IUnknown.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVehicleRegistration.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/mrd/IVisa.cpp
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -v -o mrd -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
+    ${CMAKE_CURRENT_BINARY_DIR}/mrd/AllInOne.cpp
+    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -a -o mrd -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
 )
