@@ -21,6 +21,7 @@ std::string outdir = ".";
 bool verbose = false;
 bool generateAllInOne = false;
 
+static const std::string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
 static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
 
@@ -62,6 +63,14 @@ void createDirectory(const std::string& relativeDirName) {
     }
 }
 
+std::string genCppName(const std::string& iri) {
+    std::string cppname = iri.substr(iri.find_last_of("/#:") + 1);
+    if ( !::isalpha(cppname[0]) ) {
+        cppname = "_" + cppname;
+    }
+    return cppname;
+}
+
 class RDFSEntity {
 public:
     // Object iri
@@ -73,11 +82,7 @@ public:
     std::string label;
 
     std::string genCppName() const {
-        std::string cppname = rdfname.substr(rdfname.find_last_of("/#:") + 1);
-        if ( !::isalpha(cppname[0]) ) {
-            cppname = "_" + cppname;
-        }
-        return cppname;
+        return tools::genCppName(rdfname);
     }
 
     std::string genCppNameSpace() const {
@@ -121,6 +126,7 @@ Model *RDFSEntity::_m = 0;
 class klass : public RDFSEntity {
 public:
     std::set<std::string> directAncestors;
+    std::set<std::string> enumValues;
 
     std::list<std::shared_ptr<DataProperty> > dataProperties;
     std::list<std::shared_ptr<ObjectProperty> > objectProperties;
@@ -283,11 +289,19 @@ void klass::generateDeclaration() const {
     ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
     ofs << std::endl;
-    indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
-    indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
-    indent(ofs, 1) << " */" << std::endl;
-    indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
+    if ( !enumValues.size() ) {
+        indent(ofs, 1) << "/**" << std::endl;
+        indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
+        indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
+        indent(ofs, 1) << " */" << std::endl;
+        indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
+    } else {
+        indent(ofs, 1) << "/**" << std::endl;
+        indent(ofs, 1) << " * Load enum from RDF model, from given C++ Type enum." << std::endl;
+        indent(ofs, 1) << " * This applies only to classes defines using the owl:oneOf paradigm" << std::endl;
+        indent(ofs, 1) << " */" << std::endl;
+        indent(ofs, 1) << cppName << "(I" << cppName << "::Enum enumVal) : autordf::Object(enumIri(enumVal)) {}" << std::endl;
+    }
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * Build us using the same underlying resource as the other object" << std::endl;
@@ -320,6 +334,11 @@ void klass::generateInterfaceDeclaration() const {
 
     generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
 
+    if ( enumValues.size() ) {
+        ofs << "#include <array>" << std::endl;
+        ofs << "#include <tuple>" << std::endl;
+        ofs << std::endl;
+    }
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << std::endl;
 
@@ -342,6 +361,18 @@ void klass::generateInterfaceDeclaration() const {
     indent(ofs, 1) << "// IRI for rfds type name" << std::endl;
     indent(ofs, 1) << "static const std::string& TYPEIRI;" << std::endl;
 
+    if ( enumValues.size() ) {
+        indent(ofs, 1) << "enum Enum {" << std::endl;
+        for ( std::string en : enumValues ) {
+            indent(ofs, 2) << tools::genCppName(en) << "," << std::endl;
+        }
+        indent(ofs, 1) << "};" << std::endl;
+        ofs << std::endl;
+        indent(ofs, 1) << "Enum asEnum() const;" << std::endl;
+        ofs << std::endl;
+        indent(ofs, 1) << "static std::string enumString(Enum en);" << std::endl;
+    }
+    ofs << std::endl;
     for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
         prop->generateDeclaration(ofs);
     }
@@ -354,6 +385,14 @@ void klass::generateInterfaceDeclaration() const {
     ofs << "private:" << std::endl;
     indent(ofs, 1) << "virtual autordf::Object& object() = 0;" << std::endl;
     indent(ofs, 1) << "virtual const autordf::Object& object() const = 0;" << std::endl;
+    ofs << std::endl;
+    if ( enumValues.size() ) {
+        indent(ofs, 1) << "typedef std::array<std::tuple<Enum, const char *, const char *>, " << enumValues.size() << "> EnumArrayType;" << std::endl;
+        indent(ofs, 1) << "static const EnumArrayType ENUMARRAY;" << std::endl;
+        ofs << std::endl;
+        ofs << "protected:" << std::endl;
+        indent(ofs, 1) << "static std::string enumIri(Enum en);" << std::endl;
+    }
 
     ofs << "};" << std::endl;
     ofs << std::endl;
@@ -375,6 +414,8 @@ void klass::generateInterfaceDefinition() const {
     ofs << std::endl;
     addBoilerPlate(ofs);
     ofs << std::endl;
+    ofs << "#include <sstream>" << std::endl;
+    ofs << std::endl;
 
     // Generate class imports
     std::set<std::shared_ptr<const klass> > cppDeps = getClassDependencies();
@@ -387,6 +428,40 @@ void klass::generateInterfaceDefinition() const {
 
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
     ofs << std::endl;
+
+    if ( enumValues.size() ) {
+        ofs << "const " << genCppName() << "::EnumArrayType I" << genCppName() << "::ENUMARRAY = {" << std::endl;
+        for ( std::string en : enumValues) {
+            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << tools::genCppName(en) << ", \"" << en << "\", \"" << tools::genCppName(en) << "\")," << std::endl;
+        }
+        ofs << "};" << std::endl;
+        ofs << std::endl;
+        ofs << "I" << genCppName() << "::Enum I" << genCppName() << "::asEnum() const {" << std::endl;
+        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
+        indent(ofs, 2) << "if ( object().iri() == std::get<1>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "throw std::runtime_error(object().iri() + \"does not point to a valid individual for C++ enum " << genCppName() << "\");" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+        ofs << "std::string I" << genCppName() << "::enumIri(Enum enumVal) {" << std::endl;
+        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
+        indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return std::get<1>(enumItem);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::stringstream ss;" << std::endl;
+        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
+        indent(ofs, 1) << "throw std::runtime_error(ss.str());" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+        ofs << "std::string I" << genCppName() << "::enumString(Enum enumVal) {" << std::endl;
+        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
+        indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return std::get<2>(enumItem);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::stringstream ss;" << std::endl;
+        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
+        indent(ofs, 1) << "throw std::runtime_error(ss.str());" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
+    }
 
     ofs << "const std::string& " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
     ofs << std::endl;
@@ -420,6 +495,22 @@ void extractClass(const Object& o, klass *kls) {
         kls->directAncestors.insert(pv);
     }
     kls->directAncestors.insert(OWL + "Thing");
+
+    std::shared_ptr<Object> oneof = o.getOptionalObject(OWL + "oneOf");
+    if ( oneof ) {
+        std::shared_ptr<Object> rest = oneof;
+        while ( rest && rest->iri() != RDF + "nil" ) {
+            std::string enumIRI = rest->getPropertyValue(RDF + "first");
+            kls->enumValues.insert(enumIRI);
+            rest = rest->getOptionalObject(RDF + "rest");
+        }
+    }
+
+    // FIXME can loop endlessly
+    const std::list<Object>& equivalentClasses = o.getObjectList(OWL + "equivalentClass");
+    for ( const Object& equivalentClass: equivalentClasses ) {
+        extractClass(equivalentClass, kls);
+    }
 }
 
 void extractProperty(const Object& o, Property *prop) {
@@ -447,18 +538,23 @@ void extractClass(const Object& rdfsClass) {
 void extractClasses(const std::string& classTypeIRI) {
     const std::list<Object>& classes = Object::findByType(classTypeIRI);
     for ( auto const& rdfsclass : classes) {
-        if ( klass::uri2Ptr.find(rdfsclass.iri()) == klass::uri2Ptr.end() ) {
-            if ( !rdfPrefix(rdfsclass.iri(), klass::model()).empty() ) {
-                if ( verbose ) {
-                    std::cout << "Found class " << rdfsclass.iri() << std::endl;
+        if ( rdfsclass.iri().length() ) {
+            if ( klass::uri2Ptr.find(rdfsclass.iri()) == klass::uri2Ptr.end() ) {
+                if ( !rdfPrefix(rdfsclass.iri(), klass::model()).empty() ) {
+                    if ( verbose ) {
+                        std::cout << "Found class " << rdfsclass.iri() << std::endl;
+                    }
+                    auto k = std::make_shared<klass>();
+                    extractRDFS(rdfsclass, k.get());
+                    extractClass(rdfsclass, k.get());
+                    klass::uri2Ptr[k->rdfname] = k;
+                } else {
+                    std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
                 }
-                auto k = std::make_shared<klass>();
-                extractRDFS(rdfsclass, k.get());
-                extractClass(rdfsclass, k.get());
-                klass::uri2Ptr[k->rdfname] = k;
-            } else {
-                std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
             }
+        } else {
+            std::cerr << "Skipping blank node class" << std::endl;
+            // anonymous class found
         }
     }
 }

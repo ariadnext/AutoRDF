@@ -205,7 +205,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFormat -->
 
     <owl:ObjectProperty rdf:about="&mrd;mrzFormat">
-        <rdfs:range rdf:resource="&mrd;MRZFormat"/>
+        <rdfs:range rdf:resource="&mrd;MRZFormatOld"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
     </owl:ObjectProperty>
     
@@ -388,9 +388,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentFormat -->
 
-    <owl:Class rdf:about="&mrd;DocumentFormat">
-        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
-    </owl:Class>
+    <owl:Class rdf:about="&mrd;DocumentFormat"/>
     
 
 
@@ -411,7 +409,6 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentType -->
 
     <owl:Class rdf:about="&mrd;DocumentType">
-        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
         <rdfs:comment rdf:datatype="&xsd;string">Type principal de document</rdfs:comment>
     </owl:Class>
     
@@ -423,12 +420,6 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
         <rdfs:label xml:lang="fr">Permis de conduire</rdfs:label>
         <rdfs:subClassOf rdf:resource="&mrd;DocumentType"/>
     </owl:Class>
-    
-
-
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Enum -->
-
-    <owl:Class rdf:about="&mrd;Enum"/>
     
 
 
@@ -529,7 +520,6 @@ Un vérifieur est chargé de recalculer les checksums sur les MRZ</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFieldDataType -->
 
     <owl:Class rdf:about="&mrd;MRZFieldDataType">
-        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
     </owl:Class>
     
@@ -538,7 +528,24 @@ Un vérifieur est chargé de recalculer les checksums sur les MRZ</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFormat -->
 
     <owl:Class rdf:about="&mrd;MRZFormat">
-        <rdfs:subClassOf rdf:resource="&mrd;Enum"/>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:oneOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&mrd;3x30"/>
+                    <rdf:Description rdf:about="&mrd;2x36"/>
+                    <rdf:Description rdf:about="&mrd;2x44"/>
+                    <rdf:Description rdf:about="&mrd;2x34"/>
+                </owl:oneOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFormatOld -->
+
+    <owl:Class rdf:about="&mrd;MRZFormatOld">
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
     </owl:Class>
     
@@ -681,34 +688,34 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x34 -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2_x34 -->
 
-    <owl:Class rdf:about="&mrd;2x34">
-        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    <owl:Class rdf:about="&mrd;2_x34">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormatOld"/>
     </owl:Class>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x36 -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2_x36 -->
 
-    <owl:Class rdf:about="&mrd;2x36">
-        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    <owl:Class rdf:about="&mrd;2_x36">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormatOld"/>
     </owl:Class>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x44 -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2_x44 -->
 
-    <owl:Class rdf:about="&mrd;2x44">
-        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    <owl:Class rdf:about="&mrd;2_x44">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormatOld"/>
     </owl:Class>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#3x30 -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#3_3x30 -->
 
-    <owl:Class rdf:about="&mrd;3x30">
-        <rdfs:subClassOf rdf:resource="&mrd;MRZFormat"/>
+    <owl:Class rdf:about="&mrd;3_3x30">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZFormatOld"/>
     </owl:Class>
     
 
@@ -727,7 +734,7 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x34 -->
 
     <owl:NamedIndividual rdf:about="&mrd;Format_2x34">
-        <rdf:type rdf:resource="&mrd;2x34"/>
+        <rdf:type rdf:resource="&mrd;2_x34"/>
     </owl:NamedIndividual>
     
 
@@ -735,7 +742,7 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x36 -->
 
     <owl:NamedIndividual rdf:about="&mrd;Format_2x36">
-        <rdf:type rdf:resource="&mrd;2x36"/>
+        <rdf:type rdf:resource="&mrd;2_x36"/>
     </owl:NamedIndividual>
     
 
@@ -743,7 +750,7 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_2x44 -->
 
     <owl:NamedIndividual rdf:about="&mrd;Format_2x44">
-        <rdf:type rdf:resource="&mrd;2x44"/>
+        <rdf:type rdf:resource="&mrd;2_x44"/>
     </owl:NamedIndividual>
     
 
@@ -751,7 +758,7 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Format_3x30 -->
 
     <owl:NamedIndividual rdf:about="&mrd;Format_3x30">
-        <rdf:type rdf:resource="&mrd;3x30"/>
+        <rdf:type rdf:resource="&mrd;3_3x30"/>
     </owl:NamedIndividual>
     
 
@@ -809,7 +816,6 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
         <issuingCountry rdf:resource="&mrd;France"/>
         <mrzInstance rdf:resource="&mrd;FrenchMRZInstance"/>
         <documentSpecimen rdf:resource="&mrd;ID-FRA-0_specimen"/>
-        <documentType rdf:resource="&mrd;identityCard"/>
     </owl:NamedIndividual>
     
 
@@ -857,9 +863,35 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#identityCard -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x34 -->
 
-    <owl:NamedIndividual rdf:about="&mrd;identityCard"/>
+    <owl:Thing rdf:about="&mrd;2x34">
+        <rdf:type rdf:resource="&owl;NamedIndividual"/>
+    </owl:Thing>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x36 -->
+
+    <owl:Thing rdf:about="&mrd;2x36">
+        <rdf:type rdf:resource="&owl;NamedIndividual"/>
+    </owl:Thing>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x44 -->
+
+    <owl:Thing rdf:about="&mrd;2x44">
+        <rdf:type rdf:resource="&owl;NamedIndividual"/>
+    </owl:Thing>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#3x30 -->
+
+    <owl:Thing rdf:about="&mrd;3x30">
+        <rdf:type rdf:resource="&owl;NamedIndividual"/>
+    </owl:Thing>
     
 
 
