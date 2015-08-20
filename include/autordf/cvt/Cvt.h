@@ -8,47 +8,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
 
+#include <autordf/cvt/RdfTypeEnum.h>
+
 namespace autordf {
 namespace cvt {
-
-#define CVT_TYPES_DEF(X) \
-    X(xsd_string) \
-    X(xsd_boolean) \
-    X(xsd_decimal) \
-    X(xsd_float) \
-    X(xsd_double) \
-    X(xsd_dateTime) \
-    X(xsd_integer) \
-    X(xsd_dateTimeStamp) \
-    X(xsd_nonNegativeInteger) \
-    X(xsd_positiveInteger) \
-    X(xsd_nonPositiveInteger) \
-    X(xsd_negativeInteger) \
-    X(xsd_long) \
-    X(xsd_unsignedLong) \
-    X(xsd_int) \
-    X(xsd_unsignedInt) \
-    X(xsd_short) \
-    X(xsd_unsignedShort) \
-    X(xsd_byte) \
-    X(xsd_unsignedByte)
-
-// Integer types are a pain. Mapping from/to C++ <--> XML Schema is done using info from
-// - http://en.cppreference.com/w/cpp/language/types
-// and
-// - http://www.w3.org/TR/xmlschema-2
-//
-// 1 - We make sure that data types association between both world are at least big enough to be sure that
-// any data read out there will fit in the C++ type, except for xsd:decimal and xsd:*integer, where we merely rely on an approximation
-// We approximate xsd:decimal with double and xsd:*integer with long long.
-// 2 - However it is responsibility of the user to make sure
-// that the data he puts in his C++ variables will fit in the corresponding XSD types
-
-enum class RdfTypeEnum {
-#define X(a) a,
-   CVT_TYPES_DEF(X)
-#undef X
-};
 
 inline std::string trim(const std::string &s)
 {
@@ -61,21 +24,6 @@ inline std::string trim(const std::string &s)
         rit++;
 
     return std::string(it, rit.base());
-}
-
-inline std::string rdfTypeEnumString(RdfTypeEnum enumVal) {
-    static const std::string RAWVALS[] = {
-#define X(a) #a,
-    CVT_TYPES_DEF(X)
-#undef X
-    };
-    std::string val = RAWVALS[static_cast<int>(enumVal)];
-    for ( char& c : val) {
-        if ( c == '_' ) {
-            c = ':';
-        }
-    }
-    return val;
 }
 
 inline std::string getLeft(const std::string& rawValue) {
@@ -211,7 +159,7 @@ template<typename CppType, RdfTypeEnum rdfType> class toRdf;
 
 template<RdfTypeEnum rdfType, typename CppType> std::string toRdfGeneric(const CppType& cppValue) {
     std::ostringstream ss;
-    ss << "\"" << cppValue << "\"^^" << rdfTypeEnumString(rdfType);
+    ss << "\"" << cppValue << "\"^^" << rdfType;
     return ss.str();
 };
 
@@ -251,7 +199,7 @@ inline std::string toRdfDateTime(const boost::posix_time::ptime& time, RdfTypeEn
     // ISO Extended with Z as forced timezone
     facet->format("%Y-%m-%dT%H:%M:%S%FZ");
     ss.imbue(std::locale(std::locale::classic(), facet));
-    ss << "\"" << time << "\"^^" << rdfTypeEnumString(type);
+    ss << "\"" << time << "\"^^" << type;
     return ss.str();
 }
 
@@ -306,7 +254,7 @@ template<> class toRdf<char, RdfTypeEnum::xsd_byte>  {
 public:
     static std::string val(char cppValue) {
         std::ostringstream ss;
-        ss << "\"" << static_cast<short>(cppValue) << "\"^^" << rdfTypeEnumString(RdfTypeEnum::xsd_byte);
+        ss << "\"" << static_cast<short>(cppValue) << "\"^^" << RdfTypeEnum::xsd_byte;
         return ss.str();
     }
 };
@@ -316,7 +264,7 @@ template<> class toRdf<unsigned char, RdfTypeEnum::xsd_unsignedByte>  {
 public:
     static std::string val(unsigned char cppValue) {
         std::ostringstream ss;
-        ss << "\"" << static_cast<unsigned short>(cppValue) << "\"^^" << rdfTypeEnumString(RdfTypeEnum::xsd_unsignedByte);
+        ss << "\"" << static_cast<unsigned short>(cppValue) << "\"^^" << RdfTypeEnum::xsd_unsignedByte;
         return ss.str();
     }
 };
