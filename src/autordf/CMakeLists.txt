@@ -1,3 +1,5 @@
+find_package(Boost COMPONENTS date_time)
+
 ADD_LIBRARY(
     autordf
     ${LIBRARY_TYPE}
@@ -22,6 +24,7 @@ ADD_LIBRARY(
 TARGET_LINK_LIBRARIES(
     autordf
     ${REDLAND_LIBRARIES}
+    boost_date_time
 )
 SET_TARGET_PROPERTIES(autordf PROPERTIES VERSION ${SOLIBVERSION})
 

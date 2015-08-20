@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <autordf/cvt/Cvt.h>
+
 namespace autordf {
 
 class PropertyValue : public std::string {
