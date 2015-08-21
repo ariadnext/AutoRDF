@@ -59,5 +59,5 @@ ADD_CUSTOM_COMMAND(
     OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/mrd/AllInOne.cpp
     COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -a -o mrd -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
 )
