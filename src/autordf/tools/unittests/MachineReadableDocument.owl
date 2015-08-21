@@ -278,7 +278,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:label xml:lang="fr">Une position dans la MRZ.</rdfs:label>
         <rdfs:comment xml:lang="fr">Le premier caractère est positionné à 0. Sur une MRZ de N lignes et M colonnes, le premier caractère de la Nième ligne se trouve à la position N*M</rdfs:comment>
-        <rdfs:range rdf:resource="&xsd;unsignedInt"/>
+        <rdfs:range rdf:resource="&xsd;unsignedShort"/>
     </owl:DatatypeProperty>
     
 
