@@ -186,20 +186,33 @@ public:
         generateComment(ofs, 1);
         if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
             if ( getEffectiveMinCardinality(onClass) > 0 ) {
-                indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
-                indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
-                indent(ofs, 1) << "}" << std::endl;
+                generateForOneMandatory(ofs);
             } else {
-                indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
-                indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
-                indent(ofs, 1) << "}" << std::endl;
+                generateForOneOptional(ofs);
             }
         }
         if ( getEffectiveMaxCardinality(onClass) > 1 ) {
-            indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
-            indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 1) << "}" << std::endl;
+            generateForMany(ofs);
         }
+    }
+
+private:
+    void generateForOneMandatory(std::ofstream& ofs) const {
+        indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
+        indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+
+    void generateForOneOptional(std::ofstream& ofs) const {
+        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+
+    void generateForMany(std::ofstream& ofs) const {
+        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
+        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
     }
 };
 std::map<std::string, std::shared_ptr<DataProperty> > DataProperty::uri2Ptr;
