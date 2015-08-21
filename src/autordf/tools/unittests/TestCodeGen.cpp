@@ -21,9 +21,9 @@ int main() {
     foaf::Person p2 = list2.front();
 
     // FIXME: why is givenName Lost ?
-    std::cout << "name = " << p2.name() << std::endl;
+    std::cout << "name = " << p2.nameList().front() << std::endl;
     std::cout << "  knows : ";
     for ( const foaf::Person& o : p2.knowsList() ) {
-        std::cout << o.name() << ", ";
+        std::cout << o.nameList().front() << ", ";
     }
 }

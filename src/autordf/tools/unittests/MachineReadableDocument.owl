@@ -81,6 +81,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;format">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Le format ISO du document, parmis ID0, ID1, ID2</rdfs:label>
         <rdfs:range rdf:resource="&mrd;DocumentFormat"/>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;document"/>
@@ -92,8 +93,9 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;issuingCountry">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Pays d&apos;émisstion du document</rdfs:label>
+        <rdfs:range rdf:resource="&mrd;Country"/>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
-        <rdfs:range rdf:resource="&mrd;IssuingCountry"/>
     </owl:ObjectProperty>
     
 
@@ -144,6 +146,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;mrzInstance">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Toutes les informations utiles sur la structure de la MRZ du document (découpe, règles de vérification, etc...)</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&mrd;MRZInstance"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
@@ -177,8 +180,21 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#specimen -->
 
     <owl:ObjectProperty rdf:about="&mrd;specimen">
+        <rdfs:label xml:lang="fr">La liste des spécimens connus pour ce document</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&mrd;Specimen"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;document"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#subtype -->
+
+    <owl:ObjectProperty rdf:about="&mrd;subtype">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Sous type de document (Passeport Diplomatique, Passeport temporaire, ...)</rdfs:label>
+        <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
+        <rdfs:range rdf:resource="&mrd;DocumentSubType"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;document"/>
     </owl:ObjectProperty>
     
@@ -188,6 +204,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;type">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Type principal du document (ID, Passeport, Visa, ...)</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&mrd;DocumentType"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;document"/>
@@ -210,7 +227,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;firstIssuingDate">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="fr">Date à laquelle les premiers exemplaires de ce document on été émis</rdfs:comment>
+        <rdfs:label xml:lang="fr">Date à laquelle les premiers exemplaires d&apos;un modèle de documents ont été émis</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
@@ -221,6 +238,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;id">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Numéro d&apos;identifiant interne AriadNEXT du modèle de document</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -231,7 +249,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;lastIssuingDate">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment xml:lang="fr">Date à laquelle les derniers exemplaires de ce document on été émis</rdfs:comment>
+        <rdfs:label xml:lang="fr">Date à laquelle les derniers exemplaires d&apos;un modèle de documents on été émis</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
@@ -242,6 +260,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;length">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Une longueur, en nombre de caractères.</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;MRZRange"/>
         <rdfs:range rdf:resource="&xsd;unsignedShort"/>
     </owl:DatatypeProperty>
@@ -252,8 +271,8 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;position">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:domain rdf:resource="&mrd;MRZCheckDigit"/>
-        <rdfs:domain rdf:resource="&mrd;MRZRange"/>
+        <rdfs:label xml:lang="fr">Une position dans la MRZ.</rdfs:label>
+        <rdfs:comment xml:lang="fr">Le premier caractère est positionné à 0. Sur une MRZ de N lignes et M colonnes, le premier caractère de la Nième ligne se trouve à la position N*M</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;unsignedInt"/>
     </owl:DatatypeProperty>
     
@@ -266,7 +285,6 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
         <rdfs:label xml:lang="fr">Une expression régulière</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;MRZField"/>
         <rdfs:range rdf:resource="&xsd;string"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topDataProperty"/>
     </owl:DatatypeProperty>
     
 
@@ -274,6 +292,8 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#specimenLines -->
 
     <owl:DatatypeProperty rdf:about="&mrd;specimenLines">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Les n lignes du document spécimen, séparées par le caractère retour chariot</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;ExactSpecimen"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
@@ -284,7 +304,8 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:DatatypeProperty rdf:about="&mrd;trigram">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:domain rdf:resource="&mrd;IssuingCountry"/>
+        <rdfs:label xml:lang="fr">Les trois lettres conformes à la norme ISOXXX qui définissent de manière unique un code pour ce pays</rdfs:label>
+        <rdfs:domain rdf:resource="&mrd;Country"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -298,6 +319,19 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
+
+
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Country -->
+
+    <owl:Class rdf:about="&mrd;Country">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;trigram"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
     
 
 
@@ -320,6 +354,24 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentModel -->
 
     <owl:Class rdf:about="&mrd;DocumentModel">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;issuingCountry"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;id"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;type"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Un modèle de document. Contient de nombreuses propriétés.</rdfs:comment>
     </owl:Class>
     
@@ -370,19 +422,16 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#IssuingCountry -->
-
-    <owl:Class rdf:about="&mrd;IssuingCountry">
-        <rdfs:label xml:lang="fr">Pays d&apos;émission du document</rdfs:label>
-        <rdfs:isDefinedBy>http://www.dbpedia.org/resource/Country</rdfs:isDefinedBy>
-    </owl:Class>
-    
-
-
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZCheckDigit -->
 
     <owl:Class rdf:about="&mrd;MRZCheckDigit">
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;position"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé.</rdfs:comment>
     </owl:Class>
     
@@ -402,6 +451,18 @@ Un vérifieur est chargé de recalculer les checksums sur les MRZ</rdfs:comment>
 
     <owl:Class rdf:about="&mrd;MRZField">
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;range"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;fieldDataType"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Un champ sur une MRZ.
 Un champ a un type(pour guider le parsing), un début, une fin, optionellement une regexp</rdfs:comment>
     </owl:Class>
@@ -457,6 +518,18 @@ Un champ a un type(pour guider le parsing), un début, une fin, optionellement u
 
     <owl:Class rdf:about="&mrd;MRZInstance">
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;mrzParser"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;mrzFormat"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Une instance de MRZ est l&apos;association d&apos;un parseur de MRZ avec un vérifeur de MRZ</rdfs:comment>
     </owl:Class>
     
@@ -477,6 +550,18 @@ Un parseur est constitué d&apos;une liste de champs (MRZField)</rdfs:comment>
 
     <owl:Class rdf:about="&mrd;MRZRange">
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;length"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;position"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Une suite de caractères contigus dans la MRZ.
 Le début est compté en nombre de caractères depuis le début de la MRZ (0 étant le premier caractère de la MRZ)</rdfs:comment>
     </owl:Class>
@@ -602,7 +687,7 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#France -->
 
     <owl:NamedIndividual rdf:about="&mrd;France">
-        <rdf:type rdf:resource="&mrd;IssuingCountry"/>
+        <rdf:type rdf:resource="&mrd;Country"/>
         <trigram rdf:datatype="&xsd;string">FRA</trigram>
     </owl:NamedIndividual>
     
@@ -818,6 +903,21 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     <owl:NamedIndividual rdf:about="&mrd;3x30">
         <rdf:type rdf:resource="&mrd;MRZFormat"/>
     </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="&mrd;Country">
+        <rdfs:label xml:lang="fr">Un pays. identifié principalement par son trigramme</rdfs:label>
+        <rdfs:isDefinedBy>http://www.dbpedia.org/resource/Country</rdfs:isDefinedBy>
+    </rdf:Description>
 </rdf:RDF>
 
 

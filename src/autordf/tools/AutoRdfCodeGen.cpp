@@ -128,8 +128,12 @@ public:
     std::set<std::string> directAncestors;
     std::set<std::string> enumValues;
 
-    std::list<std::shared_ptr<DataProperty> > dataProperties;
-    std::list<std::shared_ptr<ObjectProperty> > objectProperties;
+    std::set<std::shared_ptr<DataProperty> > dataProperties;
+    std::set<std::shared_ptr<ObjectProperty> > objectProperties;
+
+    // It is usual (but optional) to specify at class level the minimum and/or maximum instances for a property
+    std::map<std::string, unsigned int> overridenMinCardinality;
+    std::map<std::string, unsigned int> overridenMaxCardinality;
 
     std::set<std::shared_ptr<const klass> > getClassDependencies() const;
 
@@ -152,6 +156,24 @@ public:
     std::string range;
     unsigned int minCardinality;
     unsigned int maxCardinality;
+
+    //FIXME: this behaviour should be checked against the standard
+    unsigned int getEffectiveMinCardinality(const klass& kls) const {
+        auto it = kls.overridenMinCardinality.find(rdfname);
+        if ( it != kls.overridenMinCardinality.end() ) {
+            return  it->second;
+        }
+        return minCardinality;
+    }
+
+    //FIXME: this behaviour should be checked against the standard
+    unsigned int getEffectiveMaxCardinality(const klass& kls) const {
+        auto it = kls.overridenMaxCardinality.find(rdfname);
+        if ( it != kls.overridenMaxCardinality.end() ) {
+            return  it->second;
+        }
+        return maxCardinality;
+    }
 };
 
 class DataProperty : public Property {
@@ -159,16 +181,21 @@ public:
     // iri to Property map
     static std::map<std::string, std::shared_ptr<DataProperty> > uri2Ptr;
 
-    void generateDeclaration(std::ofstream& ofs) const {
+    void generateDeclaration(std::ofstream& ofs, const klass& onClass) const {
         ofs << std::endl;
         generateComment(ofs, 1);
-        indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-        if ( maxCardinality > 1 ) {
+        if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
+            if ( getEffectiveMinCardinality(onClass) > 0 ) {
+                indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
+                indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
+                indent(ofs, 1) << "}" << std::endl;
+            } else {
+                indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
+                indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+                indent(ofs, 1) << "}" << std::endl;
+            }
+        }
+        if ( getEffectiveMaxCardinality(onClass) > 1 ) {
             indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
             indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
             indent(ofs, 1) << "}" << std::endl;
@@ -189,32 +216,42 @@ public:
         return nullptr;
     }
 
-    void generateDeclaration(std::ofstream& ofs) const {
+    void generateDeclaration(std::ofstream& ofs, const klass& onClass) const {
         auto propertyClass = findClass();
 
         ofs << std::endl;
         generateComment(ofs, 1);
-        indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
-        indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
-        if ( maxCardinality > 1) {
+
+        if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
+            if ( getEffectiveMinCardinality(onClass) > 0 ) {
+                indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
+            } else {
+                indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
+            }
+        }
+        if ( getEffectiveMaxCardinality(onClass) > 1 ) {
             indent(ofs, 1) << "std::list<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "List() const;" << std::endl;
         }
     }
 
-    void generateDefinition(std::ofstream& ofs, const std::string& currentClassName) {
+    void generateDefinition(std::ofstream& ofs, const std::string& currentClassName, const klass& onClass) {
         auto propertyClass = findClass();
-        ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
-        indent(ofs, 1) << "return object().getObject(\"" << rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
-        ofs << "}" << std::endl;
-        ofs << std::endl;
 
-        ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
-        ofs << "}" << std::endl;
-        ofs << std::endl;
-
-        if ( maxCardinality > 1) {
+        if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
+            if ( getEffectiveMinCardinality(onClass) > 0 ) {
+                ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
+                indent(ofs, 1) << "return object().getObject(\"" << rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
+                ofs << "}" << std::endl;
+                ofs << std::endl;
+            } else {
+                ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
+                indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << rdfname << "\");" << std::endl;
+                indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
+                ofs << "}" << std::endl;
+                ofs << std::endl;
+            }
+        }
+        if ( getEffectiveMaxCardinality(onClass) > 1 ) {
             ofs << "std::list<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass->genCppNameWithNamespace() << ">(\"" <<  rdfname << "\");" << std::endl;
             ofs << "}" << std::endl;
@@ -362,11 +399,11 @@ void klass::generateInterfaceDeclaration() const {
     }
     ofs << std::endl;
     for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
-        prop->generateDeclaration(ofs);
+        prop->generateDeclaration(ofs, *this);
     }
 
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
-        prop->generateDeclaration(ofs);
+        prop->generateDeclaration(ofs, *this);
     }
     ofs << std::endl;
 
@@ -455,7 +492,7 @@ void klass::generateInterfaceDefinition() const {
     ofs << std::endl;
 
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
-        prop->generateDefinition(ofs, cppName);
+        prop->generateDefinition(ofs, cppName, *this);
     }
     ofs << "}" << std::endl;
 }
@@ -477,13 +514,58 @@ void extractRDFS(const Object& o, RDFSEntity *rdfs) {
     }
 }
 
+void extractClassCardinality(const Object& o, klass *kls, const char * card, const char * minCard, const char * maxCard) {
+    std::string propertyIRI = o.getPropertyValue(OWL + "onProperty");
+    if ( o.getOptionalPropertyValue(OWL + card) ) {
+        unsigned int cardinality = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + card));
+        kls->overridenMinCardinality[propertyIRI] = cardinality;
+        kls->overridenMaxCardinality[propertyIRI] = cardinality;
+    }
+    if ( o.getOptionalPropertyValue(OWL + minCard) ) {
+        kls->overridenMinCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + minCard));
+    }
+    if ( o.getOptionalPropertyValue(OWL + maxCard) ) {
+        kls->overridenMaxCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + maxCard));
+    }
+}
+
 void extractClass(const Object& o, klass *kls) {
-    const std::list<PropertyValue>& subClasses = o.getPropertyValueList(RDFS + "subClassOf");
-    for ( const PropertyValue& pv : subClasses) {
-        kls->directAncestors.insert(pv);
+    const std::list<Object>& subClasses = o.getObjectList(RDFS + "subClassOf");
+    for ( const Object& subclass : subClasses ) {
+        if ( !subclass.iri().empty() ) {
+            // This is a named ancestor, that will be processes seperately, handle that through
+            // standard C++ inheritance mechanism
+            kls->directAncestors.insert(subclass.iri());
+        } else {
+            // Anonymous ancestor, merge with current class
+            extractClass(subclass, kls);
+        }
     }
     kls->directAncestors.insert(OWL + "Thing");
 
+    // If we are processing an anonymous ancestor
+    if ( o.isA(OWL + "Restriction") ) {
+        // Add class to list of known classes
+        const Object& property = o.getObject(OWL + "onProperty");
+        if ( property.isA(OWL + "ObjectProperty") ) {
+            if ( ObjectProperty::uri2Ptr.count(property.iri()) ) {
+                kls->objectProperties.insert(ObjectProperty::uri2Ptr[property.iri()]);
+            } else {
+                std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
+            }
+        } else {
+            if ( DataProperty::uri2Ptr.count(property.iri()) ) {
+                kls->dataProperties.insert(DataProperty::uri2Ptr[property.iri()]);
+            } else {
+                std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
+            }
+        }
+        // FIXME: who has priority ?
+        extractClassCardinality(o, kls, "cardinality", "minCardinality", "maxCardinality");
+        extractClassCardinality(o, kls, "qualifiedCardinality", "minQualifiedCardinality", "maxQualifiedCardinality");
+    }
+
+    // Handle enum types
     std::shared_ptr<Object> oneof = o.getOptionalObject(OWL + "oneOf");
     if ( oneof ) {
         std::shared_ptr<Object> rest = oneof;
@@ -566,10 +648,6 @@ void run() {
     rdfsResource->directAncestors.insert(owlThing->rdfname);
     klass::uri2Ptr[rdfsResource->rdfname] = rdfsResource;
 
-    // Gather classes
-    extractClasses(OWL + "Class");
-    extractClasses(RDFS + "Class");
-
     // Gather data Properties
     const std::list<Object>& owlDataProperties = Object::findByType(OWL + "DatatypeProperty");
     for ( auto const& owlDataProperty : owlDataProperties) {
@@ -594,6 +672,10 @@ void run() {
         ObjectProperty::uri2Ptr[p->rdfname] = p;
     }
 
+    // Gather classes
+    extractClasses(OWL + "Class");
+    extractClasses(RDFS + "Class");
+
     // Remove reference to unexisting classes
     for ( auto const& klasses : klass::uri2Ptr) {
         std::set<std::string>& directAncestors = klasses.second->directAncestors;
@@ -613,7 +695,7 @@ void run() {
         for(const std::string& currentDomain : dataProperty.domains) {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
-                klassIt->second->dataProperties.push_back(dataPropertyMapItem.second);
+                klassIt->second->dataProperties.insert(dataPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << dataProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
@@ -624,7 +706,7 @@ void run() {
         for(const std::string& currentDomain : objectProperty.domains) {
             auto klassIt = klass::uri2Ptr.find(currentDomain);
             if ( klassIt != klass::uri2Ptr.end() ) {
-                klassIt->second->objectProperties.push_back(objectPropertyMapItem.second);
+                klassIt->second->objectProperties.insert(objectPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << objectProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
