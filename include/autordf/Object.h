@@ -25,6 +25,7 @@ class Factory;
  */
 class Object {
 public:
+    static const std::string RDF_NS;
 
     /**
      * All newly Objects will be created in this Model
@@ -86,6 +87,11 @@ public:
     void setPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
 
     void setPropertyValueList(const std::string& propertyIRI, const std::list<PropertyValue>& values);
+
+    /**
+     * Returns true if this object is also of the specified type IRI
+     */
+    bool isA(const std::string& typeIRI) const;
 
     /**
      * Provides ultra-fast trans-typing to another Object descendant

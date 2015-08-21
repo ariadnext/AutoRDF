@@ -7,6 +7,8 @@ namespace autordf {
 
 Factory *Object::_factory = nullptr;
 
+const std::string Object::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
 void Object::setFactory(Factory *f) {
     _factory = f;
 }
@@ -101,6 +103,16 @@ void Object::setPropertyValueList(const std::string& propertyIRI, const std::lis
         p.setValue(val);
         _r.addProperty(p);
     }
+}
+
+bool Object::isA(const std::string& typeIRI) const {
+    auto const& typesList = getPropertyValueList(RDF_NS+"type");
+    for ( const PropertyValue& type: typesList) {
+        if ( type == typeIRI ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Object::remove() {

@@ -150,6 +150,8 @@ class Property : public RDFSEntity {
 public:
     std::list<std::string> domains;
     std::string range;
+    unsigned int minCardinality;
+    unsigned int maxCardinality;
 };
 
 class DataProperty : public Property {
@@ -166,9 +168,11 @@ public:
         indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
         indent(ofs, 2) <<     "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        if ( maxCardinality > 1 ) {
+            indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
+            indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        }
     }
 };
 std::map<std::string, std::shared_ptr<DataProperty> > DataProperty::uri2Ptr;
@@ -190,43 +194,27 @@ public:
 
         ofs << std::endl;
         generateComment(ofs, 1);
-        if ( !propertyClass ) {
-            indent(ofs, 1) << "autordf::Object " << genCppName() << "() const {" << std::endl;
-            indent(ofs, 2) <<     "return object().getObject(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 1) << "}" << std::endl;
-        } else {
-            indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
-        }
-        if ( !propertyClass ) {
-            indent(ofs, 1) << "std::shared_ptr<autordf::Object> " << genCppName() << "Optional() const {" << std::endl;
-            indent(ofs, 2) <<     "return object().getOptionalObject(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 1) << "}" << std::endl;
-        } else {
-            indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
-        }
-        if ( !propertyClass ) {
-            indent(ofs, 1) << "std::list<autordf::Object> " << genCppName() << "List() const {" << std::endl;
-            indent(ofs, 2) <<     "return object().getObjectList(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 1) << "}" << std::endl;
-        } else {
+        indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
+        if ( maxCardinality > 1) {
             indent(ofs, 1) << "std::list<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "List() const;" << std::endl;
         }
     }
 
     void generateDefinition(std::ofstream& ofs, const std::string& currentClassName) {
         auto propertyClass = findClass();
-        if ( propertyClass ) {
-            ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
-            indent(ofs, 1) << "return object().getObject(\"" << rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
-            ofs << "}" << std::endl;
-            ofs << std::endl;
+        ofs << propertyClass->genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
+        indent(ofs, 1) << "return object().getObject(\"" << rdfname << "\").as<" << propertyClass->genCppNameWithNamespace() << ">();" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
 
-            ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
-            indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
-            ofs << "}" << std::endl;
-            ofs << std::endl;
+        ofs << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
+        indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass->genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
 
+        if ( maxCardinality > 1) {
             ofs << "std::list<" << propertyClass->genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass->genCppNameWithNamespace() << ">(\"" <<  rdfname << "\");" << std::endl;
             ofs << "}" << std::endl;
@@ -525,6 +513,13 @@ void extractProperty(const Object& o, Property *prop) {
         std::stringstream ss;
         ss << "rdfs#range has more than one item for " << o.iri();
         throw std::runtime_error(ss.str());
+    }
+    if ( o.isA(OWL + "FunctionalProperty") ) {
+        prop->minCardinality = 0;
+        prop->maxCardinality = 1;
+    } else {
+        prop->minCardinality = 0;
+        prop->maxCardinality = 0xFFFFFFFF;
     }
 }
 
