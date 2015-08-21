@@ -51,7 +51,11 @@ inline std::string rdfTypeEnumString(RdfTypeEnum enumVal) {
             CVT_TYPES_DEF(X)
 #undef X
     };
-    std::string val = RAWVALS[static_cast<int>(enumVal)];
+    return RAWVALS[static_cast<int>(enumVal)];
+}
+
+inline std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal) {
+    std::string val = rdfTypeEnumString(enumVal);
     for ( char& c : val) {
         if ( c == '_' ) {
             c = ':';
@@ -61,7 +65,7 @@ inline std::string rdfTypeEnumString(RdfTypeEnum enumVal) {
 }
 
 inline std::ostream& operator<<(std::ostream& os, RdfTypeEnum enumVal) {
-    os << rdfTypeEnumString(enumVal);
+    os << rdfTypeEnumXMLString(enumVal);
     return os;
 }
 

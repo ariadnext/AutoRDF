@@ -13,8 +13,12 @@ public:
     PropertyValue(const char *rawValue) : std::string(rawValue) {}
     PropertyValue(const std::string& rawValue) : std::string(rawValue) {}
 
-    template<typename T> void set(const T& val);
-    template<typename T> T get() const;
+    template<cvt::RdfTypeEnum rdfType, typename T> void set(const T& val) {
+        assign(cvt::toRdf<T, rdfType>::val(val));
+    };
+    template<cvt::RdfTypeEnum rdfType, typename T> T get() const {
+        return cvt::toCpp<T, rdfType>::val(*this);
+    };
 };
 
 }

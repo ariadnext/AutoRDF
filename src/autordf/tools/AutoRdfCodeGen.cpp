@@ -29,6 +29,29 @@ class ObjectProperty;
 class DataProperty;
 class klass;
 
+std::tuple<const char *, cvt::RdfTypeEnum, const char *> rdf2CppTypeMapping[] = {
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#string",             cvt::RdfTypeEnum::xsd_string,             "std::string"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#boolean",            cvt::RdfTypeEnum::xsd_boolean,            "bool"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#decimal",            cvt::RdfTypeEnum::xsd_decimal,            "double"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#float",              cvt::RdfTypeEnum::xsd_float,              "float"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#double",             cvt::RdfTypeEnum::xsd_double,             "double"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#dateTime",           cvt::RdfTypeEnum::xsd_dateTime,           "boost::posix_time::ptime"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#integer",            cvt::RdfTypeEnum::xsd_integer,            "long long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#dateTimeStamp",      cvt::RdfTypeEnum::xsd_dateTimeStamp,      "boost::posix_time::ptime"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#nonNegativeInteger", cvt::RdfTypeEnum::xsd_nonNegativeInteger, "long long unsigned int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#positiveInteger",    cvt::RdfTypeEnum::xsd_positiveInteger,    "long long unsigned int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#nonPositiveInteger", cvt::RdfTypeEnum::xsd_nonPositiveInteger, "long long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#negativeInteger",    cvt::RdfTypeEnum::xsd_negativeInteger,    "long long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#long",               cvt::RdfTypeEnum::xsd_long,               "long long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedLong",       cvt::RdfTypeEnum::xsd_unsignedLong,       "unsigned long long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#int",                cvt::RdfTypeEnum::xsd_int,                "long int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedInt",        cvt::RdfTypeEnum::xsd_unsignedInt,        "long unsigned int"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#short",              cvt::RdfTypeEnum::xsd_short,              "short"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedShort",      cvt::RdfTypeEnum::xsd_unsignedShort,      "unsigned short"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#byte",               cvt::RdfTypeEnum::xsd_byte,               "char"),
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedByt",        cvt::RdfTypeEnum::xsd_unsignedByte,       "uncisnged char")
+};
+
 std::ostream& indent(std::ostream& os, int numIndent) {
     for (unsigned int i = 0; i < numIndent * 4; ++i) {
         os << ' ';
@@ -197,22 +220,68 @@ public:
     }
 
 private:
+    int range2CvtArrayIndex() const {
+        if ( !range.empty() ) {
+            for ( unsigned int i = 0; i < (sizeof(rdf2CppTypeMapping) / sizeof(rdf2CppTypeMapping[0])); ++i ) {
+                if ( std::get<0>(rdf2CppTypeMapping[i]) == range ) {
+                    return i;
+                }
+            }
+            std::cerr << range << " type not supported, we will default to raw value for property " << rdfname << std::endl;
+        }
+        return -1;
+    }
+
+
     void generateForOneMandatory(std::ofstream& ofs) const {
-        indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        int index = range2CvtArrayIndex();
+        if ( index >= 0 ) {
+            const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
+            indent(ofs, 1) << cppType << " " << genCppName() << "() const {" << std::endl;
+            indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\").get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">();" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
+            indent(ofs, 2) << "return object().getPropertyValue(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        }
     }
 
     void generateForOneOptional(std::ofstream& ofs) const {
-        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        int index = range2CvtArrayIndex();
+        if ( index >= 0 ) {
+            const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
+            indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << genCppName() << "Optional() const {" << std::endl;
+            indent(ofs, 2) << "auto ptrval = object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 2) << "return (ptrval ? std::shared_ptr<" << cppType << ">(new " << cppType << "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">())) : nullptr);"<< std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
+            indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        }
     }
 
     void generateForMany(std::ofstream& ofs) const {
-        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
+        int index = range2CvtArrayIndex();
+        if ( index >= 0 ) {
+            const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
+            indent(ofs, 1) << "std::list<" << cppType << "> " << genCppName() << "List() const {" << std::endl;
+            indent(ofs, 2) <<     "auto pValuelist = object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 2) <<     "std::list<" << cppType << "> list;"<<  std::endl;
+            indent(ofs, 2) <<     "for ( const autordf::PropertyValue& pv : pValuelist ) {"<<  std::endl;
+            indent(ofs, 3) <<         "list.push_back(pv.get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">());" <<  std::endl;
+            indent(ofs, 2) <<     "}"<<  std::endl;
+            indent(ofs, 2) <<     "return list;"<<  std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        } else {
+            indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
+            indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+            indent(ofs, 1) << "}" << std::endl;
+        }
     }
 };
 std::map<std::string, std::shared_ptr<DataProperty> > DataProperty::uri2Ptr;
