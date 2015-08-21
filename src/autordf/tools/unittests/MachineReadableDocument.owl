@@ -60,6 +60,17 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     
 
 
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#checkDigits -->
+
+    <owl:ObjectProperty rdf:about="&mrd;checkDigits">
+        <rdfs:label xml:lang="fr">Liste des sommes de contrôles supporté par un checker</rdfs:label>
+        <rdfs:range rdf:resource="&mrd;MRZCheckDigit"/>
+        <rdfs:domain rdf:resource="&mrd;MRZChecker"/>
+        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#document -->
 
     <owl:ObjectProperty rdf:about="&mrd;document"/>
@@ -100,20 +111,11 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzCheckDigits -->
-
-    <owl:ObjectProperty rdf:about="&mrd;mrzCheckDigits">
-        <rdfs:range rdf:resource="&mrd;MRZCheckDigit"/>
-        <rdfs:domain rdf:resource="&mrd;MRZChecker"/>
-        <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
-    </owl:ObjectProperty>
-    
-
-
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzChecker -->
 
     <owl:ObjectProperty rdf:about="&mrd;mrzChecker">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Le vérificateur de checksum optionnel associé à cette instance de MRZ.</rdfs:label>
         <rdfs:range rdf:resource="&mrd;MRZChecker"/>
         <rdfs:domain rdf:resource="&mrd;MRZInstance"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
@@ -135,6 +137,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;mrzFormat">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Enumeration des différents combinaisons (Nombre de lignes x Nombre de caractères par lignes) connus</rdfs:label>
         <rdfs:range rdf:resource="&mrd;MRZFormat"/>
         <rdfs:domain rdf:resource="&mrd;MRZInstance"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
@@ -147,6 +150,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <owl:ObjectProperty rdf:about="&mrd;mrzInstance">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
         <rdfs:label xml:lang="fr">Toutes les informations utiles sur la structure de la MRZ du document (découpe, règles de vérification, etc...)</rdfs:label>
+        <rdfs:comment xml:lang="fr">Une instance identique peut être partagée entre plusieurs modèles de documents. C&apos;est fréquemment le cas quand des évolutions graphiques apparaissent dans un nouveau modèle mais que le format de la MRZ reste inchangé par rapport au modèle précédent</rdfs:comment>
         <rdfs:domain rdf:resource="&mrd;DocumentModel"/>
         <rdfs:range rdf:resource="&mrd;MRZInstance"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
@@ -158,6 +162,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:ObjectProperty rdf:about="&mrd;mrzParser">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Le parseur de MRZ affecté à cette instance</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;MRZInstance"/>
         <rdfs:range rdf:resource="&mrd;MRZParser"/>
         <rdfs:subPropertyOf rdf:resource="&mrd;MachineReadableZone"/>
@@ -168,7 +173,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#range -->
 
     <owl:ObjectProperty rdf:about="&mrd;range">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:label xml:lang="fr">Etendues sur la MRZ spécifiées par une début et une longueur</rdfs:label>
         <rdfs:domain rdf:resource="&mrd;MRZCheckDigit"/>
         <rdfs:domain rdf:resource="&mrd;MRZField"/>
         <rdfs:range rdf:resource="&mrd;MRZRange"/>
@@ -356,14 +361,14 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     <owl:Class rdf:about="&mrd;DocumentModel">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;issuingCountry"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                <owl:onProperty rdf:resource="&mrd;id"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;id"/>
-                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                <owl:onProperty rdf:resource="&mrd;issuingCountry"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -430,6 +435,12 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&mrd;position"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;range"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé.</rdfs:comment>
@@ -552,13 +563,13 @@ Un parseur est constitué d&apos;une liste de champs (MRZField)</rdfs:comment>
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;length"/>
+                <owl:onProperty rdf:resource="&mrd;position"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;position"/>
+                <owl:onProperty rdf:resource="&mrd;length"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
