@@ -234,8 +234,9 @@ public:
         }
     }
 
-    void generateDefinition(std::ofstream& ofs, const std::string& currentClassName, const klass& onClass) {
+    void generateDefinition(std::ofstream& ofs, const klass& onClass) {
         auto propertyClass = findClass();
+        std::string currentClassName = "I" + onClass.genCppName();
 
         if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
             if ( getEffectiveMinCardinality(onClass) > 0 ) {
@@ -492,7 +493,7 @@ void klass::generateInterfaceDefinition() const {
     ofs << std::endl;
 
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
-        prop->generateDefinition(ofs, cppName, *this);
+        prop->generateDefinition(ofs, *this);
     }
     ofs << "}" << std::endl;
 }
