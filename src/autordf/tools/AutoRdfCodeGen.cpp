@@ -155,8 +155,11 @@ public:
     std::set<std::shared_ptr<ObjectProperty> > objectProperties;
 
     // It is usual (but optional) to specify at class level the minimum and/or maximum instances for a property
+    // This is done using cardiniality restrictions
     std::map<std::string, unsigned int> overridenMinCardinality;
     std::map<std::string, unsigned int> overridenMaxCardinality;
+    // Qualified Cardinality restrictions also allow to specify a range for this instance properties
+    std::map<std::string, std::string> overridenRange;
 
     std::set<std::shared_ptr<const klass> > getClassDependencies() const;
 
@@ -209,32 +212,41 @@ public:
         generateComment(ofs, 1);
         if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
             if ( getEffectiveMinCardinality(onClass) > 0 ) {
-                generateForOneMandatory(ofs);
+                generateForOneMandatory(ofs, onClass);
             } else {
-                generateForOneOptional(ofs);
+                generateForOneOptional(ofs, onClass);
             }
         }
         if ( getEffectiveMaxCardinality(onClass) > 1 ) {
-            generateForMany(ofs);
+            generateForMany(ofs, onClass);
         }
     }
 
 private:
-    int range2CvtArrayIndex() const {
-        if ( !range.empty() ) {
+    std::string getEffectiveRange(const klass& kls) const {
+        auto it = kls.overridenRange.find(rdfname);
+        if ( it != kls.overridenRange.end() ) {
+            return  it->second;
+        }
+        return range;
+    }
+
+    int range2CvtArrayIndex(const klass& onClass) const {
+        std::string effectiveRange = getEffectiveRange(onClass);
+        if ( !effectiveRange.empty() ) {
             for ( unsigned int i = 0; i < (sizeof(rdf2CppTypeMapping) / sizeof(rdf2CppTypeMapping[0])); ++i ) {
-                if ( std::get<0>(rdf2CppTypeMapping[i]) == range ) {
+                if ( std::get<0>(rdf2CppTypeMapping[i]) == effectiveRange ) {
                     return i;
                 }
             }
-            std::cerr << range << " type not supported, we will default to raw value for property " << rdfname << std::endl;
+            std::cerr << effectiveRange << " type not supported, we will default to raw value for property " << rdfname << std::endl;
         }
         return -1;
     }
 
 
-    void generateForOneMandatory(std::ofstream& ofs) const {
-        int index = range2CvtArrayIndex();
+    void generateForOneMandatory(std::ofstream& ofs, const klass& onClass) const {
+        int index = range2CvtArrayIndex(onClass);
         if ( index >= 0 ) {
             const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
             cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
@@ -248,8 +260,8 @@ private:
         }
     }
 
-    void generateForOneOptional(std::ofstream& ofs) const {
-        int index = range2CvtArrayIndex();
+    void generateForOneOptional(std::ofstream& ofs, const klass& onClass) const {
+        int index = range2CvtArrayIndex(onClass);
         if ( index >= 0 ) {
             const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
             cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
@@ -264,8 +276,8 @@ private:
         }
     }
 
-    void generateForMany(std::ofstream& ofs) const {
-        int index = range2CvtArrayIndex();
+    void generateForMany(std::ofstream& ofs, const klass& onClass) const {
+        int index = range2CvtArrayIndex(onClass);
         if ( index >= 0 ) {
             const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
             cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
@@ -630,14 +642,14 @@ void extractClass(const Object& o, klass *kls) {
     if ( o.isA(OWL + "Restriction") ) {
         // Add class to list of known classes
         const Object& property = o.getObject(OWL + "onProperty");
-        if ( property.isA(OWL + "ObjectProperty") ) {
-            if ( ObjectProperty::uri2Ptr.count(property.iri()) ) {
+        if (property.isA(OWL + "ObjectProperty")) {
+            if (ObjectProperty::uri2Ptr.count(property.iri())) {
                 kls->objectProperties.insert(ObjectProperty::uri2Ptr[property.iri()]);
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
         } else {
-            if ( DataProperty::uri2Ptr.count(property.iri()) ) {
+            if (DataProperty::uri2Ptr.count(property.iri())) {
                 kls->dataProperties.insert(DataProperty::uri2Ptr[property.iri()]);
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
@@ -646,6 +658,10 @@ void extractClass(const Object& o, klass *kls) {
         // FIXME: who has priority ?
         extractClassCardinality(o, kls, "cardinality", "minCardinality", "maxCardinality");
         extractClassCardinality(o, kls, "qualifiedCardinality", "minQualifiedCardinality", "maxQualifiedCardinality");
+
+        if (o.getOptionalPropertyValue(OWL + "onDataRange")) {
+            kls->overridenRange[property.iri()] = o.getPropertyValue(OWL + "onDataRange");
+        }
     }
 
     // Handle enum types
