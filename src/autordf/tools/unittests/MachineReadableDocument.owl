@@ -422,7 +422,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
 
     <owl:Class rdf:about="&mrd;ExactSpecimen">
         <rdfs:subClassOf rdf:resource="&mrd;Specimen"/>
-        <rdfs:comment xml:lang="fr">Un spécimen spécifié par une MRZ qui complète</rdfs:comment>
+        <rdfs:comment xml:lang="fr">Un spécimen spécifié par une la totalité des lignes de MRZ du spécimen</rdfs:comment>
     </owl:Class>
     
 
@@ -443,7 +443,7 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
                 <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé.</rdfs:comment>
+        <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé. Cette classe correspond à l&apos;algorithme de calcul standard.</rdfs:comment>
     </owl:Class>
     
 
@@ -585,19 +585,19 @@ Le début est compté en nombre de caractères depuis le début de la MRZ (0 ét
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Specimen -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#NonStandardCheckDigit -->
 
-    <owl:Class rdf:about="&mrd;Specimen">
-        <rdfs:comment xml:lang="fr">Un specimen de document</rdfs:comment>
+    <owl:Class rdf:about="&mrd;NonStandardCheckDigit">
+        <rdfs:subClassOf rdf:resource="&mrd;MRZCheckDigit"/>
+        <rdfs:comment xml:lang="fr">Représente un check digit calculé par un algorithme autre que celui par défaut</rdfs:comment>
     </owl:Class>
     
 
 
-    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#StandardCheckDigit -->
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Specimen -->
 
-    <owl:Class rdf:about="&mrd;StandardCheckDigit">
-        <rdfs:subClassOf rdf:resource="&mrd;MRZCheckDigit"/>
-        <rdfs:comment xml:lang="fr">Représente un check digit calculé par l&apos;algorithme par défaut</rdfs:comment>
+    <owl:Class rdf:about="&mrd;Specimen">
+        <rdfs:comment xml:lang="fr">Un specimen de document</rdfs:comment>
     </owl:Class>
     
 

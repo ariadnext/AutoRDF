@@ -30,6 +30,7 @@ class DataProperty;
 class klass;
 
 std::tuple<const char *, cvt::RdfTypeEnum, const char *> rdf2CppTypeMapping[] = {
+//FIXME: handle PlainLiteral, XMLLiteral, Literal, real, rational
     std::make_tuple("http://www.w3.org/2001/XMLSchema#string",             cvt::RdfTypeEnum::xsd_string,             "std::string"),
     std::make_tuple("http://www.w3.org/2001/XMLSchema#boolean",            cvt::RdfTypeEnum::xsd_boolean,            "bool"),
     std::make_tuple("http://www.w3.org/2001/XMLSchema#decimal",            cvt::RdfTypeEnum::xsd_decimal,            "double"),
