@@ -563,13 +563,13 @@ Un parseur est constitué d&apos;une liste de champs (MRZField)</rdfs:comment>
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;position"/>
+                <owl:onProperty rdf:resource="&mrd;length"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;length"/>
+                <owl:onProperty rdf:resource="&mrd;position"/>
                 <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>

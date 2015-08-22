@@ -223,6 +223,35 @@ public:
         }
     }
 
+    void generateDefinition(std::ofstream& ofs, const klass& onClass) {
+        int index = range2CvtArrayIndex(onClass);
+        if ( index >= 0 ) {
+            const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
+
+            std::string currentClassName = "I" + onClass.genCppName();
+
+            if (getEffectiveMaxCardinality(onClass) <= 1) {
+                if (getEffectiveMinCardinality(onClass) > 0) {
+                    // Nothing
+                } else {
+                    ofs << "std::shared_ptr<" << cppType << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
+                    indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
+                    indent(ofs, 1) << "return (ptrval ? std::shared_ptr<" << cppType << ">(new " << cppType <<
+                    "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">())) : nullptr);" << std::endl;
+                    ofs << "}" << std::endl;
+                }
+            }
+            if (getEffectiveMaxCardinality(onClass) > 1) {
+                ofs << "std::list<" << cppType << "> " << currentClassName << "::" << genCppName() <<
+                                                                                      "List() const {" << std::endl;
+                indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
+                cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << rdfname << "\");" << std::endl;
+                ofs << "}" << std::endl;
+            }
+        }
+    }
+
 private:
     std::string getEffectiveRange(const klass& kls) const {
         auto it = kls.overridenRange.find(rdfname);
@@ -265,11 +294,7 @@ private:
         int index = range2CvtArrayIndex(onClass);
         if ( index >= 0 ) {
             const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
-            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
-            indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << genCppName() << "Optional() const {" << std::endl;
-            indent(ofs, 2) << "auto ptrval = object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 2) << "return (ptrval ? std::shared_ptr<" << cppType << ">(new " << cppType << "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">())) : nullptr);"<< std::endl;
-            indent(ofs, 1) << "}" << std::endl;
+            indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << genCppName() << "Optional() const;" << std::endl;
         } else {
             indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
             indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << rdfname << "\");" << std::endl;
@@ -281,15 +306,7 @@ private:
         int index = range2CvtArrayIndex(onClass);
         if ( index >= 0 ) {
             const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
-            cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
-            indent(ofs, 1) << "std::list<" << cppType << "> " << genCppName() << "List() const {" << std::endl;
-            indent(ofs, 2) <<     "auto pValuelist = object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
-            indent(ofs, 2) <<     "std::list<" << cppType << "> list;"<<  std::endl;
-            indent(ofs, 2) <<     "for ( const autordf::PropertyValue& pv : pValuelist ) {"<<  std::endl;
-            indent(ofs, 3) <<         "list.push_back(pv.get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">());" <<  std::endl;
-            indent(ofs, 2) <<     "}"<<  std::endl;
-            indent(ofs, 2) <<     "return list;"<<  std::endl;
-            indent(ofs, 1) << "}" << std::endl;
+            indent(ofs, 1) << "std::list<" << cppType << "> " << genCppName() << "List() const;" << std::endl;
         } else {
             indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
             indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
@@ -587,6 +604,9 @@ void klass::generateInterfaceDefinition() const {
     ofs << "const std::string& " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
     ofs << std::endl;
 
+    for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
+        prop->generateDefinition(ofs, *this);
+    }
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
         prop->generateDefinition(ofs, *this);
     }

@@ -146,7 +146,7 @@ public:
     /**
      * Offered to interfaces
      */
-    template<typename T> std::list<T> getObjectListImpl(const std::string &propertyIRI) const {
+    template<typename T> std::list<T> getObjectListImpl(const std::string& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw std::runtime_error("Calling getObjectListImpl() with empty IRI is forbidden");
         }
@@ -156,6 +156,21 @@ public:
             objList.push_back(T(prop.asResource()));
         }
         return objList;
+    }
+
+    /**
+     * Offered to interfaces
+     */
+    template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const std::string& propertyIRI) const {
+        if ( propertyIRI.empty() ) {
+            throw std::runtime_error("Calling getValueListImpl() with empty IRI is forbidden");
+        }
+        std::list<T> valueList;
+        const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        for (const Property& prop: propList) {
+            valueList.push_back(prop.value().get<rdftype, T>());
+        }
+        return valueList;
     }
 
 private:
