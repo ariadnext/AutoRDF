@@ -13,6 +13,7 @@
 #include "autordf/Stream.h"
 #include "autordf/Uri.h"
 #include "autordf/StatementConverter.h"
+#include "autordf/Exception.h"
 
 namespace autordf {
 
@@ -24,16 +25,16 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
     if ( !f ) {
         std::stringstream ss;
         ss << "Unable to open " << path << ": " << ::strerror(errno);
-        throw std::runtime_error(ss.str().c_str());
+        throw FileIOError(ss.str().c_str());
     }
 
     try {
         std::shared_ptr<Parser> p = Parser::guessFromUri(Uri(path));
         if ( !p ) {
-            throw std::runtime_error("File format not recognized");
+            throw UnsupportedRdfFileFormat("File format not recognized");
         }
         if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, Uri(baseUri).get(), _model->get()) ) {
-            throw std::runtime_error("Failed to read model from file");
+            throw InternalError("Failed to read model from file");
         }
         int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
         for ( unsigned int i = 0; i < prefixCount; ++i ) {
@@ -56,16 +57,16 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
         format = librdf_parser_guess_name2(_world->get(), NULL, NULL, reinterpret_cast<const unsigned char *>(path.c_str()));
     }
     if ( !format ) {
-        throw std::runtime_error("Unable to deduce format from file save name");
+        throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
     }
 
     std::shared_ptr<librdf_serializer> s(librdf_new_serializer(_world->get(), format, 0, 0), librdf_free_serializer);
     if ( !s ) {
-        throw std::runtime_error("Failed to construct RDF serializer");
+        throw InternalError("Failed to construct RDF serializer");
     }
 
     if ( librdf_serializer_serialize_model_to_file(s.get(), path.c_str(), baseUri.length() ? Uri(baseUri).get() : nullptr, _model->get()) ) {
-        throw std::runtime_error("Failed to export RDF model to file");
+        throw InternalError("Failed to export RDF model to file");
     }
 }
 
@@ -78,7 +79,7 @@ void Model::add(const Statement &stmt) {
     if ( librdf_model_add_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
         ss << "Unable to add '" << stmt << "' statement";
-        throw std::runtime_error(ss.str());
+        throw InternalError(ss.str());
     }
 }
 
@@ -87,7 +88,7 @@ void Model::remove(const Statement &stmt) {
     if ( librdf_model_remove_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
         ss << "Unable to remove '" << stmt << "' statement";
-        throw std::runtime_error(ss.str());
+        throw InternalError(ss.str());
     }
 }
 
@@ -109,7 +110,7 @@ void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns)
     if ( it == _namespacesPrefixes.end() ) {
         _namespacesPrefixes[prefix] = ns;
     } else if ( it->second != ns ) {
-        throw std::runtime_error("Unable to add prefix " + prefix + "-->" + ns + " mappping: already registered to " + it->second);
+        throw InternalError("Unable to add prefix " + prefix + "-->" + ns + " mappping: already registered to " + it->second);
     }
 }
 }

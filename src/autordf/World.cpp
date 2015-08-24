@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include "autordf/Exception.h"
+
 namespace autordf {
 
 std::mutex World::_mutex;
@@ -30,7 +32,6 @@ World::~World() {
     }
 }
 
-//FIXME
 int World::logCB(void *user_data, librdf_log_message *message) {
     std::cerr << "Redland INFO: "<< message << std::endl;
     return 1;
@@ -48,7 +49,7 @@ int World::errorCB(void *user_data, const char *message, va_list arguments) {
     char text[255];
     vsnprintf(text, sizeof(text), message, arguments);
     text[sizeof(text) - 1] = 0;
-    throw std::runtime_error(std::string("Redland ERROR: ") + text);
+    throw InternalError(std::string("Redland ERROR: ") + text);
     return 1;
 }
 

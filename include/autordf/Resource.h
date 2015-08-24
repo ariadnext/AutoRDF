@@ -34,14 +34,14 @@ public:
 
     /**
      * Returns exactly one property.
-     * @throws If more are available, throws DuplicateException
-     *         If no available, throws NotFoundException
+     * @throws PropertyNotFound If no available
+     * @throws DuplicateException If more than one is available
      */
     Property getProperty(const std::string& iri) const;
 
     /**
      * Returns exactly one property, ia available.
-     * @throws If not found, returns null
+     * @throws DuplicateProperty If more than 1 instance of the property is found
      */
     std::shared_ptr<Property> getOptionalProperty(const std::string& iri) const;
 

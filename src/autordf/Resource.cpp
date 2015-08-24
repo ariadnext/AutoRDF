@@ -7,6 +7,7 @@
 
 #include <autordf/Resource.h>
 #include <autordf/Factory.h>
+#include <autordf/Exception.h>
 
 namespace autordf {
 
@@ -14,7 +15,7 @@ void Resource::setType(NodeType t) {
     if ( t == NodeType::RESOURCE || t == NodeType::BLANK ) {
         _type = t;
     } else {
-        throw std::runtime_error(std::string("Node type ") + nodeTypeString(t) + " is not allowed for createBlankNodeResource");
+        throw InternalError(std::string("Node type ") + nodeTypeString(t) + " is not allowed for createBlankNodeResource");
     }
 }
 
@@ -31,14 +32,14 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const std::string& iri) 
     } else {
         std::stringstream ss;
         ss << "Property " << iri << " multi instanciated for " << name() << " resource." << std::endl;
-        throw std::runtime_error(ss.str());
+        throw DuplicateProperty(ss.str());
     }
 }
 
 /**
  * Returns exactly one property.
- * @throws If more are available, throws DuplicateException
- *         If no available, throws NotFoundException
+ * @throws If more are available, throws DuplicatePropertyException
+ *         If no available, throws PropertyNotFoundException
  */
 Property Resource::getProperty(const std::string& iri) const {
     auto list = getPropertyValues(iri);
@@ -48,11 +49,11 @@ Property Resource::getProperty(const std::string& iri) const {
     else if ( list.empty() ) {
         std::stringstream ss;
         ss << "Property " << iri << " not found in " << name() << " resource." << std::endl;
-        throw std::runtime_error(ss.str());
+        throw PropertyNotFound(ss.str());
     } else {
         std::stringstream ss;
         ss << "Property " << iri << " multi instanciated for " << name() << " resource." << std::endl;
-        throw std::runtime_error(ss.str());
+        throw DuplicateProperty(ss.str());
     }
 }
 
@@ -101,7 +102,7 @@ void Resource::propertyAsNode(const Property& p, Node *n) {
             n->setLiteral(p.value());
             break;
         case NodeType::EMPTY:
-            throw std::runtime_error("Unable to add an Empty property!");
+            throw InvalidNodeType("Unable to add an Empty property!");
     }
 }
 

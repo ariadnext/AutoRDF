@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "autordf/World.h"
+#include "autordf/Exception.h"
 
 namespace autordf {
 
@@ -15,7 +16,7 @@ Resource Factory::createBlankNodeResource(const std::string &bnodeid) {
                 librdf_new_node_from_blank_identifier(_world->get(), nullptr),
                 librdf_free_node);
         if ( !lrdfnode ) {
-            throw std::runtime_error("Unable to allocate blank node identifier");
+            throw InternalError("Unable to allocate blank node identifier");
         }
         id = reinterpret_cast<const char *>(librdf_node_get_blank_identifier(lrdfnode.get()));
     }

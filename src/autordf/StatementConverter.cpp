@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "autordf/World.h"
+#include "autordf/Exception.h"
 
 namespace autordf {
 
@@ -15,24 +16,24 @@ librdf_node* StatementConverter::toLibRdfNode(const Node &node) {
                     librdf_new_uri(w.get(), reinterpret_cast<const unsigned char *>(node.iri().c_str())),
                     librdf_free_uri);
             if (!uri) {
-                throw std::runtime_error(std::string("Failed to construct URI from value: ") + node.iri());
+                throw InternalError(std::string("Failed to construct URI from value: ") + node.iri());
             }
             lrdfNode = librdf_new_node_from_uri(w.get(), uri.get()  );
             if (!lrdfNode) {
-                throw std::runtime_error("Failed to construct node from URI");
+                throw InternalError("Failed to construct node from URI");
             }
             break;
         }
         case NodeType::LITERAL:
             lrdfNode = librdf_new_node_from_literal(w.get(),  reinterpret_cast<const unsigned char *>(node.literal().c_str()), 0, 0);
             if (!lrdfNode) {
-                throw std::runtime_error(std::string("Failed to construct node from literal: ") + node.literal());
+                throw InternalError(std::string("Failed to construct node from literal: ") + node.literal());
             }
             break;
         case NodeType::BLANK:
             lrdfNode = librdf_new_node_from_blank_identifier(w.get(), reinterpret_cast<const unsigned char *>(node.bNodeId().c_str()));
             if (!lrdfNode) {
-                throw std::runtime_error(std::string("Failed to construct node from blank identifier: ") +
+                throw InternalError(std::string("Failed to construct node from blank identifier: ") +
                                          node.bNodeId());
             }
             break;
@@ -70,7 +71,7 @@ void StatementConverter::fromLibRdfNode(librdf_node *lrdfnode, Node *node) {
         node->type = NodeType::BLANK;
         node->_value = reinterpret_cast<const char *>(librdf_node_get_blank_identifier(lrdfnode));
     } else {
-        throw std::runtime_error("librdf_node_get_type: unknown node type encountered");
+        throw InternalError("librdf_node_get_type: unknown node type encountered");
     }
 }
 

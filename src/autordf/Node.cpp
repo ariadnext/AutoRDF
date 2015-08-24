@@ -2,11 +2,13 @@
 
 #include <stdexcept>
 
+#include "autordf/Exception.h"
+
 namespace autordf {
 
 void Node::assertType(const char* prop, NodeType t) const {
     if ( type != t ) {
-        throw std::runtime_error(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(type));
+        throw InvalidNodeType(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(type));
     }
 }
 

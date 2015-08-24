@@ -1,7 +1,8 @@
 #include <autordf/Object.h>
 #include <set>
 
-#include "autordf/Factory.h"
+#include <autordf/Factory.h>
+#include <autordf/Exception.h>
 
 namespace autordf {
 
@@ -79,7 +80,7 @@ std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const std::strin
 
 std::list<PropertyValue> Object::getPropertyValueList(const std::string& propertyIRI) const {
     if ( propertyIRI.empty() ) {
-        throw std::runtime_error("Calling Object::getPropertyValueList() with empty IRI is forbidden");
+        throw InvalidIRI("Calling Object::getPropertyValueList() with empty IRI is forbidden");
     }
     std::list<PropertyValue> valuesList;
     const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);

@@ -553,6 +553,7 @@ void klass::generateInterfaceDefinition() const {
     addBoilerPlate(ofs);
     ofs << std::endl;
     ofs << "#include <sstream>" << std::endl;
+    ofs << "#include <autordf/Exception.h>" << std::endl;
     ofs << std::endl;
 
     // Generate class imports
@@ -578,7 +579,7 @@ void klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
         indent(ofs, 2) << "if ( object().iri() == std::get<1>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "throw std::runtime_error(object().iri() + \"does not point to a valid individual for C++ enum " << genCppName() << "\");" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \"does not point to a valid individual for C++ enum " << genCppName() << "\");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
         ofs << "std::string I" << genCppName() << "::enumIri(Enum enumVal) {" << std::endl;
@@ -587,7 +588,7 @@ void klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "}" << std::endl;
         indent(ofs, 1) << "std::stringstream ss;" << std::endl;
         indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
-        indent(ofs, 1) << "throw std::runtime_error(ss.str());" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
         ofs << "std::string I" << genCppName() << "::enumString(Enum enumVal) {" << std::endl;
@@ -596,7 +597,7 @@ void klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "}" << std::endl;
         indent(ofs, 1) << "std::stringstream ss;" << std::endl;
         indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
-        indent(ofs, 1) << "throw std::runtime_error(ss.str());" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
     }

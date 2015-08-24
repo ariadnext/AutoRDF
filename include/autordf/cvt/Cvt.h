@@ -9,6 +9,7 @@
 #include <boost/date_time.hpp>
 
 #include <autordf/cvt/RdfTypeEnum.h>
+#include <autordf/Exception.h>
 
 namespace autordf {
 namespace cvt {
@@ -31,7 +32,7 @@ inline std::string getLeft(const std::string& rawValue) {
     if ( pos != std::string::npos ) {
         return rawValue.substr(1, pos - 2);
     } else {
-        throw std::runtime_error("Unable to convert value as ^^ was not found in: " + rawValue);
+        throw DataConvertionFailure("Unable to convert value as ^^ was not found in: " + rawValue);
     }
 }
 
@@ -42,14 +43,18 @@ template<typename CppType> CppType toCppGeneric(const std::string& rawValue) {
 }
 
 inline boost::posix_time::ptime toCppDateTime(const std::string& rawValue) {
-    std::istringstream ss(trim(getLeft(rawValue)));
-    ss.exceptions(std::ios_base::failbit);
-    boost::posix_time::time_input_facet* input_facet = new boost::posix_time::time_input_facet;
-    input_facet->format("%Y-%m-%dT%H:%M:%S%F%Q");
-    ss.imbue(std::locale(std::locale::classic(), input_facet));
-    boost::local_time::local_date_time result(boost::date_time::not_a_date_time);
-    ss >> result;
-    return result.utc_time();
+    try {
+        std::istringstream ss(trim(getLeft(rawValue)));
+        ss.exceptions(std::ios_base::failbit);
+        boost::posix_time::time_input_facet* input_facet = new boost::posix_time::time_input_facet;
+        input_facet->format("%Y-%m-%dT%H:%M:%S%F%Q");
+        ss.imbue(std::locale(std::locale::classic(), input_facet));
+        boost::local_time::local_date_time result(boost::date_time::not_a_date_time);
+        ss >> result;
+        return result.utc_time();
+    } catch (const std::exception& e) {
+        throw DataConvertionFailure("During convertion of " + rawValue + ": " + e.what());
+    }
 };
 
 #define GENERIC_TOCPP(cppType, rdfType) \
@@ -88,7 +93,7 @@ public:
         } else if ( left == "false" || left == "0") {
             return false;
         } else {
-            throw std::runtime_error("Invalid value '" + left + "' for boolean");
+            throw DataConvertionFailure("Invalid value '" + left + "' for boolean");
         }
     }
 };

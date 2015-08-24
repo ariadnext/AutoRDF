@@ -10,6 +10,7 @@
 #include <autordf/PropertyValue.h>
 #include <autordf/Resource.h>
 #include <autordf/ResourceList.h>
+#include <autordf/Exception.h>
 
 namespace autordf {
 
@@ -25,6 +26,9 @@ class Factory;
  */
 class Object {
 public:
+    /**
+     * Full namespace for RDF
+     */
     static const std::string RDF_NS;
 
     /**
@@ -145,10 +149,11 @@ public:
 
     /**
      * Offered to interfaces
+     * @throw InvalidIRI if propertyIRI is empty
      */
     template<typename T> std::list<T> getObjectListImpl(const std::string& propertyIRI) const {
         if ( propertyIRI.empty() ) {
-            throw std::runtime_error("Calling getObjectListImpl() with empty IRI is forbidden");
+            throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
         }
         std::list<T> objList;
         const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
@@ -160,10 +165,11 @@ public:
 
     /**
      * Offered to interfaces
+     * @throw InvalidIRI if propertyIRI is empty
      */
     template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const std::string& propertyIRI) const {
         if ( propertyIRI.empty() ) {
-            throw std::runtime_error("Calling getValueListImpl() with empty IRI is forbidden");
+            throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
         }
         std::list<T> valueList;
         const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);

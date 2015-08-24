@@ -20,6 +20,7 @@ ADD_LIBRARY(
     Property.cpp
     Factory.cpp
     Object.cpp
+    Exception.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf

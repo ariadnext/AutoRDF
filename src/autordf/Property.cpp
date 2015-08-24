@@ -2,8 +2,9 @@
 
 #include <stdexcept>
 
-#include <autordf/Factory.h>
-#include <autordf/Resource.h>
+#include "autordf/Factory.h"
+#include "autordf/Resource.h"
+#include "autordf/Exception.h"
 
 namespace autordf {
 
@@ -17,7 +18,7 @@ Resource Property::asResource() const {
     } else if ( _type == NodeType::BLANK ) {
         return _factory->createBlankNodeResource(_value);
     } else {
-        throw std::runtime_error("Unable to convert Property " + _iri + " as resource");
+        throw InvalidNodeType("Unable to convert Property " + _iri + " as resource");
     }
 }
 

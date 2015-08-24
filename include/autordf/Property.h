@@ -21,9 +21,10 @@ public:
     Property& setValue(const PropertyValue& value, bool setLiteralType = true);
     Property& setValue(const Resource& res);
 
-    // Convert to Resource
-    // Only valid if Type is Resource or Blank Node
-    // @throw NotAResourceException if not the case
+    /**
+     * Convert to Resource
+     * @throw NotAResourceException if Node is not Resource or Blank node
+     */
     Resource asResource() const;
 
     class DuplicateException;

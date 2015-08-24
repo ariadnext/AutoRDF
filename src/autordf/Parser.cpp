@@ -2,6 +2,7 @@
 
 #include "autordf/World.h"
 #include "autordf/Uri.h"
+#include "autordf/Exception.h"
 
 #include <iostream>
 
@@ -10,7 +11,7 @@ namespace autordf {
 Parser::Parser(const std::string& name) {
     _parser = librdf_new_parser(World().get(), name.c_str(), NULL, NULL);
     if ( !_parser ) {
-        throw std::runtime_error("Failed to construct RDF parser");
+        throw InternalError("Failed to construct RDF parser");
     }
 }
 
