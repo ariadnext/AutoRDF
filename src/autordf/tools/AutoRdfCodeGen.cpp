@@ -525,8 +525,11 @@ void klass::generateInterfaceDeclaration() const {
     indent(ofs, 1) << "virtual const autordf::Object& object() const = 0;" << std::endl;
     ofs << std::endl;
     if ( enumValues.size() ) {
-        indent(ofs, 1) << "typedef std::array<std::tuple<Enum, const char *, const char *>, " << enumValues.size() << "> EnumArrayType;" << std::endl;
+        indent(ofs, 1) << "typedef std::tuple<Enum, const char *, const char *> EnumArrayEntryType;" << std::endl;
+        indent(ofs, 1) << "typedef std::array<EnumArrayEntryType, " << enumValues.size() << "> EnumArrayType;" << std::endl;
         indent(ofs, 1) << "static const EnumArrayType ENUMARRAY;" << std::endl;
+        ofs << std::endl;
+        indent(ofs, 1) << "static const EnumArrayEntryType& enumVal2Entry(Enum en);" << std::endl;
         ofs << std::endl;
         ofs << "protected:" << std::endl;
         indent(ofs, 1) << "static std::string enumIri(Enum en);" << std::endl;
@@ -575,6 +578,17 @@ void klass::generateInterfaceDefinition() const {
         }
         ofs << "};" << std::endl;
         ofs << std::endl;
+
+        ofs << "const I" << genCppName() << "::EnumArrayEntryType& I" << genCppName() << "::enumVal2Entry(Enum enumVal) {" << std::endl;
+        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
+        indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return enumItem;" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "std::stringstream ss;" << std::endl;
+        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
+        ofs << "};" << std::endl;
+
+        ofs << std::endl;
         ofs << "I" << genCppName() << "::Enum I" << genCppName() << "::asEnum() const {" << std::endl;
         indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
         indent(ofs, 2) << "if ( object().iri() == std::get<1>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
@@ -582,22 +596,14 @@ void klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \"does not point to a valid individual for C++ enum " << genCppName() << "\");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
+
         ofs << "std::string I" << genCppName() << "::enumIri(Enum enumVal) {" << std::endl;
-        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
-        indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return std::get<1>(enumItem);" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "std::stringstream ss;" << std::endl;
-        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
-        indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
+        indent(ofs, 1) << "return std::get<1>(enumVal2Entry(enumVal));" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
+
         ofs << "std::string I" << genCppName() << "::enumString(Enum enumVal) {" << std::endl;
-        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
-        indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return std::get<2>(enumItem);" << std::endl;
-        indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "std::stringstream ss;" << std::endl;
-        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
-        indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
+        indent(ofs, 1) << "return std::get<2>(enumVal2Entry(enumVal));" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
     }
