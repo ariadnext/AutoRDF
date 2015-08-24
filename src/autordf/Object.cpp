@@ -107,7 +107,7 @@ void Object::setPropertyValueList(const std::string& propertyIRI, const std::lis
 }
 
 bool Object::isA(const std::string& typeIRI) const {
-    auto const& typesList = getPropertyValueList(RDF_NS+"type");
+    auto const& typesList = getPropertyValueList(RDF_NS + "type");
     for ( const PropertyValue& type: typesList) {
         if ( type == typeIRI ) {
             return true;
@@ -134,15 +134,18 @@ std::list<Object> Object::findByType(const std::string& iri) {
 }
 
 namespace {
+
 void indentLine(std::ostream& os, int indent) {
     for (unsigned int i = 0; i < indent; ++i) {
         os << '\t';
     }
 }
+
 void newLine(std::ostream& os, int indent) {
     os << std::endl;
     indentLine(os, indent);
 }
+
 }
 
 std::ostream& operator<<(std::ostream& os, const Object& obj) {
