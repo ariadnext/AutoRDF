@@ -5,6 +5,8 @@
 #include <list>
 #include <ostream>
 #include <stdexcept>
+#include <map>
+#include <set>
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
@@ -196,6 +198,14 @@ public:
         }
         return valueList;
     }
+
+protected:
+
+    /**
+     * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
+     * @param rdfTypesInfo, the types inferred for current class hierarchy
+     */
+    void runtimeTypeCheck(const std::map<std::string, std::set<std::string> >& rdfTypesInfo) const;
 
 private:
     Resource _r;

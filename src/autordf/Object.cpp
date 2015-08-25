@@ -1,5 +1,4 @@
 #include <autordf/Object.h>
-#include <set>
 
 #include <autordf/Factory.h>
 #include <autordf/Exception.h>
@@ -163,6 +162,32 @@ void Object::addRdfTypeIfNeeded() {
         _rdfTypeWritingRequired = false;
         addPropertyValue(RDF_NS + "type", _rdfTypeIRI);
     }
+}
+
+/**
+ * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
+ * @param rdfTypesInfo, the types inferred for current class hierarchy
+ * @param expectedTypeIRI
+ */
+void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >& rdfTypesInfo) const {
+    const std::list<PropertyValue>& typesList = getPropertyValueList(RDF_NS + "type");
+    if ( typesList.empty() ) {
+        // No type, let's say that's ok
+        return;
+    }
+    for ( const PropertyValue& t : typesList ) {
+        if ( _rdfTypeIRI == t ) {
+            return;
+        }
+        auto typeInfo = rdfTypesInfo.find(t);
+        if ( typeInfo != rdfTypesInfo.end() ) {
+            if ( typeInfo->second.count(_rdfTypeIRI) ) {
+                return;
+            }
+        }
+    }
+
+    throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
 }
 
 namespace {
