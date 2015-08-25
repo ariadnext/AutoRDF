@@ -14,13 +14,25 @@ void Object::setFactory(Factory *f) {
     _factory = f;
 }
 
-Object::Object(const std::string &iri) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
+Object::Object(const std::string &iri, const std::string& rdfTypeIRI) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
+    if ( !rdfTypeIRI.empty() ) {
+        _rdfTypeIRI = rdfTypeIRI;
+        _rdfTypeWritingRequired = true;
+    } else {
+        _rdfTypeWritingRequired = false;
+    }
 }
 
-Object::Object(const Object& other) : _r(other._r) {
+Object::Object(const Object& other) : _r(other._r), _rdfTypeWritingRequired(other._rdfTypeWritingRequired), _rdfTypeIRI(other._rdfTypeIRI) {
 }
 
-Object::Object(Resource r) : _r(r) {
+Object::Object(Resource r, const std::string& rdfTypeIRI) : _r(r) {
+    if ( !rdfTypeIRI.empty() ) {
+        _rdfTypeIRI = rdfTypeIRI;
+        _rdfTypeWritingRequired = true;
+    } else {
+        _rdfTypeWritingRequired = false;
+    }
 }
 
 const std::string& Object::iri() const {
@@ -50,6 +62,7 @@ std::list<Object> Object::getObjectList(const std::string &propertyIRI) const {
 }
 
 void Object::setObject(const std::string &propertyIRI, const Object &obj) {
+    addRdfTypeIfNeeded();
     Property p = _factory->createProperty(propertyIRI);
     p.setValue(obj._r);
     _r.removeProperties(propertyIRI);
@@ -57,6 +70,7 @@ void Object::setObject(const std::string &propertyIRI, const Object &obj) {
 }
 
 void Object::setObjectList(const std::string &propertyIRI, const std::list<Object> &values) {
+    addRdfTypeIfNeeded();
     Property p =_factory->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const Object& obj: values) {
@@ -91,13 +105,20 @@ std::list<PropertyValue> Object::getPropertyValueList(const std::string& propert
 }
 
 void Object::setPropertyValue(const std::string& propertyIRI, const PropertyValue& val) {
+    addRdfTypeIfNeeded();
     Property p = _factory->createProperty(propertyIRI);
     p.setValue(val);
     _r.removeProperties(propertyIRI);
     _r.addProperty(p);
 }
 
+void Object::addPropertyValue(const std::string& propertyIRI, const PropertyValue& val) {
+    addRdfTypeIfNeeded();
+    _r.addProperty(_factory->createProperty(propertyIRI).setValue(val));
+}
+
 void Object::setPropertyValueList(const std::string& propertyIRI, const std::list<PropertyValue>& values) {
+    addRdfTypeIfNeeded();
     Property p = _factory->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const PropertyValue& val: values) {
@@ -118,19 +139,30 @@ bool Object::isA(const std::string& typeIRI) const {
 
 void Object::remove() {
     _r.removeProperties("");
+    if ( !_rdfTypeIRI.empty() ) {
+        _rdfTypeWritingRequired = true;
+    }
 }
 
 Object Object::clone(const std::string& iri) {
+    addRdfTypeIfNeeded();
     const std::list<Property>& props = _r.getPropertyValues("");
     if ( !iri.empty() ) {
-        return Object(_factory->createIRIResource(iri).setProperties(props));
+        return Object(_factory->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
     } else {
-        return Object(_factory->createBlankNodeResource("").setProperties(props));
+        return Object(_factory->createBlankNodeResource("").setProperties(props), _rdfTypeIRI);
     }
 }
 
 std::list<Object> Object::findByType(const std::string& iri) {
     return findHelper<Object>(iri);
+}
+
+void Object::addRdfTypeIfNeeded() {
+    if ( _rdfTypeWritingRequired ) {
+        _rdfTypeWritingRequired = false;
+        addPropertyValue(RDF_NS + "type", _rdfTypeIRI);
+    }
 }
 
 namespace {

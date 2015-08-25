@@ -14,6 +14,9 @@ ADD_EXECUTABLE(
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IResource.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/IThing.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/RdfTypeInfo.cpp"
 )
 SET_TARGET_PROPERTIES(testcodegen PROPERTIES INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}/foaf")
 
@@ -39,6 +42,9 @@ ADD_CUSTOM_COMMAND(
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IResource.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/IThing.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaf/RdfTypeInfo.cpp"
     COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -o foaf "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.rdf"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
 )

@@ -50,7 +50,7 @@ std::tuple<const char *, cvt::RdfTypeEnum, const char *> rdf2CppTypeMapping[] = 
     std::make_tuple("http://www.w3.org/2001/XMLSchema#short",              cvt::RdfTypeEnum::xsd_short,              "short"),
     std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedShort",      cvt::RdfTypeEnum::xsd_unsignedShort,      "unsigned short"),
     std::make_tuple("http://www.w3.org/2001/XMLSchema#byte",               cvt::RdfTypeEnum::xsd_byte,               "char"),
-    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedByt",        cvt::RdfTypeEnum::xsd_unsignedByte,       "uncisnged char")
+    std::make_tuple("http://www.w3.org/2001/XMLSchema#unsignedByte",       cvt::RdfTypeEnum::xsd_unsignedByte,      "unsigned char")
 };
 
 std::ostream& indent(std::ostream& os, int numIndent) {
@@ -61,8 +61,8 @@ std::ostream& indent(std::ostream& os, int numIndent) {
 }
 
 void addBoilerPlate(std::ofstream& ofs);
-void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
-void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
+void generateCodeProtectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
+void generateCodeProtectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName);
 
 // Checks an returns if available registered prefix for IRI
 std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
@@ -84,6 +84,13 @@ void createDirectory(const std::string& relativeDirName) {
                 throw std::runtime_error(ss.str());
             }
         }
+    }
+}
+
+void createFile(const std::string& fileName, std::ofstream *ofs) {
+    ofs->open(fileName);
+    if (!ofs->is_open()) {
+        throw std::runtime_error("Unable to open " + fileName + " file");
     }
 }
 
@@ -401,14 +408,12 @@ std::set<std::shared_ptr<const klass> > klass::getAllAncestors() const {
 
 void klass::generateDeclaration() const {
     std::string cppName = genCppName();
-    std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
-    std::ofstream ofs(fileName);
-    if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + fileName + " file");
-    }
+    std::ofstream ofs;
+    createFile(outdir + "/" + genCppNameSpace() + "/" + cppName + ".h", &ofs);
 
-    generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorBegin(ofs, genCppNameSpace(), cppName);
 
+    ofs << "#include <set>" << std::endl;
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpace() << "/I" << cppName << ".h>" << std::endl;
     for ( const std::string& ancestor: directAncestors ) {
@@ -432,7 +437,7 @@ void klass::generateDeclaration() const {
         indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
         indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
         indent(ofs, 1) << " */" << std::endl;
-        indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri) {}" << std::endl;
+        indent(ofs, 1) << cppName << "(const std::string& iri = \"\") : autordf::Object(iri, I" << cppName << "::TYPEIRI) {}" << std::endl;
     } else {
         indent(ofs, 1) << "/**" << std::endl;
         indent(ofs, 1) << " * Load enum from RDF model, from given C++ Type enum." << std::endl;
@@ -450,6 +455,17 @@ void klass::generateDeclaration() const {
     indent(ofs, 2) << "return findHelper<" << cppName << ">(I" << cppName << "::TYPEIRI);" << std::endl;
     indent(ofs, 1) << "}" << std::endl;
     ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Internal: returns full list of ancestors we have" << std::endl;
+    indent(ofs, 1) << " **/" << std::endl;
+    indent(ofs, 1) << "static std::set<std::string> ancestorsRdfTypeIRI() {" << std::endl;
+    indent(ofs, 2) <<     "return std::set<std::string>({" << std::endl;
+    for ( const std::shared_ptr<const klass>& ancestor : getAllAncestors() ) {
+        indent(ofs, 4) << ancestor->genCppNameSpace() << "::I" << ancestor->genCppName() << "::TYPEIRI," << std::endl;
+    }
+    indent(ofs, 3) <<         "});" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    ofs << std::endl;
 
     ofs << "private:" << std::endl;
 
@@ -459,18 +475,15 @@ void klass::generateDeclaration() const {
     ofs << std::endl;
     ofs << "}" << std::endl;
 
-    generateCodeProptectorEnd(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorEnd(ofs, genCppNameSpace(), cppName);
 }
 
 void klass::generateInterfaceDeclaration() const {
     std::string cppName = "I" + genCppName();
-    std::string fileName = outdir + "/" + genCppNameSpace() + "/" + cppName + ".h";
-    std::ofstream ofs(fileName);
-    if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + fileName + " file");
-    }
+    std::ofstream ofs;
+    createFile(outdir + "/" + genCppNameSpace() + "/" + cppName + ".h", &ofs);
 
-    generateCodeProptectorBegin(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorBegin(ofs, genCppNameSpace(), cppName);
 
     if ( enumValues.size() ) {
         ofs << "#include <array>" << std::endl;
@@ -539,17 +552,15 @@ void klass::generateInterfaceDeclaration() const {
     ofs << std::endl;
     ofs << "}" << std::endl;
 
-    generateCodeProptectorEnd(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorEnd(ofs, genCppNameSpace(), cppName);
 }
 
 void klass::generateInterfaceDefinition() const {
     std::string cppName = "I" + genCppName();
     std::string cppNameSpace = genCppNameSpace();
-    std::string fileName = outdir + "/" + cppNameSpace + "/" + cppName + ".cpp";
-    std::ofstream ofs(fileName);
-    if (!ofs.is_open()) {
-        throw std::runtime_error("Unable to open " + fileName + " file");
-    }
+
+    std::ofstream ofs;
+    createFile(outdir + "/" + cppNameSpace + "/" + cppName + ".cpp", &ofs);
 
     ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
     ofs << std::endl;
@@ -855,13 +866,10 @@ void run() {
 
     //Generate all inclusions file
     for ( const std::string& cppNameSpace : cppNameSpaces ) {
-        std::string fileName = outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h";
-        std::ofstream ofs(fileName);
-        if (!ofs.is_open()) {
-            throw std::runtime_error("Unable to open " + fileName + " file");
-        }
+        std::ofstream ofs;
+        createFile(outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h", &ofs);
 
-        generateCodeProptectorBegin(ofs, cppNameSpace, cppNameSpace);
+        generateCodeProtectorBegin(ofs, cppNameSpace, cppNameSpace);
         for ( auto const& klassMapItem: klass::uri2Ptr) {
             if ( klassMapItem.second->genCppNameSpace() == cppNameSpace ) {
                 const klass& cls = *klassMapItem.second;
@@ -869,17 +877,52 @@ void run() {
             }
         }
         ofs << std::endl;
-        generateCodeProptectorEnd(ofs, cppNameSpace, cppNameSpace);
+        generateCodeProtectorEnd(ofs, cppNameSpace, cppNameSpace);
     }
+
+    // Generate all TypesInfo
+    std::ofstream ofs;
+    createFile(outdir + "/RdfTypeInfo.cpp", &ofs);
+    addBoilerPlate(ofs);
+    ofs << std::endl;
+    ofs << "#include <map>" << std::endl;
+    ofs << "#include <set>" << std::endl;
+    ofs << "#include <string>" << std::endl;
+    ofs << std::endl;
+    for ( auto const& klassMapItem: klass::uri2Ptr) {
+        const klass& cls = *klassMapItem.second;
+        ofs << "#include \"" << cls.genCppNameSpace() << "/" << cls.genCppName() << ".h" << "\"" << std::endl;
+    }
+    ofs << std::endl;
+
+    ofs << "class RdfTypeInfo {" << std::endl;
+    ofs << "public:" << std::endl;
+    indent(ofs, 1) << "RdfTypeInfo();" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "static const std::map<std::string, std::set<std::string> >& data() { return DATA; }" << std::endl;
+    ofs << "private:" << std::endl;
+    indent(ofs, 1) << "static std::map<std::string, std::set<std::string> > DATA;" << std::endl;
+    ofs << "};" << std::endl;
+    ofs << std::endl;
+    ofs << "std::map<std::string, std::set<std::string> > RdfTypeInfo::DATA;" << std::endl;
+    ofs << std::endl;
+    ofs << "RdfTypeInfo::RdfTypeInfo() {" << std::endl;
+    indent(ofs, 1) << "if ( DATA.empty() ) {" << std::endl;
+    for ( auto const& klassMapItem: klass::uri2Ptr) {
+        const klass& cls = *klassMapItem.second;
+        indent(ofs, 2) << "DATA[\"" << klassMapItem.first << "\"] = " << cls.genCppNameSpace() << "::" << cls.genCppName() << "::ancestorsRdfTypeIRI();" << std::endl;
+    }
+    indent(ofs, 1) << "};" << std::endl;
+    ofs << "};" << std::endl;
 
     //Generate all in one cpp file
     if ( generateAllInOne ) {
-        std::string fileName = outdir + "/AllInOne.cpp";
-        std::ofstream ofs(fileName);
-        if (!ofs.is_open()) {
-            throw std::runtime_error("Unable to open " + fileName + " file");
-        }
+        std::ofstream ofs;
+        createFile(outdir + "/AllInOne.cpp", &ofs);
 
+        addBoilerPlate(ofs);
+        ofs << std::endl;
+        ofs << "#include \"RdfTypeInfo.cpp\"" << std::endl;
         for ( auto const& klassMapItem: klass::uri2Ptr) {
             const klass& cls = *klassMapItem.second;
             ofs << "#include \"" << cls.genCppNameSpace() << "/I" << cls.genCppName() << ".cpp" << "\"" << std::endl;
@@ -888,7 +931,7 @@ void run() {
     }
 }
 
-void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
+void generateCodeProtectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
     std::string upperCppNameSpace = cppNameSpace;
     std::transform(upperCppNameSpace.begin(), upperCppNameSpace.end(), upperCppNameSpace.begin(), ::toupper);
     std::string upperClassName = cppName;
@@ -903,7 +946,7 @@ void generateCodeProptectorBegin(std::ofstream& ofs, const std::string& cppNameS
     ofs << std::endl;
 }
 
-void generateCodeProptectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
+void generateCodeProtectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string cppName) {
     std::string upperCppNameSpace = cppNameSpace;
     std::transform(upperCppNameSpace.begin(), upperCppNameSpace.end(), upperCppNameSpace.begin(), ::toupper);
     std::string upperClassName = cppName;

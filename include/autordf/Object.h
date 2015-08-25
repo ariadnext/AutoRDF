@@ -27,7 +27,7 @@ class Factory;
 class Object {
 public:
     /**
-     * Full namespace for RDF
+     * Full namespace for RDF, including #
      */
     static const std::string RDF_NS;
 
@@ -37,10 +37,11 @@ public:
     static void setFactory(Factory *f);
 
     /**
-     * Creates new object, to given iri. If iri empty,
-     * creates an anonymous (aka blank) object
+     * Creates new object, to given iri.
+     * @param object IRI. If empty, creates an anonymous (aka blank) object
+     * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
      */
-    Object(const std::string& iri = "");
+    Object(const std::string& iri = "", const std::string& rdfTypeIRI = "");
 
     /**
      * Build us using the same underlying resource as the other object
@@ -88,9 +89,26 @@ public:
 
     std::list<PropertyValue> getPropertyValueList(const std::string& propertyIRI) const;
 
+    /**
+     * Erases all previous values for property, and write unique value on place
+     * @param propertyIRI IRI name for property
+     * @param val unique value for property
+     */
     void setPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
 
+    /**
+     * Erases all previous values for property, and write value list on place
+     * @param propertyIRI IRI name for property
+     * @param values
+     */
     void setPropertyValueList(const std::string& propertyIRI, const std::list<PropertyValue>& values);
+
+    /**
+     * Adds value to this property, preserving all previous values;
+     * @param propertyIRI IRI name for property
+     * @param val unique value for property
+     */
+    void addPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
 
     /**
      * Returns true if this object is also of the specified type IRI
@@ -183,7 +201,19 @@ private:
     Resource _r;
     static Factory *_factory;
 
-    Object(Resource r);
+    // True if rdf type value has already be written
+    bool _rdfTypeWritingRequired;
+    // Lazy Type contains the (optional) rdf type for the object
+    // Type writing is delayed until first object property is written in database
+    std::string _rdfTypeIRI;
+
+    Object(Resource r, const std::string& rdfTypeIRI = "");
+
+    /**
+     * Checks if underlying resource is of given type
+     * If not add it to the types list
+     */
+    void addRdfTypeIfNeeded();
 };
 
 std::ostream& operator<<(std::ostream& os, const Object&);
