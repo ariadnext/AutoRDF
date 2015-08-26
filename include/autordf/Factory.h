@@ -10,6 +10,9 @@
 
 namespace autordf {
 
+/**
+ * Factory is used to create Resources and Properties is the current Model
+ */
 class Factory : public Model {
 public:
     /**
@@ -23,7 +26,8 @@ public:
     Resource createIRIResource(const std::string& iri);
 
     /**
-     * Creates a property of type Literal
+     * Creates a property of type type
+     * If not type is given, defaults to EMPTY
      */
     Property createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
 

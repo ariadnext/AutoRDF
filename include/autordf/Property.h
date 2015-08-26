@@ -13,23 +13,41 @@ class Resource;
 
 class Property {
 public:
+    /**
+     * Creates a new property of emtpy type
+     */
     Property() { setType(NodeType::EMPTY); }
 
+    /**
+     * Return node type for this property
+     */
     NodeType type() const { return _type; }
+
+    /**
+     * Returns property IRI
+     */
     const std::string& iri() const { return _iri; }
+
+    /**
+     * Returns property value
+     */
     const PropertyValue& value() const { return _value; }
+
+    /**
+     * Sets value to value. If setLiteralType is set, Property is type is set to literal value
+     */
     Property& setValue(const PropertyValue& value, bool setLiteralType = true);
+
+    /**
+     * Sets the value to given resource IRI or resource bnodeid
+     */
     Property& setValue(const Resource& res);
 
     /**
      * Convert to Resource
-     * @throw NotAResourceException if Node is not Resource or Blank node
+     * @throw InvalidNodeType if Node is not Resource or Blank node
      */
     Resource asResource() const;
-
-    class DuplicateException;
-    class NotFoundException;
-    class NotAResourceException;
 
 private:
     NodeType _type;

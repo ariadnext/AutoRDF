@@ -127,9 +127,9 @@ void Object::setPropertyValueList(const std::string& propertyIRI, const std::lis
 }
 
 bool Object::isA(const std::string& typeIRI) const {
-    auto const& typesList = getPropertyValueList(RDF_NS + "type");
-    for ( const PropertyValue& type: typesList) {
-        if ( type == typeIRI ) {
+    auto const& typesList = getObjectList(RDF_NS + "type");
+    for ( const Object& type: typesList) {
+        if ( type.iri() == typeIRI ) {
             return true;
         }
     }
@@ -159,7 +159,7 @@ std::list<Object> Object::findByType(const std::string& iri) {
 void Object::addRdfTypeIfNeeded() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
-        addPropertyValue(RDF_NS + "type", _rdfTypeIRI);
+        setObject(RDF_NS + "type", Object(_rdfTypeIRI));
     }
 }
 
@@ -169,16 +169,16 @@ void Object::addRdfTypeIfNeeded() {
  * @param expectedTypeIRI
  */
 void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >& rdfTypesInfo) const {
-    const std::list<PropertyValue>& typesList = getPropertyValueList(RDF_NS + "type");
+    const std::list<Object>& typesList = getObjectList(RDF_NS + "type");
     if ( typesList.empty() ) {
         // No type, let's say that's ok
         return;
     }
-    for ( const PropertyValue& t : typesList ) {
-        if ( _rdfTypeIRI == t ) {
+    for ( const Object& t : typesList ) {
+        if ( _rdfTypeIRI == t.iri() ) {
             return;
         }
-        auto typeInfo = rdfTypesInfo.find(t);
+        auto typeInfo = rdfTypesInfo.find(t.iri());
         if ( typeInfo != rdfTypesInfo.end() ) {
             if ( typeInfo->second.count(_rdfTypeIRI) ) {
                 return;
