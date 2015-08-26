@@ -1,6 +1,7 @@
 #include <autordf/Node.h>
 
 #include <stdexcept>
+#include <ostream>
 
 #include "autordf/Exception.h"
 

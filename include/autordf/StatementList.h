@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <memory>
+#include <iosfwd>
 
 #include <autordf/Statement.h>
 
@@ -72,6 +73,8 @@ private:
 
     std::shared_ptr<Stream> createNewStream() const;
 };
+
+std::ostream& operator<<(std::ostream& os, const StatementList& s);
 
 }
 

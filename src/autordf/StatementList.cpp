@@ -56,4 +56,12 @@ std::shared_ptr<Stream> StatementList::createNewStream() const {
     }
     return stream;
 }
+
+std::ostream& operator<<(std::ostream& os, const StatementList& s) {
+    for ( auto const& stmt : s) {
+        os << stmt << std::endl;
+    }
+    return os;
+}
+
 }

@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <list>
-#include <ostream>
+#include <iosfwd>
 #include <stdexcept>
 #include <map>
 #include <set>

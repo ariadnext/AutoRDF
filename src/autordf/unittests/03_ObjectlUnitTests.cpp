@@ -68,7 +68,34 @@ TEST(_03_Object, Accessors) {
     ASSERT_EQ(std::list<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineAccount", "http://xmlns.com/foaf/0.1/OnlineChatAccount"}),
               account.getPropertyValueList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
 
-    // Trying to access a value as a ressource
-    ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/name"), std::exception);
+    // Trying to access a value as a resource
+    ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/name"), InvalidNodeType);
 
 }
+
+TEST(_04_Object, DelayedTypeWriting) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://myuri/myobject", "http://myuri/type1");
+
+    // No statement written that far
+    ASSERT_EQ(0, f.find().size());
+    obj.setPropertyValue("http://myuri/myprop", "value");
+    // two statements written
+    ASSERT_EQ(2, f.find().size());
+    ASSERT_EQ("http://myuri/type1", obj.getPropertyValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
+}
+
+TEST(_04_Object, NoTypeWhenCloning) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://myuri/myobject", "http://myuri/type1");
+
+    obj.clone();
+    std::cout << f.find() << std::endl;
+    // No statement written that far
+    ASSERT_EQ(0, f.find().size());
+}
+

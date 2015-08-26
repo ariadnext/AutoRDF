@@ -1,6 +1,8 @@
 #ifndef AUTORDF_STATEMENT_H
 #define AUTORDF_STATEMENT_H
 
+#include <iosfwd>
+
 #include <autordf/Node.h>
 
 namespace autordf {

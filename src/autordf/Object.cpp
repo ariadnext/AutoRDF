@@ -144,7 +144,6 @@ void Object::remove() {
 }
 
 Object Object::clone(const std::string& iri) {
-    addRdfTypeIfNeeded();
     const std::list<Property>& props = _r.getPropertyValues("");
     if ( !iri.empty() ) {
         return Object(_factory->createIRIResource(iri).setProperties(props), _rdfTypeIRI);

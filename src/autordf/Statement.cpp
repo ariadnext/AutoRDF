@@ -1,5 +1,7 @@
 #include <autordf/Statement.h>
 
+#include <ostream>
+
 namespace autordf {
 
 std::ostream& operator<<(std::ostream& os, const Statement& s) {

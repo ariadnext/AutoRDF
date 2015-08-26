@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <list>
-#include <ostream>
+#include <iosfwd>
 
 #include <autordf/Property.h>
 

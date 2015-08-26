@@ -2,7 +2,7 @@
 #define AUTORDF_NODE_H
 
 #include <string>
-#include <ostream>
+#include <iosfwd>
 
 #include <autordf/NodeType.h>
 

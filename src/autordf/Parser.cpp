@@ -4,8 +4,6 @@
 #include "autordf/Uri.h"
 #include "autordf/Exception.h"
 
-#include <iostream>
-
 namespace autordf {
 
 Parser::Parser(const std::string& name) {
