@@ -193,7 +193,7 @@ GENERIC_TORDF(double, xsd_double)
 template<typename CppType> class toRdf<CppType, RdfTypeEnum::xsd_boolean>  {
 public:
     static std::string val(const CppType& cppValue) {
-        return std::string("\"") + (cppValue ? "true" : "false") + "\"^^" + rdfTypeEnumString(RdfTypeEnum::xsd_boolean);
+        return std::string("\"") + (cppValue ? "true" : "false") + "\"^^" + rdfTypeEnumXMLString(RdfTypeEnum::xsd_boolean);
     }
 };
 

@@ -128,7 +128,12 @@ Resource& Resource::removeSingleProperty(const Property &p) {
     }
     rmreq.predicate.setIri(p.iri());
     propertyAsNode(p, &rmreq.object);
-    _factory->remove(rmreq);
+    try {
+        _factory->remove(rmreq);
+    }
+    catch (const InternalError &) {
+        throw PropertyNotFound("Unable to remove Property " + p.iri() + ", value " + p.value());
+    }
     return *this;
 }
 

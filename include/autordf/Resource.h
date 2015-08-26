@@ -64,7 +64,8 @@ public:
     Resource& setProperties(const std::list<Property>& list);
 
     /**
-     * What if not present ? throw an error
+     * Removes a single value for a property
+     * @throw PropertyNotFound if property is not found
      * @returns a reference to current object
      */
     Resource& removeSingleProperty(const Property& p);

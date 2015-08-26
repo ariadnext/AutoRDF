@@ -23,7 +23,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
-    ASSERT_THROW(r.getProperty("http://notthereuri"), std::runtime_error);
+    ASSERT_THROW(r.getProperty("http://notthereuri"), PropertyNotFound);
 
     ASSERT_EQ(nullptr, r.getOptionalProperty("http://notthereuri"));
 }
@@ -107,5 +107,5 @@ TEST(_02_LoadSave, deleteProperties) {
     drawing.removeProperties("");
     ASSERT_EQ(0, f.find().size());
 
-    ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("nonexistent")), std::runtime_error);
+    ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color").setValue("nonexistent")), PropertyNotFound);
 }
