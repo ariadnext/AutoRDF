@@ -42,13 +42,16 @@ public:
      * Creates new object, to given iri.
      * @param object IRI. If empty, creates an anonymous (aka blank) object
      * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
+     * @param rtti. Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
+     *   rdfTypeIRI, using rtti type system
      */
-    Object(const std::string& iri = "", const std::string& rdfTypeIRI = "");
+    Object(const std::string& iri = "", const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
     /**
      * Build us using the same underlying resource as the other object
+     * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
      */
-    Object(const Object& obj);
+    Object(const Object& obj, const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
     /**
      * Return object iri, or empty if it is a blank node
@@ -199,14 +202,6 @@ public:
         return valueList;
     }
 
-protected:
-
-    /**
-     * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
-     * @param rdfTypesInfo, the types inferred for current class hierarchy
-     */
-    void runtimeTypeCheck(const std::map<std::string, std::set<std::string> >& rdfTypesInfo) const;
-
 private:
     Resource _r;
     static Factory *_factory;
@@ -224,6 +219,15 @@ private:
      * If not add it to the types list
      */
     void addRdfTypeIfNeeded();
+
+    // Shared constructor
+    void construct(const std::string& rdfTypeIRI);
+
+    /**
+     * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
+     * @param rdfTypesInfo, the types inferred for current class hierarchy
+     */
+    void runtimeTypeCheck(const std::map<std::string, std::set<std::string> > *rdfTypesInfo) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Object&);

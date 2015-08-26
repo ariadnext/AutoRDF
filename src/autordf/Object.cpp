@@ -13,19 +13,21 @@ void Object::setFactory(Factory *f) {
     _factory = f;
 }
 
-Object::Object(const std::string &iri, const std::string& rdfTypeIRI) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
-    if ( !rdfTypeIRI.empty() ) {
-        _rdfTypeIRI = rdfTypeIRI;
-        _rdfTypeWritingRequired = true;
-    } else {
-        _rdfTypeWritingRequired = false;
-    }
+Object::Object(const std::string &iri, const std::string& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
+    construct(rdfTypeIRI);
+    runtimeTypeCheck(rtti);
 }
 
-Object::Object(const Object& other) : _r(other._r), _rdfTypeWritingRequired(other._rdfTypeWritingRequired), _rdfTypeIRI(other._rdfTypeIRI) {
+Object::Object(const Object& other, const std::string& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(other._r) {
+    construct(rdfTypeIRI);
+    runtimeTypeCheck(rtti);
 }
 
 Object::Object(Resource r, const std::string& rdfTypeIRI) : _r(r) {
+    construct(rdfTypeIRI);
+}
+
+void Object::construct(const std::string& rdfTypeIRI) {
     if ( !rdfTypeIRI.empty() ) {
         _rdfTypeIRI = rdfTypeIRI;
         _rdfTypeWritingRequired = true;
@@ -168,25 +170,27 @@ void Object::addRdfTypeIfNeeded() {
  * @param rdfTypesInfo, the types inferred for current class hierarchy
  * @param expectedTypeIRI
  */
-void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >& rdfTypesInfo) const {
-    const std::list<Object>& typesList = getObjectList(RDF_NS + "type");
-    if ( typesList.empty() ) {
-        // No type, let's say that's ok
-        return;
-    }
-    for ( const Object& t : typesList ) {
-        if ( _rdfTypeIRI == t.iri() ) {
+void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >* rdfTypesInfo) const {
+    if ( rdfTypesInfo ) {
+        const std::list<Object>& typesList = getObjectList(RDF_NS + "type");
+        if ( typesList.empty() ) {
+            // No type, let's say that's ok
             return;
         }
-        auto typeInfo = rdfTypesInfo.find(t.iri());
-        if ( typeInfo != rdfTypesInfo.end() ) {
-            if ( typeInfo->second.count(_rdfTypeIRI) ) {
+        for ( const Object& t : typesList ) {
+            if ( _rdfTypeIRI == t.iri() ) {
                 return;
             }
+            auto typeInfo = rdfTypesInfo->find(t.iri());
+            if ( typeInfo != rdfTypesInfo->end() ) {
+                if ( typeInfo->second.count(_rdfTypeIRI) ) {
+                    return;
+                }
+            }
         }
-    }
 
-    throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
+        throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
+    }
 }
 
 namespace {

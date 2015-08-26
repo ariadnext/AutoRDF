@@ -84,18 +84,60 @@ TEST(_04_Object, DelayedTypeWriting) {
     obj.setPropertyValue("http://myuri/myprop", "value");
     // two statements written
     ASSERT_EQ(2, f.find().size());
-    ASSERT_EQ("http://myuri/type1", obj.getPropertyValue("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
+    ASSERT_EQ("http://myuri/type1", obj.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
 }
 
-TEST(_04_Object, NoTypeWhenCloning) {
+TEST(_04_Object, NoTypeWrittenWhenCloning) {
     Factory f;
     Object::setFactory(&f);
 
     Object obj("http://myuri/myobject", "http://myuri/type1");
 
-    obj.clone();
-    std::cout << f.find() << std::endl;
+    Object obj2 = obj.clone("http://myuri/myobject2");
     // No statement written that far
     ASSERT_EQ(0, f.find().size());
 }
 
+std::map<std::string, std::set<std::string> > rtti = {
+        {"http://myuri/childclass1", {"http://myuri/class1"}}
+};
+
+class ObjectClass1 : public Object {
+public:
+    ObjectClass1(const Object& o) : Object(o, "http://myuri/class1", &rtti) {}
+    ObjectClass1(const std::string& iri) : Object(iri, "http://myuri/class1", &rtti) {}
+};
+
+class ObjectClass2 : public Object {
+public:
+    ObjectClass2(const Object& o) : Object(o, "http://myuri/class2", &rtti) {}
+    ObjectClass2(const std::string& iri) : Object(iri, "http://myuri/class2", &rtti) {}
+};
+
+class ChildClass1 : public Object {
+public:
+    ChildClass1(const Object& o) : Object(o, "http://myuri/childclass1", &rtti) {}
+    ChildClass1(const std::string& iri) : Object(iri, "http://myuri/childclass1", &rtti) {}
+};
+
+TEST(_04_Object, SubClasses) {
+    Factory f;
+    Object::setFactory(&f);
+
+    ObjectClass1 objClass1("http://myuri/myobject");
+
+    ObjectClass2 objClass2 = objClass1.as<ObjectClass2>();
+
+    objClass2.setPropertyValue("http://myuri/myprop", "value");
+    ASSERT_EQ(2, f.find().size());
+
+    ASSERT_EQ("http://myuri/class2", objClass2.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
+
+    ASSERT_THROW(ObjectClass1("http://myuri/myobject"), InvalidClass);
+
+    ChildClass1 childobj("http://myuri/childobject");
+    childobj.setPropertyValue("http://myuri/myprop", "value");
+    childobj.as<ObjectClass1>();
+
+    ASSERT_THROW(childobj.as<ObjectClass2>(), InvalidClass);
+}

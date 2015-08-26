@@ -492,15 +492,13 @@ void klass::generateDefinition() const {
     ofs << "namespace " << cppNameSpace << " {" << std::endl;
     ofs << std::endl;
     if ( !enumValues.size() ) {
-        ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI) {" << std::endl;
-        indent(ofs, 1) << "runtimeTypeCheck(RdfTypeInfo::data());" << std::endl;
+        ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
         ofs << "}" << std::endl;
     } else {
         ofs << cppName << "::"<< cppName << "(I" << cppName << "::Enum enumVal) : autordf::Object(enumIri(enumVal)) {}" << std::endl;
     }
     ofs << std::endl;
-    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other) {" << std::endl;
-    indent(ofs, 1) << "runtimeTypeCheck(RdfTypeInfo::data());" << std::endl;
+    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
     ofs << "std::list<" << cppName << "> " << cppName << "::find() {" << std::endl;
