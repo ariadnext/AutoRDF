@@ -20,14 +20,14 @@ public:
     /**
      * Builds from a string literal
      *
-     * @param raw Literal value
+     * @param rawValue Literal value
      */
     PropertyValue(const char *rawValue) : std::string(rawValue) {}
 
     /**
      * Builds from a string literal
      *
-     * @param raw Literal value
+     * @param rawValue Literal value
      */
     PropertyValue(const std::string& rawValue) : std::string(rawValue) {}
 

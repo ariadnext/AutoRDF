@@ -27,11 +27,12 @@ private:
     std::string _description;
 };
 
-//! @cond Doxygen_Suppress
-
 #define AUTORDFEXCEPTION(exname) \
 class exname : public Exception { \
 public: \
+    /**
+     Creates and exception with given description
+     */ \
     exname( const std::string& description ) : Exception(#exname + std::string(": ") + description) {} \
 }; \
 
@@ -84,8 +85,6 @@ AUTORDFEXCEPTION(DataConvertionFailure)
  * Inside bug or misuse of our API
  */
 AUTORDFEXCEPTION(InternalError)
-
-//! @endcond
 }
 
 #endif //AUTORDF_EXCEPTION_H

@@ -71,7 +71,7 @@ private:
 
     friend class Model;
 };
-//! @cond Doxygen_Suppress
+//! @endcond
 
 std::ostream& operator<<(std::ostream& os, const StatementList& s);
 

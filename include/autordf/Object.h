@@ -39,9 +39,9 @@ public:
 
     /**
      * Creates new object, to given iri.
-     * @param object IRI. If empty, creates an anonymous (aka blank) object
-     * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
-     * @param rtti. Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
+     * @param iri object IRI. If empty, creates an anonymous (aka blank) object
+     * @param rdfTypeIRI If not empty, will write rdf type property when object is written
+     * @param rtti Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
      *   rdfTypeIRI, using rtti type system
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
@@ -50,7 +50,13 @@ public:
 
     /**
      * Build us using the same underlying resource as the other object
-     * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
+     *
+     * This constructs a new C++ object that points to the same RDF data
+     *
+     * @param obj the object to use
+     * @param rdfTypeIRI If not empty, will write rdf type property when object is written
+     * @param rtti Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
+     *   rdfTypeIRI, using rtti type system
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
@@ -175,7 +181,8 @@ public:
 
     /**
      * Returns all Objects matching type specified as IRI
-     * @param propertyIRI Internationalized Resource Identifiers of the type to be retireved
+     *
+     * @param typeIRI Internationalized Resource Identifiers of the type to be retrieved
      */
     static std::list<Object> findByType(const std::string& typeIRI = "");
 
