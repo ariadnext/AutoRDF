@@ -71,6 +71,12 @@ TEST(_03_Object, Accessors) {
     // Trying to access a value as a resource
     ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/name"), InvalidNodeType);
 
+    // Unexisting object
+    ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/unexistingPropery"), PropertyNotFound);
+
+    // Duplicates
+    ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/knows"), DuplicateProperty);
+    ASSERT_THROW(person.getOptionalObject("http://xmlns.com/foaf/0.1/knows"), DuplicateProperty);
 }
 
 TEST(_04_Object, DelayedTypeWriting) {

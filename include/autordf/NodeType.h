@@ -4,13 +4,29 @@
 namespace autordf {
 
 enum class NodeType {
+    /**
+     * Resource node type
+     */
     RESOURCE,
+    /**
+     * Literal value node type
+     */
     LITERAL,
+    /**
+     * Blank node type
+     */
     BLANK,
-    EMPTY // Empty is the only value that is not reflected on RDF data
-    // It is used solely to merely identify node absence
+    /**
+     * Empty is the only value that is not reflected on RDF data
+     * It is used solely to merely identify node absence
+     */
+    EMPTY
 };
 
+/**
+ * @param Node to convert as string
+ * @return string representation for node t
+ */
 const char * nodeTypeString(NodeType t);
 
 }

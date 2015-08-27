@@ -19,12 +19,12 @@ namespace autordf {
 class Factory;
 
 /**
- * Common Ancestor to all generated classes
+ * Common Ancestor to all AutoRDF generated classes
  * When copied, Objects are implicitly shared, with backend storage
  * provided by librdf.
  * New objects can be created in two ways:
- *  - Using Object(const std::string& iri) constructor
- *  - Using the clone() method
+ *  - Using Object(const std::string& iri, const std::string& rdfTypeIRI = "") constructor: Creates a new object in Model
+ *  - Using the clone(const std::string& iri) method: Makes a copy of object and write it to Model
  */
 class Object {
 public:
@@ -44,12 +44,16 @@ public:
      * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
      * @param rtti. Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
      *   rdfTypeIRI, using rtti type system
+     * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
+     * not empty
      */
     Object(const std::string& iri = "", const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
     /**
      * Build us using the same underlying resource as the other object
      * @param rdfTypeIRI. If not empty, will write rdf type property when object is written
+     * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
+     * not empty
      */
     Object(const Object& obj, const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
@@ -61,19 +65,20 @@ public:
     /**
      * Gets given property as Object
      * Property should be set.
-     * @throw if property not set
+     * @throw PropertyNotFound if property not set
+     * @throw DuplicateProperty if property contains more than one value
      */
     Object getObject(const std::string& propertyIRI) const;
 
     /**
      * Returns given property as Object.
      * @returns pointer if property exists, null otherwise
-     * It is caller responsibility to free resulting object
+     * @throw DuplicateProperty if property contains more than one value
      */
     std::shared_ptr<Object> getOptionalObject(const std::string& propertyIRI) const;
 
     /**
-     * Returns the list of object
+     * Returns the list of object. If no object found returns empty list
      */
     std::list<Object> getObjectList(const std::string& propertyIRI) const;
 
@@ -87,47 +92,70 @@ public:
      */
     void setObjectList(const std::string& propertyIRI, const std::list<Object>& values);
 
-
+    /**
+     * Gets given property value
+     * Property should be set.
+     * @throw PropertyNotFound if property not set
+     * @throw DuplicateProperty if property contains more than one value
+     */
     PropertyValue getPropertyValue(const std::string& propertyIRI) const;
 
+    /**
+     * Returns given property as Object.
+     * @param propertyIRI Internationalized Resource Identifiers property to query
+     * @returns pointer if property exists, null otherwise
+     * @throw DuplicateProperty if property contains more than one value
+     */
     std::shared_ptr<PropertyValue> getOptionalPropertyValue(const std::string& propertyIRI) const;
 
+    /**
+     * Returns the list of the values. If no value are found returns empty list
+     * @param propertyIRI Internationalized Resource Identifiers property to query
+     */
     std::list<PropertyValue> getPropertyValueList(const std::string& propertyIRI) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
-     * @param propertyIRI IRI name for property
+     * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param val unique value for property
      */
     void setPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
 
     /**
      * Erases all previous values for property, and write value list on place
-     * @param propertyIRI IRI name for property
-     * @param values
+     * @param propertyIRI Internationalized Resource Identifiers property to set
+     * @param values the list of values. All previous values are removed, and replaced with the given lists
      */
     void setPropertyValueList(const std::string& propertyIRI, const std::list<PropertyValue>& values);
 
     /**
      * Adds value to this property, preserving all previous values;
-     * @param propertyIRI IRI name for property
-     * @param val unique value for property
+     * @param propertyIRI Internationalized Resource Identifiers property to set
+     * @param val value for property. This new value is added to the list of values for the Property
      */
     void addPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
 
     /**
-     * Returns true if this object is also of the specified type IRI
+     * Returns true if this object is also of the specified type IRI.
+     * @return true If object type attribute contains typeIRI
+     * @return false If type attribute does not contains typeIRI
      */
     bool isA(const std::string& typeIRI) const;
 
     /**
      * Provides ultra-fast trans-typing to another Object descendant
      * This is syntaxic sugar to say myobj.as<T>() instead of T(myobj)
+     * @return transtyped object
      */
     template<typename T> T as() {
         return T(*this);
     }
 
+    /**
+     * Provides ultra-fast trans-typing to another Object descendant
+     * This is syntaxic sugar to say myobj.as<T>() instead of T(myobj)
+     * @return transtyped object
+     */
     template<typename T> const T as() const {
         return T(*this);
     }
@@ -148,6 +176,7 @@ public:
 
     /**
      * Returns all Objects matching type specified as IRI
+     * @param propertyIRI Internationalized Resource Identifiers of the type to be retireved
      */
     static std::list<Object> findByType(const std::string& typeIRI = "");
 
@@ -203,13 +232,24 @@ public:
     }
 
 private:
+    /**
+     * The resource this object is based on
+     */
     Resource _r;
+
+    /**
+     * The factory this object belongs to
+     */
     static Factory *_factory;
 
-    // True if rdf type value has already be written
+    /**
+     * True if rdf type value has already be written
+     */
     bool _rdfTypeWritingRequired;
-    // Lazy Type contains the (optional) rdf type for the object
-    // Type writing is delayed until first object property is written in database
+    /**
+     * Lazy Type contains the (optional) rdf type for the object
+     * Type writing is delayed until first object property is written in database
+     */
     std::string _rdfTypeIRI;
 
     Object(Resource r, const std::string& rdfTypeIRI = "");
@@ -220,7 +260,9 @@ private:
      */
     void addRdfTypeIfNeeded();
 
-    // Shared constructor
+    /**
+     * Shared constructor
+     */
     void construct(const std::string& rdfTypeIRI);
 
     /**
@@ -230,6 +272,11 @@ private:
     void runtimeTypeCheck(const std::map<std::string, std::set<std::string> > *rdfTypesInfo) const;
 };
 
+/**
+ * Writes object in json format.
+ *
+ * Is equivalent to printStream(os, 0, 0)
+ */
 std::ostream& operator<<(std::ostream& os, const Object&);
 }
 

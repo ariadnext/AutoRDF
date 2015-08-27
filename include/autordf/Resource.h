@@ -12,6 +12,9 @@ namespace autordf {
 class Node;
 class Factory;
 
+/**
+ * A Resource provides accessors to list and write properties to a Web Semantic Resource
+ */
 class Resource {
 public:
     /**

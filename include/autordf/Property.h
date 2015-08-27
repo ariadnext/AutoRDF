@@ -11,6 +11,11 @@ namespace autordf {
 class Factory;
 class Resource;
 
+/**
+ * Stores a Property of a Web Semantic Resource
+ *
+ * Contains a type, an IRI, and a value.
+ */
 class Property {
 public:
     /**

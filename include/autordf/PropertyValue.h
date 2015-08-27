@@ -7,10 +7,28 @@
 
 namespace autordf {
 
+/**
+ * Stores a Value (aka Literal) of a Web Semantic Resource
+ */
 class PropertyValue : public std::string {
 public:
+    /**
+     * Builds empty value
+     */
     PropertyValue() {}
+
+    /**
+     * Builds from a string literal
+     *
+     * @param raw Literal value
+     */
     PropertyValue(const char *rawValue) : std::string(rawValue) {}
+
+    /**
+     * Builds from a string literal
+     *
+     * @param raw Literal value
+     */
     PropertyValue(const std::string& rawValue) : std::string(rawValue) {}
 
     /**
