@@ -34,7 +34,7 @@ public:
 
 
 /**
- * Only supposed to be constructed by model class
+ * Used by Factory to give back a list of resources
  */
 class ResourceList {
 public:

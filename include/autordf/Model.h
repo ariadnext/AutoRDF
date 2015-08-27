@@ -14,13 +14,20 @@ class ModelPrivate;
 class StatementList;
 
 /**
- * Model is the Entry point class for reading files using autordf
+ * Model is the Entry point class for reading files using librdf
  *
  * It provides basic load/save and statement search facility
  */
 class Model {
 public:
+    /**
+     * Builds a new Model instance
+     */
     Model();
+
+    /**
+     * Disallow copy construction
+     */
     Model(const Model&) = delete;
 
     /**
@@ -37,11 +44,13 @@ public:
      * If no format is supplied, auto-detection is guessed
      * from provided file name
      * @throw UnsupportedRdfFileFormat if format is not recognized
-     * @throw InternalError
+     * @throw InternalError if for some strange reason data serialization failed
      */
     void saveToFile(const std::string& path, const std::string& baseUri = "", const char *format = 0);
 
-    /** Search for statements in model
+    /**
+     * Search for statements in model
+     *
      * If no filter is given, gives back all elements from model
      */
     StatementList find(const Statement& filter = Statement());
@@ -82,10 +91,14 @@ public:
     void addNamespacePrefix(const std::string& prefix, const std::string& ns);
 
 protected:
+    /**
+     * A pointer to the librdf internal world structure
+     */
     std::shared_ptr<World> _world;
 
 private:
     std::shared_ptr<ModelPrivate> _model;
+    // What is it exactly ?
     std::string _baseUri;
     // Prefixes seen during parsing prefix --> IRI
     std::map<std::string, std::string> _namespacesPrefixes;

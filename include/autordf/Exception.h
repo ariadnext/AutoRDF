@@ -6,25 +6,34 @@
 
 namespace autordf {
 
+/**
+ * Base class for all AutoRDF Exceptions
+ */
 class Exception : public std::exception {
 public:
-    // Constructor with a given error string
+    /**
+     * Constructor with a given error string
+     */
     Exception( const std::string& description );
 
     virtual ~Exception() throw();
 
-    // Returns error information.
+    /**
+     * Returns error information.
+     */
     virtual const char* what() const throw();
 
 private:
     std::string _description;
 };
 
+//! @cond Doxygen_Suppress
+
 #define AUTORDFEXCEPTION(exname) \
 class exname : public Exception { \
 public: \
     exname( const std::string& description ) : Exception(#exname + std::string(": ") + description) {} \
-};
+}; \
 
 /**
  * Mandatory property for the object is not found
@@ -75,6 +84,8 @@ AUTORDFEXCEPTION(DataConvertionFailure)
  * Inside bug or misuse of our API
  */
 AUTORDFEXCEPTION(InternalError)
+
+//! @endcond
 }
 
 #endif //AUTORDF_EXCEPTION_H
