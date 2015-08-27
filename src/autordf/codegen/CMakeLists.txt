@@ -1,6 +1,12 @@
 ADD_EXECUTABLE(
     autordfcodegen
-    AutoRdfCodeGen.cpp
+    main.cpp
+    RdfsEndity.cpp
+    Property.cpp
+    DataProperty.cpp
+    ObjectProperty.cpp
+    Klass.cpp
+    Utils.cpp
 )
 
 TARGET_LINK_LIBRARIES (

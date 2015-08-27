@@ -49,4 +49,4 @@ INSTALL(FILES
     DESTINATION include/autordf
 )
 
-ADD_SUBDIRECTORY(tools)
+ADD_SUBDIRECTORY(codegen)
