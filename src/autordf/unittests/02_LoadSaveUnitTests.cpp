@@ -36,23 +36,12 @@ TEST(_02_LoadSave, AllProperties) {
     ASSERT_EQ(2, r.getPropertyValues("").size());
 }
 
-TEST(_02_LoadSave, findByType) {
-    Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
-
-    const ResourceList& list = f.findByType("http://xmlns.com/foaf/0.1/Person");
-    for ( const Resource& res : list ) {
-        std::cout << res << std::endl;
-    }
-    ASSERT_EQ(3, list.size());
-}
-
 TEST(_02_LoadSave, loadPerson) {
     Factory f;
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
-
-    ResourceList list = f.findByType("http://xmlns.com/foaf/0.1/Person");
-    Resource person = *list.begin();
+    Statement req;
+    req.object.setLiteral("Jimmy Wales");
+    Resource person = f.createResourceFromStatement(*f.find(req).begin());
     for (const Property& p : person.getPropertyValues("")) {
         std::cout << p << std::endl;
     }

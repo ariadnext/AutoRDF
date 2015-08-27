@@ -16,7 +16,6 @@ ADD_LIBRARY(
     StatementList.cpp
     StatementConverter.cpp
     Resource.cpp
-    ResourceList.cpp
     Property.cpp
     Factory.cpp
     Object.cpp
@@ -43,7 +42,6 @@ INSTALL(FILES
     ../../include/autordf/Property.h
     ../../include/autordf/PropertyValue.h
     ../../include/autordf/Resource.h
-    ../../include/autordf/ResourceList.h
     ../../include/autordf/Statement.h
     ../../include/autordf/StatementList.h
     DESTINATION include/autordf

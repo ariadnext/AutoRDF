@@ -2,8 +2,6 @@
 
 #include <librdf.h>
 
-#include <stdexcept>
-
 #include "autordf/World.h"
 #include "autordf/Exception.h"
 
@@ -30,15 +28,19 @@ Resource Factory::createIRIResource(const std::string &iri) {
     return r;
 }
 
+Resource Factory::createResourceFromStatement(const Statement& stmt) {
+    if ( stmt.subject.type == NodeType::RESOURCE ) {
+        return createIRIResource(stmt.subject.iri());
+    } else if ( stmt.subject.type == NodeType::BLANK ) {
+        return createBlankNodeResource(stmt.subject.bNodeId());
+    } else {
+        throw InternalError(std::string("Unable to create resource from subject type ") + nodeTypeString(stmt.subject.type));
+    }
+}
+
 Property Factory::createProperty(const std::string &iri, NodeType type) {
     Property p(type, iri, this);
     return p;
 }
 
-ResourceList Factory::findByType(const std::string& typeIri) {
-    Statement req;
-    req.predicate.setIri("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-    req.object.setIri(typeIri);
-    return ResourceList(req, this);
-}
 }

@@ -6,7 +6,6 @@
 #include <autordf/Model.h>
 #include <autordf/Property.h>
 #include <autordf/Resource.h>
-#include <autordf/ResourceList.h>
 
 namespace autordf {
 
@@ -26,15 +25,15 @@ public:
     Resource createIRIResource(const std::string& iri);
 
     /**
+     * Converts a statement to resource
+     */
+    Resource createResourceFromStatement(const Statement& stmt);
+
+    /**
      * Creates a property of type type
      * If not type is given, defaults to EMPTY
      */
     Property createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
-
-    /**
-     * Finds all ressources matching given type
-     */
-    ResourceList findByType(const std::string& typeIri);
 };
 
 }

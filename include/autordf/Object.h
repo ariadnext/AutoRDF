@@ -11,7 +11,6 @@
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
 #include <autordf/Resource.h>
-#include <autordf/ResourceList.h>
 #include <autordf/Exception.h>
 
 namespace autordf {
@@ -191,10 +190,13 @@ public:
      * Offered to interfaces
      */
     template<typename T> static std::list<T> findHelper(const std::string& iri) {
-        const ResourceList& rl = _factory->findByType(iri);
+        Statement query;
+        query.predicate.setIri(RDF_NS + "type");
+        query.object.setIri(iri);
+        const StatementList& statements = _factory->find(query);
         std::list<T> objList;
-        for(const Resource& r : rl) {
-            objList.push_back(T(r));
+        for(const Statement& stmt : statements) {
+            objList.push_back(T(_factory->createResourceFromStatement(stmt)));
         }
         return objList;
     }
