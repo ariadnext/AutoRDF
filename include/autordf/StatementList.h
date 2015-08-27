@@ -13,39 +13,35 @@ class Stream;
 class Statement;
 class Model;
 
-class StatementListIterator: public std::iterator<std::forward_iterator_tag, Statement> {
-    std::shared_ptr<Stream> _stream;
+//! @cond Doxygen_Suppress
+class StatementIteratorBase {
+protected:
+    std::shared_ptr<Stream>    _stream;
     std::shared_ptr<Statement> _current;
-public:
-    typedef StatementListIterator self_type;
+    StatementIteratorBase(std::shared_ptr<Stream> stream);
 
-    StatementListIterator(std::shared_ptr<Stream> stream);
+    void operatorPlusPlusHelper();
+    bool operatorEqualsHelper(const std::shared_ptr<Stream>& rhs) const;
+};
+
+template<typename T>
+class StatementListIterator_: public StatementIteratorBase, public std::iterator<std::forward_iterator_tag, const Statement> {
+public:
+    typedef StatementListIterator_ self_type;
+
+    StatementListIterator_(std::shared_ptr<Stream> stream) : StatementIteratorBase(stream) {};
 
     // Only pre increment is supported in this iterator;
-    self_type operator++();
+    self_type operator++() {operatorPlusPlusHelper(); return *this;}
 
     reference operator*() { return *_current.get(); }
     pointer operator->() { return _current.get(); }
-    bool operator==(const self_type& rhs);
+    bool operator==(const self_type& rhs) const { return operatorEqualsHelper(rhs._stream); }
     bool operator!=(const self_type& rhs) { return !operator==(rhs); }
 };
 
-class StatementListConstIterator: public std::iterator<std::forward_iterator_tag, const Statement> {
-    std::shared_ptr<Stream> _stream;
-    std::shared_ptr<Statement> _current;
-public:
-    typedef StatementListConstIterator self_type;
-
-    StatementListConstIterator(std::shared_ptr<Stream> stream);
-
-    // Only pre increment is supported in this iterator;
-    self_type operator++();
-
-    reference operator*() { return *_current.get(); }
-    pointer operator->() { return _current.get(); }
-    bool operator==(const self_type& rhs);
-    bool operator!=(const self_type& rhs) { return !operator==(rhs); }
-};
+typedef StatementListIterator_<Statement> StatementListIterator;
+typedef StatementListIterator_<Statement> StatementListConstIterator;
 
 /**
  * Only supposed to be constructed by model class
@@ -53,9 +49,7 @@ public:
 class StatementList {
 public:
     typedef StatementListIterator iterator;
-    typedef StatementListIterator const_iterator;
-
-    StatementList(const Statement& query, Model *m) : _query(query), _m(m) {}
+    typedef StatementListConstIterator const_iterator;
 
     iterator begin();
     iterator end() { return _END; }
@@ -72,7 +66,12 @@ private:
     Model    *_m;
 
     std::shared_ptr<Stream> createNewStream() const;
+
+    StatementList(const Statement& query, Model *m) : _query(query), _m(m) {}
+
+    friend class Model;
 };
+//! @cond Doxygen_Suppress
 
 std::ostream& operator<<(std::ostream& os, const StatementList& s);
 

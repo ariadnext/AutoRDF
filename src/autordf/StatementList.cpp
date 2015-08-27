@@ -10,27 +10,25 @@
 
 namespace autordf {
 
-StatementListIterator::StatementListIterator(std::shared_ptr<Stream> stream) : _stream(stream)  {
+StatementIteratorBase::StatementIteratorBase(std::shared_ptr<Stream> stream) : _stream(stream)  {
     if ( _stream )  {
         _current = _stream->getObject();
     }
 }
 
-// Pre increment
-StatementListIterator StatementListIterator::operator++() {
+void StatementIteratorBase::operatorPlusPlusHelper() {
     if ( _stream->next() )  {
         _current = _stream->getObject();
     } else {
         _current.reset();
     }
-    return *this;
 }
 
-bool StatementListIterator::operator==(const self_type& rhs) {
+bool StatementIteratorBase::operatorEqualsHelper(const std::shared_ptr<Stream>& rhs) const {
     // First handle case of comparison to end(no stream) iterator
-    if ( (_stream && _stream->end() && !rhs._stream) || (rhs._stream && rhs._stream->end() && !_stream) ) {
+    if ( (_stream && _stream->end() && !rhs) || (rhs && rhs->end() && !_stream) ) {
         return true;
-    } else if ( !_stream || !rhs._stream ) {
+    } else if ( !_stream || !rhs ) {
         return false;
     } else {
         throw InternalError("StatementList iterator comparison is only valid when one of the operands is end()");

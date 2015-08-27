@@ -15,7 +15,7 @@ void Resource::setType(NodeType t) {
     if ( t == NodeType::RESOURCE || t == NodeType::BLANK ) {
         _type = t;
     } else {
-        throw InternalError(std::string("Node type ") + nodeTypeString(t) + " is not allowed for createBlankNodeResource");
+        throw InternalError(std::string("Node type ") + nodeTypeString(t) + " is not allowed for Resource");
     }
 }
 
