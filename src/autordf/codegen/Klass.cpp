@@ -152,7 +152,7 @@ void Klass::generateInterfaceDeclaration() const {
     ofs << " {" << std::endl;
     ofs << "public:" << std::endl;
     indent(ofs, 1) << "// IRI for rfds type name" << std::endl;
-    indent(ofs, 1) << "static const std::string& TYPEIRI;" << std::endl;
+    indent(ofs, 1) << "static const char* TYPEIRI;" << std::endl;
 
     if ( enumValues.size() ) {
         indent(ofs, 1) << "enum Enum {" << std::endl;
@@ -261,7 +261,7 @@ void Klass::generateInterfaceDefinition() const {
         ofs << std::endl;
     }
 
-    ofs << "const std::string& " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
+    ofs << "const char * " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
     ofs << std::endl;
 
     for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
