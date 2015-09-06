@@ -26,7 +26,7 @@ public:
 
     std::string genCppNameWithNamespace() const;
 
-    void generateComment(std::ostream& ofs, unsigned int numIndent) const;
+    void generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment = "") const;
 
     static void setModel(Model *m) {
         _m = m;

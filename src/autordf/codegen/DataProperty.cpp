@@ -36,7 +36,6 @@ std::tuple<const char *, cvt::RdfTypeEnum, const char *> rdf2CppTypeMapping[] = 
 
 void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) const {
     ofs << std::endl;
-    generateComment(ofs, 1);
     if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
         if ( getEffectiveMinCardinality(onClass) > 0 ) {
             generateForOneMandatory(ofs, onClass);
@@ -101,6 +100,10 @@ int DataProperty::range2CvtArrayIndex(const Klass& onClass) const {
 
 
 void DataProperty::generateForOneMandatory(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "@return the mandatory value for this property.\n"
+                            "@throw PropertyNotFound if value is not set in database\n"
+                            "@throw DuplicateProperty if database contains more than one value");
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
@@ -116,6 +119,9 @@ void DataProperty::generateForOneMandatory(std::ostream& ofs, const Klass& onCla
 }
 
 void DataProperty::generateForOneOptional(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "@return the valueif it is set, or nullptr if it is not set.\n"
+                            "@throw DuplicateProperty if database contains more than one value");
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
@@ -128,6 +134,8 @@ void DataProperty::generateForOneOptional(std::ostream& ofs, const Klass& onClas
 }
 
 void DataProperty::generateForMany(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "@return the list of values.  List can be empty if not values are set in database");
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);

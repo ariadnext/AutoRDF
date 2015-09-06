@@ -5,6 +5,8 @@
 
 #include "Utils.h"
 
+#include <boost/tokenizer.hpp>
+
 namespace autordf {
 namespace codegen {
 
@@ -25,7 +27,7 @@ std::string RdfsEntity::genCppNameWithNamespace() const {
     return genCppNameSpace() + "::" + genCppName();
 }
 
-void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent) const {
+void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment) const {
     if ( !label.empty() || !comment.empty() ) {
         indent(ofs, numIndent) << "/**" << std::endl;
         if ( !label.empty() ) {
@@ -34,6 +36,13 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent) cons
         if ( !comment.empty() ) {
             indent(ofs, numIndent) << " * " << comment << std::endl;
         }
+
+        boost::char_separator<char> sep("\n");
+        boost::tokenizer<boost::char_separator<char> > tokens(additionalComment, sep);
+        for (auto const& token : tokens) {
+            indent(ofs, numIndent) << " * " << token << std::endl;
+        }
+
         indent(ofs, numIndent) << " */" << std::endl;
     }
 }

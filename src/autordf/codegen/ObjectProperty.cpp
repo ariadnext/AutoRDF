@@ -19,16 +19,24 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
     auto propertyClass = findClass();
 
     ofs << std::endl;
-    generateComment(ofs, 1);
 
     if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
         if ( getEffectiveMinCardinality(onClass) > 0 ) {
+            generateComment(ofs, 1,
+                "@return the mandatory instance.\n"
+                "@throw PropertyNotFound if object reference is not set\n"
+                "@throw DuplicateProperty if database contains more than one value");
             indent(ofs, 1) << propertyClass->genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
         } else {
+            generateComment(ofs, 1,
+                            "@return the object instance if it is set, or nullptr if it is not set.\n"
+                            "@throw DuplicateProperty if database contains more than one value");
             indent(ofs, 1) << "std::shared_ptr<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
         }
     }
     if ( getEffectiveMaxCardinality(onClass) > 1 ) {
+        generateComment(ofs, 1,
+                        "@return the list typed objects.  List can be empty if not values are set in database");
         indent(ofs, 1) << "std::list<" << propertyClass->genCppNameWithNamespace()  << "> " << genCppName() << "List() const;" << std::endl;
     }
 }
