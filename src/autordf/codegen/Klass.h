@@ -43,7 +43,9 @@ public:
     // iri to Klass map
     static std::map <std::string, std::shared_ptr<Klass>> uri2Ptr;
 
-    static std::string outdir;
+    void enterNameSpace(std::ofstream& ofs) const;
+    void leaveNameSpace(std::ofstream& ofs) const;
+private:
 };
 
 }

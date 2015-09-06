@@ -10,13 +10,35 @@
 namespace autordf {
 namespace codegen {
 
-std::string RdfsEntity::genCppNameSpace() const {
+std::string RdfsEntity::outdir = ".";
+
+std::string RdfsEntity::genCppNameSpaceInternal(const char *sep) const {
     std::string prefix = rdfPrefix(rdfname, _m);
     if ( !prefix.empty() ) {
-        return prefix;
+        if ( outdir != "." && sep) {
+            return outdir + sep + prefix;
+        } else {
+            return prefix;
+        }
     } else {
         throw std::runtime_error("No prefix found for " + rdfname + " RDF resource, unable to use it as C++ namespace");
     }
+}
+
+std::string RdfsEntity::genCppNameSpace() const {
+    return genCppNameSpaceInternal(nullptr);
+}
+
+std::string RdfsEntity::genCppNameSpaceInclusionPath() const {
+    return genCppNameSpaceInternal("/");
+}
+
+std::string RdfsEntity::genCppNameSpaceFullyQualified() const {
+    return genCppNameSpaceInternal("::");
+}
+
+std::string RdfsEntity::genCppNameSpaceForGuard() const {
+    return genCppNameSpaceInternal("_");
 }
 
 std::string RdfsEntity::genCppName() const {
@@ -28,7 +50,7 @@ std::string RdfsEntity::genCppName() const {
 }
 
 std::string RdfsEntity::genCppNameWithNamespace() const {
-    return genCppNameSpace() + "::" + genCppName();
+    return genCppNameSpaceFullyQualified() + "::" + genCppName();
 }
 
 void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment) const {

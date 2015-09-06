@@ -9,30 +9,28 @@ namespace codegen {
 
 std::map <std::string, std::shared_ptr<Klass>> Klass::uri2Ptr;
 
-std::string Klass::outdir = ".";
-
 void Klass::generateDeclaration() const {
     std::string cppName = genCppName();
     std::ofstream ofs;
-    createFile(outdir + "/" + genCppNameSpace() + "/" + cppName + ".h", &ofs);
+    createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".h", &ofs);
 
-    generateCodeProtectorBegin(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorBegin(ofs, genCppNameSpaceForGuard(), cppName);
 
     ofs << "#include <set>" << std::endl;
     ofs << "#include <autordf/Object.h>" << std::endl;
-    ofs << "#include <" << genCppNameSpace() << "/I" << cppName << ".h>" << std::endl;
+    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/I" << cppName << ".h>" << std::endl;
     for ( const std::string& ancestor: directAncestors ) {
-        ofs << "#include <" << uri2Ptr[ancestor]->genCppNameSpace() << "/I" << uri2Ptr[ancestor]->genCppName() << ".h>" << std::endl;
+        ofs << "#include <" << uri2Ptr[ancestor]->genCppNameSpaceInclusionPath() << "/I" << uri2Ptr[ancestor]->genCppName() << ".h>" << std::endl;
     }
     ofs << std::endl;
 
-    ofs << "namespace " << genCppNameSpace() << " {" << std::endl;
+    enterNameSpace(ofs);
     ofs << std::endl;
 
     generateComment(ofs, 0);
     ofs << "class " << cppName << ": public autordf::Object";
     for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ++ancestor ) {
-        ofs << ", public " << uri2Ptr[*ancestor]->genCppNameSpace() << "::I" << uri2Ptr[*ancestor]->genCppName();
+        ofs << ", public " << uri2Ptr[*ancestor]->genCppNameSpaceFullyQualified() << "::I" << uri2Ptr[*ancestor]->genCppName();
     }
     ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
@@ -73,26 +71,30 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "const Object& object() const override { return *this; }" << std::endl;
     ofs << "};" << std::endl;
     ofs << std::endl;
-    ofs << "}" << std::endl;
+    leaveNameSpace(ofs);
 
-    generateCodeProtectorEnd(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorEnd(ofs, genCppNameSpaceFullyQualified(), cppName);
 }
 
 void Klass::generateDefinition() const {
     std::string cppName = genCppName();
-    std::string cppNameSpace = genCppNameSpace();
+    std::string cppNameSpace = genCppNameSpaceFullyQualified();
     std::ofstream ofs;
-    createFile(outdir + "/" + cppNameSpace + "/" + cppName + ".cpp", &ofs);
+    createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
 
-    ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
+    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << cppName << ".h>" << std::endl;
     ofs << std::endl;
     addBoilerPlate(ofs);
     ofs << std::endl;
 
-    ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
+    if ( outdir == "." ) {
+        ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
+    } else {
+        ofs << "#include \"" << outdir << "/RdfTypeInfo.h\"" << std::endl;
+    }
     ofs << std::endl;
 
-    ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    enterNameSpace(ofs);
     ofs << std::endl;
     if ( !enumValues.size() ) {
         ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
@@ -111,21 +113,21 @@ void Klass::generateDefinition() const {
     ofs << "std::set<std::string> " << cppName << "::ancestorsRdfTypeIRI() {" << std::endl;
     indent(ofs, 1) <<     "return std::set<std::string>({" << std::endl;
     for ( const std::shared_ptr<const Klass>& ancestor : getAllAncestors() ) {
-        indent(ofs, 3) << ancestor->genCppNameSpace() << "::I" << ancestor->genCppName() << "::TYPEIRI," << std::endl;
+        indent(ofs, 3) << ancestor->genCppNameSpaceFullyQualified() << "::I" << ancestor->genCppName() << "::TYPEIRI," << std::endl;
     }
     indent(ofs, 2) <<         "});" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
-    ofs << "}" << std::endl;
+    leaveNameSpace(ofs);
     ofs << std::endl;
 }
 
 void Klass::generateInterfaceDeclaration() const {
     std::string cppName = "I" + genCppName();
     std::ofstream ofs;
-    createFile(outdir + "/" + genCppNameSpace() + "/" + cppName + ".h", &ofs);
+    createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".h", &ofs);
 
-    generateCodeProtectorBegin(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorBegin(ofs, genCppNameSpaceForGuard(), cppName);
 
     if ( enumValues.size() ) {
         ofs << "#include <array>" << std::endl;
@@ -138,13 +140,17 @@ void Klass::generateInterfaceDeclaration() const {
     //get forward declarations
     std::set<std::shared_ptr<const Klass> > cppClassDeps = getClassDependencies();
     for ( const std::shared_ptr<const Klass>& cppClassDep : cppClassDeps ) {
-        ofs << "namespace " << cppClassDep->genCppNameSpace() << " { class " << cppClassDep->genCppName() << "; }" << std::endl;
+        cppClassDep->enterNameSpace(ofs);
+        ofs << "class " << cppClassDep->genCppName() << ";" << std::endl;
+        cppClassDep->leaveNameSpace(ofs);
     }
     // Add forward declaration for our own class
-    ofs << "namespace " << genCppNameSpace() << " { class " << genCppName() << "; }" << std::endl;
+    enterNameSpace(ofs);
+    ofs << "class " << genCppName() << ";" << std::endl;
+    leaveNameSpace(ofs);
     ofs << std::endl;
 
-    ofs << "namespace " << genCppNameSpace() << " {" << std::endl;
+    enterNameSpace(ofs);
     ofs << std::endl;
 
     generateComment(ofs, 0);
@@ -211,19 +217,18 @@ void Klass::generateInterfaceDeclaration() const {
 
     ofs << "};" << std::endl;
     ofs << std::endl;
-    ofs << "}" << std::endl;
+    leaveNameSpace(ofs);
 
-    generateCodeProtectorEnd(ofs, genCppNameSpace(), cppName);
+    generateCodeProtectorEnd(ofs, genCppNameSpaceFullyQualified(), cppName);
 }
 
 void Klass::generateInterfaceDefinition() const {
     std::string cppName = "I" + genCppName();
-    std::string cppNameSpace = genCppNameSpace();
 
     std::ofstream ofs;
-    createFile(outdir + "/" + cppNameSpace + "/" + cppName + ".cpp", &ofs);
+    createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
 
-    ofs << "#include <" << cppNameSpace << "/" << cppName << ".h>" << std::endl;
+    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << cppName << ".h>" << std::endl;
     ofs << std::endl;
     addBoilerPlate(ofs);
     ofs << std::endl;
@@ -234,13 +239,13 @@ void Klass::generateInterfaceDefinition() const {
     // Generate class imports
     std::set<std::shared_ptr<const Klass> > cppDeps = getClassDependencies();
     for ( const std::shared_ptr<const Klass>& cppDep : cppDeps ) {
-        ofs << "#include <" << cppDep->genCppNameSpace() << "/" << cppDep->genCppName() << ".h>" << std::endl;
+        ofs << "#include <" << cppDep->genCppNameSpaceInclusionPath() << "/" << cppDep->genCppName() << ".h>" << std::endl;
     }
     // Include our own class
-    ofs << "#include <" << cppNameSpace << "/" << genCppName() << ".h>" << std::endl;
+    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << genCppName() << ".h>" << std::endl;
     ofs << std::endl;
 
-    ofs << "namespace " << cppNameSpace << " {" << std::endl;
+    enterNameSpace(ofs);
     ofs << std::endl;
 
     if ( enumValues.size() ) {
@@ -289,7 +294,7 @@ void Klass::generateInterfaceDefinition() const {
     for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
         prop->generateDefinition(ofs, *this);
     }
-    ofs << "}" << std::endl;
+    leaveNameSpace(ofs);
 }
 
 std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
@@ -314,6 +319,19 @@ std::set<std::shared_ptr<const Klass> > Klass::getAllAncestors() const {
     return all;
 }
 
+void Klass::enterNameSpace(std::ofstream& ofs) const {
+    if ( outdir != "." ) {
+        ofs << "namespace " << outdir << " {" << std::endl;
+    }
+    ofs << "namespace " << genCppNameSpace() << " {" << std::endl;
+}
+
+void Klass::leaveNameSpace(std::ofstream& ofs) const {
+    ofs << "}" << std::endl;
+    if ( outdir != "." ) {
+        ofs << "}" << std::endl;
+    }
+}
 }
 }
 

@@ -167,7 +167,7 @@ void extractClasses(const std::string& classTypeIRI) {
 
 void generateRdfTypeInfo() {
     std::ofstream oifs;
-    createFile(Klass::outdir + "/RdfTypeInfo.h", &oifs);
+    createFile(RdfsEntity::outdir + "/RdfTypeInfo.h", &oifs);
     generateCodeProtectorBegin(oifs, "", "RdfTypeInfo");
     oifs << "class RdfTypeInfo {" << std::endl;
     oifs << "public:" << std::endl;
@@ -181,18 +181,22 @@ void generateRdfTypeInfo() {
     generateCodeProtectorEnd(oifs, "", "RdfTypeInfo");
 
     std::ofstream ofs;
-    createFile(Klass::outdir + "/RdfTypeInfo.cpp", &ofs);
+    createFile(RdfsEntity::outdir + "/RdfTypeInfo.cpp", &ofs);
     addBoilerPlate(ofs);
     ofs << std::endl;
     ofs << "#include <map>" << std::endl;
     ofs << "#include <set>" << std::endl;
     ofs << "#include <string>" << std::endl;
     ofs << std::endl;
-    ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
+    if ( RdfsEntity::outdir == ".") {
+        ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
+    } else {
+        ofs << "#include \"" << RdfsEntity::outdir << "/RdfTypeInfo.h\"" << std::endl;
+    }
     ofs << std::endl;
     for ( auto const& klassMapItem: Klass::uri2Ptr) {
         const Klass& cls = *klassMapItem.second;
-        ofs << "#include \"" << cls.genCppNameSpace() << "/" << cls.genCppName() << ".h" << "\"" << std::endl;
+        ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".h" << "\"" << std::endl;
     }
     ofs << std::endl;
 
@@ -202,7 +206,7 @@ void generateRdfTypeInfo() {
     indent(ofs, 1) << "if ( DATA.empty() ) {" << std::endl;
     for ( auto const& klassMapItem: Klass::uri2Ptr) {
         const Klass& cls = *klassMapItem.second;
-        indent(ofs, 2) << "DATA[\"" << klassMapItem.first << "\"] = " << cls.genCppNameSpace() << "::" << cls.genCppName() << "::ancestorsRdfTypeIRI();" << std::endl;
+        indent(ofs, 2) << "DATA[\"" << klassMapItem.first << "\"] = " << cls.genCppNameSpaceFullyQualified() << "::" << cls.genCppName() << "::ancestorsRdfTypeIRI();" << std::endl;
     }
     indent(ofs, 1) << "};" << std::endl;
     ofs << std::endl;
@@ -294,9 +298,8 @@ void run() {
     std::set<std::string> cppNameSpaces;
     for ( auto const& klassMapItem: Klass::uri2Ptr) {
         // created directory if needed
-        std::string cppNameSpace = klassMapItem.second->genCppNameSpace();
-        cppNameSpaces.insert(cppNameSpace);
-        createDirectory(Klass::outdir + "/" + cppNameSpace);
+        createDirectory(klassMapItem.second->genCppNameSpaceInclusionPath());
+        cppNameSpaces.insert(klassMapItem.second->genCppNameSpace());
 
         klassMapItem.second->generateInterfaceDeclaration();
         klassMapItem.second->generateInterfaceDefinition();
@@ -307,7 +310,7 @@ void run() {
     // Generate all TypesInfo
     generateRdfTypeInfo();
 
-    //Generate all inclusions file
+    // Generate all inclusions files
     for ( const std::string& cppNameSpace : cppNameSpaces ) {
         std::ofstream ofs;
         createFile(Klass::outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h", &ofs);
@@ -316,7 +319,7 @@ void run() {
         for ( auto const& klassMapItem: Klass::uri2Ptr) {
             if ( klassMapItem.second->genCppNameSpace() == cppNameSpace ) {
                 const Klass& cls = *klassMapItem.second;
-                ofs << "#include <" << cppNameSpace << "/" << cls.genCppName() << ".h" << ">" << std::endl;
+                ofs << "#include <" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".h" << ">" << std::endl;
             }
         }
         ofs << std::endl;
@@ -326,15 +329,15 @@ void run() {
     // Generate all in one cpp file
     if ( generateAllInOne ) {
         std::ofstream ofs;
-        createFile(Klass::outdir + "/AllInOne.cpp", &ofs);
+        createFile(RdfsEntity::outdir + "/AllInOne.cpp", &ofs);
 
         addBoilerPlate(ofs);
         ofs << std::endl;
         ofs << "#include \"RdfTypeInfo.cpp\"" << std::endl;
         for ( auto const& klassMapItem: Klass::uri2Ptr) {
             const Klass& cls = *klassMapItem.second;
-            ofs << "#include \"" << cls.genCppNameSpace() << "/I" << cls.genCppName() << ".cpp" << "\"" << std::endl;
-            ofs << "#include \"" << cls.genCppNameSpace() << "/" << cls.genCppName() << ".cpp" << "\"" << std::endl;
+            ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/I" << cls.genCppName() << ".cpp" << "\"" << std::endl;
+            ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".cpp" << "\"" << std::endl;
         }
         ofs << std::endl;
     }
@@ -371,7 +374,7 @@ int main(int argc, char **argv) {
                 break;
             }
             case 'o':
-                autordf::codegen::Klass::outdir = optarg;
+                autordf::codegen::RdfsEntity::outdir = optarg;
                 break;
             case 'v':
                 autordf::codegen::verbose = true;
@@ -393,7 +396,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    autordf::codegen::createDirectory(autordf::codegen::Klass::outdir);
+    autordf::codegen::createDirectory(autordf::codegen::RdfsEntity::outdir);
 
     // Hardcode some prefixes
     f.addNamespacePrefix("owl", autordf::codegen::OWL);

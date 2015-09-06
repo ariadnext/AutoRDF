@@ -1,41 +1,45 @@
+INCLUDE_DIRECTORIES(
+    "${PROJECT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
+
 ADD_EXECUTABLE(
     testcodegen
     TestCodeGen.cpp
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IAgent.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IGroup.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IImage.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/ILabelProperty.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineChatAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineEcommerceAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineGamingAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOrganization.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IResource.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IClass.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/IThing.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Agent.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Document.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Group.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Image.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/LabelProperty.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineChatAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineEcommerceAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineGamingAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Organization.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Person.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/PersonalProfileDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Project.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/Resource.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/Class.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/Thing.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/RdfTypeInfo.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IAgent.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IGroup.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IImage.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/ILabelProperty.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineChatAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineEcommerceAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineGamingAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOrganization.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IPerson.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IPersonalProfileDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IProject.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/IResource.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/IClass.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/IThing.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Agent.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Document.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Group.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Image.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/LabelProperty.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineChatAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineEcommerceAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineGamingAccount.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Organization.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Person.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/PersonalProfileDocument.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Project.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Resource.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Class.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/Thing.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/foaftest/RdfTypeInfo.cpp"
 )
-SET_TARGET_PROPERTIES(testcodegen PROPERTIES INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}/foaf")
 
 TARGET_LINK_LIBRARIES(
     testcodegen
@@ -46,49 +50,48 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IAgent.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IGroup.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IImage.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/ILabelProperty.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineChatAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineEcommerceAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOnlineGamingAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IOrganization.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPerson.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IPersonalProfileDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/IProject.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IResource.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/IClass.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/IThing.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Agent.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Document.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Group.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Image.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/LabelProperty.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineChatAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineEcommerceAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/OnlineGamingAccount.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Organization.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Person.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/PersonalProfileDocument.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/foaf/Project.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/Resource.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/rdfs/Class.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/owl/Thing.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/foaf/RdfTypeInfo.cpp"
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -o foaf "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.rdf"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IAgent.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IDocument.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IGroup.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IImage.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/ILabelProperty.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineChatAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineEcommerceAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOnlineGamingAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IOrganization.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IPerson.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IPersonalProfileDocument.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/IProject.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/IResource.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/IClass.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/IThing.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Agent.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Document.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Group.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Image.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/LabelProperty.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineChatAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineEcommerceAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/OnlineGamingAccount.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Organization.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Person.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/PersonalProfileDocument.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/foaf/Project.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Resource.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Class.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/Thing.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/foaftest/RdfTypeInfo.cpp"
+    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -o foaftest "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.rdf"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
 )
 
 ADD_EXECUTABLE(
     testmrd
     TestMrd.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/AllInOne.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/AllInOne.cpp
 )
-SET_TARGET_PROPERTIES(testmrd PROPERTIES INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR}/mrd")
 
 TARGET_LINK_LIBRARIES(
     testmrd
@@ -97,7 +100,7 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/mrd/AllInOne.cpp
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -a -o mrd -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
+    ${CMAKE_CURRENT_BINARY_DIR}/AllInOne.cpp
+    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -a -n "mrd:http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.owl"
 )
