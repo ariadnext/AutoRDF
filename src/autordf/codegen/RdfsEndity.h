@@ -34,6 +34,7 @@ public:
 
     static const Model* model() { return _m; }
 
+    bool operator<(const RdfsEntity& other) const { return rdfname < other.rdfname; }
 private:
     static Model *_m;
 };

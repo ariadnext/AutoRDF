@@ -16,7 +16,7 @@ namespace codegen {
 class Klass : public RdfsEntity {
 public:
     std::set <std::string> directAncestors;
-    std::set <std::string> enumValues;
+    std::set <RdfsEntity> enumValues;
 
     std::set <std::shared_ptr<DataProperty>> dataProperties;
     std::set <std::shared_ptr<ObjectProperty>> objectProperties;

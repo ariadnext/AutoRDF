@@ -19,8 +19,6 @@ void createDirectory(const std::string& relativeDirName);
 
 void createFile(const std::string& fileName, std::ofstream *ofs);
 
-std::string genCppName(const std::string& iri);
-
 // Checks an returns if available registered prefix for IRI
 std::string rdfPrefix(const std::string& rdfiri, const Model *model);
 }

@@ -69,8 +69,8 @@ void Klass::generateDeclaration() const {
 
     ofs << "private:" << std::endl;
 
-    indent(ofs, 1) << "Object& object() { return *this; }" << std::endl;
-    indent(ofs, 1) << "const Object& object() const { return *this; }" << std::endl;
+    indent(ofs, 1) << "Object& object() override { return *this; }" << std::endl;
+    indent(ofs, 1) << "const Object& object() const override { return *this; }" << std::endl;
     ofs << "};" << std::endl;
     ofs << std::endl;
     ofs << "}" << std::endl;
@@ -151,18 +151,37 @@ void Klass::generateInterfaceDeclaration() const {
     ofs << "class " << cppName << " ";
     ofs << " {" << std::endl;
     ofs << "public:" << std::endl;
-    indent(ofs, 1) << "// IRI for rfds type name" << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * IRI for rdfs type associated with this C++ Interface class" << std::endl;
+    indent(ofs, 1) << " */ " << std::endl;
     indent(ofs, 1) << "static const char* TYPEIRI;" << std::endl;
+    ofs << std::endl;
 
     if ( enumValues.size() ) {
+        indent(ofs, 1) << "/**" << std::endl;
+        indent(ofs, 1) << " * C++ Enum values mapping the owl instances restrictions for this class " << std::endl;
+        indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "enum Enum {" << std::endl;
-        for ( std::string en : enumValues ) {
-            indent(ofs, 2) << codegen::genCppName(en) << "," << std::endl;
+        for ( const RdfsEntity& enumVal : enumValues ) {
+            enumVal.generateComment(ofs, 2);
+            indent(ofs, 2) << enumVal.genCppName() << "," << std::endl;
         }
         indent(ofs, 1) << "};" << std::endl;
         ofs << std::endl;
+
+        indent(ofs, 1) << "/** " << std::endl;
+        indent(ofs, 1) << " * Returns the current object as an Enum " << std::endl;
+        indent(ofs, 1) << " * This object is expected to be one the instance allowed by the owl:oneOf definition." << std::endl;
+        indent(ofs, 1) << " * @return enum value" << std::endl;
+        indent(ofs, 1) << " * @throw InvalidEnum if the object we try to convert is not one of the instances defined by owl:oneOf" << std::endl;
+        indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "Enum asEnum() const;" << std::endl;
         ofs << std::endl;
+        indent(ofs, 1) << "/** " << std::endl;
+        indent(ofs, 1) << " * Converts an enum value to a pretty string " << std::endl;
+        indent(ofs, 1) << " * @param en enum value" << std::endl;
+        indent(ofs, 1) << " * @return enum value converted as string" << std::endl;
+        indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "static std::string enumString(Enum en);" << std::endl;
     }
     ofs << std::endl;
@@ -226,8 +245,8 @@ void Klass::generateInterfaceDefinition() const {
 
     if ( enumValues.size() ) {
         ofs << "const " << genCppName() << "::EnumArrayType I" << genCppName() << "::ENUMARRAY = {" << std::endl;
-        for ( std::string en : enumValues) {
-            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << codegen::genCppName(en) << ", \"" << en << "\", \"" << codegen::genCppName(en) << "\")," << std::endl;
+        for ( const RdfsEntity& enumVal : enumValues ) {
+            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << enumVal.genCppName() << ", \"" << enumVal.rdfname << "\", \"" << enumVal.genCppName() << "\")," << std::endl;
         }
         ofs << "};" << std::endl;
         ofs << std::endl;

@@ -97,8 +97,10 @@ void extractClass(const Object& o, Klass *kls) {
     if ( oneof ) {
         std::shared_ptr<Object> rest = oneof;
         while ( rest && rest->iri() != RDF + "nil" ) {
-            std::string enumIRI = rest->getPropertyValue(RDF + "first");
-            kls->enumValues.insert(enumIRI);
+            Object enumValObject(rest->getPropertyValue(RDF + "first"));
+            RdfsEntity enumVal;
+            extractRDFS(enumValObject, &enumVal);
+            kls->enumValues.insert(enumVal);
             rest = rest->getOptionalObject(RDF + "rest");
         }
     }

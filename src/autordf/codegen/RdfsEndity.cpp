@@ -20,7 +20,11 @@ std::string RdfsEntity::genCppNameSpace() const {
 }
 
 std::string RdfsEntity::genCppName() const {
-    return codegen::genCppName(rdfname);
+    std::string cppname = rdfname.substr(rdfname.find_last_of("/#:") + 1);
+    if ( !::isalpha(cppname[0]) ) {
+        cppname = "_" + cppname;
+    }
+    return cppname;
 }
 
 std::string RdfsEntity::genCppNameWithNamespace() const {

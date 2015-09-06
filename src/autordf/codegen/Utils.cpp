@@ -44,14 +44,6 @@ void createFile(const std::string& fileName, std::ofstream *ofs) {
     }
 }
 
-std::string genCppName(const std::string& iri) {
-    std::string cppname = iri.substr(iri.find_last_of("/#:") + 1);
-    if ( !::isalpha(cppname[0]) ) {
-        cppname = "_" + cppname;
-    }
-    return cppname;
-}
-
 // Checks an returns if available registered prefix for IRI
 std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
     for ( const std::pair<std::string, std::string>& prefixMapItem : model->namespacesPrefixes() ) {
