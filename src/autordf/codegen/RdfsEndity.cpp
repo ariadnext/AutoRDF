@@ -41,10 +41,13 @@ std::string RdfsEntity::genCppNameSpaceForGuard() const {
     return genCppNameSpaceInternal("_");
 }
 
-std::string RdfsEntity::genCppName() const {
+std::string RdfsEntity::genCppName(bool uppercaseFirst) const {
     std::string cppname = rdfname.substr(rdfname.find_last_of("/#:") + 1);
     if ( !::isalpha(cppname[0]) ) {
         cppname = "_" + cppname;
+    }
+    if ( uppercaseFirst ) {
+        cppname[0] = ::toupper(cppname[0]);
     }
     return cppname;
 }

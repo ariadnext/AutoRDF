@@ -17,18 +17,22 @@ public:
 
     void generateDeclaration(std::ostream& ofs, const Klass& onClass) const;
 
-    void generateDefinition(std::ostream& ofs, const Klass& onClass);
+    void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
 
 private:
     std::string getEffectiveRange(const Klass& kls) const;
 
     int range2CvtArrayIndex(const Klass& onClass) const;
 
-    void generateForOneMandatory(std::ostream& ofs, const Klass& onClass) const;
+    void generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const;
 
-    void generateForOneOptional(std::ostream& ofs, const Klass& onClass) const;
+    void generateGetterForOneOptional(std::ostream& ofs, const Klass& onClass) const;
 
-    void generateForMany(std::ostream& ofs, const Klass& onClass) const;
+    void generateGetterForMany(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateSetterForOne(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateSetterForMany(std::ostream& ofs, const Klass& onClass) const;
 };
 
 }

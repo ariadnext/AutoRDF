@@ -24,7 +24,7 @@ public:
     std::string label;
 
     // classname
-    std::string genCppName() const;
+    std::string genCppName(bool upperCaseFirst = false) const;
 
     // [outfolder::]namespace::classname
     std::string genCppNameWithNamespace() const;

@@ -35,8 +35,9 @@ public:
      * Writes the Value, transtyping it from C++ to rdf type
      * @throw DataConvertionFailure
      */
-    template<cvt::RdfTypeEnum rdfType, typename T> void set(const T& val) {
+    template<cvt::RdfTypeEnum rdfType, typename T> PropertyValue& set(const T& val) {
         assign(cvt::toRdf<T, rdfType>::val(val));
+        return *this;
     };
 
     /**

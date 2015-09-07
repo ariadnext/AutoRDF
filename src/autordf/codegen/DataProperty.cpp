@@ -38,17 +38,21 @@ void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) 
     ofs << std::endl;
     if ( getEffectiveMaxCardinality(onClass) <= 1 ) {
         if ( getEffectiveMinCardinality(onClass) > 0 ) {
-            generateForOneMandatory(ofs, onClass);
+            generateGetterForOneMandatory(ofs, onClass);
         } else {
-            generateForOneOptional(ofs, onClass);
+            generateGetterForOneOptional(ofs, onClass);
         }
+        ofs << std::endl;
+        generateSetterForOne(ofs, onClass);
     }
     if ( getEffectiveMaxCardinality(onClass) > 1 ) {
-        generateForMany(ofs, onClass);
+        generateGetterForMany(ofs, onClass);
+        ofs << std::endl;
+        generateSetterForMany(ofs, onClass);
     }
 }
 
-void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) {
+void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
@@ -72,6 +76,11 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) {
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
             cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << rdfname << "\");" << std::endl;
+            ofs << "}" << std::endl;
+            ofs << std::endl;
+            ofs << "void " << currentClassName << "::set" << genCppName(true ) << "(const std::list<" << cppType << ">& values) {" << std::endl;
+            indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
+            cvt::rdfTypeEnumString(rdfType) << ">(\"" << rdfname << "\", values);" << std::endl;
             ofs << "}" << std::endl;
         }
     }
@@ -99,7 +108,7 @@ int DataProperty::range2CvtArrayIndex(const Klass& onClass) const {
 }
 
 
-void DataProperty::generateForOneMandatory(std::ostream& ofs, const Klass& onClass) const {
+void DataProperty::generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "@return the mandatory value for this property.\n"
                             "@throw PropertyNotFound if value is not set in database\n"
@@ -118,7 +127,27 @@ void DataProperty::generateForOneMandatory(std::ostream& ofs, const Klass& onCla
     }
 }
 
-void DataProperty::generateForOneOptional(std::ostream& ofs, const Klass& onClass) const {
+void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "Sets the mandatory value for this property.\n"
+                            "@param value value to set for this property, removing all other values");
+    int index = range2CvtArrayIndex(onClass);
+    if (index >= 0) {
+        const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+        cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
+        indent(ofs, 1) << "void set" << genCppName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "return object().setPropertyValue(\"" << rdfname <<
+            "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
+            ">(value));" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << "void set" << genCppName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 2) << "object().setPropertyValue(\"" << rdfname << "\", value);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+}
+
+void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "@return the valueif it is set, or nullptr if it is not set.\n"
                             "@throw DuplicateProperty if database contains more than one value");
@@ -133,7 +162,7 @@ void DataProperty::generateForOneOptional(std::ostream& ofs, const Klass& onClas
     }
 }
 
-void DataProperty::generateForMany(std::ostream& ofs, const Klass& onClass) const {
+void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "@return the list of values.  List can be empty if not values are set in database");
     int index = range2CvtArrayIndex(onClass);
@@ -143,6 +172,20 @@ void DataProperty::generateForMany(std::ostream& ofs, const Klass& onClass) cons
     } else {
         indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
         indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+}
+
+void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "Sets property to list of values \n@param values the list of values");
+    int index = range2CvtArrayIndex(onClass);
+    if ( index >= 0 ) {
+        const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
+        indent(ofs, 1) << "void set" << genCppName(true ) << "(const std::list<" << cppType << "> " << "& values);" << std::endl;
+    } else {
+        indent(ofs, 1) << "void set" << genCppName(true ) << "(const std::list<autordf::PropertyValue>& values) {" << std::endl;
+        indent(ofs, 2) <<     "object().setPropertyValueList(\"" << rdfname << "\", values);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }

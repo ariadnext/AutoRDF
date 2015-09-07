@@ -240,6 +240,20 @@ public:
         return valueList;
     }
 
+    /**
+     * Offered to interfaces
+     * @throw InvalidIRI if propertyIRI is empty
+     */
+    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const std::string& propertyIRI, const std::list<T>& values) {
+        addRdfTypeIfNeeded();
+        Property p = _factory->createProperty(propertyIRI);
+        _r.removeProperties(propertyIRI);
+        for (auto const & val: values) {
+            p.setValue(PropertyValue().set<rdftype>(val));
+            _r.addProperty(p);
+        }
+    }
+
 private:
     /**
      * The resource this object is based on
