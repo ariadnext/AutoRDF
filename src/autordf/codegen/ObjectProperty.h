@@ -23,8 +23,16 @@ public:
 
     // iri to Property map
     static std::map<std::string, std::shared_ptr<ObjectProperty> > uri2Ptr;
-};
 
+private:
+    void generateDeclarationSetterForOne(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const;
+};
 }
 }
 #endif //AUTORDF_CODEGEN_OBJECTPROPERTY_H

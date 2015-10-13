@@ -48,6 +48,8 @@ void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) 
     if ( getEffectiveMaxCardinality(onClass) > 1 ) {
         generateGetterForMany(ofs, onClass);
         ofs << std::endl;
+        generateSetterForOne(ofs, onClass);
+        ofs << std::endl;
         generateSetterForMany(ofs, onClass);
     }
 }

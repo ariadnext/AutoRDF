@@ -71,13 +71,7 @@ void Object::setObject(const std::string &propertyIRI, const Object &obj) {
 }
 
 void Object::setObjectList(const std::string &propertyIRI, const std::list<Object> &values) {
-    addRdfTypeIfNeeded();
-    Property p =_factory->createProperty(propertyIRI);
-    _r.removeProperties(propertyIRI);
-    for (const Object& obj: values) {
-        p.setValue(obj._r);
-        _r.addProperty(p);
-    }
+    setObjectListImpl(propertyIRI, values);
 }
 
 PropertyValue Object::getPropertyValue(const std::string& propertyIRI) const {

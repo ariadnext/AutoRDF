@@ -228,6 +228,20 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
+    template<typename T> void setObjectListImpl(const std::string& propertyIRI, const std::list<T>& values) {
+        addRdfTypeIfNeeded();
+        Property p =_factory->createProperty(propertyIRI);
+        _r.removeProperties(propertyIRI);
+        for (const Object& obj: values) {
+            p.setValue(obj._r);
+            _r.addProperty(p);
+        }
+    }
+
+    /**
+     * Offered to interfaces
+     * @throw InvalidIRI if propertyIRI is empty
+     */
     template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const std::string& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
