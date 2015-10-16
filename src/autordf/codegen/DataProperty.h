@@ -5,23 +5,25 @@
 #include <memory>
 #include <ostream>
 
-#include "Property.h"
+#include <autordf/ontology/DataProperty.h>
+#include "RdfsEntity.h"
 
 namespace autordf {
+
 namespace codegen {
 
-class DataProperty : public Property {
+class Klass;
+
+class DataProperty : public RdfsEntity {
+    const ontology::DataProperty& _decorated;
 public:
-    // iri to Property map
-    static std::map<std::string, std::shared_ptr<DataProperty> > uri2Ptr;
+    DataProperty(const ontology::DataProperty& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
 
     void generateDeclaration(std::ostream& ofs, const Klass& onClass) const;
 
     void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
 
 private:
-    std::string getEffectiveRange(const Klass& kls) const;
-
     int range2CvtArrayIndex(const Klass& onClass) const;
 
     void generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const;

@@ -9,6 +9,7 @@
 
 #include <autordf/Factory.h>
 #include <autordf/Object.h>
+#include <autordf/ontology/Ontology.h>
 
 #include "DataProperty.h"
 #include "ObjectProperty.h"
@@ -20,150 +21,6 @@ namespace codegen {
 
 bool verbose = false;
 bool generateAllInOne = false;
-
-static const std::string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-static const std::string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
-static const std::string OWL  = "http://www.w3.org/2002/07/owl#";
-
-void extractRDFS(const Object& o, RdfsEntity *rdfs) {
-    rdfs->rdfname = o.iri();
-    std::shared_ptr<PropertyValue> comment = o.getOptionalPropertyValue(RDFS + "comment");
-    if (comment) {
-        rdfs->comment = *comment;
-    }
-    std::shared_ptr<PropertyValue> label = o.getOptionalPropertyValue(RDFS + "label");
-    if (label) {
-        rdfs->label = *label;
-    }
-}
-
-void extractClassCardinality(const Object& o, Klass *kls, const char * card, const char * minCard, const char * maxCard) {
-    std::string propertyIRI = o.getPropertyValue(OWL + "onProperty");
-    if ( o.getOptionalPropertyValue(OWL + card) ) {
-        unsigned int cardinality = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + card));
-        kls->overridenMinCardinality[propertyIRI] = cardinality;
-        kls->overridenMaxCardinality[propertyIRI] = cardinality;
-    }
-    if ( o.getOptionalPropertyValue(OWL + minCard) ) {
-        kls->overridenMinCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + minCard));
-    }
-    if ( o.getOptionalPropertyValue(OWL + maxCard) ) {
-        kls->overridenMaxCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL + maxCard));
-    }
-}
-
-void extractClass(const Object& o, Klass *kls) {
-    const std::list<Object>& subClasses = o.getObjectList(RDFS + "subClassOf");
-    for ( const Object& subclass : subClasses ) {
-        if ( !subclass.iri().empty() ) {
-            // This is a named ancestor, that will be processes seperately, handle that through
-            // standard C++ inheritance mechanism
-            kls->directAncestors.insert(subclass.iri());
-        } else {
-            // Anonymous ancestor, merge with current class
-            extractClass(subclass, kls);
-        }
-    }
-    kls->directAncestors.insert(OWL + "Thing");
-
-    // If we are processing an anonymous ancestor
-    if ( o.isA(OWL + "Restriction") ) {
-        // Add class to list of known classes
-        const Object& property = o.getObject(OWL + "onProperty");
-        if (property.isA(OWL + "ObjectProperty")) {
-            if (ObjectProperty::uri2Ptr.count(property.iri())) {
-                kls->objectProperties.insert(ObjectProperty::uri2Ptr[property.iri()]);
-            } else {
-                std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
-            }
-        } else {
-            if (DataProperty::uri2Ptr.count(property.iri())) {
-                kls->dataProperties.insert(DataProperty::uri2Ptr[property.iri()]);
-            } else {
-                std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
-            }
-        }
-        // FIXME: who has priority ?
-        extractClassCardinality(o, kls, "cardinality", "minCardinality", "maxCardinality");
-        extractClassCardinality(o, kls, "qualifiedCardinality", "minQualifiedCardinality", "maxQualifiedCardinality");
-
-        if (o.getOptionalPropertyValue(OWL + "onDataRange")) {
-            kls->overridenRange[property.iri()] = o.getPropertyValue(OWL + "onDataRange");
-        }
-    }
-
-    // Handle enum types
-    std::shared_ptr<Object> oneof = o.getOptionalObject(OWL + "oneOf");
-    if ( oneof ) {
-        std::shared_ptr<Object> rest = oneof;
-        while ( rest && rest->iri() != RDF + "nil" ) {
-            Object enumValObject(rest->getPropertyValue(RDF + "first"));
-            RdfsEntity enumVal;
-            extractRDFS(enumValObject, &enumVal);
-            kls->enumValues.insert(enumVal);
-            rest = rest->getOptionalObject(RDF + "rest");
-        }
-    }
-
-    // FIXME can loop endlessly
-    const std::list<Object>& equivalentClasses = o.getObjectList(OWL + "equivalentClass");
-    for ( const Object& equivalentClass: equivalentClasses ) {
-        extractClass(equivalentClass, kls);
-    }
-}
-
-void extractProperty(const Object& o, Property *prop) {
-    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS + "domain");
-    for ( const PropertyValue& value: domainList ) {
-        prop->domains.push_back(value);
-    }
-    std::list<PropertyValue> rangeList = o.getPropertyValueList(RDFS + "range");
-    if ( rangeList.size() == 1 ) {
-        prop->range = rangeList.front();
-    } else if ( rangeList.size() > 1 ) {
-        std::stringstream ss;
-        ss << "rdfs#range has more than one item for " << o.iri();
-        throw std::runtime_error(ss.str());
-    }
-    if ( o.isA(OWL + "FunctionalProperty") ) {
-        prop->minCardinality = 0;
-        prop->maxCardinality = 1;
-    } else {
-        prop->minCardinality = 0;
-        prop->maxCardinality = 0xFFFFFFFF;
-    }
-}
-
-void extractClass(const Object& rdfsClass) {
-    auto k = std::make_shared<Klass>();
-    extractRDFS(rdfsClass, k.get());
-    extractClass(rdfsClass, k.get());
-    Klass::uri2Ptr[k->rdfname] = k;
-}
-
-void extractClasses(const std::string& classTypeIRI) {
-    const std::list<Object>& classes = Object::findByType(classTypeIRI);
-    for ( auto const& rdfsclass : classes) {
-        if ( rdfsclass.iri().length() ) {
-            if ( Klass::uri2Ptr.find(rdfsclass.iri()) == Klass::uri2Ptr.end() ) {
-                if ( !rdfPrefix(rdfsclass.iri(), Klass::model()).empty() ) {
-                    if ( verbose ) {
-                        std::cout << "Found class " << rdfsclass.iri() << std::endl;
-                    }
-                    auto k = std::make_shared<Klass>();
-                    extractRDFS(rdfsclass, k.get());
-                    extractClass(rdfsclass, k.get());
-                    Klass::uri2Ptr[k->rdfname] = k;
-                } else {
-                    std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
-                }
-            }
-        } else {
-            std::cerr << "Skipping blank node class" << std::endl;
-            // anonymous class found
-        }
-    }
-}
 
 void generateRdfTypeInfo() {
     std::ofstream oifs;
@@ -194,7 +51,7 @@ void generateRdfTypeInfo() {
         ofs << "#include \"" << RdfsEntity::outdir << "/RdfTypeInfo.h\"" << std::endl;
     }
     ofs << std::endl;
-    for ( auto const& klassMapItem: Klass::uri2Ptr) {
+    for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
         const Klass& cls = *klassMapItem.second;
         ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".h" << "\"" << std::endl;
     }
@@ -204,7 +61,7 @@ void generateRdfTypeInfo() {
     ofs << std::endl;
     ofs << "RdfTypeInfo::RdfTypeInfo() {" << std::endl;
     indent(ofs, 1) << "if ( DATA.empty() ) {" << std::endl;
-    for ( auto const& klassMapItem: Klass::uri2Ptr) {
+    for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
         const Klass& cls = *klassMapItem.second;
         indent(ofs, 2) << "DATA[\"" << klassMapItem.first << "\"] = " << cls.genCppNameSpaceFullyQualified() << "::" << cls.genCppName() << "::ancestorsRdfTypeIRI();" << std::endl;
     }
@@ -217,94 +74,24 @@ void generateRdfTypeInfo() {
     ofs << "}" << std::endl;
 }
 
-void run() {
-    // A well known classes:
-    // FIXME add coments
-    auto owlThing = std::make_shared<Klass>();
-    owlThing->rdfname = OWL + "Thing";
-    Klass::uri2Ptr[owlThing->rdfname] = owlThing;
-
-    auto rdfsResource = std::make_shared<Klass>();
-    rdfsResource->rdfname = RDFS + "Resource";
-    rdfsResource->directAncestors.insert(owlThing->rdfname);
-    Klass::uri2Ptr[rdfsResource->rdfname] = rdfsResource;
-
-    // Gather data Properties
-    const std::list<Object>& owlDataProperties = Object::findByType(OWL + "DatatypeProperty");
-    for ( auto const& owlDataProperty : owlDataProperties) {
-        if ( verbose ) {
-            std::cout << "Found data property " << owlDataProperty.iri() << std::endl;
-        }
-        auto p = std::make_shared<DataProperty>();
-        extractRDFS(owlDataProperty, p.get());
-        extractProperty(owlDataProperty, p.get());
-        DataProperty::uri2Ptr[p->rdfname] = p;
-    }
-
-    // Gather object Properties
-    const std::list<Object>& owlObjectProperties = Object::findByType(OWL + "ObjectProperty");
-    for ( auto const& owlObjectProperty : owlObjectProperties) {
-        if ( verbose ) {
-            std::cout << "Found object property " << owlObjectProperty.iri() << std::endl;
-        }
-        auto p = std::make_shared<ObjectProperty>();
-        extractRDFS(owlObjectProperty, p.get());
-        extractProperty(owlObjectProperty, p.get());
-        ObjectProperty::uri2Ptr[p->rdfname] = p;
-    }
-
-    // Gather classes
-    extractClasses(OWL + "Class");
-    extractClasses(RDFS + "Class");
-
-    // Remove reference to unexisting classes
-    for ( auto const& klasses : Klass::uri2Ptr) {
-        std::set<std::string>& directAncestors = klasses.second->directAncestors;
-        for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ) {
-            if ( Klass::uri2Ptr.find(*ancestor) == Klass::uri2Ptr.end() ) {
-                std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", ignoring ancestor" << std::endl;
-                ancestor = directAncestors.erase(ancestor);
-            } else {
-                ++ancestor;
-            }
-        }
-    }
-
-    // Make links between properties and classes
-    for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr ) {
-        const DataProperty& dataProperty = *dataPropertyMapItem.second;
-        for(const std::string& currentDomain : dataProperty.domains) {
-            auto klassIt = Klass::uri2Ptr.find(currentDomain);
-            if ( klassIt != Klass::uri2Ptr.end() ) {
-                klassIt->second->dataProperties.insert(dataPropertyMapItem.second);
-            } else  {
-                std::cerr << "Property " << dataProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
-            }
-        }
-    }
-    for ( auto const& objectPropertyMapItem : ObjectProperty::uri2Ptr ) {
-        const ObjectProperty& objectProperty = *objectPropertyMapItem.second;
-        for(const std::string& currentDomain : objectProperty.domains) {
-            auto klassIt = Klass::uri2Ptr.find(currentDomain);
-            if ( klassIt != Klass::uri2Ptr.end() ) {
-                klassIt->second->objectProperties.insert(objectPropertyMapItem.second);
-            } else  {
-                std::cerr << "Property " << objectProperty.rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
-            }
-        }
-    }
+void run(Factory *f) {
+    ontology::Ontology::populateSchemaClasses(f);
 
     // Starting code Generation
     std::set<std::string> cppNameSpaces;
-    for ( auto const& klassMapItem: Klass::uri2Ptr) {
-        // created directory if needed
-        createDirectory(klassMapItem.second->genCppNameSpaceInclusionPath());
-        cppNameSpaces.insert(klassMapItem.second->genCppNameSpace());
 
-        klassMapItem.second->generateInterfaceDeclaration();
-        klassMapItem.second->generateInterfaceDefinition();
-        klassMapItem.second->generateDeclaration();
-        klassMapItem.second->generateDefinition();
+    for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
+        std::cout << klassMapItem.second->rdfname << std::endl;
+    }
+    for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
+        // created directory if needed
+        createDirectory(Klass(*klassMapItem.second).genCppNameSpaceInclusionPath());
+        cppNameSpaces.insert(Klass(*klassMapItem.second).genCppNameSpace());
+
+        Klass(*klassMapItem.second).generateInterfaceDeclaration();
+        Klass(*klassMapItem.second).generateInterfaceDefinition();
+        Klass(*klassMapItem.second).generateDeclaration();
+        Klass(*klassMapItem.second).generateDefinition();
     }
 
     // Generate all TypesInfo
@@ -316,8 +103,8 @@ void run() {
         createFile(Klass::outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h", &ofs);
 
         generateCodeProtectorBegin(ofs, cppNameSpace, cppNameSpace);
-        for ( auto const& klassMapItem: Klass::uri2Ptr) {
-            if ( klassMapItem.second->genCppNameSpace() == cppNameSpace ) {
+        for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
+            if ( Klass(*klassMapItem.second).genCppNameSpace() == cppNameSpace ) {
                 const Klass& cls = *klassMapItem.second;
                 ofs << "#include <" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".h" << ">" << std::endl;
             }
@@ -334,7 +121,7 @@ void run() {
         addBoilerPlate(ofs);
         ofs << std::endl;
         ofs << "#include \"RdfTypeInfo.cpp\"" << std::endl;
-        for ( auto const& klassMapItem: Klass::uri2Ptr) {
+        for ( auto const& klassMapItem: ontology::Klass::uri2Ptr) {
             const Klass& cls = *klassMapItem.second;
             ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/I" << cls.genCppName() << ".cpp" << "\"" << std::endl;
             ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/" << cls.genCppName() << ".cpp" << "\"" << std::endl;
@@ -399,13 +186,11 @@ int main(int argc, char **argv) {
     autordf::codegen::createDirectory(autordf::codegen::RdfsEntity::outdir);
 
     // Hardcode some prefixes
-    f.addNamespacePrefix("owl", autordf::codegen::OWL);
-    f.addNamespacePrefix("rdfs", autordf::codegen::RDFS);
+    f.addNamespacePrefix("owl", autordf::ontology::Ontology::OWL_NS);
+    f.addNamespacePrefix("rdfs", autordf::ontology::Ontology::RDFS_NS);
     //FIXME: Read that from command line
     std::string baseURI = "http://";
 
-    autordf::codegen::RdfsEntity::setModel(&f);
-    autordf::Object::setFactory(&f);
     while ( optind < argc ) {
         if ( autordf::codegen::verbose ) {
             std::cout << "Loading " << argv[optind] << " into model." << std::endl;
@@ -413,6 +198,6 @@ int main(int argc, char **argv) {
         f.loadFromFile(argv[optind], baseURI);
         optind++;
     }
-    autordf::codegen::run();
+    autordf::codegen::run(&f);
     return 0;
 }

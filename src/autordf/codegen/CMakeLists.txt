@@ -1,8 +1,7 @@
 ADD_EXECUTABLE(
     autordfcodegen
     main.cpp
-    RdfsEndity.cpp
-    Property.cpp
+    RdfsEntity.cpp
     DataProperty.cpp
     ObjectProperty.cpp
     Klass.cpp
@@ -11,7 +10,7 @@ ADD_EXECUTABLE(
 
 TARGET_LINK_LIBRARIES (
     autordfcodegen
-    autordf
+    autordf-ontology
 )
 
 INSTALL(TARGETS autordfcodegen

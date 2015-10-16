@@ -7,7 +7,9 @@
 namespace autordf {
 namespace codegen {
 
-std::map <std::string, std::shared_ptr<Klass>> Klass::uri2Ptr;
+Klass Klass::uri2Klass(const std::string& uri) const {
+    return Klass(*_decorated.uri2Ptr[uri].get());
+}
 
 void Klass::generateDeclaration() const {
     std::string cppName = genCppName();
@@ -19,8 +21,8 @@ void Klass::generateDeclaration() const {
     ofs << "#include <set>" << std::endl;
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/I" << cppName << ".h>" << std::endl;
-    for ( const std::string& ancestor: directAncestors ) {
-        ofs << "#include <" << uri2Ptr[ancestor]->genCppNameSpaceInclusionPath() << "/I" << uri2Ptr[ancestor]->genCppName() << ".h>" << std::endl;
+    for ( const std::string& ancestor: _decorated.directAncestors ) {
+        ofs << "#include <" << uri2Klass(ancestor).genCppNameSpaceInclusionPath() << "/I" << uri2Klass(ancestor).genCppName() << ".h>" << std::endl;
     }
     ofs << std::endl;
 
@@ -29,13 +31,13 @@ void Klass::generateDeclaration() const {
 
     generateComment(ofs, 0);
     ofs << "class " << cppName << ": public autordf::Object";
-    for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ++ancestor ) {
-        ofs << ", public " << uri2Ptr[*ancestor]->genCppNameSpaceFullyQualified() << "::I" << uri2Ptr[*ancestor]->genCppName();
+    for ( const std::string& ancestor: _decorated.directAncestors ) {
+        ofs << ", public " << uri2Klass(ancestor).genCppNameSpaceFullyQualified() << "::I" << uri2Klass(ancestor).genCppName();
     }
     ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
     ofs << std::endl;
-    if ( !enumValues.size() ) {
+    if ( !_decorated.enumValues.size() ) {
         indent(ofs, 1) << "/**" << std::endl;
         indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
         indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
@@ -96,7 +98,7 @@ void Klass::generateDefinition() const {
 
     enterNameSpace(ofs);
     ofs << std::endl;
-    if ( !enumValues.size() ) {
+    if ( !_decorated.enumValues.size() ) {
         ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
         ofs << "}" << std::endl;
     } else {
@@ -112,8 +114,8 @@ void Klass::generateDefinition() const {
     ofs << std::endl;
     ofs << "std::set<std::string> " << cppName << "::ancestorsRdfTypeIRI() {" << std::endl;
     indent(ofs, 1) <<     "return std::set<std::string>({" << std::endl;
-    for ( const std::shared_ptr<const Klass>& ancestor : getAllAncestors() ) {
-        indent(ofs, 3) << ancestor->genCppNameSpaceFullyQualified() << "::I" << ancestor->genCppName() << "::TYPEIRI," << std::endl;
+    for ( const std::shared_ptr<const ontology::Klass>& ancestor : _decorated.getAllAncestors() ) {
+        indent(ofs, 3) << Klass(*ancestor.get()).genCppNameSpaceFullyQualified() << "::I" << Klass(*ancestor.get()).genCppName() << "::TYPEIRI," << std::endl;
     }
     indent(ofs, 2) <<         "});" << std::endl;
     ofs << "}" << std::endl;
@@ -129,7 +131,7 @@ void Klass::generateInterfaceDeclaration() const {
 
     generateCodeProtectorBegin(ofs, genCppNameSpaceForGuard(), cppName);
 
-    if ( enumValues.size() ) {
+    if ( _decorated.enumValues.size() ) {
         ofs << "#include <array>" << std::endl;
         ofs << "#include <tuple>" << std::endl;
         ofs << std::endl;
@@ -163,12 +165,12 @@ void Klass::generateInterfaceDeclaration() const {
     indent(ofs, 1) << "static const char* TYPEIRI;" << std::endl;
     ofs << std::endl;
 
-    if ( enumValues.size() ) {
+    if ( _decorated.enumValues.size() ) {
         indent(ofs, 1) << "/**" << std::endl;
         indent(ofs, 1) << " * C++ Enum values mapping the owl instances restrictions for this class " << std::endl;
         indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "enum Enum {" << std::endl;
-        for ( const RdfsEntity& enumVal : enumValues ) {
+        for ( const RdfsEntity& enumVal : _decorated.enumValues ) {
             enumVal.generateComment(ofs, 2);
             indent(ofs, 2) << enumVal.genCppName() << "," << std::endl;
         }
@@ -191,12 +193,12 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "static std::string enumString(Enum en);" << std::endl;
     }
     ofs << std::endl;
-    for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
-        prop->generateDeclaration(ofs, *this);
+    for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties) {
+        DataProperty(*prop.get()).generateDeclaration(ofs, _decorated);
     }
 
-    for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
-        prop->generateDeclaration(ofs, *this);
+    for ( const std::shared_ptr<ontology::ObjectProperty>& prop : _decorated.objectProperties) {
+        ObjectProperty(*prop.get()).generateDeclaration(ofs, _decorated);
     }
     ofs << std::endl;
 
@@ -204,9 +206,9 @@ void Klass::generateInterfaceDeclaration() const {
     indent(ofs, 1) << "virtual autordf::Object& object() = 0;" << std::endl;
     indent(ofs, 1) << "virtual const autordf::Object& object() const = 0;" << std::endl;
     ofs << std::endl;
-    if ( enumValues.size() ) {
+    if ( _decorated.enumValues.size() ) {
         indent(ofs, 1) << "typedef std::tuple<Enum, const char *, const char *> EnumArrayEntryType;" << std::endl;
-        indent(ofs, 1) << "typedef std::array<EnumArrayEntryType, " << enumValues.size() << "> EnumArrayType;" << std::endl;
+        indent(ofs, 1) << "typedef std::array<EnumArrayEntryType, " << _decorated.enumValues.size() << "> EnumArrayType;" << std::endl;
         indent(ofs, 1) << "static const EnumArrayType ENUMARRAY;" << std::endl;
         ofs << std::endl;
         indent(ofs, 1) << "static const EnumArrayEntryType& enumVal2Entry(Enum en);" << std::endl;
@@ -248,10 +250,11 @@ void Klass::generateInterfaceDefinition() const {
     enterNameSpace(ofs);
     ofs << std::endl;
 
-    if ( enumValues.size() ) {
+    if ( _decorated.enumValues.size() ) {
         ofs << "const " << genCppName() << "::EnumArrayType I" << genCppName() << "::ENUMARRAY = {" << std::endl;
-        for ( const RdfsEntity& enumVal : enumValues ) {
-            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << enumVal.genCppName() << ", \"" << enumVal.rdfname << "\", \"" << enumVal.genCppName() << "\")," << std::endl;
+        for ( const ontology::RdfsEntity& v : _decorated.enumValues ) {
+            RdfsEntity enumVal(v);
+            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << enumVal.genCppName() << ", \"" << v.rdfname << "\", \"" << enumVal.genCppName() << "\")," << std::endl;
         }
         ofs << "};" << std::endl;
         ofs << std::endl;
@@ -285,38 +288,27 @@ void Klass::generateInterfaceDefinition() const {
         ofs << std::endl;
     }
 
-    ofs << "const char * " << cppName << "::TYPEIRI = \"" << rdfname << "\";" << std::endl;
+    ofs << "const char * " << cppName << "::TYPEIRI = \"" << _decorated.rdfname << "\";" << std::endl;
     ofs << std::endl;
 
-    for ( const std::shared_ptr<DataProperty>& prop : dataProperties) {
-        prop->generateDefinition(ofs, *this);
+    for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties) {
+        DataProperty(*prop.get()).generateDefinition(ofs, _decorated);
     }
-    for ( const std::shared_ptr<ObjectProperty>& prop : objectProperties) {
-        prop->generateDefinition(ofs, *this);
+    for ( const std::shared_ptr<ontology::ObjectProperty>& prop : _decorated.objectProperties) {
+        ObjectProperty(*prop.get()).generateDefinition(ofs, _decorated);
     }
     leaveNameSpace(ofs);
 }
 
 std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
     std::set<std::shared_ptr<const Klass> > deps;
-    for ( const std::shared_ptr<ObjectProperty> p : objectProperties) {
+    for ( const std::shared_ptr<ontology::ObjectProperty> p : _decorated.objectProperties) {
         auto val = p->findClass();
-        if ( val && (val->genCppName() != genCppName()) ) {
-            deps.insert(val);
+        if ( val && (Klass(*val).genCppName() != genCppName()) ) {
+            deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
         }
     }
     return deps;
-}
-
-std::set<std::shared_ptr<const Klass> > Klass::getAllAncestors() const {
-    std::set<std::shared_ptr<const Klass> > all;
-    for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ++ancestor ) {
-        all.insert(uri2Ptr[*ancestor]);
-        for ( std::shared_ptr<const Klass> more : uri2Ptr[*ancestor]->getAllAncestors() ) {
-            all.insert(more);
-        }
-    }
-    return all;
 }
 
 void Klass::enterNameSpace(std::ofstream& ofs) const {

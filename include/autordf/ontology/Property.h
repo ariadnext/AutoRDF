@@ -1,13 +1,14 @@
-#ifndef AUTORDF_CODEGEN_PROPERTY_H
-#define AUTORDF_CODEGEN_PROPERTY_H
+#ifndef AUTORDF_ONTOLOGY_PROPERTY_H
+#define AUTORDF_ONTOLOGY_PROPERTY_H
 
 #include <list>
 #include <string>
+#include <map>
 
-#include "RdfsEndity.h"
+#include "RdfsEntity.h"
 
 namespace autordf {
-namespace codegen {
+namespace ontology {
 
 class Klass;
 
@@ -17,6 +18,9 @@ public:
     std::string range;
     unsigned int minCardinality;
     unsigned int maxCardinality;
+
+    // Qualified Cardinality restrictions also allow to specify a range for this instance properties
+    std::map<std::string, std::string> overridenRange;
 
     //FIXME: this behaviour should be checked against the standard
     unsigned int getEffectiveMinCardinality(const Klass& kls) const;
@@ -28,4 +32,4 @@ public:
 }
 }
 
-#endif //AUTORDF_CODEGEN_PROPERTY_H
+#endif //AUTORDF_ONTOLOGY_PROPERTY_H

@@ -1,9 +1,9 @@
-#include "Property.h"
+#include "autordf/ontology/Property.h"
 
-#include "Klass.h"
+#include "autordf/ontology/Klass.h"
 
 namespace autordf {
-namespace codegen {
+namespace ontology {
 
 unsigned int Property::getEffectiveMinCardinality(const Klass& kls) const {
     auto it = kls.overridenMinCardinality.find(rdfname);

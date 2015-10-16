@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iosfwd>
+#include <autordf/ontology/RdfsEntity.h>
 
 namespace autordf {
 
@@ -11,17 +12,12 @@ class Model;
 namespace codegen {
 
 class RdfsEntity {
+    ontology::RdfsEntity _decorated;
 public:
+    RdfsEntity(const ontology::RdfsEntity& decorated) : _decorated(decorated) {}
+
     // Where code generation will happen
     static std::string outdir;
-
-    // Object iri
-    std::string rdfname;
-
-    // rdfs comment
-    std::string comment;
-    // rdfs label
-    std::string label;
 
     // classname
     std::string genCppName(bool upperCaseFirst = false) const;
@@ -43,18 +39,8 @@ public:
 
     void generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment = "") const;
 
-    static void setModel(Model *m) {
-        _m = m;
-    }
-
-    static const Model* model() { return _m; }
-
-    bool operator<(const RdfsEntity& other) const { return rdfname < other.rdfname; }
-
 private:
     std::string genCppNameSpaceInternal(const char *sep) const;
-
-    static Model *_m;
 };
 
 }

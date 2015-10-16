@@ -6,31 +6,24 @@
 #include <memory>
 #include <string>
 
-#include "RdfsEndity.h"
+#include "RdfsEntity.h"
 #include "DataProperty.h"
 #include "ObjectProperty.h"
+
+#include <autordf/ontology/Klass.h>
+#include "RdfsEntity.h"
 
 namespace autordf {
 namespace codegen {
 
 class Klass : public RdfsEntity {
+    const ontology::Klass& _decorated;
 public:
-    std::set <std::string> directAncestors;
-    std::set <RdfsEntity> enumValues;
+    Klass(const ontology::Klass& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
 
-    std::set <std::shared_ptr<DataProperty>> dataProperties;
-    std::set <std::shared_ptr<ObjectProperty>> objectProperties;
-
-    // It is usual (but optional) to specify at class level the minimum and/or maximum instances for a property
-    // This is done using cardiniality restrictions
-    std::map<std::string, unsigned int> overridenMinCardinality;
-    std::map<std::string, unsigned int> overridenMaxCardinality;
-    // Qualified Cardinality restrictions also allow to specify a range for this instance properties
-    std::map <std::string, std::string> overridenRange;
+    const ontology::Klass& decorated() const { return _decorated; }
 
     std::set <std::shared_ptr<const Klass>> getClassDependencies() const;
-
-    std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
 
     void generateInterfaceDeclaration() const;
 
@@ -40,11 +33,10 @@ public:
 
     void generateDefinition() const;
 
-    // iri to Klass map
-    static std::map <std::string, std::shared_ptr<Klass>> uri2Ptr;
-
     void enterNameSpace(std::ofstream& ofs) const;
     void leaveNameSpace(std::ofstream& ofs) const;
+
+    Klass uri2Klass(const std::string& uri) const;
 private:
 };
 

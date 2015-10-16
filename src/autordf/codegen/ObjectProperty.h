@@ -6,23 +6,23 @@
 #include <map>
 #include <iosfwd>
 
-#include "Property.h"
+#include <autordf/ontology/ObjectProperty.h>
+#include "RdfsEntity.h"
 
 namespace autordf {
+
 namespace codegen {
 
-class ObjectProperty : public Property {
-public:
+class Klass;
 
-    // Returns class for this property, or nullptr if no class is registered
-    std::shared_ptr<Klass> findClass() const;
+class ObjectProperty: public RdfsEntity {
+    const ontology::ObjectProperty& _decorated;
+public:
+    ObjectProperty(const ontology::ObjectProperty& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
 
     void generateDeclaration(std::ostream& ofs, const Klass& onClass) const;
 
     void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
-
-    // iri to Property map
-    static std::map<std::string, std::shared_ptr<ObjectProperty> > uri2Ptr;
 
 private:
     void generateDeclarationSetterForOne(std::ostream& ofs, const Klass& onClass) const;
