@@ -15,18 +15,19 @@ namespace ontology {
 
 class Klass : public RdfsEntity {
 public:
-    /*
+    /**
      * Returns direct ancestors of this class
      */
     std::set <std::shared_ptr<const Klass> > ancestors() const;
 
-    /*
+    /**
      * Returns direct ancestors of this class
      */
     std::set <std::shared_ptr<Klass> > ancestors();
 
     /**
-     * If this class is defined using OWL oneOf construct,
+     * If this class is defined using OWL oneOf construct, returns the list of Entities
+     * this class is composed of
      */
     const std::set <RdfsEntity>& oneOfValues() const { return _oneOfValues; }
 
