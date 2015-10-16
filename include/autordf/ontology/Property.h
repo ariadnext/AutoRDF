@@ -14,19 +14,52 @@ class Klass;
 
 class Property : public RdfsEntity {
 public:
-    std::list<std::string> domains;
-    std::string range;
-    unsigned int minCardinality;
-    unsigned int maxCardinality;
+    /**
+     * Lists of classes this property applies to
+     */
+    const std::list<std::string>& domains() const { return _domains; }
 
-    // Qualified Cardinality restrictions also allow to specify a range for this instance properties
-    std::map<std::string, std::string> overridenRange;
+    /**
+     * Returns the Rdf type this property must have in objects of given class
+     * @param kls the class this property will be instanciated in. If nullptr qualified cardinality restrictions
+     * will be ignored
+     */
+    std::string range(const Klass* kls = nullptr) const;
 
-    //FIXME: this behaviour should be checked against the standard
-    unsigned int getEffectiveMinCardinality(const Klass& kls) const;
+    /**
+     * Returns the minimum number of times this property must be found in objects of given class
+     * @param kls the class this property will be instanciated in
+     */
+    unsigned int minCardinality(const Klass& kls) const;
 
-    //FIXME: this behaviour should be checked against the standard
-    unsigned int getEffectiveMaxCardinality(const Klass& kls) const;
+    /**
+     * Returns the maximum number of times this property must be found in objects of given class
+     * @param kls the class this property will be instanciated in
+     */
+    unsigned int maxCardinality(const Klass& kls) const;
+
+private:
+    /**
+     * Lists of classes this property applies to
+     */
+    std::list<std::string> _domains;
+
+    /**
+     * Rdf types instances of this property must be
+     */
+    std::string _range;
+
+    /**
+     * Minimum number of times this property must be present when it is found on an object
+     */
+    unsigned int _minCardinality;
+
+    /**
+     * Maximum number of times this property must be present when it is found on an object
+     */
+    unsigned int _maxCardinality;
+
+    friend class Ontology;
 };
 
 }

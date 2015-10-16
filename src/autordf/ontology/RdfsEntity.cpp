@@ -5,7 +5,6 @@ namespace ontology {
 
 Model *RdfsEntity::_m = 0;
 
-
 std::string RdfsEntity::prettyIRIName(bool uppercaseFirst) const {
     std::string cppname = _rdfname.substr(_rdfname.find_last_of("/#:") + 1);
     if ( !::isalpha(cppname[0]) ) {

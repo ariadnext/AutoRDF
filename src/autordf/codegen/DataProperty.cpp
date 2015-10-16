@@ -34,8 +34,8 @@ std::tuple<const char *, cvt::RdfTypeEnum, const char *> rdf2CppTypeMapping[] = 
 
 void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) const {
     ofs << std::endl;
-    if ( _decorated.getEffectiveMaxCardinality(onClass.decorated()) <= 1 ) {
-        if ( _decorated.getEffectiveMinCardinality(onClass.decorated()) > 0 ) {
+    if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
+        if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
             generateGetterForOneMandatory(ofs, onClass);
         } else {
             generateGetterForOneOptional(ofs, onClass);
@@ -43,7 +43,7 @@ void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) 
         ofs << std::endl;
         generateSetterForOne(ofs, onClass);
     }
-    if ( _decorated.getEffectiveMaxCardinality(onClass.decorated()) > 1 ) {
+    if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
         generateGetterForMany(ofs, onClass);
         ofs << std::endl;
         generateSetterForOne(ofs, onClass);
@@ -60,8 +60,8 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
 
         std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
-        if (_decorated.getEffectiveMaxCardinality(onClass.decorated()) <= 1) {
-            if (_decorated.getEffectiveMinCardinality(onClass.decorated()) > 0) {
+        if (_decorated.maxCardinality(onClass.decorated()) <= 1) {
+            if (_decorated.minCardinality(onClass.decorated()) > 0) {
                 // Nothing
             } else {
                 ofs << "std::shared_ptr<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
@@ -71,7 +71,7 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
                 ofs << "}" << std::endl;
             }
         }
-        if (_decorated.getEffectiveMaxCardinality(onClass.decorated()) > 1) {
+        if (_decorated.maxCardinality(onClass.decorated()) > 1) {
             ofs << "std::list<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
@@ -87,7 +87,7 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
 }
 
 int DataProperty::range2CvtArrayIndex(const Klass& onClass) const {
-    std::string effectiveRange = _decorated.getEffectiveRange(onClass.decorated());
+    std::string effectiveRange = _decorated.range(&onClass.decorated());
     if ( !effectiveRange.empty() ) {
         for ( unsigned int i = 0; i < (sizeof(rdf2CppTypeMapping) / sizeof(rdf2CppTypeMapping[0])); ++i ) {
             if ( std::get<0>(rdf2CppTypeMapping[i]) == effectiveRange ) {

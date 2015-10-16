@@ -85,7 +85,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
     // Make links between properties and classes
     for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
-        for(const std::string& currentDomain : dataProperty.domains) {
+        for(const std::string& currentDomain : dataProperty.domains()) {
             auto klassIt = Klass::uri2Ptr.find(currentDomain);
             if ( klassIt != Klass::uri2Ptr.end() ) {
                 klassIt->second->dataProperties.insert(dataPropertyMapItem.second);
@@ -96,7 +96,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
     }
     for ( auto const& objectPropertyMapItem : ObjectProperty::uri2Ptr ) {
         const ObjectProperty& objectProperty = *objectPropertyMapItem.second;
-        for(const std::string& currentDomain : objectProperty.domains) {
+        for(const std::string& currentDomain : objectProperty.domains()) {
             auto klassIt = Klass::uri2Ptr.find(currentDomain);
             if ( klassIt != Klass::uri2Ptr.end() ) {
                 klassIt->second->objectProperties.insert(objectPropertyMapItem.second);
@@ -197,22 +197,22 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
 void Ontology::extractProperty(const Object& o, Property *prop) {
     std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS_NS + "domain");
     for ( const PropertyValue& value: domainList ) {
-        prop->domains.push_back(value);
+        prop->_domains.push_back(value);
     }
     std::list<PropertyValue> rangeList = o.getPropertyValueList(RDFS_NS + "range");
     if ( rangeList.size() == 1 ) {
-        prop->range = rangeList.front();
+        prop->_range = rangeList.front();
     } else if ( rangeList.size() > 1 ) {
         std::stringstream ss;
         ss << "rdfs#range has more than one item for " << o.iri();
         throw std::runtime_error(ss.str());
     }
     if ( o.isA(OWL_NS + "FunctionalProperty") ) {
-        prop->minCardinality = 0;
-        prop->maxCardinality = 1;
+        prop->_minCardinality = 0;
+        prop->_maxCardinality = 1;
     } else {
-        prop->minCardinality = 0;
-        prop->maxCardinality = 0xFFFFFFFF;
+        prop->_minCardinality = 0;
+        prop->_maxCardinality = 0xFFFFFFFF;
     }
 }
 

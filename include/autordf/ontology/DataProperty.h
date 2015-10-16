@@ -13,8 +13,6 @@ class DataProperty : public Property {
 public:
     // iri to Property map
     static std::map<std::string, std::shared_ptr<DataProperty> > uri2Ptr;
-
-    std::string getEffectiveRange(const Klass& kls) const;
 };
 
 }

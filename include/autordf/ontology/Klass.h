@@ -25,7 +25,11 @@ public:
     // This is done using cardiniality restrictions
     std::map<std::string, unsigned int> overridenMinCardinality;
     std::map<std::string, unsigned int> overridenMaxCardinality;
-    // Qualified Cardinality restrictions also allow to specify a range for this instance properties
+
+    /**
+     * Take into account Qualified Cardinality restrictions, that allow to owerride the
+     * the data type of this property for a specific class of object
+     */
     std::map <std::string, std::string> overridenRange;
 
     std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
