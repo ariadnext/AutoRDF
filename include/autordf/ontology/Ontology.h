@@ -18,10 +18,25 @@ class Property;
 
 class Ontology {
 public:
+    /**
+     * Reads ontology from given Factory
+     * @param verbose if true prints debug output to standard output
+     */
     static void populateSchemaClasses(Factory *f, bool verbose = false);
 
+    /**
+     * RDF namespace prefix
+     */
     static const std::string RDF_NS;
+
+    /**
+     * RDFS namespace prefix
+     */
     static const std::string RDFS_NS;
+
+    /**
+     * OWL namespace prefix
+     */
     static const std::string OWL_NS;
 
 private:

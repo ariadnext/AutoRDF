@@ -6,16 +6,18 @@ namespace autordf {
 namespace ontology {
 
 unsigned int Property::minCardinality(const Klass& kls) const {
-    auto it = kls.overridenMinCardinality.find(rdfname());
-    if ( it != kls.overridenMinCardinality.end() ) {
+    auto const& m = kls.overridenMinCardinality();
+    auto it = m.find(rdfname());
+    if ( it != m.end() ) {
         return  it->second;
     }
     return _minCardinality;
 }
 
 unsigned int Property::maxCardinality(const Klass& kls) const {
-    auto it = kls.overridenMaxCardinality.find(rdfname());
-    if ( it != kls.overridenMaxCardinality.end() ) {
+    auto const& m = kls.overridenMaxCardinality();
+    auto it = m.find(rdfname());
+    if ( it != m.end() ) {
         return  it->second;
     }
     return _maxCardinality;
@@ -23,8 +25,9 @@ unsigned int Property::maxCardinality(const Klass& kls) const {
 
 std::string Property::range(const Klass* kls) const {
     if ( kls ) {
-        auto it = kls->overridenRange.find(rdfname());
-        if ( it != kls->overridenRange.end() ) {
+        auto const& m = kls->overridenRange();
+        auto it = m.find(rdfname());
+        if ( it != m.end() ) {
             return  it->second;
         }
     }

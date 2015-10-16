@@ -15,27 +15,77 @@ namespace ontology {
 
 class Klass : public RdfsEntity {
 public:
-    std::set <std::string> directAncestors;
-    std::set <RdfsEntity> enumValues;
+    /*
+     * Returns direct ancestors of this class
+     */
+    std::set <std::shared_ptr<const Klass> > ancestors() const;
 
-    std::set <std::shared_ptr<DataProperty>> dataProperties;
-    std::set <std::shared_ptr<ObjectProperty>> objectProperties;
-
-    // It is usual (but optional) to specify at class level the minimum and/or maximum instances for a property
-    // This is done using cardiniality restrictions
-    std::map<std::string, unsigned int> overridenMinCardinality;
-    std::map<std::string, unsigned int> overridenMaxCardinality;
+    /*
+     * Returns direct ancestors of this class
+     */
+    std::set <std::shared_ptr<Klass> > ancestors();
 
     /**
-     * Take into account Qualified Cardinality restrictions, that allow to owerride the
-     * the data type of this property for a specific class of object
+     * If this class is defined using OWL oneOf construct,
      */
-    std::map <std::string, std::string> overridenRange;
+    const std::set <RdfsEntity>& oneOfValues() const { return _oneOfValues; }
 
+    /**
+     * List of data properties for current class
+     */
+    const std::set <std::shared_ptr<DataProperty>>& dataProperties() const { return _dataProperties; }
+
+    /**
+     * List of object properties for current class
+     */
+    const std::set <std::shared_ptr<ObjectProperty>>& objectProperties() const { return _objectProperties; }
+
+    /**
+     * Returns all (direct and indirect) ancestors for this class
+     */
     std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
 
     // iri to Klass map
     static std::map <std::string, std::shared_ptr<Klass>> uri2Ptr;
+
+    /*
+     * ===================================================================
+     * All methods below are purely internal
+     * ===================================================================
+     */
+
+    /**
+     * Take into account qualified cardinality restrictions, that allow to owerride the
+     * the data type of this property for a specific class of object
+     */
+    const std::map <std::string, std::string>& overridenRange() const { return _overridenRange; }
+
+    /**
+     * Take into account cardinality restrictions, that allow to owerride the cardinality for this class instance
+     */
+    const std::map<std::string, unsigned int>& overridenMinCardinality() const { return _overridenMinCardinality; }
+
+    /**
+     * Take into account cardinality restrictions, that allow to owerride the cardinality for this class instance
+     */
+    const std::map<std::string, unsigned int>& overridenMaxCardinality() const { return _overridenMaxCardinality; }
+
+private:
+    std::set <std::string> _directAncestors;
+    std::set <std::shared_ptr<DataProperty>> _dataProperties;
+    std::set <std::shared_ptr<ObjectProperty>> _objectProperties;
+    /**
+     * Iri to range map
+     */
+    std::map <std::string, std::string> _overridenRange;
+    // It is usual (but optional) to specify at class level the minimum and/or maximum instances for a property
+    // This is done using cardinality restrictions
+    std::map<std::string, unsigned int> _overridenMinCardinality;
+    std::map<std::string, unsigned int> _overridenMaxCardinality;
+    /** Classes defined with the oneOf construct have this set set */
+    std::set <RdfsEntity> _oneOfValues;
+
+    friend class Ontology;
 };
 
 }

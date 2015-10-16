@@ -38,7 +38,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
 
     auto rdfsResource = std::make_shared<Klass>();
     rdfsResource->_rdfname = RDFS_NS + "Resource";
-    rdfsResource->directAncestors.insert(owlThing->_rdfname);
+    rdfsResource->_directAncestors.insert(owlThing->_rdfname);
     Klass::uri2Ptr[rdfsResource->_rdfname] = rdfsResource;
 
     // Gather data Properties
@@ -71,7 +71,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
 
     // Remove reference to unexisting classes
     for ( auto const& klasses : Klass::uri2Ptr) {
-        std::set<std::string>& directAncestors = klasses.second->directAncestors;
+        std::set<std::string>& directAncestors = klasses.second->_directAncestors;
         for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ) {
             if ( Klass::uri2Ptr.find(*ancestor) == Klass::uri2Ptr.end() ) {
                 std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", ignoring ancestor" << std::endl;
@@ -88,7 +88,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
         for(const std::string& currentDomain : dataProperty.domains()) {
             auto klassIt = Klass::uri2Ptr.find(currentDomain);
             if ( klassIt != Klass::uri2Ptr.end() ) {
-                klassIt->second->dataProperties.insert(dataPropertyMapItem.second);
+                klassIt->second->_dataProperties.insert(dataPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << dataProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
@@ -99,7 +99,7 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
         for(const std::string& currentDomain : objectProperty.domains()) {
             auto klassIt = Klass::uri2Ptr.find(currentDomain);
             if ( klassIt != Klass::uri2Ptr.end() ) {
-                klassIt->second->objectProperties.insert(objectPropertyMapItem.second);
+                klassIt->second->_objectProperties.insert(objectPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << objectProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
@@ -123,14 +123,14 @@ void Ontology::extractClassCardinality(const Object& o, Klass *kls, const char *
     std::string propertyIRI = o.getPropertyValue(OWL_NS + "onProperty");
     if ( o.getOptionalPropertyValue(OWL_NS + card) ) {
         unsigned int cardinality = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL_NS + card));
-        kls->overridenMinCardinality[propertyIRI] = cardinality;
-        kls->overridenMaxCardinality[propertyIRI] = cardinality;
+        kls->_overridenMinCardinality[propertyIRI] = cardinality;
+        kls->_overridenMaxCardinality[propertyIRI] = cardinality;
     }
     if ( o.getOptionalPropertyValue(OWL_NS + minCard) ) {
-        kls->overridenMinCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL_NS + minCard));
+        kls->_overridenMinCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL_NS + minCard));
     }
     if ( o.getOptionalPropertyValue(OWL_NS + maxCard) ) {
-        kls->overridenMaxCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL_NS + maxCard));
+        kls->_overridenMaxCardinality[propertyIRI] = boost::lexical_cast<unsigned int>(o.getPropertyValue(OWL_NS + maxCard));
     }
 }
 
@@ -140,13 +140,13 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         if ( !subclass.iri().empty() ) {
             // This is a named ancestor, that will be processes seperately, handle that through
             // standard C++ inheritance mechanism
-            kls->directAncestors.insert(subclass.iri());
+            kls->_directAncestors.insert(subclass.iri());
         } else {
             // Anonymous ancestor, merge with current class
             extractClass(subclass, kls);
         }
     }
-    kls->directAncestors.insert(OWL_NS + "Thing");
+    kls->_directAncestors.insert(OWL_NS + "Thing");
 
     // If we are processing an anonymous ancestor
     if ( o.isA(OWL_NS + "Restriction") ) {
@@ -154,13 +154,13 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         const Object& property = o.getObject(OWL_NS + "onProperty");
         if (property.isA(OWL_NS + "ObjectProperty")) {
             if (ObjectProperty::uri2Ptr.count(property.iri())) {
-                kls->objectProperties.insert(ObjectProperty::uri2Ptr[property.iri()]);
+                kls->_objectProperties.insert(ObjectProperty::uri2Ptr[property.iri()]);
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
         } else {
             if (DataProperty::uri2Ptr.count(property.iri())) {
-                kls->dataProperties.insert(DataProperty::uri2Ptr[property.iri()]);
+                kls->_dataProperties.insert(DataProperty::uri2Ptr[property.iri()]);
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
@@ -170,7 +170,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         extractClassCardinality(o, kls, "qualifiedCardinality", "minQualifiedCardinality", "maxQualifiedCardinality");
 
         if (o.getOptionalPropertyValue(OWL_NS + "onDataRange")) {
-            kls->overridenRange[property.iri()] = o.getPropertyValue(OWL_NS + "onDataRange");
+            kls->_overridenRange[property.iri()] = o.getPropertyValue(OWL_NS + "onDataRange");
         }
     }
 
@@ -179,10 +179,10 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     if ( oneof ) {
         std::shared_ptr<Object> rest = oneof;
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
-            Object enumValObject(rest->getPropertyValue(RDF_NS + "first"));
-            RdfsEntity enumVal;
-            extractRDFS(enumValObject, &enumVal);
-            kls->enumValues.insert(enumVal);
+            Object oneOfObject(rest->getPropertyValue(RDF_NS + "first"));
+            RdfsEntity oneOfVal;
+            extractRDFS(oneOfObject, &oneOfVal);
+            kls->_oneOfValues.insert(oneOfVal);
             rest = rest->getOptionalObject(RDF_NS + "rest");
         }
     }
