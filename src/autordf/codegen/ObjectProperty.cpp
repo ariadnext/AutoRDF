@@ -17,18 +17,18 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
                 "@return the mandatory instance.\n"
                 "@throw PropertyNotFound if object reference is not set\n"
                 "@throw DuplicateProperty if database contains more than one value");
-            indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << genCppName() << "() const;" << std::endl;
+            indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << _decorated.prettyIRIName()<< "() const;" << std::endl;
         } else {
             generateComment(ofs, 1,
                             "@return the object instance if it is set, or nullptr if it is not set.\n"
                             "@throw DuplicateProperty if database contains more than one value");
-            indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << genCppName() << "Optional() const;" << std::endl;
+            indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
         }
     }
     if ( _decorated.getEffectiveMaxCardinality(onClass.decorated()) > 1 ) {
         generateComment(ofs, 1,
                         "@return the list typed objects.  List can be empty if not values are set in database");
-        indent(ofs, 1) << "std::list<" << propertyClass.genCppNameWithNamespace()  << "> " << genCppName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::list<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
         ofs << std::endl;
         generateDeclarationSetterForMany(ofs, onClass);
     }
@@ -39,23 +39,25 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
 
 void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = Klass(*_decorated.findClass().get());
-    std::string currentClassName = "I" + onClass.genCppName();
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
     if ( _decorated.getEffectiveMaxCardinality(onClass.decorated()) <= 1 ) {
         if ( _decorated.getEffectiveMinCardinality(onClass.decorated()) > 0 ) {
-            ofs << propertyClass.genCppNameWithNamespace() << " " << currentClassName << "::" << genCppName() << "() const {" << std::endl;
-            indent(ofs, 1) << "return object().getObject(\"" << _decorated.rdfname << "\").as<" << propertyClass.genCppNameWithNamespace() << ">();" << std::endl;
+            ofs << propertyClass.genCppNameWithNamespace() << " " << currentClassName << "::" << _decorated.prettyIRIName() << "() const {" << std::endl;
+            indent(ofs, 1) << "return object().getObject(\"" << _decorated.rdfname() << "\").as<" << propertyClass.genCppNameWithNamespace() << ">();" << std::endl;
             ofs << "}" << std::endl;
         } else {
-            ofs << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
-            indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << _decorated.rdfname << "\");" << std::endl;
+            ofs << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
+                    _decorated.prettyIRIName() << "Optional() const {" << std::endl;
+            indent(ofs, 1) << "auto result = object().getOptionalObject(\"" << _decorated.rdfname() << "\");" << std::endl;
             indent(ofs, 1) << "return result ? std::make_shared<" << propertyClass.genCppNameWithNamespace() << ">(*result) : nullptr;" << std::endl;
             ofs << "}" << std::endl;
         }
     }
     if ( _decorated.getEffectiveMaxCardinality(onClass.decorated()) > 1 ) {
-        ofs << "std::list<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" << genCppName() << "List() const {" << std::endl;
-        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname << "\");" << std::endl;
+        ofs << "std::list<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
+                _decorated.prettyIRIName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
         generateDefinitionSetterForMany(ofs, onClass);
@@ -70,7 +72,7 @@ void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Kl
                     "Sets the mandatory value for this property.\n"
                             "@param value value to set for this property, removing all other values");
     auto propertyClass = Klass(*_decorated.findClass().get());
-    indent(ofs, 1) << "void set" << genCppName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
+    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
 }
 
 void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const {
@@ -78,22 +80,22 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
                     "Sets the values for this property.\n"
                             "@param value value to set for this property, removing all other values");
     auto propertyClass = Klass(*_decorated.findClass().get());
-    indent(ofs, 1) << "void set" << genCppName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
+    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = Klass(*_decorated.findClass().get());
-    std::string currentClassName = "I" + onClass.genCppName();
-    ofs << "void " << currentClassName << "::set" << genCppName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value) {" << std::endl;
-    indent(ofs, 1) <<     "return object().setObject(\"" << _decorated.rdfname << "\", value);" << std::endl;
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value) {" << std::endl;
+    indent(ofs, 1) <<     "return object().setObject(\"" << _decorated.rdfname() << "\", value);" << std::endl;
     ofs << "}" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = Klass(*_decorated.findClass().get());
-    std::string currentClassName = "I" + onClass.genCppName();
-    ofs << "void " << currentClassName << "::set" << genCppName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values) {" << std::endl;
-    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname << "\", values);" << std::endl;
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values) {" << std::endl;
+    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
     ofs << "}" << std::endl;
 }
 }

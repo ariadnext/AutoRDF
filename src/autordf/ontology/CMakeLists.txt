@@ -1,7 +1,7 @@
 ADD_LIBRARY(
     autordf-ontology
     ${LIBRARY_TYPE}
-    RdfsEndity.cpp
+    RdfsEntity.cpp
     Property.cpp
     Klass.cpp
     ObjectProperty.cpp

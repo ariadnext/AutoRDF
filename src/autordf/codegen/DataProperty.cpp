@@ -58,29 +58,29 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
         cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
 
-        std::string currentClassName = "I" + onClass.genCppName();
+        std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
         if (_decorated.getEffectiveMaxCardinality(onClass.decorated()) <= 1) {
             if (_decorated.getEffectiveMinCardinality(onClass.decorated()) > 0) {
                 // Nothing
             } else {
-                ofs << "std::shared_ptr<" << cppType << "> " << currentClassName << "::" << genCppName() << "Optional() const {" << std::endl;
-                indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname << "\");" << std::endl;
+                ofs << "std::shared_ptr<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
+                indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
                 indent(ofs, 1) << "return (ptrval ? std::shared_ptr<" << cppType << ">(new " << cppType <<
                 "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">())) : nullptr);" << std::endl;
                 ofs << "}" << std::endl;
             }
         }
         if (_decorated.getEffectiveMaxCardinality(onClass.decorated()) > 1) {
-            ofs << "std::list<" << cppType << "> " << currentClassName << "::" << genCppName() <<
+            ofs << "std::list<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname << "\");" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\");" << std::endl;
             ofs << "}" << std::endl;
             ofs << std::endl;
-            ofs << "void " << currentClassName << "::set" << genCppName(true ) << "(const std::list<" << cppType << ">& values) {" << std::endl;
+            ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::list<" << cppType << ">& values) {" << std::endl;
             indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname << "\", values);" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values);" << std::endl;
             ofs << "}" << std::endl;
         }
     }
@@ -94,7 +94,7 @@ int DataProperty::range2CvtArrayIndex(const Klass& onClass) const {
                 return i;
             }
         }
-        std::cerr << effectiveRange << " type not supported, we will default to raw value for property " << _decorated.rdfname << std::endl;
+        std::cerr << effectiveRange << " type not supported, we will default to raw value for property " << _decorated.rdfname() << std::endl;
     }
     return -1;
 }
@@ -109,12 +109,12 @@ void DataProperty::generateGetterForOneMandatory(std::ostream& ofs, const Klass&
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
         cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
-        indent(ofs, 1) << cppType << " " << genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname << "\").get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">();" << std::endl;
+        indent(ofs, 1) << cppType << " " << _decorated.prettyIRIName() << "() const {" << std::endl;
+        indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname() << "\").get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">();" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "autordf::PropertyValue " << genCppName() << "() const {" << std::endl;
-        indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "autordf::PropertyValue " << _decorated.prettyIRIName() << "() const {" << std::endl;
+        indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -127,14 +127,14 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
     if (index >= 0) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
         cvt::RdfTypeEnum rdfType = std::get<1>(rdf2CppTypeMapping[index]);
-        indent(ofs, 1) << "void set" << genCppName(true) << "(const " << cppType << "& value) {" << std::endl;
-        indent(ofs, 2) << "return object().setPropertyValue(\"" << _decorated.rdfname <<
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "return object().setPropertyValue(\"" << _decorated.rdfname() <<
             "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
             ">(value));" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << genCppName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
-        indent(ofs, 2) << "object().setPropertyValue(\"" << _decorated.rdfname << "\", value);" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 2) << "object().setPropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -146,10 +146,10 @@ void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& 
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
-        indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << genCppName() << "Optional() const;" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << genCppName() << "Optional() const {" << std::endl;
-        indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << _decorated.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
+        indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -160,10 +160,10 @@ void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
-        indent(ofs, 1) << "std::list<" << cppType << "> " << genCppName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::list<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << genCppName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname << "\");" << std::endl;
+        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << _decorated.prettyIRIName() << "List() const {" << std::endl;
+        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -174,13 +174,12 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
     int index = range2CvtArrayIndex(onClass);
     if ( index >= 0 ) {
         const char *cppType = std::get<2>(rdf2CppTypeMapping[index]);
-        indent(ofs, 1) << "void set" << genCppName(true ) << "(const std::list<" << cppType << "> " << "& values);" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::list<" << cppType << "> " << "& values);" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << genCppName(true ) << "(const std::list<autordf::PropertyValue>& values) {" << std::endl;
-        indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname << "\", values);" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::list<autordf::PropertyValue>& values) {" << std::endl;
+        indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
-
 }
 }

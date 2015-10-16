@@ -12,7 +12,7 @@ Klass Klass::uri2Klass(const std::string& uri) const {
 }
 
 void Klass::generateDeclaration() const {
-    std::string cppName = genCppName();
+    std::string cppName = _decorated.prettyIRIName();
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".h", &ofs);
 
@@ -22,7 +22,8 @@ void Klass::generateDeclaration() const {
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/I" << cppName << ".h>" << std::endl;
     for ( const std::string& ancestor: _decorated.directAncestors ) {
-        ofs << "#include <" << uri2Klass(ancestor).genCppNameSpaceInclusionPath() << "/I" << uri2Klass(ancestor).genCppName() << ".h>" << std::endl;
+        ofs << "#include <" << uri2Klass(ancestor).genCppNameSpaceInclusionPath() << "/I" <<
+                ontology::Klass::uri2Ptr[ancestor]->prettyIRIName() << ".h>" << std::endl;
     }
     ofs << std::endl;
 
@@ -32,7 +33,8 @@ void Klass::generateDeclaration() const {
     generateComment(ofs, 0);
     ofs << "class " << cppName << ": public autordf::Object";
     for ( const std::string& ancestor: _decorated.directAncestors ) {
-        ofs << ", public " << uri2Klass(ancestor).genCppNameSpaceFullyQualified() << "::I" << uri2Klass(ancestor).genCppName();
+        ofs << ", public " << uri2Klass(ancestor).genCppNameSpaceFullyQualified() << "::I" <<
+                ontology::Klass::uri2Ptr[ancestor]->prettyIRIName();
     }
     ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
@@ -79,7 +81,7 @@ void Klass::generateDeclaration() const {
 }
 
 void Klass::generateDefinition() const {
-    std::string cppName = genCppName();
+    std::string cppName = _decorated.prettyIRIName();
     std::string cppNameSpace = genCppNameSpaceFullyQualified();
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
@@ -115,7 +117,8 @@ void Klass::generateDefinition() const {
     ofs << "std::set<std::string> " << cppName << "::ancestorsRdfTypeIRI() {" << std::endl;
     indent(ofs, 1) <<     "return std::set<std::string>({" << std::endl;
     for ( const std::shared_ptr<const ontology::Klass>& ancestor : _decorated.getAllAncestors() ) {
-        indent(ofs, 3) << Klass(*ancestor.get()).genCppNameSpaceFullyQualified() << "::I" << Klass(*ancestor.get()).genCppName() << "::TYPEIRI," << std::endl;
+        indent(ofs, 3) << Klass(*ancestor.get()).genCppNameSpaceFullyQualified() << "::I" <<
+                ancestor->prettyIRIName() << "::TYPEIRI," << std::endl;
     }
     indent(ofs, 2) <<         "});" << std::endl;
     ofs << "}" << std::endl;
@@ -125,7 +128,7 @@ void Klass::generateDefinition() const {
 }
 
 void Klass::generateInterfaceDeclaration() const {
-    std::string cppName = "I" + genCppName();
+    std::string cppName = "I" + _decorated.prettyIRIName();
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".h", &ofs);
 
@@ -143,12 +146,12 @@ void Klass::generateInterfaceDeclaration() const {
     std::set<std::shared_ptr<const Klass> > cppClassDeps = getClassDependencies();
     for ( const std::shared_ptr<const Klass>& cppClassDep : cppClassDeps ) {
         cppClassDep->enterNameSpace(ofs);
-        ofs << "class " << cppClassDep->genCppName() << ";" << std::endl;
+        ofs << "class " << cppClassDep->decorated().prettyIRIName() << ";" << std::endl;
         cppClassDep->leaveNameSpace(ofs);
     }
     // Add forward declaration for our own class
     enterNameSpace(ofs);
-    ofs << "class " << genCppName() << ";" << std::endl;
+    ofs << "class " << _decorated.prettyIRIName() << ";" << std::endl;
     leaveNameSpace(ofs);
     ofs << std::endl;
 
@@ -172,7 +175,7 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "enum Enum {" << std::endl;
         for ( const RdfsEntity& enumVal : _decorated.enumValues ) {
             enumVal.generateComment(ofs, 2);
-            indent(ofs, 2) << enumVal.genCppName() << "," << std::endl;
+            indent(ofs, 2) << enumVal.decorated().prettyIRIName() << "," << std::endl;
         }
         indent(ofs, 1) << "};" << std::endl;
         ofs << std::endl;
@@ -225,7 +228,7 @@ void Klass::generateInterfaceDeclaration() const {
 }
 
 void Klass::generateInterfaceDefinition() const {
-    std::string cppName = "I" + genCppName();
+    std::string cppName = "I" + _decorated.prettyIRIName();
 
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
@@ -241,54 +244,56 @@ void Klass::generateInterfaceDefinition() const {
     // Generate class imports
     std::set<std::shared_ptr<const Klass> > cppDeps = getClassDependencies();
     for ( const std::shared_ptr<const Klass>& cppDep : cppDeps ) {
-        ofs << "#include <" << cppDep->genCppNameSpaceInclusionPath() << "/" << cppDep->genCppName() << ".h>" << std::endl;
+        ofs << "#include <" << cppDep->genCppNameSpaceInclusionPath() << "/" << cppDep->decorated().prettyIRIName() << ".h>" << std::endl;
     }
     // Include our own class
-    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << genCppName() << ".h>" << std::endl;
+    ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << _decorated.prettyIRIName() << ".h>" << std::endl;
     ofs << std::endl;
 
     enterNameSpace(ofs);
     ofs << std::endl;
 
     if ( _decorated.enumValues.size() ) {
-        ofs << "const " << genCppName() << "::EnumArrayType I" << genCppName() << "::ENUMARRAY = {" << std::endl;
+        ofs << "const " << _decorated.prettyIRIName() << "::EnumArrayType I" << _decorated.prettyIRIName() << "::ENUMARRAY = {" << std::endl;
         for ( const ontology::RdfsEntity& v : _decorated.enumValues ) {
             RdfsEntity enumVal(v);
-            indent(ofs, 1) << "std::make_tuple(I" <<  genCppName() << "::" << enumVal.genCppName() << ", \"" << v.rdfname << "\", \"" << enumVal.genCppName() << "\")," << std::endl;
+            indent(ofs, 1) << "std::make_tuple(I" << _decorated.prettyIRIName() << "::" << enumVal.decorated().prettyIRIName() << ", \"" << v.rdfname() << "\", \"" <<
+                    enumVal.decorated().prettyIRIName() << "\")," << std::endl;
         }
         ofs << "};" << std::endl;
         ofs << std::endl;
 
-        ofs << "const I" << genCppName() << "::EnumArrayEntryType& I" << genCppName() << "::enumVal2Entry(Enum enumVal) {" << std::endl;
+        ofs << "const I" << _decorated.prettyIRIName() << "::EnumArrayEntryType& I" << _decorated.prettyIRIName() << "::enumVal2Entry(Enum enumVal) {" << std::endl;
         indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
         indent(ofs, 2) << "if ( enumVal == std::get<0>(enumItem) ) return enumItem;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
         indent(ofs, 1) << "std::stringstream ss;" << std::endl;
-        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << genCppName() << "\";" << std::endl;
+        indent(ofs, 1) << "ss << \"Enum value \" << enumVal << \" is not valid for for C++ enum " << _decorated.prettyIRIName() << "\";" << std::endl;
         indent(ofs, 1) << "throw autordf::InvalidEnum(ss.str());" << std::endl;
         ofs << "};" << std::endl;
 
         ofs << std::endl;
-        ofs << "I" << genCppName() << "::Enum I" << genCppName() << "::asEnum() const {" << std::endl;
+        ofs << "I" << _decorated.prettyIRIName() << "::Enum I" << _decorated.prettyIRIName() << "::asEnum() const {" << std::endl;
         indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
         indent(ofs, 2) << "if ( object().iri() == std::get<1>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \"does not point to a valid individual for C++ enum " << genCppName() << "\");" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \"does not point to a valid individual for C++ enum " <<
+                _decorated.prettyIRIName() << "\");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
 
-        ofs << "std::string I" << genCppName() << "::enumIri(Enum enumVal) {" << std::endl;
+        ofs << "std::string I" << _decorated.prettyIRIName() << "::enumIri(Enum enumVal) {" << std::endl;
         indent(ofs, 1) << "return std::get<1>(enumVal2Entry(enumVal));" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
 
-        ofs << "std::string I" << genCppName() << "::enumString(Enum enumVal) {" << std::endl;
+        ofs << "std::string I" << _decorated.prettyIRIName() << "::enumString(Enum enumVal) {" << std::endl;
         indent(ofs, 1) << "return std::get<2>(enumVal2Entry(enumVal));" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
     }
 
-    ofs << "const char * " << cppName << "::TYPEIRI = \"" << _decorated.rdfname << "\";" << std::endl;
+    ofs << "const char * " << cppName << "::TYPEIRI = \"" << _decorated.rdfname() << "\";" << std::endl;
     ofs << std::endl;
 
     for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties) {
@@ -304,7 +309,7 @@ std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
     std::set<std::shared_ptr<const Klass> > deps;
     for ( const std::shared_ptr<ontology::ObjectProperty> p : _decorated.objectProperties) {
         auto val = p->findClass();
-        if ( val && (Klass(*val).genCppName() != genCppName()) ) {
+        if ( val && (val->prettyIRIName() != _decorated.prettyIRIName()) ) {
             deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
         }
     }

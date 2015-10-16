@@ -16,11 +16,10 @@ class RdfsEntity {
 public:
     RdfsEntity(const ontology::RdfsEntity& decorated) : _decorated(decorated) {}
 
+    const ontology::RdfsEntity& decorated() const { return _decorated; }
+
     // Where code generation will happen
     static std::string outdir;
-
-    // classname
-    std::string genCppName(bool upperCaseFirst = false) const;
 
     // [outfolder::]namespace::classname
     std::string genCppNameWithNamespace() const;
