@@ -56,6 +56,16 @@ INSTALL(FILES
   DESTINATION lib/pkgconfig
 )
 
+CONFIGURE_FILE (
+  "${PROJECT_SOURCE_DIR}/autordf-ontology.pc.in"
+  "${PROJECT_BINARY_DIR}/autordf-ontology.pc"
+)
+
+INSTALL(FILES
+  "${PROJECT_BINARY_DIR}/autordf-ontology.pc"
+  DESTINATION lib/pkgconfig
+)
+
 IF(BUILD_DOC)
     # add a target to generate API documentation with Doxygen
     FIND_PACKAGE(Doxygen)
