@@ -20,11 +20,11 @@ INSTALL(TARGETS autordf-ontology
 )
 
 INSTALL(FILES
-    ../../include/autordf/ontology/DataProperty.h
-    ../../include/autordf/ontology/Klass.h
-    ../../include/autordf/ontology/ObjectProperty.h
-    ../../include/autordf/ontology/Ontology.h
-    ../../include/autordf/ontology/Property.h
-    ../../include/autordf/ontology/RdfsEntity.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/DataProperty.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Klass.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/ObjectProperty.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Ontology.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Property.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/RdfsEntity.h
     DESTINATION include/autordf
 )
