@@ -46,6 +46,16 @@ if(${BUILD_TESTS} STREQUAL "1")
     ADD_SUBDIRECTORY(tests)
 endif()
 
+CONFIGURE_FILE (
+  "${PROJECT_SOURCE_DIR}/autordf.pc.in"
+  "${PROJECT_BINARY_DIR}/autordf.pc"
+)
+
+INSTALL(FILES
+  "${PROJECT_BINARY_DIR}/autordf.pc"
+  DESTINATION lib/pkgconfig
+)
+
 IF(BUILD_DOC)
     # add a target to generate API documentation with Doxygen
     FIND_PACKAGE(Doxygen)
