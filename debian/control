@@ -1,0 +1,15 @@
+Source: autordf
+Section: libs
+Priority: optional
+Maintainer: Sebastien Baguet <sebastien.baguet@ariadnext.com>
+Build-Depends:
+ debhelper (>= 9),
+ cmake,
+ librdf0-dev,
+ redland-utils
+
+Package: libautordf
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A framework for automatic C++ proxy code generation from RDF Ontology
