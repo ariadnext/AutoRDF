@@ -34,16 +34,16 @@ INSTALL(TARGETS autordf
 )
 
 INSTALL(FILES
-    ../../include/autordf/Factory.h
-    ../../include/autordf/Model.h
-    ../../include/autordf/Node.h
-    ../../include/autordf/NodeType.h
-    ../../include/autordf/Object.h
-    ../../include/autordf/Property.h
-    ../../include/autordf/PropertyValue.h
-    ../../include/autordf/Resource.h
-    ../../include/autordf/Statement.h
-    ../../include/autordf/StatementList.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Factory.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Model.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Node.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/NodeType.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Object.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Property.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/PropertyValue.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Resource.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/Statement.h
+    ${CMAKE_SOURCE_DIR}/include/autordf/StatementList.h
     DESTINATION include/autordf
 )
 
