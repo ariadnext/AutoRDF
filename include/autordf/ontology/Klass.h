@@ -46,8 +46,26 @@ public:
      */
     std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
 
-    // iri to Klass map
-    static std::map <std::string, std::shared_ptr<Klass>> uri2Ptr;
+    /**
+     * Finds using IRI
+     * @throw std::out_of_range if not found
+     */
+    static const Klass& find(const std::string& iri) { return *_uri2Ptr.at(iri); }
+
+    /**
+     * Does the static map contains the given element ?
+     */
+    static bool contains(const std::string& iri) { return _uri2Ptr.count(iri); }
+
+    /**
+     * Adds or overwrites the object in static map
+     */
+    static void add(const std::shared_ptr<Klass>& obj) { _uri2Ptr[obj->rdfname()] = obj; }
+
+    /**
+     * Maps IRI to object
+     */
+    static const std::map<std::string, std::shared_ptr<Klass>>& uri2Ptr() { return _uri2Ptr; }
 
     /*
      * ===================================================================
@@ -85,6 +103,9 @@ private:
     std::map<std::string, unsigned int> _overridenMaxCardinality;
     /** Classes defined with the oneOf construct have this set set */
     std::set <RdfsEntity> _oneOfValues;
+
+    // iri to Klass map
+    static std::map <std::string, std::shared_ptr<Klass>> _uri2Ptr;
 
     friend class Ontology;
 };

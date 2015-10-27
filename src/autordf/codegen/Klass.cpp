@@ -8,7 +8,7 @@ namespace autordf {
 namespace codegen {
 
 Klass Klass::uri2Klass(const std::string& uri) const {
-    return Klass(*_decorated.uri2Ptr[uri].get());
+    return Klass(_decorated.find(uri));
 }
 
 void Klass::generateDeclaration() const {
