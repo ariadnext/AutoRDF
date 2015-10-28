@@ -17,18 +17,18 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
             generateComment(ofs, 1,
                 "@return the mandatory instance.\n"
                 "@throw PropertyNotFound if object reference is not set\n"
-                "@throw DuplicateProperty if database contains more than one value");
+                "@throw DuplicateProperty if database contains more than one value", &onClass);
             indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << _decorated.prettyIRIName()<< "() const;" << std::endl;
         } else {
             generateComment(ofs, 1,
                             "@return the object instance if it is set, or nullptr if it is not set.\n"
-                            "@throw DuplicateProperty if database contains more than one value");
+                            "@throw DuplicateProperty if database contains more than one value", &onClass);
             indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
         }
     }
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
         generateComment(ofs, 1,
-                        "@return the list typed objects.  List can be empty if not values are set in database");
+                        "@return the list typed objects.  List can be empty if not values are set in database", &onClass);
         indent(ofs, 1) << "std::list<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
         ofs << std::endl;
         generateDeclarationSetterForMany(ofs, onClass);
@@ -71,7 +71,7 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
 void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "Sets the mandatory value for this property.\n"
-                            "@param value value to set for this property, removing all other values");
+                            "@param value value to set for this property, removing all other values", &onClass);
     auto propertyClass = effectiveClass(onClass);
     indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
 }
@@ -79,7 +79,7 @@ void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Kl
 void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "Sets the values for this property.\n"
-                            "@param value value to set for this property, removing all other values");
+                            "@param value value to set for this property, removing all other values", &onClass);
     auto propertyClass = effectiveClass(onClass);
     indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
 }

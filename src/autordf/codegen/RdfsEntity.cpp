@@ -45,14 +45,20 @@ std::string RdfsEntity::genCppNameWithNamespace() const {
     return genCppNameSpaceFullyQualified() + "::" + _decorated.prettyIRIName();
 }
 
-void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment) const {
-    if ( !_decorated.label().empty() || !_decorated.comment().empty() ) {
-        indent(ofs, numIndent) << "/**" << std::endl;
-        if ( !_decorated.label().empty() ) {
-            indent(ofs, numIndent) << " * " << _decorated.label() << std::endl;
+void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {
+    const RdfsEntity *used = this;
+    if ( used->_decorated.label().empty() && used->_decorated.comment().empty() ) {
+        if ( alternate ) {
+            used = alternate;
         }
-        if ( !_decorated.comment().empty() ) {
-            indent(ofs, numIndent) << " * " << _decorated.comment() << std::endl;
+    }
+    if ( !used->_decorated.label().empty() || !used->_decorated.comment().empty() ) {
+        indent(ofs, numIndent) << "/**" << std::endl;
+        if ( !used->_decorated.label().empty() ) {
+            indent(ofs, numIndent) << " * " << used->_decorated.label() << std::endl;
+        }
+        if ( !used->_decorated.comment().empty() ) {
+            indent(ofs, numIndent) << " * " << used->_decorated.comment() << std::endl;
         }
 
         boost::char_separator<char> sep("\n");
