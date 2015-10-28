@@ -1,7 +1,5 @@
 #include <autordf/NodeType.h>
 
-#include <stdexcept>
-
 namespace autordf {
 
 const char * nodeTypeString(NodeType t) {

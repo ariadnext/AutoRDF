@@ -9,19 +9,22 @@
 
 namespace autordf {
 
-class Stream;
-class Statement;
 class Model;
+class Statement;
+
+namespace internal {
+class Stream;
+}
 
 //! @cond Doxygen_Suppress
 class StatementIteratorBase {
 protected:
-    std::shared_ptr<Stream>    _stream;
+    std::shared_ptr<internal::Stream>    _stream;
     std::shared_ptr<Statement> _current;
-    StatementIteratorBase(std::shared_ptr<Stream> stream);
+    StatementIteratorBase(std::shared_ptr<internal::Stream> stream);
 
     void operatorPlusPlusHelper();
-    bool operatorEqualsHelper(const std::shared_ptr<Stream>& rhs) const;
+    bool operatorEqualsHelper(const std::shared_ptr<internal::Stream>& rhs) const;
 };
 
 template<typename T>
@@ -29,7 +32,7 @@ class StatementListIterator_: public StatementIteratorBase, public std::iterator
 public:
     typedef StatementListIterator_ self_type;
 
-    StatementListIterator_(std::shared_ptr<Stream> stream) : StatementIteratorBase(stream) {};
+    StatementListIterator_(std::shared_ptr<internal::Stream> stream) : StatementIteratorBase(stream) {};
 
     // Only pre increment is supported in this iterator;
     self_type operator++() {operatorPlusPlusHelper(); return *this;}
@@ -65,7 +68,7 @@ private:
     Statement _query;
     Model    *_m;
 
-    std::shared_ptr<Stream> createNewStream() const;
+    std::shared_ptr<internal::Stream> createNewStream() const;
 
     StatementList(const Statement& query, Model *m) : _query(query), _m(m) {}
 

@@ -2,7 +2,7 @@
 
 #include <librdf.h>
 
-#include "autordf/World.h"
+#include "autordf/internal/World.h"
 #include "autordf/Exception.h"
 
 namespace autordf {

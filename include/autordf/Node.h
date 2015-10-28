@@ -7,6 +7,9 @@
 #include <autordf/NodeType.h>
 
 namespace autordf {
+namespace internal {
+class StatementConverter;
+}
 
 /**
  * A node is part of a triplet
@@ -81,7 +84,7 @@ private:
     // Makes sure we are right type when accessing dedicated property
     void assertType(const char* prop, NodeType t) const;
 
-    friend class StatementConverter;
+    friend class internal::StatementConverter;
     friend std::ostream& operator<<(std::ostream& os, const Node&);
 };
 

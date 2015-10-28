@@ -6,12 +6,13 @@
 #include <memory>
 
 namespace autordf {
-
 class Statement;
+
+namespace internal {
 
 class Stream {
 public:
-    Stream(librdf_stream * stream);
+    Stream(librdf_stream* stream);
 
     ~Stream();
 
@@ -24,10 +25,13 @@ public:
     /** Returns true if at end */
     bool end() { return _stream ? librdf_stream_end(_stream) : true; }
 
-    librdf_stream *get() const { return _stream; }
+    librdf_stream* get() const { return _stream; }
+
 private:
-    librdf_stream *_stream;
+    librdf_stream* _stream;
 };
+
+}
 }
 
 #endif //AUTORDF_STREAM_H

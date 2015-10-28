@@ -2,13 +2,15 @@
 
 #include <stdexcept>
 
-#include "autordf/Stream.h"
+#include "autordf/internal/Stream.h"
 #include "autordf/Model.h"
-#include "autordf/ModelPrivate.h"
-#include "autordf/StatementConverter.h"
+#include "autordf/internal/ModelPrivate.h"
+#include "autordf/internal/StatementConverter.h"
 #include "autordf/Exception.h"
 
 namespace autordf {
+
+using namespace internal;
 
 StatementIteratorBase::StatementIteratorBase(std::shared_ptr<Stream> stream) : _stream(stream)  {
     if ( _stream )  {

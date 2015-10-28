@@ -9,8 +9,11 @@
 
 namespace autordf {
 
+namespace internal {
 class World;
+
 class ModelPrivate;
+}
 class StatementList;
 
 /**
@@ -94,10 +97,10 @@ protected:
     /**
      * A pointer to the librdf internal world structure
      */
-    std::shared_ptr<World> _world;
+    std::shared_ptr<internal::World> _world;
 
 private:
-    std::shared_ptr<ModelPrivate> _model;
+    std::shared_ptr<internal::ModelPrivate> _model;
     // What is it exactly ?
     std::string _baseUri;
     // Prefixes seen during parsing prefix --> IRI

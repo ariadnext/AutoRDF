@@ -6,16 +6,18 @@
 
 #include <sstream>
 
-#include "autordf/World.h"
-#include "autordf/ModelPrivate.h"
-#include "autordf/Storage.h"
-#include "autordf/Parser.h"
-#include "autordf/Stream.h"
-#include "autordf/Uri.h"
-#include "autordf/StatementConverter.h"
+#include "autordf/internal/World.h"
+#include "autordf/internal/ModelPrivate.h"
+#include "autordf/internal/Storage.h"
+#include "autordf/internal/Parser.h"
+#include "autordf/internal/Stream.h"
+#include "autordf/internal/Uri.h"
+#include "autordf/internal/StatementConverter.h"
 #include "autordf/Exception.h"
 
 namespace autordf {
+
+using namespace internal;
 
 Model::Model() : _world(new World()), _model(new ModelPrivate(std::make_shared<Storage>())) {
 }

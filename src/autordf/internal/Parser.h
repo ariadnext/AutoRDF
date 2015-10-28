@@ -7,6 +7,7 @@
 #include <memory>
 
 namespace autordf {
+namespace internal {
 
 class Uri;
 
@@ -14,15 +15,20 @@ class Uri;
 class Parser {
 public:
     Parser(const std::string& name);
+
     Parser(const Parser&) = delete;
+
     ~Parser();
 
     static std::shared_ptr<Parser> guessFromUri(const Uri& uri);
 
-    librdf_parser * get() const { return _parser; }
+    librdf_parser* get() const { return _parser; }
+
 private:
-    librdf_parser *_parser;
+    librdf_parser* _parser;
 };
+
+}
 }
 
 #endif //AUTORDF_PARSER_H

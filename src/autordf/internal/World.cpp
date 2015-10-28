@@ -1,4 +1,4 @@
-#include "autordf/World.h"
+#include "autordf/internal/World.h"
 
 #include <cstdio>
 #include <iostream>
@@ -6,6 +6,7 @@
 #include "autordf/Exception.h"
 
 namespace autordf {
+namespace internal {
 
 std::mutex World::_mutex;
 librdf_world* World::_world;
@@ -32,20 +33,20 @@ World::~World() {
     }
 }
 
-int World::logCB(void *user_data, librdf_log_message *message) {
-    std::cerr << "Redland INFO: "<< message << std::endl;
+int World::logCB(void* user_data, librdf_log_message* message) {
+    std::cerr << "Redland INFO: " << message << std::endl;
     return 1;
 }
 
-int World::warnCB(void *user_data, const char *message, va_list arguments) {
+int World::warnCB(void* user_data, const char* message, va_list arguments) {
     char text[255];
     vsnprintf(text, sizeof(text), message, arguments);
     text[sizeof(text) - 1] = 0;
-    std::cerr << "Redland WARN: "<< text << std::endl;
+    std::cerr << "Redland WARN: " << text << std::endl;
     return 1;
 }
 
-int World::errorCB(void *user_data, const char *message, va_list arguments) {
+int World::errorCB(void* user_data, const char* message, va_list arguments) {
     char text[255];
     vsnprintf(text, sizeof(text), message, arguments);
     text[sizeof(text) - 1] = 0;
@@ -53,4 +54,5 @@ int World::errorCB(void *user_data, const char *message, va_list arguments) {
     return 1;
 }
 
+}
 }
