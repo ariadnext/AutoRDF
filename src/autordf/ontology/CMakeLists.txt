@@ -18,13 +18,3 @@ INSTALL(TARGETS autordf-ontology
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-INSTALL(FILES
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/DataProperty.h
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Klass.h
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/ObjectProperty.h
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Ontology.h
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/Property.h
-    ${CMAKE_SOURCE_DIR}/include/autordf/ontology/RdfsEntity.h
-    DESTINATION include/autordf
-)

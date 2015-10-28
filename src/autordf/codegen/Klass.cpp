@@ -1,5 +1,7 @@
 #include "Klass.h"
 
+#include "autordf/ontology/Ontology.h"
+
 #include <fstream>
 
 #include "Utils.h"
@@ -8,7 +10,7 @@ namespace autordf {
 namespace codegen {
 
 Klass Klass::uri2Klass(const std::string& uri) const {
-    return Klass(_decorated.find(uri));
+    return Klass(_decorated.ontology().findClass(uri));
 }
 
 void Klass::generateDeclaration() const {

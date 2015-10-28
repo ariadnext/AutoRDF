@@ -5,7 +5,5 @@
 namespace autordf {
 namespace ontology {
 
-std::map <std::string, std::shared_ptr<DataProperty>> DataProperty::_uri2Ptr;
-
 }
 }

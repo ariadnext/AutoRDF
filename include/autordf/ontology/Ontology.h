@@ -2,6 +2,12 @@
 #define AUTORDF_ONTOLOGY_ONTOLOGY_H
 
 #include <string>
+#include <map>
+#include <memory>
+
+#include "autordf/ontology/Klass.h"
+#include "autordf/ontology/DataProperty.h"
+#include "autordf/ontology/ObjectProperty.h"
 
 namespace autordf {
 
@@ -19,10 +25,58 @@ class Property;
 class Ontology {
 public:
     /**
-     * Reads ontology from given Factory
+     * Default constructor
      * @param verbose if true prints debug output to standard output
      */
-    static void populateSchemaClasses(Factory *f, bool verbose = false);
+    Ontology(Factory *f, bool verbose = false);
+
+    /**
+     * Finds class using IRI
+     * @throw std::out_of_range if not found
+     */
+    const Klass& findClass(const std::string& iri) const { return *_classUri2Ptr.at(iri); }
+
+    /**
+     * Does the static map contains the given element class ?
+     */
+    bool containsClass(const std::string& iri) const { return _classUri2Ptr.count(iri); }
+
+    /**
+     * Maps IRI to object class
+     */
+    const std::map<std::string, std::shared_ptr<Klass>>& classUri2Ptr() const { return _classUri2Ptr; }
+
+    /**
+     * Finds object property using IRI
+     * @throw std::out_of_range if not found
+     */
+    const ObjectProperty& findObjectProperty(const std::string& iri) const { return *_objectUri2Ptr.at(iri); }
+
+    /**
+     * Does the static map contains the given object property ?
+     */
+    bool containsObjectProperty(const std::string& iri) const { return _objectUri2Ptr.count(iri); }
+
+    /**
+     * Maps IRI to object property
+     */
+    const std::map<std::string, std::shared_ptr<ObjectProperty> >& objectPropertyUri2Ptr() const { return _objectUri2Ptr; }
+
+    /**
+     * Finds DataProperty using IRI
+     * @throw std::out_of_range if not found
+     */
+    const DataProperty& findDataProperty(const std::string& iri) const { return *_dataPropertyUri2Ptr.at(iri); }
+
+    /**
+     * Does the static map contains the given DataProperty element ?
+     */
+    bool containsDataProperty(const std::string& iri) const { return _dataPropertyUri2Ptr.count(iri); }
+
+    /**
+     * Maps IRI to DataProperty
+     */
+    const std::map<std::string, std::shared_ptr<DataProperty> >& dataPropertyUri2Ptr() const { return _dataPropertyUri2Ptr; }
 
     /**
      * RDF namespace prefix
@@ -40,20 +94,44 @@ public:
     static const std::string OWL_NS;
 
 private:
-    static bool _verbose;
+    /**
+     * Reads ontology from given Factory
+     */
+    void populateSchemaClasses(Factory *f);
 
-    static void extractRDFS(const Object& o, RdfsEntity *rdfs);
+    /**
+     * Adds or overwrites the object in static map
+     */
+    void addClass(const std::shared_ptr<Klass>& obj) { _classUri2Ptr[obj->rdfname()] = obj; }
 
-    static void extractClassCardinality(const Object& o, Klass *kls, const char *card, const char *minCard,
+    /**
+     * Adds or overwrites the object in static map
+     */
+    void addObjectProperty(const std::shared_ptr<ObjectProperty>& obj) { _objectUri2Ptr[obj->rdfname()] = obj; }
+
+    /**
+     * Adds or overwrites the object in static map
+     */
+    void addDataProperty(const std::shared_ptr<DataProperty>& obj) { _dataPropertyUri2Ptr[obj->rdfname()] = obj; }
+
+    bool _verbose;
+
+    void extractRDFS(const Object& o, RdfsEntity *rdfs);
+
+    void extractClassCardinality(const Object& o, Klass *kls, const char *card, const char *minCard,
                                         const char *maxCard);
 
-    static void extractClass(const Object& o, Klass *kls);
+    void extractClass(const Object& o, Klass *kls);
 
-    static void extractProperty(const Object& o, Property *prop);
+    void extractProperty(const Object& o, Property *prop);
 
-    static void extractClass(const Object& rdfsClass);
+    void extractClass(const Object& rdfsClass);
 
-    static void extractClasses(const std::string& classTypeIRI);
+    void extractClasses(const std::string& classTypeIRI);
+
+    std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
+    std::map<std::string, std::shared_ptr<ObjectProperty> > _objectUri2Ptr;
+    std::map<std::string, std::shared_ptr<DataProperty> > _dataPropertyUri2Ptr;
 };
 }
 }

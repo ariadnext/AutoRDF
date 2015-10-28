@@ -14,6 +14,7 @@ class Klass;
 
 class Property : public RdfsEntity {
 public:
+    using RdfsEntity::RdfsEntity;
     /**
      * Lists of classes this property applies to
      */

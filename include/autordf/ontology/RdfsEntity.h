@@ -10,11 +10,14 @@ class Model;
 
 namespace ontology {
 
+class Ontology;
+
 /**
  * Parent class for OWL Properties and Classes
  */
 class RdfsEntity {
 public:
+    RdfsEntity(const Ontology& ontology) : _ontology(ontology) {};
     /**
      * IRI for entity
      */
@@ -36,6 +39,8 @@ public:
      */
     std::string prettyIRIName(bool upperCaseFirst = false) const;
 
+    const Ontology& ontology() const { return _ontology; };
+
     static void setModel(Model *m) {
         _m = m;
     }
@@ -43,6 +48,9 @@ public:
     static const Model* model() { return _m; }
 
     bool operator<(const RdfsEntity& other) const { return _rdfname < other._rdfname; }
+
+protected:
+    const Ontology& _ontology;
 
 private:
     static Model *_m;

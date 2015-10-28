@@ -3,7 +3,6 @@
 #include "autordf/Factory.h"
 #include "autordf/Object.h"
 #include "autordf/ontology/RdfsEntity.h"
-#include "autordf/ontology/Klass.h"
 
 namespace autordf {
 
@@ -23,23 +22,25 @@ namespace ontology {
 const std::string Ontology::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const std::string Ontology::RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const std::string Ontology::OWL_NS  = "http://www.w3.org/2002/07/owl#";
-bool Ontology::_verbose = false;
 
-void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
-    _verbose = verbose;
+Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose), _classUri2Ptr(), _objectUri2Ptr(), _dataPropertyUri2Ptr() {
+    populateSchemaClasses(f);
+}
+
+void Ontology::populateSchemaClasses(Factory *f) {
     autordf::ontology::RdfsEntity::setModel(f);
     autordf::Object::setFactory(f);
 
     // A well known classes:
     // FIXME add coments
-    auto owlThing = std::make_shared<Klass>();
+    auto owlThing = std::make_shared<Klass>(*this);
     owlThing->_rdfname = OWL_NS + "Thing";
-    Klass::add(owlThing);
+    addClass(owlThing);
 
-    auto rdfsResource = std::make_shared<Klass>();
+    auto rdfsResource = std::make_shared<Klass>(*this);
     rdfsResource->_rdfname = RDFS_NS + "Resource";
     rdfsResource->_directAncestors.insert(owlThing->_rdfname);
-    Klass::add(rdfsResource);
+    addClass(rdfsResource);
 
     // Gather data Properties
     const std::list<Object>& owlDataProperties = Object::findByType(OWL_NS + "DatatypeProperty");
@@ -47,22 +48,22 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
         if ( _verbose ) {
             std::cout << "Found data property " << owlDataProperty.iri() << std::endl;
         }
-        auto p = std::make_shared<DataProperty>();
+        auto p = std::make_shared<DataProperty>(*this);
         extractRDFS(owlDataProperty, p.get());
         extractProperty(owlDataProperty, p.get());
-        DataProperty::add(p);
+        addDataProperty(p);
     }
 
     // Gather object Properties
     const std::list<Object>& owlObjectProperties = Object::findByType(OWL_NS + "ObjectProperty");
     for ( auto const& owlObjectProperty : owlObjectProperties) {
-        if ( verbose ) {
+        if ( _verbose ) {
             std::cout << "Found object property " << owlObjectProperty.iri() << std::endl;
         }
-        auto p = std::make_shared<ObjectProperty>();
+        auto p = std::make_shared<ObjectProperty>(*this);
         extractRDFS(owlObjectProperty, p.get());
         extractProperty(owlObjectProperty, p.get());
-        ObjectProperty::add(p);
+        addObjectProperty(p);
     }
 
     // Gather classes
@@ -70,10 +71,10 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
     extractClasses(RDFS_NS + "Class");
 
     // Remove reference to unexisting classes
-    for ( auto const& klasses : Klass::uri2Ptr() ) {
+    for ( auto const& klasses : _classUri2Ptr ) {
         std::set<std::string>& directAncestors = klasses.second->_directAncestors;
         for ( auto ancestor = directAncestors.begin(); ancestor != directAncestors.end(); ) {
-            if ( Klass::uri2Ptr().find(*ancestor) == Klass::uri2Ptr().end() ) {
+            if ( _classUri2Ptr.find(*ancestor) == _classUri2Ptr.end() ) {
                 std::cerr << "Class " << klasses.first << " has unreachable ancestor " << *ancestor << ", ignoring ancestor" << std::endl;
                 ancestor = directAncestors.erase(ancestor);
             } else {
@@ -83,22 +84,22 @@ void Ontology::populateSchemaClasses(Factory *f, bool verbose) {
     }
 
     // Make links between properties and classes
-    for ( auto const& dataPropertyMapItem : DataProperty::uri2Ptr() ) {
+    for ( auto const& dataPropertyMapItem : _dataPropertyUri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
         for(const std::string& currentDomain : dataProperty.domains()) {
-            auto klassIt = Klass::uri2Ptr().find(currentDomain);
-            if ( klassIt != Klass::uri2Ptr().end() ) {
+            auto klassIt = _classUri2Ptr.find(currentDomain);
+            if ( klassIt != _classUri2Ptr.end() ) {
                 klassIt->second->_dataProperties.insert(dataPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << dataProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
         }
     }
-    for ( auto const& objectPropertyMapItem : ObjectProperty::uri2Ptr() ) {
+    for ( auto const& objectPropertyMapItem : _objectUri2Ptr ) {
         const ObjectProperty& objectProperty = *objectPropertyMapItem.second;
         for(const std::string& currentDomain : objectProperty.domains()) {
-            auto klassIt = Klass::uri2Ptr().find(currentDomain);
-            if ( klassIt != Klass::uri2Ptr().end() ) {
+            auto klassIt = _classUri2Ptr.find(currentDomain);
+            if ( klassIt != _classUri2Ptr.end() ) {
                 klassIt->second->_objectProperties.insert(objectPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << objectProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
@@ -153,14 +154,14 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         // Add class to list of known classes
         const Object& property = o.getObject(OWL_NS + "onProperty");
         if (property.isA(OWL_NS + "ObjectProperty")) {
-            if (ObjectProperty::contains(property.iri())) {
-                kls->_objectProperties.insert(ObjectProperty::uri2Ptr().at(property.iri()));
+            if (containsObjectProperty(property.iri())) {
+                kls->_objectProperties.insert(_objectUri2Ptr.at(property.iri()));
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
         } else {
-            if (DataProperty::contains(property.iri())) {
-                kls->_dataProperties.insert(DataProperty::uri2Ptr().at(property.iri()));
+            if (containsDataProperty(property.iri())) {
+                kls->_dataProperties.insert(_dataPropertyUri2Ptr.at(property.iri()));
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
@@ -180,7 +181,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         std::shared_ptr<Object> rest = oneof;
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
             Object oneOfObject(rest->getPropertyValue(RDF_NS + "first"));
-            RdfsEntity oneOfVal;
+            RdfsEntity oneOfVal(*this);
             extractRDFS(oneOfObject, &oneOfVal);
             kls->_oneOfValues.insert(oneOfVal);
             rest = rest->getOptionalObject(RDF_NS + "rest");
@@ -217,25 +218,25 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
 }
 
 void Ontology::extractClass(const Object& rdfsClass) {
-    auto k = std::make_shared<Klass>();
+    auto k = std::make_shared<Klass>(*this);
     extractRDFS(rdfsClass, k.get());
     extractClass(rdfsClass, k.get());
-    Klass::add(k);
+    addClass(k);
 }
 
 void Ontology::extractClasses(const std::string& classTypeIRI) {
     const std::list<Object>& classes = Object::findByType(classTypeIRI);
     for ( auto const& rdfsclass : classes) {
         if ( rdfsclass.iri().length() ) {
-            if ( !Klass::contains(rdfsclass.iri()) ) {
+            if ( !containsClass(rdfsclass.iri()) ) {
                 if ( !rdfPrefix(rdfsclass.iri(), Klass::model()).empty() ) {
                     if ( _verbose ) {
                         std::cout << "Found class " << rdfsclass.iri() << std::endl;
                     }
-                    auto k = std::make_shared<Klass>();
+                    auto k = std::make_shared<Klass>(*this);
                     extractRDFS(rdfsclass, k.get());
                     extractClass(rdfsclass, k.get());
-                    Klass::add(k);
+                    addClass(k);
                 } else {
                     std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
                 }
