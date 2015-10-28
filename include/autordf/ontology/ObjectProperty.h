@@ -36,7 +36,7 @@ public:
 
     /**
      * Returns class for this property when found in kls object, or nullptr if no class is registered
-     * @param kls class this objectproperty is suppoed to be instanciated in.
+     * @param kls class this objectproperty is supposed to be instanciated in.
      * If nullptr, qualified cardinality restrictions will be ignored
      */
     std::shared_ptr<Klass> findClass(const Klass* kls = nullptr) const;

@@ -21,7 +21,7 @@ public:
 
     /**
      * Returns the Rdf type this property must have in objects of given class
-     * @param kls the class this property will be instanciated in. If nullptr qualified cardinality restrictions
+     * @param kls the class this property will be instantiated in. If nullptr qualified cardinality restrictions
      * will be ignored
      */
     std::string range(const Klass* kls = nullptr) const;

@@ -9,7 +9,7 @@ unsigned int Property::minCardinality(const Klass& kls) const {
     auto const& m = kls.overridenMinCardinality();
     auto it = m.find(rdfname());
     if ( it != m.end() ) {
-        return  it->second;
+        return it->second;
     }
     return _minCardinality;
 }
@@ -18,7 +18,7 @@ unsigned int Property::maxCardinality(const Klass& kls) const {
     auto const& m = kls.overridenMaxCardinality();
     auto it = m.find(rdfname());
     if ( it != m.end() ) {
-        return  it->second;
+        return it->second;
     }
     return _maxCardinality;
 }
@@ -28,7 +28,7 @@ std::string Property::range(const Klass* kls) const {
         auto const& m = kls->overridenRange();
         auto it = m.find(rdfname());
         if ( it != m.end() ) {
-            return  it->second;
+            return it->second;
         }
     }
     return _range;

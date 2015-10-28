@@ -1,3 +1,4 @@
+#include <autordf/ontology/Ontology.h>
 #include "ObjectProperty.h"
 
 #include "Klass.h"
@@ -7,7 +8,7 @@ namespace autordf {
 namespace codegen {
 
 void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) const {
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
 
     ofs << std::endl;
 
@@ -38,7 +39,7 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
 }
 
 void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
     if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
@@ -71,7 +72,7 @@ void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Kl
     generateComment(ofs, 1,
                     "Sets the mandatory value for this property.\n"
                             "@param value value to set for this property, removing all other values");
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
     indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
 }
 
@@ -79,12 +80,12 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
     generateComment(ofs, 1,
                     "Sets the values for this property.\n"
                             "@param value value to set for this property, removing all other values");
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
     indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const {
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
     ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value) {" << std::endl;
     indent(ofs, 1) <<     "return object().setObject(\"" << _decorated.rdfname() << "\", value);" << std::endl;
@@ -92,11 +93,22 @@ void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Kla
 }
 
 void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const {
-    auto propertyClass = Klass(*_decorated.findClass(&onClass.decorated()).get());
+    auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
     ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values) {" << std::endl;
     indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
     ofs << "}" << std::endl;
 }
+
+Klass ObjectProperty::effectiveClass(const Klass& onClass) const {
+    std::shared_ptr<ontology::Klass> kls = _decorated.findClass(&onClass.decorated());
+    if ( kls ) {
+        return *kls;
+    } else {
+        return ontology::Klass::find(autordf::ontology::Ontology::OWL_NS + "Thing");
+    }
+}
+
+
 }
 }
