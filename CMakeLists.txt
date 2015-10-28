@@ -67,6 +67,12 @@ INSTALL(FILES
   DESTINATION lib/pkgconfig
 )
 
+INSTALL(DIRECTORY
+    ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}
+
+    DESTINATION include/
+)
+
 IF(BUILD_DOC)
     # add a target to generate API documentation with Doxygen
     FIND_PACKAGE(Doxygen)
