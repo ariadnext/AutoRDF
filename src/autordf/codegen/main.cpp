@@ -11,10 +11,10 @@
 #include <autordf/Object.h>
 #include <autordf/ontology/Ontology.h>
 
-#include "DataProperty.h"
-#include "ObjectProperty.h"
-#include "Klass.h"
-#include "Utils.h"
+#include "codegen/DataProperty.h"
+#include "codegen/ObjectProperty.h"
+#include "codegen/Klass.h"
+#include "codegen/Utils.h"
 
 namespace autordf {
 namespace codegen {
