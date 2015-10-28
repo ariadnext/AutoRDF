@@ -23,7 +23,7 @@ void Resource::setType(NodeType t) {
  * Returns exactly one property, ia available.
  * @throws If not found, returns null
  */
-std::shared_ptr<Property> Resource::getOptionalProperty(const std::string& iri) const {
+std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
     auto list = getPropertyValues(iri);
     if ( list.size() == 1 ) {
         return std::make_shared<Property>(list.front());
@@ -41,7 +41,7 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const std::string& iri) 
  * @throws If more are available, throws DuplicatePropertyException
  *         If no available, throws PropertyNotFoundException
  */
-Property Resource::getProperty(const std::string& iri) const {
+Property Resource::getProperty(const Uri& iri) const {
     auto list = getPropertyValues(iri);
     if ( list.size() == 1 ) {
         return list.front();
@@ -60,7 +60,7 @@ Property Resource::getProperty(const std::string& iri) const {
 /**
  * Lists all values for property matching iri name
  */
-std::list<Property> Resource::getPropertyValues(const std::string& iri) const {
+std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
@@ -137,7 +137,7 @@ Resource& Resource::removeSingleProperty(const Property &p) {
     return *this;
 }
 
-Resource& Resource::removeProperties(const std::string &iri) {
+Resource& Resource::removeProperties(const Uri &iri) {
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());

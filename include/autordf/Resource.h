@@ -6,6 +6,7 @@
 #include <iosfwd>
 
 #include <autordf/Property.h>
+#include <autordf/Uri.h>
 
 namespace autordf {
 
@@ -28,31 +29,31 @@ public:
      * an IRI: We are an IRI identified resource (type is RESOURCE)
      * a blank node id: We are a blank node (type BLANK), where we already been assigned a blank node id
      */
-    const std::string& name() const { return _name; }
+    const Uri& name() const { return _name; }
 
     /**
      * @returns true if property is found
      */
-    bool hasProperty(const std::string& iri) const { return getOptionalProperty(iri).get(); }
+    bool hasProperty(const Uri& iri) const { return getOptionalProperty(iri).get(); }
 
     /**
      * Returns exactly one property.
      * @throws PropertyNotFound If no available
      * @throws DuplicateException If more than one is available
      */
-    Property getProperty(const std::string& iri) const;
+    Property getProperty(const Uri& iri) const;
 
     /**
      * Returns exactly one property, ia available.
      * @throws DuplicateProperty If more than 1 instance of the property is found
      */
-    std::shared_ptr<Property> getOptionalProperty(const std::string& iri) const;
+    std::shared_ptr<Property> getOptionalProperty(const Uri& iri) const;
 
     /**
      * Lists all values for property matching iri name
      * If iri is empty, matches ALL properties with ALL their values
      */
-    std::list<Property> getPropertyValues(const std::string& iri) const;
+    std::list<Property> getPropertyValues(const Uri& iri) const;
 
     /**
      * Adds a property to the resource. Property should not be empty
@@ -78,7 +79,7 @@ public:
      * If iri is empty, remove *All* object properties
      * @returns a reference to current object
      */
-    Resource& removeProperties(const std::string &iri);
+    Resource& removeProperties(const Uri &iri);
 
     /**
      * Removes a ressource, i.e. delete all its attributes
@@ -90,7 +91,7 @@ private:
     NodeType _type;
 
     // IRI or Blanc node id, depending on context
-    std::string _name;
+    Uri _name;
 
     Factory *_factory;
 

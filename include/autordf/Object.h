@@ -12,6 +12,7 @@
 #include <autordf/PropertyValue.h>
 #include <autordf/Resource.h>
 #include <autordf/Exception.h>
+#include <autordf/Uri.h>
 
 namespace autordf {
 
@@ -46,7 +47,7 @@ public:
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
-    Object(const std::string& iri = "", const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+    Object(const Uri& iri = "", const Uri& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
     /**
      * Build us using the same underlying resource as the other object
@@ -60,12 +61,19 @@ public:
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
-    Object(const Object& obj, const std::string& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+    Object(const Object& obj, const Uri& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
 
     /**
      * Return object iri, or empty if it is a blank node
      */
-    const std::string& iri() const;
+    const Uri& iri() const;
+
+    /**
+     * Return types of current object.
+     * If namespaceFilter is set, only types in this namespace will be returned
+     * @param namespaceFilter A simple namespace
+     */
+    std::list<Uri> getTypes(const std::string& namespaceFilter = "") const;
 
     /**
      * Gets given property as Object
@@ -73,29 +81,29 @@ public:
      * @throw PropertyNotFound if property not set
      * @throw DuplicateProperty if property contains more than one value
      */
-    Object getObject(const std::string& propertyIRI) const;
+    Object getObject(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
      * @returns pointer if property exists, null otherwise
      * @throw DuplicateProperty if property contains more than one value
      */
-    std::shared_ptr<Object> getOptionalObject(const std::string& propertyIRI) const;
+    std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
 
     /**
      * Returns the list of object. If no object found returns empty list
      */
-    std::list<Object> getObjectList(const std::string& propertyIRI) const;
+    std::list<Object> getObjectList(const Uri& propertyIRI) const;
 
     /**
      * Sets object to given property
      */
-    void setObject(const std::string& propertyIRI, const Object& obj);
+    void setObject(const Uri& propertyIRI, const Object& obj);
 
     /**
      * Sets list of objects to given property
      */
-    void setObjectList(const std::string& propertyIRI, const std::list<Object>& values);
+    void setObjectList(const Uri& propertyIRI, const std::list<Object>& values);
 
     /**
      * Gets given property value
@@ -103,7 +111,7 @@ public:
      * @throw PropertyNotFound if property not set
      * @throw DuplicateProperty if property contains more than one value
      */
-    PropertyValue getPropertyValue(const std::string& propertyIRI) const;
+    PropertyValue getPropertyValue(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
@@ -111,41 +119,41 @@ public:
      * @returns pointer if property exists, null otherwise
      * @throw DuplicateProperty if property contains more than one value
      */
-    std::shared_ptr<PropertyValue> getOptionalPropertyValue(const std::string& propertyIRI) const;
+    std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI) const;
 
     /**
      * Returns the list of the values. If no value are found returns empty list
      * @param propertyIRI Internationalized Resource Identifiers property to query
      */
-    std::list<PropertyValue> getPropertyValueList(const std::string& propertyIRI) const;
+    std::list<PropertyValue> getPropertyValueList(const Uri& propertyIRI) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param val unique value for property
      */
-    void setPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
+    void setPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Erases all previous values for property, and write value list on place
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      */
-    void setPropertyValueList(const std::string& propertyIRI, const std::list<PropertyValue>& values);
+    void setPropertyValueList(const Uri& propertyIRI, const std::list<PropertyValue>& values);
 
     /**
      * Adds value to this property, preserving all previous values;
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param val value for property. This new value is added to the list of values for the Property
      */
-    void addPropertyValue(const std::string& propertyIRI, const PropertyValue& val);
+    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Returns true if this object is also of the specified type IRI.
      * @return true If object type attribute contains typeIRI
      * @return false If type attribute does not contains typeIRI
      */
-    bool isA(const std::string& typeIRI) const;
+    bool isA(const Uri& typeIRI) const;
 
     /**
      * Provides ultra-fast trans-typing to another Object descendant
@@ -177,14 +185,14 @@ public:
      * Copies this object, to given iri. If iri empty,
      * creates an anonymous (aka blank) object
      */
-    Object clone(const std::string& iri = "");
+    Object clone(const Uri& iri = "");
 
     /**
      * Returns all Objects matching type specified as IRI
      *
      * @param typeIRI Internationalized Resource Identifiers of the type to be retrieved
      */
-    static std::list<Object> findByType(const std::string& typeIRI = "");
+    static std::list<Object> findByType(const Uri& typeIRI = "");
 
     /**
      * Dumps objects content to stream
@@ -196,7 +204,7 @@ public:
     /**
      * Offered to interfaces
      */
-    template<typename T> static std::list<T> findHelper(const std::string& iri) {
+    template<typename T> static std::list<T> findHelper(const Uri& iri) {
         Statement query;
         query.predicate.setIri(RDF_NS + "type");
         query.object.setIri(iri);
@@ -212,7 +220,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> std::list<T> getObjectListImpl(const std::string& propertyIRI) const {
+    template<typename T> std::list<T> getObjectListImpl(const Uri& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
         }
@@ -228,7 +236,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> void setObjectListImpl(const std::string& propertyIRI, const std::list<T>& values) {
+    template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::list<T>& values) {
         addRdfTypeIfNeeded();
         Property p =_factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
@@ -242,7 +250,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const std::string& propertyIRI) const {
+    template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const Uri& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
         }
@@ -258,7 +266,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const std::string& propertyIRI, const std::list<T>& values) {
+    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::list<T>& values) {
         addRdfTypeIfNeeded();
         Property p = _factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
@@ -289,7 +297,7 @@ private:
      */
     std::string _rdfTypeIRI;
 
-    Object(Resource r, const std::string& rdfTypeIRI = "");
+    Object(Resource r, const Uri& rdfTypeIRI = "");
 
     /**
      * Checks if underlying resource is of given type
@@ -300,7 +308,7 @@ private:
     /**
      * Shared constructor
      */
-    void construct(const std::string& rdfTypeIRI);
+    void construct(const Uri& rdfTypeIRI);
 
     /**
      * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses

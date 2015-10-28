@@ -20,6 +20,7 @@ ADD_LIBRARY(
     Factory.cpp
     Object.cpp
     Exception.cpp
+    Uri.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf
