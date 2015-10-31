@@ -76,7 +76,7 @@ void generateRdfTypeInfo(const ontology::Ontology& ontology) {
 }
 
 void run(Factory *f) {
-    ontology::Ontology ontology(f);
+    ontology::Ontology ontology(f, verbose);
 
     // Starting code Generation
     std::set<std::string> cppNameSpaces;
