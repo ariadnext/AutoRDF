@@ -23,7 +23,7 @@ const std::string Ontology::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns
 const std::string Ontology::RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const std::string Ontology::OWL_NS  = "http://www.w3.org/2002/07/owl#";
 
-Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose), _classUri2Ptr(), _objectUri2Ptr(), _dataPropertyUri2Ptr() {
+Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose) {
     populateSchemaClasses(f);
 }
 
@@ -86,7 +86,7 @@ void Ontology::populateSchemaClasses(Factory *f) {
     // Make links between properties and classes
     for ( auto const& dataPropertyMapItem : _dataPropertyUri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
-        for(const std::string& currentDomain : dataProperty.domains()) {
+        for ( const std::string& currentDomain : dataProperty.domains() ) {
             auto klassIt = _classUri2Ptr.find(currentDomain);
             if ( klassIt != _classUri2Ptr.end() ) {
                 klassIt->second->_dataProperties.insert(dataPropertyMapItem.second);
@@ -94,16 +94,28 @@ void Ontology::populateSchemaClasses(Factory *f) {
                 std::cerr << "Property " << dataProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
         }
+        if ( dataProperty.domains().empty() ) {
+            if ( _verbose ) {
+                std::cout << dataProperty.rdfname() << " has no domain, will attach to owl:Thing" << std::endl;
+            }
+            _classUri2Ptr[OWL_NS + "Thing"]->_dataProperties.insert(dataPropertyMapItem.second);
+        }
     }
-    for ( auto const& objectPropertyMapItem : _objectUri2Ptr ) {
+    for ( auto const& objectPropertyMapItem : _objectPropertyUri2Ptr ) {
         const ObjectProperty& objectProperty = *objectPropertyMapItem.second;
-        for(const std::string& currentDomain : objectProperty.domains()) {
+        for ( const std::string& currentDomain : objectProperty.domains() ) {
             auto klassIt = _classUri2Ptr.find(currentDomain);
             if ( klassIt != _classUri2Ptr.end() ) {
                 klassIt->second->_objectProperties.insert(objectPropertyMapItem.second);
             } else  {
                 std::cerr << "Property " << objectProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
             }
+        }
+        if ( objectProperty.domains().empty() ) {
+            if ( _verbose ) {
+                std::cout << objectProperty.rdfname() << " has no domain, will attach to owl:Thing" << std::endl;
+            }
+            _classUri2Ptr[OWL_NS + "Thing"]->_objectProperties.insert(objectPropertyMapItem.second);
         }
     }
 }
@@ -155,7 +167,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         const Object& property = o.getObject(OWL_NS + "onProperty");
         if (property.isA(OWL_NS + "ObjectProperty")) {
             if (containsObjectProperty(property.iri())) {
-                kls->_objectProperties.insert(_objectUri2Ptr.at(property.iri()));
+                kls->_objectProperties.insert(_objectPropertyUri2Ptr.at(property.iri()));
             } else {
                 std::cerr << "Property " << property.iri() << " is referenced by anonymous class restriction, but is not defined anywhere, zapping." << std::endl;
             }
@@ -241,9 +253,6 @@ void Ontology::extractClasses(const std::string& classTypeIRI) {
                     std::cerr << "No prefix found for class " << rdfsclass.iri() << " namespace, ignoring" << std::endl;
                 }
             }
-        } else {
-            std::cerr << "Skipping blank node class" << std::endl;
-            // anonymous class found
         }
     }
 }

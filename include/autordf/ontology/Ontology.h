@@ -50,17 +50,17 @@ public:
      * Finds object property using IRI
      * @throw std::out_of_range if not found
      */
-    const ObjectProperty& findObjectProperty(const std::string& iri) const { return *_objectUri2Ptr.at(iri); }
+    const ObjectProperty& findObjectProperty(const std::string& iri) const { return *_objectPropertyUri2Ptr.at(iri); }
 
     /**
      * Does the static map contains the given object property ?
      */
-    bool containsObjectProperty(const std::string& iri) const { return _objectUri2Ptr.count(iri); }
+    bool containsObjectProperty(const std::string& iri) const { return _objectPropertyUri2Ptr.count(iri); }
 
     /**
      * Maps IRI to object property
      */
-    const std::map<std::string, std::shared_ptr<ObjectProperty> >& objectPropertyUri2Ptr() const { return _objectUri2Ptr; }
+    const std::map<std::string, std::shared_ptr<ObjectProperty> >& objectPropertyUri2Ptr() const { return _objectPropertyUri2Ptr; }
 
     /**
      * Finds DataProperty using IRI
@@ -107,13 +107,16 @@ private:
     /**
      * Adds or overwrites the object in static map
      */
-    void addObjectProperty(const std::shared_ptr<ObjectProperty>& obj) { _objectUri2Ptr[obj->rdfname()] = obj; }
+    void addObjectProperty(const std::shared_ptr<ObjectProperty>& obj) { _objectPropertyUri2Ptr[obj->rdfname()] = obj; }
 
     /**
      * Adds or overwrites the object in static map
      */
     void addDataProperty(const std::shared_ptr<DataProperty>& obj) { _dataPropertyUri2Ptr[obj->rdfname()] = obj; }
 
+    /**
+     * Display some internal details about code generation on std::cout
+     */
     bool _verbose;
 
     void extractRDFS(const Object& o, RdfsEntity *rdfs);
@@ -130,7 +133,7 @@ private:
     void extractClasses(const std::string& classTypeIRI);
 
     std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
-    std::map<std::string, std::shared_ptr<ObjectProperty> > _objectUri2Ptr;
+    std::map<std::string, std::shared_ptr<ObjectProperty> > _objectPropertyUri2Ptr;
     std::map<std::string, std::shared_ptr<DataProperty> > _dataPropertyUri2Ptr;
 };
 }
