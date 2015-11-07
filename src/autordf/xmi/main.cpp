@@ -47,26 +47,55 @@ void run(Factory *f, const std::string& name) {
 
     *out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
     *out << "<xmi:XMI xmi:version=\"2.1\" xmlns:uml=\"http://schema.omg.org/spec/UML/2.3\" xmlns:xmi=\"http://schema.omg.org/spec/XMI/2.1\">" << std::endl;
-    *out <<     "<xmi:Documentation exporter=\"autordf\" />" << std::endl;
-    *out <<     "<uml:Model xmi:type=\"uml:Model\" xmi:id=\"themodel\" name=\"" << name << "\">" << std::endl;
-    *out <<         "<packagedElement xmi:type=\"uml:Package\" xmi:id=\"rdf\" name=\"" << name << "\">" << std::endl;
+    *out << "    <xmi:Documentation exporter=\"autordf\" />" << std::endl;
+    *out << "    <uml:Model xmi:type=\"uml:Model\" xmi:id=\"themodel\" name=\"" << name << "\">" << std::endl;
+    *out << "    <packagedElement xmi:type=\"uml:Package\" xmi:id=\"rdf\" name=\"" << name << "\">" << std::endl;
+    *out << std::endl;
 
     for ( auto const& klassMapItem: ontology.classUri2Ptr() ) {
         const std::shared_ptr<ontology::Klass>& kls = klassMapItem.second;
         *out << "<packagedElement xmi:type=\"uml:Class\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << kls->rdfname() << "\" visibility=\"public\">" << std::endl;
         genComment(*kls.get(),  kls->rdfname());
+
+        for (const std::shared_ptr<ontology::Klass>& ancestor : kls->ancestors()) {
+            std::string xmiid = kls->rdfname() + "_" + ancestor->rdfname();
+            *out << "    <generalization xmi:type=\"uml:Generalization\" xmi:id=\"" << xmiid << "\" general=\"" << ancestor->rdfname() << "\"/>" << std::endl;
+        }
+
         for ( const std::shared_ptr<ontology::DataProperty>& dataProp: kls->dataProperties() ) {
             std::string xmiid = kls->rdfname() + "_" + dataProp->rdfname();
             *out << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << dataProp->prettyIRIName() << "\" xmi:id=\"" << xmiid << "\" visibility=\"public\">" << std::endl;
             genComment(*dataProp.get(), xmiid);
             *out << "</ownedAttribute>" << std::endl;
         }
+        for ( const std::shared_ptr<ontology::ObjectProperty>& objectProp: kls->objectProperties() ) {
+            std::string xmiid = kls->rdfname() + "_" + objectProp->rdfname();
+            std::string assocxmiid = "Association_" + kls->rdfname() + "_" + objectProp->rdfname();
+            std::string assocendxmiid = "AssociationEnd_" + kls->rdfname() + "_" + objectProp->rdfname();
+            std::string typexmiid = objectProp->range(kls.get());
+            if ( typexmiid.empty() ) {
+                typexmiid = ontology::Ontology::OWL_NS + "Thing";
+            }
+
+            *out << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << objectProp->prettyIRIName()
+            << "\" xmi:id=\"" << xmiid << "\" visibility=\"public\""
+            << " association=\"" << assocxmiid << "\" aggregation=\"none\">" << std::endl;
+            *out << "    <type xmi:type=\"uml:Class\" xmi:idref=\"" << typexmiid << "\"/>" << std::endl;
+            genComment(*objectProp.get(), xmiid);
+            *out << "</ownedAttribute>" << std::endl;
+
+            *out << "<packagedElement xmi:type=\"uml:Association\" xmi:id=\"" << assocxmiid << "\" visibility=\"public\">" << std::endl;
+            *out << "    <memberEnd xmi:idref=\"" << xmiid << "\"/>" << std::endl;
+            *out << "    <ownedEnd xmi:type=\"uml:Property\" xmi:id=\"" << assocendxmiid << "\" visibility=\"public\" type=\"" << kls->rdfname() << "\" aggregation=\"none\" isNavigable=\"false\"/>" << std::endl;
+            *out << "</packagedElement>" << std::endl;
+        }
         *out << "</packagedElement>" << std::endl;
         *out << std::endl;
     }
 
-    *out <<         "</packagedElement>" << std::endl;
-    *out <<     "</uml:Model>" << std::endl;
+    *out << std::endl;
+    *out << "        </packagedElement>" << std::endl;
+    *out << "    </uml:Model>" << std::endl;
     *out << "</xmi:XMI>" << std::endl;
 }
 
