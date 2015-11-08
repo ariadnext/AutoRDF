@@ -55,7 +55,8 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
     if ( !used->_decorated.label().empty() || !used->_decorated.comment().empty() ) {
         indent(ofs, numIndent) << "/**" << std::endl;
         if ( !used->_decorated.label().empty() ) {
-            indent(ofs, numIndent) << " * " << used->_decorated.label() << std::endl;
+            indent(ofs, numIndent) << " * @brief " << used->_decorated.label() << std::endl;
+            indent(ofs, numIndent) << " * " << std::endl;
         }
         if ( !used->_decorated.comment().empty() ) {
             indent(ofs, numIndent) << " * " << used->_decorated.comment() << std::endl;

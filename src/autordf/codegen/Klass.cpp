@@ -43,30 +43,32 @@ void Klass::generateDeclaration() const {
     ofs << std::endl;
     if ( !_decorated.oneOfValues().size() ) {
         indent(ofs, 1) << "/**" << std::endl;
-        indent(ofs, 1) << " * Creates new object, to given iri. If iri empty," << std::endl;
-        indent(ofs, 1) << " * creates an anonymous (aka blank) object" << std::endl;
+        indent(ofs, 1) << " * @brief Creates new object, to given iri." << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
+        indent(ofs, 1) << " * If iri empty, creates an anonymous (aka blank) object" << std::endl;
         indent(ofs, 1) << " */" << std::endl;
         indent(ofs, 1) << cppName << "(const std::string& iri = \"\");" << std::endl;
     } else {
         indent(ofs, 1) << "/**" << std::endl;
-        indent(ofs, 1) << " * Load enum from RDF model, from given C++ Type enum." << std::endl;
+        indent(ofs, 1) << " * @brief Load enum from RDF model, from given C++ Type enum." << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * This applies only to classes defines using the owl:oneOf paradigm" << std::endl;
         indent(ofs, 1) << " */" << std::endl;
         indent(ofs, 1) << cppName << "(I" << cppName << "::Enum enumVal);" << std::endl;
     }
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Build us using the same underlying resource as the other object" << std::endl;
+    indent(ofs, 1) << " * @brief Build us using the same underlying resource as the other object" << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << cppName << "(const Object& other);" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Returns the list of all objects of this kind in the store" << std::endl;
+    indent(ofs, 1) << " * @brief Returns the list of all objects of this kind in the store" << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static std::list<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Internal: returns full list of ancestors we have" << std::endl;
+    indent(ofs, 1) << " * @brief Internal: returns full list of ancestors we have" << std::endl;
     indent(ofs, 1) << " **/" << std::endl;
     indent(ofs, 1) << "static std::set<std::string> ancestorsRdfTypeIRI();" << std::endl;
     ofs << std::endl;
@@ -172,7 +174,7 @@ void Klass::generateInterfaceDeclaration() const {
 
     if ( _decorated.oneOfValues().size() ) {
         indent(ofs, 1) << "/**" << std::endl;
-        indent(ofs, 1) << " * C++ Enum values mapping the owl instances restrictions for this class " << std::endl;
+        indent(ofs, 1) << " * @brief C++ Enum values mapping the owl instances restrictions for this class " << std::endl;
         indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "enum Enum {" << std::endl;
         for ( const RdfsEntity& enumVal : _decorated.oneOfValues() ) {
@@ -183,7 +185,8 @@ void Klass::generateInterfaceDeclaration() const {
         ofs << std::endl;
 
         indent(ofs, 1) << "/** " << std::endl;
-        indent(ofs, 1) << " * Returns the current object as an Enum " << std::endl;
+        indent(ofs, 1) << " * @brief Returns the current object as an Enum " << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * This object is expected to be one the instance allowed by the owl:oneOf definition." << std::endl;
         indent(ofs, 1) << " * @return enum value" << std::endl;
         indent(ofs, 1) << " * @throw InvalidEnum if the object we try to convert is not one of the instances defined by owl:oneOf" << std::endl;
@@ -191,7 +194,8 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "Enum asEnum() const;" << std::endl;
         ofs << std::endl;
         indent(ofs, 1) << "/** " << std::endl;
-        indent(ofs, 1) << " * Converts an enum value to a pretty string " << std::endl;
+        indent(ofs, 1) << " * @brief Converts an enum value to a pretty string " << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * @param en enum value" << std::endl;
         indent(ofs, 1) << " * @return enum value converted as string" << std::endl;
         indent(ofs, 1) << " */ " << std::endl;
