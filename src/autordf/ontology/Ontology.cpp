@@ -130,6 +130,14 @@ void Ontology::extractRDFS(const Object& o, RdfsEntity *rdfs) {
     if (label) {
         rdfs->_label = *label;
     }
+    std::shared_ptr<PropertyValue> seeAlso = o.getOptionalPropertyValue(RDFS_NS + "seeAlso");
+    if (seeAlso) {
+        rdfs->_seeAlso = *seeAlso;
+    }
+    std::shared_ptr<PropertyValue> isDefinedBy = o.getOptionalPropertyValue(RDFS_NS + "isDefinedBy");
+    if (isDefinedBy) {
+        rdfs->_isDefinedBy = *isDefinedBy;
+    }
 }
 
 void Ontology::extractClassCardinality(const Object& o, Klass *kls, const char * card, const char * minCard, const char * maxCard) {

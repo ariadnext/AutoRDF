@@ -61,6 +61,12 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
         if ( !used->_decorated.comment().empty() ) {
             indent(ofs, numIndent) << " * " << used->_decorated.comment() << std::endl;
         }
+        if ( !used->_decorated.seeAlso().empty() ) {
+            indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
+        }
+        if ( !used->_decorated.isDefinedBy().empty() ) {
+            indent(ofs, numIndent) << " * @see " << used->_decorated.isDefinedBy() << std::endl;
+        }
 
         boost::char_separator<char> sep("\n");
         boost::tokenizer<boost::char_separator<char> > tokens(additionalComment, sep);

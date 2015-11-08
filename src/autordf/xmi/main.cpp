@@ -54,7 +54,13 @@ void run(Factory *f, const std::string& name) {
 
     for ( auto const& klassMapItem: ontology.classUri2Ptr() ) {
         const std::shared_ptr<ontology::Klass>& kls = klassMapItem.second;
-        *out << "<packagedElement xmi:type=\"uml:Class\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << kls->rdfname() << "\" visibility=\"public\">" << std::endl;
+        std::string umlType;
+        if ( kls->oneOfValues().empty() ) {
+            umlType = "uml:Class";
+        } else {
+            umlType = "uml:Enumeration";
+        }
+        *out << "<packagedElement xmi:type=\"" << umlType << "\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << kls->rdfname() << "\" visibility=\"public\">" << std::endl;
         genComment(*kls.get(),  kls->rdfname());
 
         for (const std::shared_ptr<ontology::Klass>& ancestor : kls->ancestors()) {
