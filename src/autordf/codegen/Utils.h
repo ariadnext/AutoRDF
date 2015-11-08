@@ -11,6 +11,10 @@ class Model;
 namespace codegen {
 
 std::ostream& indent(std::ostream& os, int numIndent);
+
+void startInternal(std::ostream& os, int numIndent = 0);
+void stopInternal(std::ostream& os, int numIndent = 0);
+
 void addBoilerPlate(std::ofstream& ofs);
 void generateCodeProtectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string& cppName);
 void generateCodeProtectorEnd(std::ofstream& ofs, const std::string& cppNameSpace, const std::string& cppName);

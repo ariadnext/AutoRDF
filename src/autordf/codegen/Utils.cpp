@@ -21,6 +21,16 @@ std::ostream& indent(std::ostream& os, int numIndent) {
     return os;
 }
 
+void startInternal(std::ostream& os, int numIndent) {
+    indent(os, numIndent);
+    os << "/** @cond internal */" << std::endl;
+}
+
+void stopInternal(std::ostream& os, int numIndent) {
+    indent(os, numIndent);
+    os << "/** @endcond internal */" << std::endl;
+}
+
 void addBoilerPlate(std::ofstream& ofs) {
     ofs << "// This is auto generated code by AutoRDF, do not edit !" << std::endl;
 }

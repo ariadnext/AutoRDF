@@ -67,10 +67,12 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static std::list<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
+    startInternal(ofs, 1);
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Internal: returns full list of ancestors we have" << std::endl;
     indent(ofs, 1) << " **/" << std::endl;
     indent(ofs, 1) << "static std::set<std::string> ancestorsRdfTypeIRI();" << std::endl;
+    stopInternal(ofs, 1);
     ofs << std::endl;
 
     ofs << "private:" << std::endl;
@@ -166,10 +168,12 @@ void Klass::generateInterfaceDeclaration() const {
     ofs << "class " << cppName << " ";
     ofs << " {" << std::endl;
     ofs << "public:" << std::endl;
+    startInternal(ofs, 1);
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * IRI for rdfs type associated with this C++ Interface class" << std::endl;
     indent(ofs, 1) << " */ " << std::endl;
     indent(ofs, 1) << "static const char* TYPEIRI;" << std::endl;
+    stopInternal(ofs, 1);
     ofs << std::endl;
 
     if ( _decorated.oneOfValues().size() ) {
