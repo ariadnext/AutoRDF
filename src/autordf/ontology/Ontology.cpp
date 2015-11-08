@@ -35,10 +35,12 @@ void Ontology::populateSchemaClasses(Factory *f) {
     // FIXME add coments
     auto owlThing = std::make_shared<Klass>(*this);
     owlThing->_rdfname = OWL_NS + "Thing";
+    owlThing->_label = "This class is the ancestor for all user defined classes";
     addClass(owlThing);
 
     auto rdfsResource = std::make_shared<Klass>(*this);
     rdfsResource->_rdfname = RDFS_NS + "Resource";
+    rdfsResource->_label = "This class is provided for compatibility with RDFS ontologies.";
     rdfsResource->_directAncestors.insert(owlThing->_rdfname);
     addClass(rdfsResource);
 
@@ -192,6 +194,9 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
 
         if (o.getOptionalPropertyValue(OWL_NS + "onDataRange")) {
             kls->_overridenRange[property.iri()] = o.getPropertyValue(OWL_NS + "onDataRange");
+        }
+        if (o.getOptionalPropertyValue(OWL_NS + "onClass")) {
+            kls->_overridenRange[property.iri()] = o.getPropertyValue(OWL_NS + "onClass");
         }
     }
 

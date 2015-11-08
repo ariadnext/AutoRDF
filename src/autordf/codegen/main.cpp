@@ -25,6 +25,7 @@ bool generateAllInOne = false;
 void generateRdfTypeInfo(const ontology::Ontology& ontology) {
     std::ofstream oifs;
     createFile(RdfsEntity::outdir + "/RdfTypeInfo.h", &oifs);
+    startInternal(oifs);
     generateCodeProtectorBegin(oifs, "", "RdfTypeInfo");
     oifs << "class RdfTypeInfo {" << std::endl;
     oifs << "public:" << std::endl;
@@ -36,9 +37,11 @@ void generateRdfTypeInfo(const ontology::Ontology& ontology) {
     oifs << "};" << std::endl;
     oifs << std::endl;
     generateCodeProtectorEnd(oifs, "", "RdfTypeInfo");
+    stopInternal(oifs);
 
     std::ofstream ofs;
     createFile(RdfsEntity::outdir + "/RdfTypeInfo.cpp", &ofs);
+    startInternal(ofs);
     addBoilerPlate(ofs);
     ofs << std::endl;
     ofs << "#include <map>" << std::endl;
@@ -73,6 +76,7 @@ void generateRdfTypeInfo(const ontology::Ontology& ontology) {
     ofs << "namespace {" << std::endl;
     ofs << "RdfTypeInfo __loader;" << std::endl;
     ofs << "}" << std::endl;
+    stopInternal(ofs);
 }
 
 void run(Factory *f) {

@@ -92,6 +92,7 @@ void Klass::generateDefinition() const {
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
 
+    startInternal(ofs);
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << cppName << ".h>" << std::endl;
     ofs << std::endl;
     addBoilerPlate(ofs);
@@ -131,6 +132,7 @@ void Klass::generateDefinition() const {
     ofs << std::endl;
     leaveNameSpace(ofs);
     ofs << std::endl;
+    stopInternal(ofs);
 }
 
 void Klass::generateInterfaceDeclaration() const {
@@ -227,7 +229,9 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "static const EnumArrayEntryType& enumVal2Entry(Enum en);" << std::endl;
         ofs << std::endl;
         ofs << "protected:" << std::endl;
+        startInternal(ofs, 1);
         indent(ofs, 1) << "static std::string enumIri(Enum en);" << std::endl;
+        stopInternal(ofs, 1);
     }
 
     ofs << "};" << std::endl;
@@ -243,6 +247,7 @@ void Klass::generateInterfaceDefinition() const {
     std::ofstream ofs;
     createFile(genCppNameSpaceInclusionPath() + "/" + cppName + ".cpp", &ofs);
 
+    startInternal(ofs);
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << cppName << ".h>" << std::endl;
     ofs << std::endl;
     addBoilerPlate(ofs);
@@ -313,6 +318,7 @@ void Klass::generateInterfaceDefinition() const {
         ObjectProperty(*prop.get()).generateDefinition(ofs, _decorated);
     }
     leaveNameSpace(ofs);
+    stopInternal(ofs);
 }
 
 std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {

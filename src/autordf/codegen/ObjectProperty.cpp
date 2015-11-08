@@ -80,7 +80,7 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
     auto propertyClass = effectiveClass(onClass);
     generateComment(ofs, 1,
                     "Sets the values for this property.\n"
-                            "@param value value to set for this property, removing all other values", &propertyClass);
+                            "@param values values to set for this property, removing all other values", &propertyClass);
     indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
 }
 
