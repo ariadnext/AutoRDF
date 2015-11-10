@@ -6,6 +6,7 @@
 #include <ostream>
 
 #include <autordf/ontology/DataProperty.h>
+#include <autordf/cvt/RdfTypeEnum.h>
 #include "RdfsEntity.h"
 
 namespace autordf {
@@ -24,7 +25,7 @@ public:
     void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
 
 private:
-    int range2CvtArrayIndex(const Klass& onClass) const;
+    std::pair<cvt::RdfTypeEnum, std::string> getRdfCppTypes(const Klass& onClass) const;
 
     void generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const;
 
