@@ -123,6 +123,12 @@ void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
     _r.addProperty(_factory->createProperty(propertyIRI).setValue(val));
 }
 
+void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+    Property p = _factory->createProperty(propertyIRI);
+    p.setValue(val);
+    _r.removeSingleProperty(p);
+}
+
 void Object::setPropertyValueList(const Uri& propertyIRI, const std::list<PropertyValue>& values) {
     addRdfTypeIfNeeded();
     Property p = _factory->createProperty(propertyIRI);

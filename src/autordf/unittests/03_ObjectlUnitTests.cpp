@@ -147,3 +147,18 @@ TEST(_04_Object, SubClasses) {
 
     ASSERT_THROW(childobj.as<ObjectClass2>(), InvalidClass);
 }
+
+TEST(_04_Object, removeSingleProperty) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://myuri/myobject", "http://myuri/type1");
+
+    obj.addPropertyValue("http://myuri/prop", "val1");
+    ASSERT_EQ(2, f.find().size());
+
+    obj.removePropertyValue("http://myuri/prop", "val1");
+    ASSERT_EQ(1, f.find().size());
+
+    ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
+}

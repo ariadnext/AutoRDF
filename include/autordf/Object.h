@@ -149,6 +149,14 @@ public:
     void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
+     * Remove the first value matching val for this property
+     * @param propertyIRI Internationalized Resource Identifiers property to remove one value from
+     * @param val value to remove
+     * @throw PropertyNotFound if propertyIRI has not val as value
+     */
+    void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+
+    /**
      * Returns true if this object is also of the specified type IRI.
      * @return true If object type attribute contains typeIRI
      * @return false If type attribute does not contains typeIRI
