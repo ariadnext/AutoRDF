@@ -28,11 +28,17 @@ inline std::string trim(const std::string &s)
 }
 
 inline std::string getLeft(const std::string& rawValue) {
-    auto pos = rawValue.find('^');
+    int pos = rawValue.find("^^");
+    int length;
     if ( pos != std::string::npos ) {
-        return rawValue.substr(1, pos - 2);
+        length = pos - 2;
     } else {
-        throw DataConvertionFailure("Unable to convert value as ^^ was not found in: " + rawValue);
+        length = rawValue.length() - 2;
+    }
+    if ( length < 0 ) {
+        throw DataConvertionFailure("Unable to convert value as literal is malformed: " + rawValue);
+    } else {
+        return rawValue.substr(1, length);
     }
 }
 

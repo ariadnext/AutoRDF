@@ -30,6 +30,12 @@ TEST(_04_cvt, xsd_to_cpp) {
     ASSERT_EQ("1977-Apr-22 06:00:00", boost::posix_time::to_simple_string(toCpp<boost::posix_time::ptime, RdfTypeEnum::xsd_dateTime>::val("\"1977-04-22T06:00:00\"^^xsd:dateTime")));
     ASSERT_EQ("1977-Apr-22 06:00:00", boost::posix_time::to_simple_string(toCpp<boost::posix_time::ptime, RdfTypeEnum::xsd_dateTimeStamp>::val("\"1977-04-22T06:00:00Z\"^^xsd:dateTimeStamp")));
 
+    // Check ^^ is optional
+    ASSERT_EQ(0.5, (toCpp<double, RdfTypeEnum::xsd_double>::val("\"0.5\"")));
+
+    // Check too short string
+    ASSERT_THROW((toCpp<double, RdfTypeEnum::xsd_double>::val("")), autordf::DataConvertionFailure);
+
     //Checking trimming
     ASSERT_EQ("date of birth  ", (toCpp<std::string, RdfTypeEnum::xsd_string>::val("\"date of birth  \"^^xsd:string")));
     ASSERT_EQ(true, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val("\"1 \"^^xsd:boolean")));
