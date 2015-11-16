@@ -18,13 +18,13 @@ void PropertyValue::setLang(const std::string& lang) {
     _lang = lang;
 }
 
-std::ostream& operator<<(std::ostream& os, const PropertyValue& val) {
-    os << static_cast<std::string>(val);
-    if ( val.dataTypeIri().length() ) {
-        os << "^^<" << val.dataTypeIri() << ">";
+std::ostream& PropertyValue::printStream(std::ostream& os) {
+    os << static_cast<std::string>(*this);
+    if ( dataTypeIri().length() ) {
+        os << "^^<" << dataTypeIri() << ">";
     }
-    if ( val.lang().length() ) {
-        os << "@" << val.lang();
+    if ( lang().length() ) {
+        os << "@" << lang();
     }
     return os;
 }

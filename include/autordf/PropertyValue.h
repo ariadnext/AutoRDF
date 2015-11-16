@@ -57,7 +57,12 @@ public:
      * @see http://www.ietf.org/rfc/rfc4646.txt
      * Does makes sense only in case this property holds a literal
      */
-    void setLang(const std::string& dataType);
+    void setLang(const std::string& lang);
+
+    /**
+     * Print content to stream for debugging purpose
+     */
+    std::ostream& printStream(std::ostream& os);
 
     /**
      * Writes the Value, transtyping it from C++ to rdf type
@@ -81,7 +86,6 @@ private:
     std::string _dataTypeIri;
 };
 
-std::ostream& operator<<(std::ostream& os, const PropertyValue&);
 }
 
 #endif //AUTORDF_PROPERTYVALUE_H

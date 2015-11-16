@@ -27,30 +27,20 @@ inline std::string trim(const std::string &s)
     return std::string(it, rit.base());
 }
 
-inline std::string getLeft(const std::string& rawValue) {
-    int pos = rawValue.find("^^");
-    int length;
-    if ( pos != std::string::npos ) {
-        length = pos - 2;
-    } else {
-        length = rawValue.length() - 2;
-    }
-    if ( length < 0 ) {
-        throw DataConvertionFailure("Unable to convert value as literal is malformed: " + rawValue);
-    } else {
-        return rawValue.substr(1, length);
-    }
-}
-
 template<typename CppType, RdfTypeEnum rdfType> class toCpp;
 
 template<typename CppType> CppType toCppGeneric(const std::string& rawValue) {
-    return boost::lexical_cast<CppType>(trim(getLeft(rawValue)));
+    try {
+        return boost::lexical_cast<CppType>(trim(rawValue));
+    }
+    catch (const std::exception& e) {
+        throw DataConvertionFailure("During convertion of " + rawValue + ": " + e.what());
+    }
 }
 
 inline boost::posix_time::ptime toCppDateTime(const std::string& rawValue) {
     try {
-        std::istringstream ss(trim(getLeft(rawValue)));
+        std::istringstream ss(trim(rawValue));
         ss.exceptions(std::ios_base::failbit);
         boost::posix_time::time_input_facet* input_facet = new boost::posix_time::time_input_facet;
         input_facet->format("%Y-%m-%dT%H:%M:%S%F%Q");
@@ -73,7 +63,7 @@ public: \
 template<RdfTypeEnum rdfType> class toCpp<std::string, rdfType> {
 public:
     static std::string val(const std::string& rawValue) {
-        return getLeft(rawValue);
+        return rawValue;
     }
 };
 
@@ -93,7 +83,7 @@ GENERIC_TOCPP(double, xsd_double)
 template<typename CppType> class toCpp<CppType, RdfTypeEnum::xsd_boolean> {
 public:
     static CppType val(const std::string& rawValue) {
-        std::string left = trim(getLeft(rawValue));
+        std::string left = trim(rawValue);
         if ( left == "true" || left == "1") {
             return true;
         } else if ( left == "false" || left == "0") {
@@ -154,7 +144,7 @@ GENERIC_TOCPP(unsigned short, xsd_unsignedShort)
 template<> class toCpp<char, RdfTypeEnum::xsd_byte> {
 public:
     static char val(const std::string& rawValue) {
-        return boost::lexical_cast<short>(trim(getLeft(rawValue)));
+        return boost::lexical_cast<short>(trim(rawValue));
     }
 };
 
@@ -162,7 +152,7 @@ public:
 template<> class toCpp<unsigned char, RdfTypeEnum::xsd_unsignedByte> {
 public:
     static unsigned char val(const std::string& rawValue) {
-        return boost::lexical_cast<unsigned short>(trim(getLeft(rawValue)));
+        return boost::lexical_cast<unsigned short>(trim(rawValue));
     }
 };
 
@@ -170,7 +160,7 @@ template<typename CppType, RdfTypeEnum rdfType> class toRdf;
 
 template<RdfTypeEnum rdfType, typename CppType> std::string toRdfGeneric(const CppType& cppValue) {
     std::ostringstream ss;
-    ss << "\"" << cppValue << "\"^^" << rdfType;
+    ss << cppValue;
     return ss.str();
 };
 
@@ -199,18 +189,18 @@ GENERIC_TORDF(double, xsd_double)
 template<typename CppType> class toRdf<CppType, RdfTypeEnum::xsd_boolean>  {
 public:
     static std::string val(const CppType& cppValue) {
-        return std::string("\"") + (cppValue ? "true" : "false") + "\"^^" + rdfTypeEnumXMLString(RdfTypeEnum::xsd_boolean);
+        return (cppValue ? "true" : "false");
     }
 };
 
-inline std::string toRdfDateTime(const boost::posix_time::ptime& time, RdfTypeEnum type) {
+inline std::string toRdfDateTime(const boost::posix_time::ptime& time) {
     std::ostringstream ss;
     ss.exceptions(std::ios_base::failbit);
     boost::posix_time::time_facet* facet = new boost::posix_time::time_facet;
     // ISO Extended with Z as forced timezone
     facet->format("%Y-%m-%dT%H:%M:%S%FZ");
     ss.imbue(std::locale(std::locale::classic(), facet));
-    ss << "\"" << time << "\"^^" << type;
+    ss << time;
     return ss.str();
 }
 
@@ -218,7 +208,7 @@ inline std::string toRdfDateTime(const boost::posix_time::ptime& time, RdfTypeEn
 template<> class toRdf<boost::posix_time::ptime, RdfTypeEnum::xsd_dateTime> {
 public:
     static std::string val(const boost::posix_time::ptime& time) {
-        return toRdfDateTime(time, RdfTypeEnum::xsd_dateTime);
+        return toRdfDateTime(time);
     }
 };
 
@@ -226,7 +216,7 @@ public:
 template<> class toRdf<boost::posix_time::ptime, RdfTypeEnum::xsd_dateTimeStamp> {
 public:
     static std::string val(const boost::posix_time::ptime& time) {
-        return toRdfDateTime(time, RdfTypeEnum::xsd_dateTimeStamp);
+        return toRdfDateTime(time);
     }
 };
 
@@ -265,7 +255,7 @@ template<> class toRdf<char, RdfTypeEnum::xsd_byte>  {
 public:
     static std::string val(char cppValue) {
         std::ostringstream ss;
-        ss << "\"" << static_cast<short>(cppValue) << "\"^^" << RdfTypeEnum::xsd_byte;
+        ss << static_cast<short>(cppValue);
         return ss.str();
     }
 };
@@ -275,7 +265,7 @@ template<> class toRdf<unsigned char, RdfTypeEnum::xsd_unsignedByte>  {
 public:
     static std::string val(unsigned char cppValue) {
         std::ostringstream ss;
-        ss << "\"" << static_cast<unsigned short>(cppValue) << "\"^^" << RdfTypeEnum::xsd_unsignedByte;
+        ss << static_cast<unsigned short>(cppValue);
         return ss.str();
     }
 };
