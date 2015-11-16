@@ -79,7 +79,7 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
         const Node& predicate = triple.predicate;
         Property p = _factory->createProperty(predicate.iri(), object.type);
         if ( object.type == NodeType::LITERAL) {
-            p.setValue(object.literal(), false);
+            p.setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
         } else if ( object.type == NodeType::RESOURCE) {
             p.setValue(object.iri(), false);
         } else if ( object.type == NodeType::BLANK) {
@@ -100,6 +100,8 @@ void Resource::propertyAsNode(const Property& p, Node *n) {
             break;
         case NodeType::LITERAL:
             n->setLiteral(p.value());
+            n->setLang(p.value().lang());
+            n->setDataType(p.value().dataTypeIri());
             break;
         case NodeType::EMPTY:
             throw InvalidNodeType("Unable to add an Empty property!");

@@ -5,6 +5,8 @@
       <value>
         <Objective-C>
           <option name="INDENT_NAMESPACE_MEMBERS" value="0" />
+          <option name="SPACE_BEFORE_REFERENCE_IN_DECLARATION" value="false" />
+          <option name="SPACE_AFTER_REFERENCE_IN_DECLARATION" value="true" />
         </Objective-C>
         <Objective-C-extensions>
           <option name="GENERATE_INSTANCE_VARIABLES_FOR_PROPERTIES" value="ASK" />
@@ -40,6 +42,5 @@
       </value>
     </option>
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
-    <option name="PREFERRED_PROJECT_CODE_STYLE" value="Default (1)" />
   </component>
 </project>

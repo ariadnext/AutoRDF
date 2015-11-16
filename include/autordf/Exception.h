@@ -82,6 +82,11 @@ AUTORDFEXCEPTION(InvalidNodeType)
 AUTORDFEXCEPTION(DataConvertionFailure)
 
 /**
+ * A typed literal node can't have a lang
+ */
+AUTORDFEXCEPTION(CantSetLiteralTypeAndLang)
+
+/**
  * Inside bug or misuse of our API
  */
 AUTORDFEXCEPTION(InternalError)

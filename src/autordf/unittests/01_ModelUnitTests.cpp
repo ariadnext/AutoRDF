@@ -78,6 +78,25 @@ TEST(_01_Model, AddSaveEraseStatement) {
     ASSERT_EQ(0, stmtList1.size());
 }
 
+TEST(_01_Model, TypeLiterals) {
+    Model ts;
+    Statement st;
+    st.subject.setIri("http://mydomain/me");
+    st.predicate.setIri("http://mydomain/firstName");
+    st.object.setLiteral("Fabien");
+    st.object.setDataType("http://www.w3.org/2001/XMLSchema#string");
+    ts.add(st);
+
+    st.predicate.setIri("http://mydomain/town");
+    st.object.setDataType("");
+    st.object.setLang("fr");
+    ts.add(st);
+
+    const StatementList& stmtList = ts.find();
+
+    std::cout << stmtList << std::endl;
+}
+
 TEST(DISABLED_01_Model, All) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");

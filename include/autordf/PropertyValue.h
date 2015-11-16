@@ -28,8 +28,36 @@ public:
      * Builds from a string literal
      *
      * @param rawValue Literal value
+     * @param lang optional xml:lang for this literal property
+     * @param dataTypeIri optional literal data type
      */
-    PropertyValue(const std::string& rawValue) : std::string(rawValue) {}
+    PropertyValue(const std::string& rawValue, const std::string& lang = "", const std::string& dataTypeIri = "")
+        : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
+
+    /**
+     * @return the literal data type if it is set, blank string otherwise
+     * Does makes sense only in case this property holds a literal
+     */
+    const std::string& dataTypeIri() const;
+
+    /**
+     * @return the literal lang if it is set, blank string otherwise
+     * Does makes sense only in case this property holds a literal
+     */
+    const std::string& lang() const;
+
+    /**
+     * Set Literal data type
+     * Does makes sense only in case this property holds a literal
+     */
+    void setDataTypeIri(const std::string& dataTypeIri);
+
+    /**
+     * Set literal language.
+     * @see http://www.ietf.org/rfc/rfc4646.txt
+     * Does makes sense only in case this property holds a literal
+     */
+    void setLang(const std::string& dataType);
 
     /**
      * Writes the Value, transtyping it from C++ to rdf type
@@ -47,8 +75,13 @@ public:
     template<cvt::RdfTypeEnum rdfType, typename T> T get() const {
         return cvt::toCpp<T, rdfType>::val(*this);
     };
+
+private:
+    std::string _lang;
+    std::string _dataTypeIri;
 };
 
+std::ostream& operator<<(std::ostream& os, const PropertyValue&);
 }
 
 #endif //AUTORDF_PROPERTYVALUE_H

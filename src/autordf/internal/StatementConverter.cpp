@@ -25,14 +25,23 @@ librdf_node* StatementConverter::toLibRdfNode(const Node& node) {
             }
             break;
         }
-        case NodeType::LITERAL:
-            lrdfNode = librdf_new_node_from_literal(w.get(),
-                                                    reinterpret_cast<const unsigned char*>(node.literal().c_str()), 0,
-                                                    0);
+        case NodeType::LITERAL: {
+            std::shared_ptr<librdf_uri> dataTypeUri;
+            if ( !node.dataType().empty() ) {
+                dataTypeUri = std::shared_ptr<librdf_uri>(librdf_new_uri(w.get(), reinterpret_cast<const unsigned char*>(node.dataType().c_str())),
+                                librdf_free_uri);
+                if (!dataTypeUri) {
+                    throw InternalError(std::string("Failed to construct URI from value: ") + node.dataType());
+                }
+            }
+            lrdfNode = librdf_new_node_from_typed_literal(w.get(),
+                                                    reinterpret_cast<const unsigned char*>(node.literal().c_str()), node.lang().c_str(),
+                                                    dataTypeUri.get());
             if (!lrdfNode) {
                 throw InternalError(std::string("Failed to construct node from literal: ") + node.literal());
             }
             break;
+        }
         case NodeType::BLANK:
             lrdfNode = librdf_new_node_from_blank_identifier(w.get(),
                                                              reinterpret_cast<const unsigned char*>(node.bNodeId().c_str()));
@@ -71,6 +80,13 @@ void StatementConverter::fromLibRdfNode(librdf_node* lrdfnode, Node* node) {
     } else if (librdf_node_is_literal(lrdfnode)) {
         node->type = NodeType::LITERAL;
         node->_value = reinterpret_cast<const char*>(librdf_node_get_literal_value(lrdfnode));
+        librdf_uri *dataTypeUri = librdf_node_get_literal_value_datatype_uri(lrdfnode);
+        if (dataTypeUri) {
+            node->_dataType = reinterpret_cast<const char*>(librdf_uri_as_string(dataTypeUri));
+        }
+        if (librdf_node_get_literal_value_language(lrdfnode)) {
+            node->_lang = librdf_node_get_literal_value_language(lrdfnode);
+        }
     } else if (librdf_node_is_blank(lrdfnode)) {
         node->type = NodeType::BLANK;
         node->_value = reinterpret_cast<const char*>(librdf_node_get_blank_identifier(lrdfnode));

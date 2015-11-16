@@ -3,24 +3,25 @@ find_package(Boost COMPONENTS date_time)
 ADD_LIBRARY(
     autordf
     ${LIBRARY_TYPE}
-    internal/World.cpp
     Model.cpp
+    Node.cpp
+    NodeType.cpp
+    Statement.cpp
+    StatementList.cpp
+    Resource.cpp
+    Property.cpp
+    PropertyValue.cpp
+    Factory.cpp
+    Object.cpp
+    Exception.cpp
+    Uri.cpp
+    internal/World.cpp
     internal/ModelPrivate.cpp
     internal/Storage.cpp
     internal/Parser.cpp
     internal/Uri.cpp
     internal/Stream.cpp
-    Node.cpp
-    NodeType.cpp
-    Statement.cpp
-    StatementList.cpp
     internal/StatementConverter.cpp
-    Resource.cpp
-    Property.cpp
-    Factory.cpp
-    Object.cpp
-    Exception.cpp
-    Uri.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf

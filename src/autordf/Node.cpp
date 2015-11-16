@@ -31,6 +31,32 @@ const std::string& Node::bNodeId() const {
     return _value;
 }
 
+const std::string& Node::dataType() const {
+    assertType("literal", NodeType::LITERAL);
+    return _dataType;
+}
+
+const std::string& Node::lang() const {
+    assertType("literal", NodeType::LITERAL);
+    return _lang;
+}
+
+void Node::setDataType(const std::string& dataType) {
+    assertType("literal", NodeType::LITERAL);
+    if ( !_lang.empty() ) {
+        throw CantSetLiteralTypeAndLang("Can't set dataType on node as lang is already set");
+    }
+    _dataType = dataType;
+}
+
+void Node::setLang(const std::string& lang) {
+    assertType("literal", NodeType::LITERAL);
+    if ( !_lang.empty() ) {
+        throw CantSetLiteralTypeAndLang("Can't set lang on node as dataType is already set");
+    }
+    _lang = lang;
+}
+
 std::ostream& operator<<(std::ostream& os, const Node& n) {
     switch(n.type) {
         case NodeType::RESOURCE:
@@ -46,7 +72,17 @@ std::ostream& operator<<(std::ostream& os, const Node& n) {
             os << "E";
             break;
     }
-    os << "{" << (n.empty() ? "" : n._value) << "}";
+    os << "{\"" << (n.empty() ? "" : n._value) << "\"";
+    if ( n.type == NodeType::LITERAL ) {
+        if ( !n.dataType().empty() ) {
+            os << "^^" << n.dataType();
+        }
+        if ( !n.lang().empty() ) {
+            os << "@" << n.lang();
+        }
+    }
+    os << "}";
     return os;
 }
+
 }
