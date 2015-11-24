@@ -13,6 +13,9 @@
 namespace autordf {
 namespace ontology {
 
+/**
+ * Models a class as seen by Semantic Web
+ */
 class Klass : public RdfsEntity {
 public:
     using RdfsEntity::RdfsEntity;

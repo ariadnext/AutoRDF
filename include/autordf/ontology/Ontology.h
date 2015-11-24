@@ -12,6 +12,7 @@
 namespace autordf {
 
 class Factory;
+class Model;
 class Object;
 
 namespace ontology {
@@ -22,10 +23,14 @@ class Klass;
 
 class Property;
 
+/**
+ * Maps an OWL or RDFS Ontology to set of more readily accessible C++ objects
+ */
 class Ontology {
 public:
     /**
      * Default constructor
+     * @param f where to read this ontology from
      * @param verbose if true prints debug output to standard output
      */
     Ontology(Factory *f, bool verbose = false);
@@ -79,6 +84,11 @@ public:
     const std::map<std::string, std::shared_ptr<DataProperty> >& dataPropertyUri2Ptr() const { return _dataPropertyUri2Ptr; }
 
     /**
+     * The model this ontology has been loaded from
+     */
+    const Model* model() const;
+
+    /**
      * RDF namespace prefix
      */
     static const std::string RDF_NS;
@@ -119,6 +129,12 @@ private:
      */
     bool _verbose;
 
+    Factory *_f;
+
+    std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
+    std::map<std::string, std::shared_ptr<ObjectProperty> > _objectPropertyUri2Ptr;
+    std::map<std::string, std::shared_ptr<DataProperty> > _dataPropertyUri2Ptr;
+
     void extractRDFS(const Object& o, RdfsEntity *rdfs);
 
     void extractClassCardinality(const Object& o, Klass *kls, const char *card, const char *minCard,
@@ -131,10 +147,6 @@ private:
     void extractClass(const Object& rdfsClass);
 
     void extractClasses(const std::string& classTypeIRI);
-
-    std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
-    std::map<std::string, std::shared_ptr<ObjectProperty> > _objectPropertyUri2Ptr;
-    std::map<std::string, std::shared_ptr<DataProperty> > _dataPropertyUri2Ptr;
 };
 }
 }

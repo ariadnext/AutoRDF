@@ -103,6 +103,20 @@ const std::string& Model::nsToPrefix(const std::string& ns) const {
     throw std::out_of_range("Namespace " + ns + " not found in Model namespace map");
 }
 
+/**
+ * Returns the prefix that matches the given rdfiri if a prefix is registered, empty otherwise
+ */
+std::string Model::iriPrefix(const std::string& rdfiri) const {
+    for ( const std::pair<std::string, std::string>& prefixMapItem : _namespacesPrefixes ) {
+        const std::string& iri = prefixMapItem.second;
+        if ( rdfiri.substr(0, iri.length()) == iri ) {
+            return prefixMapItem.first;
+        }
+    }
+    return "";
+}
+
+
 const std::string& Model::prefixToNs(const std::string& prefix) const {
     return _namespacesPrefixes.at(prefix);
 }

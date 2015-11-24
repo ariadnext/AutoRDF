@@ -11,6 +11,9 @@
 namespace autordf {
 namespace ontology {
 
+/**
+ * Models an Object Property as seen by Semantic Web
+ */
 class ObjectProperty : public Property {
 public:
     using Property::Property;

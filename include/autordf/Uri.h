@@ -9,6 +9,9 @@
 
 namespace autordf {
 
+/**
+ * An Uri: will contain in the future URi manipulation methods
+ */
 class Uri : public std::string {
 public:
     /**

@@ -14,6 +14,8 @@
 namespace autordf {
 namespace cvt {
 
+// @cond internal
+
 inline std::string trim(const std::string &s)
 {
     std::string::const_iterator it = s.begin();
@@ -269,6 +271,8 @@ public:
         return ss.str();
     }
 };
+
+// @endcond internal
 }
 }
 #endif //AUTORDF_CVT_CVT_H

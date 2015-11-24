@@ -22,9 +22,6 @@ void generateCodeProtectorEnd(std::ofstream& ofs, const std::string& cppNameSpac
 void createDirectory(const std::string& relativeDirName);
 
 void createFile(const std::string& fileName, std::ofstream *ofs);
-
-// Checks an returns if available registered prefix for IRI
-std::string rdfPrefix(const std::string& rdfiri, const Model *model);
 }
 }
 

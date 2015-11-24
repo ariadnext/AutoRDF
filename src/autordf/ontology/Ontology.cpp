@@ -6,39 +6,31 @@
 
 namespace autordf {
 
-// Checks an returns if available registered prefix for IRI
-std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
-    for ( const std::pair<std::string, std::string>& prefixMapItem : model->namespacesPrefixes() ) {
-        const std::string& iri = prefixMapItem.second;
-        if ( rdfiri.substr(0, iri.length()) == iri ) {
-            return prefixMapItem.first;
-        }
-    }
-    return "";
-}
-
 namespace ontology {
 
 const std::string Ontology::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const std::string Ontology::RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const std::string Ontology::OWL_NS  = "http://www.w3.org/2002/07/owl#";
 
-Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose) {
+Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose), _f(f) {
     populateSchemaClasses(f);
 }
 
+const Model* Ontology::model() const {
+    return _f;
+}
+
 void Ontology::populateSchemaClasses(Factory *f) {
-    autordf::ontology::RdfsEntity::setModel(f);
     autordf::Object::setFactory(f);
 
     // A well known classes:
     // FIXME add coments
-    auto owlThing = std::make_shared<Klass>(*this);
+    auto owlThing = std::make_shared<Klass>(this);
     owlThing->_rdfname = OWL_NS + "Thing";
     owlThing->_label = "This class is the ancestor for all user defined classes";
     addClass(owlThing);
 
-    auto rdfsResource = std::make_shared<Klass>(*this);
+    auto rdfsResource = std::make_shared<Klass>(this);
     rdfsResource->_rdfname = RDFS_NS + "Resource";
     rdfsResource->_label = "This class is provided for compatibility with RDFS ontologies.";
     rdfsResource->_directAncestors.insert(owlThing->_rdfname);
@@ -50,7 +42,7 @@ void Ontology::populateSchemaClasses(Factory *f) {
         if ( _verbose ) {
             std::cout << "Found data property " << owlDataProperty.iri() << std::endl;
         }
-        auto p = std::make_shared<DataProperty>(*this);
+        auto p = std::make_shared<DataProperty>(this);
         extractRDFS(owlDataProperty, p.get());
         extractProperty(owlDataProperty, p.get());
         addDataProperty(p);
@@ -62,7 +54,7 @@ void Ontology::populateSchemaClasses(Factory *f) {
         if ( _verbose ) {
             std::cout << "Found object property " << owlObjectProperty.iri() << std::endl;
         }
-        auto p = std::make_shared<ObjectProperty>(*this);
+        auto p = std::make_shared<ObjectProperty>(this);
         extractRDFS(owlObjectProperty, p.get());
         extractProperty(owlObjectProperty, p.get());
         addObjectProperty(p);
@@ -206,7 +198,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
         std::shared_ptr<Object> rest = oneof;
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
             Object oneOfObject(rest->getPropertyValue(RDF_NS + "first"));
-            RdfsEntity oneOfVal(*this);
+            RdfsEntity oneOfVal(this);
             extractRDFS(oneOfObject, &oneOfVal);
             kls->_oneOfValues.insert(oneOfVal);
             rest = rest->getOptionalObject(RDF_NS + "rest");
@@ -243,7 +235,7 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
 }
 
 void Ontology::extractClass(const Object& rdfsClass) {
-    auto k = std::make_shared<Klass>(*this);
+    auto k = std::make_shared<Klass>(this);
     extractRDFS(rdfsClass, k.get());
     extractClass(rdfsClass, k.get());
     addClass(k);
@@ -254,11 +246,11 @@ void Ontology::extractClasses(const std::string& classTypeIRI) {
     for ( auto const& rdfsclass : classes) {
         if ( rdfsclass.iri().length() ) {
             if ( !containsClass(rdfsclass.iri()) ) {
-                if ( !rdfPrefix(rdfsclass.iri(), Klass::model()).empty() ) {
+                if ( !model()->iriPrefix(rdfsclass.iri()).empty() ) {
                     if ( _verbose ) {
                         std::cout << "Found class " << rdfsclass.iri() << std::endl;
                     }
-                    auto k = std::make_shared<Klass>(*this);
+                    auto k = std::make_shared<Klass>(this);
                     extractRDFS(rdfsclass, k.get());
                     extractClass(rdfsclass, k.get());
                     addClass(k);

@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <ostream>
 
+#include <autordf/ontology/Ontology.h>
+#include <autordf/Model.h>
 #include "Utils.h"
 
 #include <boost/tokenizer.hpp>
@@ -13,7 +15,7 @@ namespace codegen {
 std::string RdfsEntity::outdir = ".";
 
 std::string RdfsEntity::genCppNameSpaceInternal(const char *sep) const {
-    std::string prefix = rdfPrefix(_decorated.rdfname(), _decorated.model());
+    std::string prefix = _decorated.ontology()->model()->iriPrefix(_decorated.rdfname());
     if ( !prefix.empty() ) {
         if ( outdir != "." && sep) {
             return outdir + sep + prefix;

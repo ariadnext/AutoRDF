@@ -13,11 +13,17 @@ namespace ontology {
 class Ontology;
 
 /**
- * Parent class for OWL Properties and Classes
+ * @brief Parent class for Properties and Classes
+ *
+ * Stores iri, label, comments, and other metadata
  */
 class RdfsEntity {
 public:
-    RdfsEntity(const Ontology& ontology) : _ontology(ontology) {};
+    /**
+     * Constructor
+     */
+    RdfsEntity(const Ontology* ontology) : _ontology(ontology) {};
+
     /**
      * IRI for entity
      */
@@ -49,18 +55,21 @@ public:
      */
     std::string prettyIRIName(bool upperCaseFirst = false) const;
 
-    const Ontology& ontology() const { return _ontology; };
+    /**
+     * Returns the ontology this Entity belongs to
+     */
+    const Ontology* ontology() const { return _ontology; };
 
-    static void setModel(Model *m) {
-        _m = m;
-    }
-
-    static const Model* model() { return _m; }
-
+    /**
+     * Used to insert this objet in maps
+     */
     bool operator<(const RdfsEntity& other) const { return _rdfname < other._rdfname; }
 
 protected:
-    const Ontology& _ontology;
+    /**
+     * The ontology this object belongs to
+     */
+    const Ontology* _ontology;
 
 private:
     static Model *_m;
@@ -75,6 +84,7 @@ private:
     // rdfs isDefinedBy
     std::string _isDefinedBy;
 
+    // Easy write access for attributes instead of compilacted constructor
     friend class Ontology;
 };
 }

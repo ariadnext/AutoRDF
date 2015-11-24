@@ -83,7 +83,7 @@ public:
     const std::string& prefixToNs(const std::string& prefix) const;
 
     /**
-     * Returns the list of namespaces known in this model in a map prefix --< IRI
+     * Returns the list of namespaces known in this model in a prefix --> IRI map
      */
     const std::map<std::string, std::string>& namespacesPrefixes() const { return _namespacesPrefixes; }
 
@@ -92,6 +92,11 @@ public:
      * @throw InternalError If prefix is already registered to different namespace,
      */
     void addNamespacePrefix(const std::string& prefix, const std::string& ns);
+
+    /**
+     * Returns the prefix that matches the given rdfiri if a prefix is registered, empty otherwise
+     */
+    std::string iriPrefix(const std::string& rdfiri) const;
 
 protected:
     /**

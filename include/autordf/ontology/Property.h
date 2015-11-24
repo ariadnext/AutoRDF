@@ -12,6 +12,9 @@ namespace ontology {
 
 class Klass;
 
+/**
+ * Common ancestor to both DataProperty and ObjectProperty
+ */
 class Property : public RdfsEntity {
 public:
     using RdfsEntity::RdfsEntity;

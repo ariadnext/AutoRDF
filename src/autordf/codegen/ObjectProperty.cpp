@@ -105,7 +105,7 @@ Klass ObjectProperty::effectiveClass(const Klass& onClass) const {
     if ( kls ) {
         return *kls;
     } else {
-        return _decorated.ontology().findClass(autordf::ontology::Ontology::OWL_NS + "Thing");
+        return _decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing");
     }
 }
 

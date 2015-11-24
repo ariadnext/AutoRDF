@@ -54,17 +54,6 @@ void createFile(const std::string& fileName, std::ofstream *ofs) {
     }
 }
 
-// Checks an returns if available registered prefix for IRI
-std::string rdfPrefix(const std::string& rdfiri, const Model *model) {
-    for ( const std::pair<std::string, std::string>& prefixMapItem : model->namespacesPrefixes() ) {
-        const std::string& iri = prefixMapItem.second;
-        if ( rdfiri.substr(0, iri.length()) == iri ) {
-            return prefixMapItem.first;
-        }
-    }
-    return "";
-}
-
 void generateCodeProtectorBegin(std::ofstream& ofs, const std::string& cppNameSpace, const std::string& cppName) {
     std::string upperCppNameSpace = cppNameSpace;
     std::transform(upperCppNameSpace.begin(), upperCppNameSpace.end(), upperCppNameSpace.begin(), ::toupper);
