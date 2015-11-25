@@ -160,5 +160,14 @@ TEST(_04_Object, removeSingleProperty) {
     obj.removePropertyValue("http://myuri/prop", "val1");
     ASSERT_EQ(1, f.find().size());
 
+    long long int toto = 1;
+    PropertyValue val;
+    val.set<cvt::RdfTypeEnum::xsd_integer>(toto);
+    obj.addPropertyValue("http://myuri/prop", val);
+    ASSERT_EQ(2, f.find().size());
+
+    obj.removePropertyValue("http://myuri/prop", val);
+    ASSERT_EQ(1, f.find().size());
+
     ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
 }
