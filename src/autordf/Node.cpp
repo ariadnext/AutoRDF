@@ -43,7 +43,7 @@ const std::string& Node::lang() const {
 
 void Node::setDataType(const std::string& dataType) {
     assertType("literal", NodeType::LITERAL);
-    if ( !_lang.empty() ) {
+    if ( !_lang.empty() && !dataType.empty() ) {
         throw CantSetLiteralTypeAndLang("Can't set dataType on node as lang is already set");
     }
     _dataType = dataType;
@@ -51,7 +51,7 @@ void Node::setDataType(const std::string& dataType) {
 
 void Node::setLang(const std::string& lang) {
     assertType("literal", NodeType::LITERAL);
-    if ( !_lang.empty() ) {
+    if ( !_dataType.empty() && !lang.empty() ) {
         throw CantSetLiteralTypeAndLang("Can't set lang on node as dataType is already set");
     }
     _lang = lang;
