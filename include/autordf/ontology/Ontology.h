@@ -147,6 +147,8 @@ private:
     void extractClass(const Object& rdfsClass);
 
     void extractClasses(const std::string& classTypeIRI);
+
+    void addHardcodedAnnotationProperty(const std::string& iri, const std::string& label);
 };
 }
 }

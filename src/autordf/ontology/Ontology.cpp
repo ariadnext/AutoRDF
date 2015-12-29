@@ -23,8 +23,7 @@ const Model* Ontology::model() const {
 void Ontology::populateSchemaClasses(Factory *f) {
     autordf::Object::setFactory(f);
 
-    // A well known classes:
-    // FIXME add coments
+    // BEGIN Add well known classes //
     auto owlThing = std::make_shared<Klass>(this);
     owlThing->_rdfname = OWL_NS + "Thing";
     owlThing->_label = "This class is the ancestor for all user defined classes";
@@ -35,6 +34,14 @@ void Ontology::populateSchemaClasses(Factory *f) {
     rdfsResource->_label = "This class is provided for compatibility with RDFS ontologies.";
     rdfsResource->_directAncestors.insert(owlThing->_rdfname);
     addClass(rdfsResource);
+
+    addHardcodedAnnotationProperty(OWL_NS  + "versionInfo", "Provides basic information for version control purpose");
+    addHardcodedAnnotationProperty(RDFS_NS + "label",       "Supports a natural language label for the resource/property");
+    addHardcodedAnnotationProperty(RDFS_NS + "comment",     "Supports a natural language comment about a resource/property");
+    addHardcodedAnnotationProperty(RDFS_NS + "seeAlso",     "Provides a way to identify more information about the resource");
+    addHardcodedAnnotationProperty(RDFS_NS + "isDefinedBy", "Provides a link pointing to the source of information about the resource");
+
+    // END Add well known classes //
 
     // Gather data Properties
     const std::list<Object>& owlDataProperties = Object::findByType(OWL_NS + "DatatypeProperty");
@@ -260,6 +267,16 @@ void Ontology::extractClasses(const std::string& classTypeIRI) {
             }
         }
     }
+}
+
+void Ontology::addHardcodedAnnotationProperty(const std::string& iri, const std::string& label) {
+    // As a temporary way to go fast we implement annotations as data propertiesn THIS IS NOT CORRECT
+    auto annotationProperty = std::make_shared<DataProperty>(this);
+    annotationProperty->_rdfname = iri;
+    annotationProperty->_label = label;
+    annotationProperty->_maxCardinality = 1;
+    annotationProperty->_domains.push_back(OWL_NS + "Thing");
+    addDataProperty(annotationProperty);
 }
 
 }
