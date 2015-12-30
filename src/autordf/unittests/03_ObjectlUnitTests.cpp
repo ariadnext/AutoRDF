@@ -79,7 +79,7 @@ TEST(_03_Object, Accessors) {
     ASSERT_THROW(person.getOptionalObject("http://xmlns.com/foaf/0.1/knows"), DuplicateProperty);
 }
 
-TEST(_04_Object, DelayedTypeWriting) {
+TEST(_03_Object, DelayedTypeWriting) {
     Factory f;
     Object::setFactory(&f);
 
@@ -93,7 +93,7 @@ TEST(_04_Object, DelayedTypeWriting) {
     ASSERT_EQ("http://myuri/type1", obj.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
 }
 
-TEST(_04_Object, NoTypeWrittenWhenCloning) {
+TEST(_03_Object, NoTypeWrittenWhenCloning) {
     Factory f;
     Object::setFactory(&f);
 
@@ -126,7 +126,7 @@ public:
     ChildClass1(const std::string& iri) : Object(iri, "http://myuri/childclass1", &rtti) {}
 };
 
-TEST(_04_Object, SubClasses) {
+TEST(_03_Object, SubClasses) {
     Factory f;
     Object::setFactory(&f);
 
@@ -148,7 +148,7 @@ TEST(_04_Object, SubClasses) {
     ASSERT_THROW(childobj.as<ObjectClass2>(), InvalidClass);
 }
 
-TEST(_04_Object, removeSingleProperty) {
+TEST(_03_Object, removeSingleProperty) {
     Factory f;
     Object::setFactory(&f);
 
@@ -170,4 +170,24 @@ TEST(_04_Object, removeSingleProperty) {
     ASSERT_EQ(1, f.find().size());
 
     ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
+}
+
+TEST(_03_Object, findByKeyProp) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+
+    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/mbox", Object("mailto:jwales@bomis.com")));
+}
+
+TEST(_03_Object, findByKeyObject) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+
+    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo"));
+
+    ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo2"), ObjectNotFound);
 }

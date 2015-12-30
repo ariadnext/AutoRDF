@@ -210,6 +210,28 @@ public:
     static std::list<Object> findByType(const Uri& typeIRI = "");
 
     /**
+     * Returns the only Object with property key set to value
+     *
+     * @param propertyIRI Internationalized Resource Identifier for the property
+     * @param value value to look for
+     *
+     * @throw DuplicateObject if more than one object have the same property value
+     * @throw ObjectNotFound if not object has given property with value
+     */
+    static Object findByKey(const Uri& propertyIRI, const PropertyValue& value);
+
+    /**
+     * Returns the only Object with property key set to value
+     *
+     * @param propertyIRI Internationalized Resource Identifier for the property
+     * @param object resource to look for
+     *
+     * @throw DuplicateObject if more than one object have the same property value
+     * @throw ObjectNotFound if not object has given property with value
+     */
+    static Object findByKey(const Uri& propertyIRI, const Object& object);
+
+    /**
      * Dumps objects content to stream
      * @param recurse: if > 0, go down resource hierarchy by recurse level
      * @param indentLevel: How much layer of tabs to insert

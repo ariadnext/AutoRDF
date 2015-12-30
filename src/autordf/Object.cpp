@@ -176,6 +176,36 @@ std::list<Object> Object::findByType(const Uri& iri) {
     return findHelper<Object>(iri);
 }
 
+Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
+    Statement query;
+    query.predicate.setIri(propertyIRI);
+    query.object.setLiteral(value);
+    query.object.setLang(value.lang());
+    query.object.setDataType(value.dataTypeIri());
+    const StatementList& statements = _factory->find(query);
+    if ( statements.size() == 0 ) {
+        throw ObjectNotFound(std::string("No object with InverseFunctionalProperty ") + propertyIRI + " set to " + value + " found");
+    }
+    if ( statements.size() > 1 ) {
+        throw DuplicateObject(std::string("More than one object with InverseFunctionalProperty ") + propertyIRI + " set to " + value + " found");
+    }
+    return Object(_factory->createResourceFromStatement(*statements.begin()));
+}
+
+Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
+    Statement query;
+    query.predicate.setIri(propertyIRI);
+    query.object.setIri(object.iri());
+    const StatementList& statements = _factory->find(query);
+    if ( statements.size() == 0 ) {
+        throw ObjectNotFound(std::string("No object with InverseFunctionalProperty ") + propertyIRI + " set to " + object.iri() + " found");
+    }
+    if ( statements.size() > 1 ) {
+        throw DuplicateObject(std::string("More than one object with InverseFunctionalProperty ") + propertyIRI + " set to " + object.iri() + " found");
+    }
+    return Object(_factory->createResourceFromStatement(*statements.begin()));
+}
+
 void Object::addRdfTypeIfNeeded() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;

@@ -95,7 +95,7 @@ public:
      * Only one of data type or lang can be set
      * @see http://www.ietf.org/rfc/rfc4646.txt
      */
-    void setLang(const std::string& dataType);
+    void setLang(const std::string& lang);
 
     /**
      * @return true if node is of empty type

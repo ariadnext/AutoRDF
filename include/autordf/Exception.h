@@ -57,6 +57,16 @@ AUTORDFEXCEPTION(InvalidEnum)
 AUTORDFEXCEPTION(DuplicateProperty)
 
 /**
+ * No object fullfills given criteria
+ */
+AUTORDFEXCEPTION(ObjectNotFound)
+
+/**
+ * More than one object fullfill given criteria
+ */
+AUTORDFEXCEPTION(DuplicateObject)
+
+/**
  * IRI is invalid
  */
 AUTORDFEXCEPTION(InvalidIRI)
