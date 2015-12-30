@@ -188,6 +188,22 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
         indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
+    ofs << std::endl;
+    generateComment(ofs, 1,
+                    "Adds a value to a property \n@param value the value to add");
+    if (!rdfCppType.second.empty()) {
+        cvt::RdfTypeEnum rdfType = rdfCppType.first;
+        std::string cppType = rdfCppType.second;
+        indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "return object().addPropertyValue(\"" << _decorated.rdfname() <<
+        "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
+        ">(value));" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
 }
 }
 }

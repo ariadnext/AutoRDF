@@ -101,6 +101,13 @@ public:
     void setObject(const Uri& propertyIRI, const Object& obj);
 
     /**
+     * Adds object to given property
+     * @param propertyIRI Internationalized Resource Identifiers property to set
+     * @param obj object to add to the propertyIRI property
+     */
+    void addObject(const Uri& propertyIRI, const Object& obj);
+
+    /**
      * Sets list of objects to given property
      */
     void setObjectList(const Uri& propertyIRI, const std::list<Object>& values);

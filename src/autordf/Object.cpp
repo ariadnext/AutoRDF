@@ -81,6 +81,13 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
     _r.addProperty(p);
 }
 
+void Object::addObject(const Uri& propertyIRI, const Object& obj) {
+    addRdfTypeIfNeeded();
+    Property p = _factory->createProperty(propertyIRI);
+    p.setValue(obj._r);
+    _r.addProperty(p);
+}
+
 void Object::setObjectList(const Uri& propertyIRI, const std::list<Object> &values) {
     setObjectListImpl(propertyIRI, values);
 }
