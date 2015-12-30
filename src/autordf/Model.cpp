@@ -67,6 +67,12 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
         throw InternalError("Failed to construct RDF serializer");
     }
 
+    for ( auto const& pfx : _namespacesPrefixes ) {
+        if ( librdf_serializer_set_namespace(s.get(), Uri(pfx.second).get(), pfx.first.c_str() ) > 0 ) {
+            throw InternalError("Failed to set namespace for RDF serializer");
+        }
+    }
+
     if ( librdf_serializer_serialize_model_to_file(s.get(), path.c_str(), baseUri.length() ? Uri(baseUri).get() : nullptr, _model->get()) ) {
         throw InternalError("Failed to export RDF model to file");
     }
