@@ -17,7 +17,11 @@ class Klass;
  */
 class Property : public RdfsEntity {
 public:
-    using RdfsEntity::RdfsEntity;
+    /**
+     * Constructor
+     */
+    Property(const Ontology* ontology) : RdfsEntity(ontology), _minCardinality(0), _maxCardinality(0xFFFFFFFF) {}
+
     /**
      * Lists of classes this property applies to
      */

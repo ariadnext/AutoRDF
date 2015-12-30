@@ -235,9 +235,6 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
     if ( o.isA(OWL_NS + "FunctionalProperty") ) {
         prop->_minCardinality = 0;
         prop->_maxCardinality = 1;
-    } else {
-        prop->_minCardinality = 0;
-        prop->_maxCardinality = 0xFFFFFFFF;
     }
 }
 
