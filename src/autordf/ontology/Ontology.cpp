@@ -274,7 +274,6 @@ void Ontology::addHardcodedAnnotationProperty(const std::string& iri, const std:
     auto annotationProperty = std::make_shared<DataProperty>(this);
     annotationProperty->_rdfname = iri;
     annotationProperty->_label = label;
-    annotationProperty->_maxCardinality = 1;
     annotationProperty->_domains.push_back(OWL_NS + "Thing");
     addDataProperty(annotationProperty);
 }
