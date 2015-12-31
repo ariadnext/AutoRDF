@@ -71,6 +71,12 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
     
 
 
+    <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#dbpediaResource -->
+
+    <owl:ObjectProperty rdf:about="&mrd;dbpediaResource"/>
+    
+
+
     <!-- http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#document -->
 
     <owl:ObjectProperty rdf:about="&mrd;document"/>
@@ -336,8 +342,17 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
                 <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&mrd;dbpediaResource"/>
+                <owl:someValuesFrom rdf:resource="&owl;Thing"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <owl:hasKey rdf:parseType="Collection">
             <rdf:Description rdf:about="&mrd;trigram"/>
+        </owl:hasKey>
+        <owl:hasKey rdf:parseType="Collection">
+            <rdf:Description rdf:about="&mrd;dbpediaResource"/>
         </owl:hasKey>
     </owl:Class>
     
@@ -370,14 +385,14 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;id"/>
-                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                <owl:onProperty rdf:resource="&mrd;type"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;type"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                <owl:onProperty rdf:resource="&mrd;id"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Un modèle de document. Contient de nombreuses propriétés.</rdfs:comment>
@@ -436,14 +451,14 @@ Par exemple: (UV KO, 48 pages au lieu de 32)</rdfs:comment>
         <rdfs:subClassOf rdf:resource="&mrd;MachineReadableZone"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;position"/>
-                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                <owl:onProperty rdf:resource="&mrd;range"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&mrd;range"/>
-                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                <owl:onProperty rdf:resource="&mrd;position"/>
+                <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment xml:lang="fr">Représente un caractère de contrôle et la manière dont il est calculé. Cette classe correspond à l&apos;algorithme de calcul standard.</rdfs:comment>

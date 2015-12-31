@@ -54,6 +54,42 @@ void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) 
     }
 }
 
+void DataProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const {
+    std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
+    std::string currentClassName = onClass.decorated().prettyIRIName();
+
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief Returns the only instance of " + currentClassName + " with property " + _decorated.prettyIRIName() +  " set to given value." << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * @param key value that uniquely identifies the expected object" << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * @throw DuplicateObject if more than one object have the same property value" << std::endl;
+    indent(ofs, 1) << " * @throw ObjectNotFound if no object has given property with value" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+
+    indent(ofs, 1) << "static " << currentClassName << " findBy" << _decorated.prettyIRIName(true) << "( const autordf::PropertyValue& key ) {" << std::endl;
+    indent(ofs, 2) <<     "return findByKey(\"" << _decorated.rdfname() << "\", key).as<" << currentClassName << ">();" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << std::endl;
+
+    if (!rdfCppType.second.empty()) {
+        indent(ofs, 1) << "/**" << std::endl;
+        indent(ofs, 1) << " * @brief Returns the only instance of " + currentClassName + " with property " + _decorated.prettyIRIName() +  " set to given value." << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
+        indent(ofs, 1) << " * @param key value that uniquely identifies the expected object" << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
+        indent(ofs, 1) << " * @throw DuplicateObject if more than one object have the same property value" << std::endl;
+        indent(ofs, 1) << " * @throw ObjectNotFound if no object has given property with value" << std::endl;
+        indent(ofs, 1) << " */" << std::endl;
+
+        std::string cppType = rdfCppType.second;
+        indent(ofs, 1) << "static " << currentClassName << " findBy" << _decorated.prettyIRIName(true) << "( const " << cppType << "& key ) {" << std::endl;
+        indent(ofs, 2) <<     "return findBy" << _decorated.prettyIRIName(true) << "(autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfCppType.first) << ">(key));" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << std::endl;
+    }
+}
+
 void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 

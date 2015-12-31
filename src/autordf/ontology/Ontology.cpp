@@ -119,6 +119,20 @@ void Ontology::populateSchemaClasses(Factory *f) {
             _classUri2Ptr[OWL_NS + "Thing"]->_objectProperties.insert(objectPropertyMapItem.second);
         }
     }
+
+    // Checks keys do exist, and send them in proper place
+    for ( auto & klsPair: _classUri2Ptr ) {
+        auto kls = klsPair.second;
+        for ( const std::string& key : kls->_keys ) {
+            if ( _objectPropertyUri2Ptr.count(key) ) {
+                kls->_objectKeys.insert( _objectPropertyUri2Ptr[key]);
+            } else if ( _dataPropertyUri2Ptr.count(key) ) {
+                kls->_dataKeys.insert(_dataPropertyUri2Ptr[key]);
+            } else {
+                std::cerr << "Key " << key << " refers to unexisting Property, skipping" << std::endl;
+            }
+        }
+    }
 }
 
 void Ontology::extractRDFS(const Object& o, RdfsEntity *rdfs) {
@@ -208,6 +222,16 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
             RdfsEntity oneOfVal(this);
             extractRDFS(oneOfObject, &oneOfVal);
             kls->_oneOfValues.insert(oneOfVal);
+            rest = rest->getOptionalObject(RDF_NS + "rest");
+        }
+    }
+
+    // Handle keys
+    std::list<Object> keys = o.getObjectList(OWL_NS + "hasKey");
+    for ( const Object& key : keys ) {
+        std::shared_ptr<Object> rest(new Object(key));
+        while ( rest && rest->iri() != RDF_NS + "nil" ) {
+            kls->_keys.insert(rest->getPropertyValue(RDF_NS + "first"));
             rest = rest->getOptionalObject(RDF_NS + "rest");
         }
     }

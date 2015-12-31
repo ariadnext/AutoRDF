@@ -67,6 +67,11 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static std::list<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
+
+    for ( const std::shared_ptr<ontology::DataProperty>& key : _decorated.dataKeys()) {
+        DataProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
+    }
+
     startInternal(ofs, 1);
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Internal: returns full list of ancestors we have" << std::endl;
@@ -323,12 +328,21 @@ void Klass::generateInterfaceDefinition() const {
 
 std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
     std::set<std::shared_ptr<const Klass> > deps;
-    for ( const std::shared_ptr<ontology::ObjectProperty> p : _decorated.objectProperties()) {
+    std::set<std::shared_ptr<const ontology::ObjectProperty> > objects;
+    std::copy(_decorated.objectProperties().begin(), _decorated.objectProperties().end(), std::inserter(objects, objects.begin()));
+    std::copy(_decorated.objectKeys().begin(), _decorated.objectKeys().end(), std::inserter(objects, objects.begin()));
+
+    for ( const std::shared_ptr<const ontology::ObjectProperty> p : objects) {
         auto val = p->findClass();
-        if ( val && (val->prettyIRIName() != _decorated.prettyIRIName()) ) {
-            deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
+        if ( val ) {
+            if ( val->prettyIRIName() != _decorated.prettyIRIName() ) {
+                deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
+            }
+        } else {
+            deps.insert(std::shared_ptr<Klass>(new Klass(_decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing"))));
         }
     }
+
     return deps;
 }
 

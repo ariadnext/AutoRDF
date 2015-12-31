@@ -24,6 +24,8 @@ public:
 
     void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
 
+    void generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const;
+
 private:
     std::pair<cvt::RdfTypeEnum, std::string> getRdfCppTypes(const Klass& onClass) const;
 

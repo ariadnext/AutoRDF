@@ -216,7 +216,7 @@ public:
      * @param value value to look for
      *
      * @throw DuplicateObject if more than one object have the same property value
-     * @throw ObjectNotFound if not object has given property with value
+     * @throw ObjectNotFound if no object has given property with value
      */
     static Object findByKey(const Uri& propertyIRI, const PropertyValue& value);
 
@@ -227,7 +227,7 @@ public:
      * @param object resource to look for
      *
      * @throw DuplicateObject if more than one object have the same property value
-     * @throw ObjectNotFound if not object has given property with value
+     * @throw ObjectNotFound if no object has given property with value
      */
     static Object findByKey(const Uri& propertyIRI, const Object& object);
 

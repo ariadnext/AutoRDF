@@ -46,6 +46,16 @@ public:
     const std::set <std::shared_ptr<ObjectProperty>>& objectProperties() const { return _objectProperties; }
 
     /**
+     * List of data properties for current class
+     */
+    const std::set <std::shared_ptr<DataProperty>>& dataKeys() const { return _dataKeys; }
+
+    /**
+     * List of ojject keys for current class
+     */
+    const std::set <std::shared_ptr<ObjectProperty>>& objectKeys() const { return _objectKeys; }
+
+    /**
      * Returns all (direct and indirect) ancestors for this class
      */
     std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
@@ -76,6 +86,9 @@ private:
     std::set <std::string> _directAncestors;
     std::set <std::shared_ptr<DataProperty>> _dataProperties;
     std::set <std::shared_ptr<ObjectProperty>> _objectProperties;
+    std::set <std::shared_ptr<DataProperty>> _dataKeys;
+    std::set <std::shared_ptr<ObjectProperty>> _objectKeys;
+
     /**
      * Iri to range map
      */
@@ -84,8 +97,10 @@ private:
     // This is done using cardinality restrictions
     std::map<std::string, unsigned int> _overridenMinCardinality;
     std::map<std::string, unsigned int> _overridenMaxCardinality;
-    /** Classes defined with the oneOf construct have this set set */
+    /** owl:oneOf Classes defined with the oneOf construct have this set set */
     std::set <RdfsEntity> _oneOfValues;
+    // owl:hasKey
+    std::set<std::string> _keys;
 
     friend class Ontology;
 };
