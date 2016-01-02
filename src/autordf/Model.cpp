@@ -35,7 +35,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
         if ( !p ) {
             throw UnsupportedRdfFileFormat("File format not recognized");
         }
-        if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, Uri(baseUri).get(), _model->get()) ) {
+        if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, (baseUri.length() ? Uri(baseUri).get() : nullptr), _model->get()) ) {
             throw InternalError("Failed to read model from file");
         }
         int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
@@ -68,8 +68,11 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
     }
 
     for ( auto const& pfx : _namespacesPrefixes ) {
-        if ( librdf_serializer_set_namespace(s.get(), Uri(pfx.second).get(), pfx.first.c_str() ) > 0 ) {
-            throw InternalError("Failed to set namespace for RDF serializer");
+        int ret = librdf_serializer_set_namespace(s.get(), Uri(pfx.second).get(), pfx.first.c_str() );
+        // 0 is Ok
+        // 1 means namespace has already been registered, which can happen if we read a file with namespace and safe it afterwards: we ignore that one
+        if ( ret > 1 ) {
+            throw InternalError(std::string("Failed to set namespace prefix map for RDF serializer: ") + pfx.first.c_str() + "-->" + pfx.second);
         }
     }
 

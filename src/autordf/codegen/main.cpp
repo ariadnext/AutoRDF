@@ -190,14 +190,12 @@ int main(int argc, char **argv) {
     // Hardcode some prefixes
     f.addNamespacePrefix("owl", autordf::ontology::Ontology::OWL_NS);
     f.addNamespacePrefix("rdfs", autordf::ontology::Ontology::RDFS_NS);
-    //FIXME: Read that from command line
-    std::string baseURI = "http://";
 
     while ( optind < argc ) {
         if ( autordf::codegen::verbose ) {
             std::cout << "Loading " << argv[optind] << " into model." << std::endl;
         }
-        f.loadFromFile(argv[optind], baseURI);
+        f.loadFromFile(argv[optind]);
         optind++;
     }
     autordf::codegen::run(&f);

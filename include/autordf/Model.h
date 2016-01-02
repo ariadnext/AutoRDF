@@ -41,15 +41,18 @@ public:
      * @throw FileIOError is fil does not exist
      * @throw InternalError
      */
-    void loadFromFile(const std::string& path, const std::string& baseIRI);
+    void loadFromFile(const std::string& path, const std::string& baseIRI = ".");
 
     /** Save model to file.
      * If no format is supplied, auto-detection is guessed
      * from provided file name
+     * @param path filename to write file to
+     * @param baseIRI if not empty, serializer will express all iris relatively to this one
+     * @param format fileformat to use. If not given will autodetect from file path extension
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    void saveToFile(const std::string& path, const std::string& baseUri = "", const char *format = 0);
+    void saveToFile(const std::string& path, const std::string& baseIRI = "", const char *format = 0);
 
     /**
      * Search for statements in model

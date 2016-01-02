@@ -9,7 +9,7 @@ using namespace autordf;
 
 TEST(_01_Model, Iterators) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
     StatementList allStatements = ts.find();
     ASSERT_EQ(4, std::distance(allStatements.begin(), allStatements.end()));
     const StatementList& allStatementsConst = ts.find();
@@ -18,7 +18,7 @@ TEST(_01_Model, Iterators) {
 
 TEST(_01_Model, SeenPrefixes) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
     for ( auto const& pair : ts.namespacesPrefixes() ) {
         std::cout << pair.first << ": " << pair.second << std::endl;
     }
@@ -29,7 +29,7 @@ TEST(_01_Model, SeenPrefixes) {
 
 TEST(_01_Model, SearchByPredicate) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
     Statement req;
     req.predicate.setIri("http://xmlns.com/foaf/0.1/name");
@@ -39,7 +39,7 @@ TEST(_01_Model, SearchByPredicate) {
 
 TEST(_01_Model, SearchBySubject) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
     Statement req;
     req.subject.setIri("http://jimmycricket.com/me");
@@ -49,7 +49,7 @@ TEST(_01_Model, SearchBySubject) {
 
 TEST(_01_Model, SearchByObject) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
 
     Statement req;
     req.object.setLiteral("Jimmy");
@@ -99,7 +99,7 @@ TEST(_01_Model, TypeLiterals) {
 
 TEST(DISABLED_01_Model, All) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
     const StatementList& stmtList = ts.find();
     for(const Statement& stmt: stmtList) {
         std::cout << stmt << std::endl;
