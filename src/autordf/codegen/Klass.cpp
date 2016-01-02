@@ -72,6 +72,10 @@ void Klass::generateDeclaration() const {
         DataProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
     }
 
+    for ( const std::shared_ptr<ontology::ObjectProperty>& key : _decorated.objectKeys()) {
+        ObjectProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
+    }
+
     startInternal(ofs, 1);
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Internal: returns full list of ancestors we have" << std::endl;

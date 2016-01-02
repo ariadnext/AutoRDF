@@ -38,6 +38,25 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
     ofs << std::endl;
 }
 
+void ObjectProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const {
+    auto propertyClass = effectiveClass(onClass);
+    std::string currentClassName = onClass.decorated().prettyIRIName();
+
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief Returns the only instance of " + currentClassName + " with property " + _decorated.prettyIRIName() +  " set to given object." << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * @param key value that uniquely identifies the expected object" << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * @throw DuplicateObject if more than one object have the same property value" << std::endl;
+    indent(ofs, 1) << " * @throw ObjectNotFound if no object has given property with value" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+
+    indent(ofs, 1) << "static " << currentClassName << " findBy" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& key ) {" << std::endl;
+    indent(ofs, 2) <<     "return findByKey(\"" << _decorated.rdfname() << "\", reinterpret_cast<const ::autordf::Object&>(key)).as<" << currentClassName << ">();" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    indent(ofs, 1) << std::endl;
+}
+
 void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();

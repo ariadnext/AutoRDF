@@ -24,6 +24,8 @@ public:
 
     void generateDefinition(std::ostream& ofs, const Klass& onClass) const;
 
+    void generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const;
+
 private:
     /**
      * Gets the class for this property, when instanciated as class "onClass" attribute
