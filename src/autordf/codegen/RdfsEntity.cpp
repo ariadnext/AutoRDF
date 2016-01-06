@@ -43,8 +43,8 @@ std::string RdfsEntity::genCppNameSpaceForGuard() const {
     return genCppNameSpaceInternal("_");
 }
 
-std::string RdfsEntity::genCppNameWithNamespace() const {
-    return genCppNameSpaceFullyQualified() + "::" + _decorated.prettyIRIName();
+std::string RdfsEntity::genCppNameWithNamespace(bool interfaceMode) const {
+    return genCppNameSpaceFullyQualified() + "::" + (interfaceMode ? "I" : "") + _decorated.prettyIRIName();
 }
 
 void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {

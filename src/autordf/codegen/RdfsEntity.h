@@ -21,8 +21,8 @@ public:
     // Where code generation will happen
     static std::string outdir;
 
-    // [outfolder::]namespace::classname
-    std::string genCppNameWithNamespace() const;
+    // [outfolder::]namespace::[I]classname
+    std::string genCppNameWithNamespace(bool interfaceMode = false) const;
 
     // [outfolder::]namespace
     std::string genCppNameSpaceFullyQualified() const;

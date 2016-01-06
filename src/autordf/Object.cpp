@@ -184,10 +184,10 @@ Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     query.object.setDataType(value.dataTypeIri());
     const StatementList& statements = _factory->find(query);
     if ( statements.size() == 0 ) {
-        throw ObjectNotFound(std::string("No object with InverseFunctionalProperty ") + propertyIRI + " set to " + value + " found");
+        throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + value + " found");
     }
     if ( statements.size() > 1 ) {
-        throw DuplicateObject(std::string("More than one object with InverseFunctionalProperty ") + propertyIRI + " set to " + value + " found");
+        throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + value + " found");
     }
     return Object(_factory->createResourceFromStatement(*statements.begin()));
 }
@@ -198,10 +198,10 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     query.object.setIri(object.iri());
     const StatementList& statements = _factory->find(query);
     if ( statements.size() == 0 ) {
-        throw ObjectNotFound(std::string("No object with InverseFunctionalProperty ") + propertyIRI + " set to " + object.iri() + " found");
+        throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
     if ( statements.size() > 1 ) {
-        throw DuplicateObject(std::string("More than one object with InverseFunctionalProperty ") + propertyIRI + " set to " + object.iri() + " found");
+        throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
     return Object(_factory->createResourceFromStatement(*statements.begin()));
 }

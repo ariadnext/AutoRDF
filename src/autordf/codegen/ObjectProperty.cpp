@@ -92,7 +92,7 @@ void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Kl
     generateComment(ofs, 1,
                     "Sets the mandatory value for this property.\n"
                             "@param value value to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
+    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
 }
 
 void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const {
@@ -100,31 +100,31 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
     generateComment(ofs, 1,
                     "Sets the values for this property.\n"
                             "@param values values to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values);" << std::endl;
+    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace(false) << ">& values);" << std::endl;
     ofs << std::endl;
     generateComment(ofs, 1,
                     "Adds a value for this property.\n"
                             "@param value value to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value);" << std::endl;
+    indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
-    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value) {" << std::endl;
-    indent(ofs, 1) <<     "return object().setObject(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value) {" << std::endl;
+    indent(ofs, 1) <<     "return object().setObject(\"" << _decorated.rdfname() << "\", value.object());" << std::endl;
     ofs << "}" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
-    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace() << ">& values) {" << std::endl;
-    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
+    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "( const std::list<" << propertyClass.genCppNameWithNamespace(false) << ">& values) {" << std::endl;
+    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
-    ofs << "void " << currentClassName << "::add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& value) {" << std::endl;
-    indent(ofs, 1) <<     "return object().addObject(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+    ofs << "void " << currentClassName << "::add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value) {" << std::endl;
+    indent(ofs, 1) <<     "return object().addObject(\"" << _decorated.rdfname() << "\", value.object());" << std::endl;
     ofs << "}" << std::endl;
 }
 

@@ -277,8 +277,8 @@ public:
         addRdfTypeIfNeeded();
         Property p =_factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
-        for (const Object& obj: values) {
-            p.setValue(obj._r);
+        for (const Object& object : values) {
+            p.setValue(object._r);
             _r.addProperty(p);
         }
     }

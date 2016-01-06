@@ -164,6 +164,7 @@ void Klass::generateInterfaceDeclaration() const {
     for ( const std::shared_ptr<const Klass>& cppClassDep : cppClassDeps ) {
         cppClassDep->enterNameSpace(ofs);
         ofs << "class " << cppClassDep->decorated().prettyIRIName() << ";" << std::endl;
+        ofs << "class I" << cppClassDep->decorated().prettyIRIName() << ";" << std::endl;
         cppClassDep->leaveNameSpace(ofs);
     }
     // Add forward declaration for our own class
@@ -226,10 +227,17 @@ void Klass::generateInterfaceDeclaration() const {
     }
     ofs << std::endl;
 
-    ofs << "private:" << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief returns the object this interface object applies to" << std::endl;
+    indent(ofs, 1) << " **/" << std::endl;
     indent(ofs, 1) << "virtual autordf::Object& object() = 0;" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief returns the object this interface object applies to" << std::endl;
+    indent(ofs, 1) << " **/" << std::endl;
     indent(ofs, 1) << "virtual const autordf::Object& object() const = 0;" << std::endl;
     ofs << std::endl;
+    ofs << "private:" << std::endl;
     if ( _decorated.oneOfValues().size() ) {
         indent(ofs, 1) << "typedef std::tuple<Enum, const char *, const char *> EnumArrayEntryType;" << std::endl;
         indent(ofs, 1) << "typedef std::array<EnumArrayEntryType, " << _decorated.oneOfValues().size() << "> EnumArrayType;" << std::endl;
