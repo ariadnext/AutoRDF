@@ -247,6 +247,8 @@ void Klass::generateInterfaceDeclaration() const {
         ofs << std::endl;
         ofs << "protected:" << std::endl;
         startInternal(ofs, 1);
+        indent(ofs, 1) << cppName << "() {}" << std::endl;
+        indent(ofs, 1) << cppName << "( const " << cppName << "& other) {}" << std::endl;
         indent(ofs, 1) << "static std::string enumIri(Enum en);" << std::endl;
         stopInternal(ofs, 1);
     }
