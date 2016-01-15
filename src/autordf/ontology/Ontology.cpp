@@ -244,13 +244,29 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
 }
 
 void Ontology::extractProperty(const Object& o, Property *prop) {
-    std::list<PropertyValue> domainList = o.getPropertyValueList(RDFS_NS + "domain");
-    for ( const PropertyValue& value: domainList ) {
-        prop->_domains.push_back(value);
+    std::list<Object> domainList = o.getObjectList(RDFS_NS + "domain");
+    if ( domainList.size() == 1 ) {
+        const Object& frontDomain = domainList.front();
+
+        if ( frontDomain.iri().length() ) {
+            prop->_domains.push_back(frontDomain.iri());
+        } else {
+            // Anonymous class, test for Union
+            std::shared_ptr<Object> rest = frontDomain.getOptionalObject(OWL_NS + "unionOf");
+            while ( rest && rest->iri() != RDF_NS + "nil" ) {
+                Object unionOfObject(rest->getPropertyValue(RDF_NS + "first"));
+                prop->_domains.push_back(unionOfObject.iri());
+                rest = rest->getOptionalObject(RDF_NS + "rest");
+            }
+        }
+    } else if ( domainList.size() > 1 ) {
+        std::stringstream ss;
+        std::cerr << "rdfs#domain has more than one item for " << o.iri() << ", skipping!" << std::endl;
     }
-    std::list<PropertyValue> rangeList = o.getPropertyValueList(RDFS_NS + "range");
+
+    std::list<Object> rangeList = o.getObjectList(RDFS_NS + "range");
     if ( rangeList.size() == 1 ) {
-        prop->_range = rangeList.front();
+        prop->_range = rangeList.front().iri();
     } else if ( rangeList.size() > 1 ) {
         std::stringstream ss;
         ss << "rdfs#range has more than one item for " << o.iri();
