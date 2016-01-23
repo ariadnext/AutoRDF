@@ -205,7 +205,7 @@ void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass
         std::string cppType = rdfCppType.second;
         indent(ofs, 1) << "std::list<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "std::list<autordf::PropertyValue> " << _decorated.prettyIRIName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "autordf::PropertyValueList " << _decorated.prettyIRIName() << "List() const {" << std::endl;
         indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
@@ -220,7 +220,7 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
         std::string cppType = rdfCppType.second;
         indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::list<" << cppType << "> " << "& values);" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::list<autordf::PropertyValue>& values) {" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueList& values) {" << std::endl;
         indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }

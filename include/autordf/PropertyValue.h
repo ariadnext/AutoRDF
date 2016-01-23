@@ -32,7 +32,7 @@ public:
      * @param dataTypeIri optional literal data type
      */
     PropertyValue(const std::string& rawValue, const std::string& lang = "", const std::string& dataTypeIri = "")
-        : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
+            : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
 
     /**
      * @return the literal data type if it is set, blank string otherwise

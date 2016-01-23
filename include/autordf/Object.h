@@ -10,6 +10,7 @@
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
+#include <autordf/PropertyValueList.h>
 #include <autordf/Resource.h>
 #include <autordf/Exception.h>
 #include <autordf/Uri.h>
@@ -132,7 +133,7 @@ public:
      * Returns the list of the values. If no value are found returns empty list
      * @param propertyIRI Internationalized Resource Identifiers property to query
      */
-    std::list<PropertyValue> getPropertyValueList(const Uri& propertyIRI) const;
+    PropertyValueList getPropertyValueList(const Uri& propertyIRI) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -146,7 +147,7 @@ public:
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      */
-    void setPropertyValueList(const Uri& propertyIRI, const std::list<PropertyValue>& values);
+    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueList& values);
 
     /**
      * Adds value to this property, preserving all previous values;

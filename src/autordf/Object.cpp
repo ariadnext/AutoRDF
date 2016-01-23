@@ -105,11 +105,11 @@ std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& prope
     }
 }
 
-std::list<PropertyValue> Object::getPropertyValueList(const Uri& propertyIRI) const {
+PropertyValueList Object::getPropertyValueList(const Uri& propertyIRI) const {
     if ( propertyIRI.empty() ) {
         throw InvalidIRI("Calling Object::getPropertyValueList() with empty IRI is forbidden");
     }
-    std::list<PropertyValue> valuesList;
+    PropertyValueList valuesList;
     const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
     for (const Property& prop: propList) {
         valuesList.push_back(prop.value());
@@ -136,7 +136,7 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
     _r.removeSingleProperty(p);
 }
 
-void Object::setPropertyValueList(const Uri& propertyIRI, const std::list<PropertyValue>& values) {
+void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueList& values) {
     addRdfTypeIfNeeded();
     Property p = _factory->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
@@ -282,7 +282,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
                 newLine(os, indentLevel);
                 os << '}';
             } else {
-                const std::list<PropertyValue>& values = getPropertyValueList(propit->iri());
+                const PropertyValueList& values = getPropertyValueList(propit->iri());
                 if ( values.size() > 1 ) {
                     os << '[';
                     newLine(os, indentLevel + 1);

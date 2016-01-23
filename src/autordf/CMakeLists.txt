@@ -11,6 +11,7 @@ ADD_LIBRARY(
     Resource.cpp
     Property.cpp
     PropertyValue.cpp
+    PropertyValueList.cpp
     Factory.cpp
     Object.cpp
     Exception.cpp
