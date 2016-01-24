@@ -47,20 +47,20 @@ void Klass::generateDeclaration() const {
         indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * If iri empty, creates an anonymous (aka blank) object" << std::endl;
         indent(ofs, 1) << " */" << std::endl;
-        indent(ofs, 1) << cppName << "(const std::string& iri = \"\");" << std::endl;
+        indent(ofs, 1) << "explicit " << cppName << "(const std::string& iri = \"\");" << std::endl;
     } else {
         indent(ofs, 1) << "/**" << std::endl;
         indent(ofs, 1) << " * @brief Load enum from RDF model, from given C++ Type enum." << std::endl;
         indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * This applies only to classes defines using the owl:oneOf paradigm" << std::endl;
         indent(ofs, 1) << " */" << std::endl;
-        indent(ofs, 1) << cppName << "(I" << cppName << "::Enum enumVal);" << std::endl;
+        indent(ofs, 1) << "explicit " << cppName << "(I" << cppName << "::Enum enumVal);" << std::endl;
     }
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Build us using the same underlying resource as the other object" << std::endl;
     indent(ofs, 1) << " */" << std::endl;
-    indent(ofs, 1) << cppName << "(const Object& other);" << std::endl;
+    indent(ofs, 1) << "explicit " << cppName << "(const Object& other);" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Returns the list of all objects of this kind in the store" << std::endl;
