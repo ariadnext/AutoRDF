@@ -50,13 +50,13 @@ std::string Object::prefixedIri() const {
 
     Uri i = iri();
     for ( auto const& pair : _factory->namespacesPrefixes() ) {
-        if ( (i.find(pair.first) == 0) && (i.length() > pair.first.length() ) ) {
+        if ( (i.find(pair.second) == 0) && (i.length() > pair.second.length() ) ) {
             // Found !
             bestPrefix = pair;
         }
     }
-    if ( !bestPrefix.first.empty() ) {
-        return bestPrefix.second + ":" + i.substr(bestPrefix.first.length() + 1);
+    if ( !bestPrefix.second.empty() ) {
+        return bestPrefix.first + ":" + i.substr(bestPrefix.second.length() + 1);
     } else {
         return i;
     }
