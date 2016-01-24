@@ -36,7 +36,7 @@ void Object::construct(const Uri& rdfTypeIRI) {
     }
 }
 
-const Uri& Object::iri() const {
+Uri Object::iri() const {
     if ( _r.type() == NodeType::RESOURCE ) {
         return _r.name();
     } else {

@@ -67,7 +67,7 @@ public:
     /**
      * Return object iri, or empty if it is a blank node
      */
-    const Uri& iri() const;
+    Uri iri() const;
 
     /**
      * Return object iri, or empty if it is a blank node
@@ -259,6 +259,13 @@ public:
      * @param indentLevel: How much layer of tabs to insert
      */
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
+
+    /**
+     * Comparision operator used to store objects in maps for instance
+     */
+    bool operator<(const Object& obj) const {
+        return _r.name() < obj._r.name();
+    }
 
     /**
      * Offered to interfaces

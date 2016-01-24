@@ -29,7 +29,7 @@ public:
      * an IRI: We are an IRI identified resource (type is RESOURCE)
      * a blank node id: We are a blank node (type BLANK), where we already been assigned a blank node id
      */
-    const Uri& name() const { return _name; }
+    const std::string& name() const { return _name; }
 
     /**
      * @returns true if property is found
@@ -91,7 +91,7 @@ private:
     NodeType _type;
 
     // IRI or Blanc node id, depending on context
-    Uri _name;
+    std::string _name;
 
     Factory *_factory;
 
