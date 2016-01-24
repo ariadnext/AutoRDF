@@ -70,6 +70,16 @@ public:
     const Uri& iri() const;
 
     /**
+     * Return object iri, or empty if it is a blank node
+     * If a prefix is defined for this iri in the underlying model, return a compressed IRI
+     * e.g. http://my/horribly/long/iri#node --> my:node
+     *
+     * BEWARE: prefixed IRIs should only be used for display purpose, all AutoRDF internals
+     * rely on full IRIs.
+     */
+    std::string prefixedIri() const;
+
+    /**
      * Return types of current object.
      * If namespaceFilter is set, only types in this namespace will be returned
      * @param namespaceFilter A simple namespace

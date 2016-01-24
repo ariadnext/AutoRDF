@@ -45,6 +45,23 @@ const Uri& Object::iri() const {
     }
 }
 
+std::string Object::prefixedIri() const {
+    std::pair<std::string, std::string> bestPrefix;
+
+    Uri i = iri();
+    for ( auto const& pair : _factory->namespacesPrefixes() ) {
+        if ( (i.find(pair.first) == 0) && (i.length() > pair.first.length() ) ) {
+            // Found !
+            bestPrefix = pair;
+        }
+    }
+    if ( !bestPrefix.first.empty() ) {
+        return bestPrefix.second + ":" + i.substr(bestPrefix.first.length() + 1);
+    } else {
+        return i;
+    }
+}
+
 std::list<Uri> Object::getTypes(const std::string& namespaceFilter) const {
     std::list<Uri> obj;
     auto types = getObjectList(autordf::Object::RDF_NS + "type");
