@@ -22,7 +22,7 @@ TEST(_01_Model, SeenPrefixes) {
     for ( auto const& pair : ts.namespacesPrefixes() ) {
         std::cout << pair.first << ": " << pair.second << std::endl;
     }
-    ASSERT_EQ("http://xmlns.com/foaf/0.1/", ts.prefixToNs("foaf") );
+    ASSERT_EQ("http://xmlns.com/foaf/0.1", ts.prefixToNs("foaf") );
     ASSERT_EQ("foaf", ts.nsToPrefix("http://xmlns.com/foaf/0.1/") );
     ASSERT_EQ(3, ts.namespacesPrefixes().size());
 }

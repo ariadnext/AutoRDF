@@ -18,11 +18,19 @@ public:
      * Base class constructor inheritance
      */
     using std::string::string;
+
     /**
      * Constructor to make Uri from string.
      * Should be automatically done by above declaration but not working
      */
     Uri(const std::string& str) : std::string(str) {};
+
+    /**
+     * Returns local part of uri
+     * e.g. http://my/complex/path/to/dog --> dog
+     * e.g. my:attribute --> attribute
+     */
+    std::string localPart() const;
 };
 
 }

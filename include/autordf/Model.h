@@ -114,6 +114,9 @@ private:
     // Prefixes seen during parsing prefix --> IRI
     std::map<std::string, std::string> _namespacesPrefixes;
 
+    // Remove any # : / at the end of strint
+    static std::string cleanNamespaceTrailingChars(std::string ns);
+
     friend class StatementList;
 };
 
