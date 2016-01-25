@@ -17,6 +17,18 @@ void printRecurse(Object obj, int recurse) {
     std::cout << "----------------------------------------------" << std::endl;
 }
 
+TEST(_03_Object, Comparison) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj1;
+    Object obj2;
+    ASSERT_TRUE(obj1 != obj2);
+
+    obj2 = obj1;
+    ASSERT_TRUE(obj1 == obj2);
+}
+
 TEST(_03_Object, Display) {
     Factory f;
     Object::setFactory(&f);

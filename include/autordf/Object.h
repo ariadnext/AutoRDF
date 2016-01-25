@@ -261,10 +261,24 @@ public:
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
     /**
-     * Comparision operator used to store objects in maps for instance
+     * Comparison operator used to store objects in maps for instance
      */
     bool operator<(const Object& obj) const {
         return _r.name() < obj._r.name();
+    }
+
+    /**
+     * Equality operator
+     */
+    bool operator==(const Object& obj) const {
+        return _r.name() == obj._r.name();
+    }
+
+    /**
+     * Inverse Equality operator
+     */
+    bool operator!=(const Object& obj) const {
+        return _r.name() != obj._r.name();
     }
 
     /**
