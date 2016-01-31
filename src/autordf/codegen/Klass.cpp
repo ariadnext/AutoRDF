@@ -21,6 +21,7 @@ void Klass::generateDeclaration() const {
     generateCodeProtectorBegin(ofs, genCppNameSpaceForGuard(), cppName);
 
     ofs << "#include <set>" << std::endl;
+    ofs << "#include <iosfwd>" << std::endl;
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/I" << cppName << ".h>" << std::endl;
     for ( auto const& ancestor: _decorated.ancestors() ) {
@@ -216,6 +217,13 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << " * @return enum value converted as string" << std::endl;
         indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "static std::string enumString(Enum en);" << std::endl;
+        ofs << std::endl;
+        indent(ofs, 1) << "/** " << std::endl;
+        indent(ofs, 1) << " * @brief Converts current enum value to a pretty string " << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
+        indent(ofs, 1) << " * @return current enum value converted as string" << std::endl;
+        indent(ofs, 1) << " */ " << std::endl;
+        indent(ofs, 1) << "std::string enumString() const { return enumString(asEnum()); }" << std::endl;
     }
     ofs << std::endl;
     for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties()) {
