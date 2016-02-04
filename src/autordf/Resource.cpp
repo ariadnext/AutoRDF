@@ -42,19 +42,35 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
  *         If no available, throws PropertyNotFoundException
  */
 Property Resource::getProperty(const Uri& iri) const {
-    auto list = getPropertyValues(iri);
-    if ( list.size() == 1 ) {
-        return list.front();
+    Node subject, predicate;
+    if ( type() == NodeType::RESOURCE ) {
+        subject.setIri(name());
+    } else {
+        subject.setBNodeId(name());
     }
-    else if ( list.empty() ) {
+
+    if ( iri.empty() ) {
+        throw InternalError("Not supported");
+    }
+    predicate.setIri(iri);
+
+    Node object = _factory->findTarget(subject, predicate);
+    if ( object.empty() ) {
         std::stringstream ss;
         ss << "Property " << iri << " not found in " << name() << " resource." << std::endl;
         throw PropertyNotFound(ss.str());
-    } else {
-        std::stringstream ss;
-        ss << "Property " << iri << " multi instanciated for " << name() << " resource." << std::endl;
-        throw DuplicateProperty(ss.str());
     }
+
+    Property p;
+    p = _factory->createProperty(predicate.iri(), object.type);
+    if (object.type == NodeType::LITERAL) {
+        p.setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
+    } else if (object.type == NodeType::RESOURCE) {
+        p.setValue(object.iri(), false);
+    } else if (object.type == NodeType::BLANK) {
+        p.setValue(object.bNodeId(), false);
+    }
+    return p;
 }
 
 /**

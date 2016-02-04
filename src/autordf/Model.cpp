@@ -108,6 +108,19 @@ NodeList Model::findTargets(const Node& source, const Node& arc) const {
     return NodeList(source, arc, Node(), this);
 }
 
+/**
+ * Return one arc (predicate) of an arc in an RDF graph given source (subject) and target (object).
+ */
+Node Model::findTarget(const Node& source, const Node& arc) const {
+    auto s = NodeConverter::toLibRdfNodeSmartPtr(source);
+    auto p = NodeConverter::toLibRdfNodeSmartPtr(arc);
+    librdf_node *node = librdf_model_get_target(_model->get(), s.get(), p.get());
+    Node n;
+    if ( node ) {
+        NodeConverter::fromLibRdfNode(node, &n);
+    }
+    return n;
+}
 
 void Model::add(const Statement &stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));

@@ -78,6 +78,11 @@ public:
     NodeList findTargets(const Node& source, const Node& arc) const;
 
     /**
+     * Return one arc (predicate) of an arc in an RDF graph given source (subject) and target (object).
+     */
+    Node findTarget(const Node& source, const Node& arc) const;
+
+    /**
      * Adds a statement to model
      * @throw InternalError on issue
      */
