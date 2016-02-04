@@ -41,7 +41,7 @@ TEST(_02_LoadSave, loadPerson) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
     Statement req;
     req.object.setLiteral("Jimmy Wales");
-    Resource person = f.createResourceFromStatement(*f.find(req).begin());
+    Resource person = f.createResourceFromNode(f.find(req).begin()->subject);
     for (const Property& p : person.getPropertyValues("")) {
         std::cout << p << std::endl;
     }

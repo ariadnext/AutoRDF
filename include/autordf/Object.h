@@ -291,7 +291,7 @@ public:
         const StatementList& statements = _factory->find(query);
         std::list<T> objList;
         for(const Statement& stmt : statements) {
-            objList.push_back(T(_factory->createResourceFromStatement(stmt)));
+            objList.push_back(T(_factory->createResourceFromNode(stmt.subject)));
         }
         return objList;
     }

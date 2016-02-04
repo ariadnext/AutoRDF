@@ -28,13 +28,13 @@ Resource Factory::createIRIResource(const std::string &iri) {
     return r;
 }
 
-Resource Factory::createResourceFromStatement(const Statement& stmt) {
-    if ( stmt.subject.type == NodeType::RESOURCE ) {
-        return createIRIResource(stmt.subject.iri());
-    } else if ( stmt.subject.type == NodeType::BLANK ) {
-        return createBlankNodeResource(stmt.subject.bNodeId());
+Resource Factory::createResourceFromNode(const Node& node) {
+    if ( node.type == NodeType::RESOURCE ) {
+        return createIRIResource(node.iri());
+    } else if ( node.type == NodeType::BLANK ) {
+        return createBlankNodeResource(node.bNodeId());
     } else {
-        throw InternalError(std::string("Unable to create resource from subject type ") + nodeTypeString(stmt.subject.type));
+        throw InternalError(std::string("Unable to create resource from subject type ") + nodeTypeString(node.type));
     }
 }
 

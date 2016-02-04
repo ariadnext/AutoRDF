@@ -61,22 +61,22 @@ Property Resource::getProperty(const Uri& iri) const {
  * Lists all values for property matching iri name
  */
 std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
-    Statement request;
+    Node subject, predicate;
     if ( type() == NodeType::RESOURCE ) {
-        request.subject.setIri(name());
+        subject.setIri(name());
     } else {
-        request.subject.setBNodeId(name());
+        subject.setBNodeId(name());
     }
 
-    if ( !iri.empty() ) {
-        request.predicate.setIri(iri);
+    if ( iri.empty() ) {
+        throw InternalError("Not supported");
     }
-    StatementList foundTriples = _factory->find(request);
+    predicate.setIri(iri);
+
+    NodeList foundTriples = _factory->findTargets(subject, predicate);
 
     std::list<Property> resp;
-    for (const Statement& triple: foundTriples) {
-        const Node& object = triple.object;
-        const Node& predicate = triple.predicate;
+    for (const Node& object: foundTriples) {
         Property p = _factory->createProperty(predicate.iri(), object.type);
         if ( object.type == NodeType::LITERAL) {
             p.setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);

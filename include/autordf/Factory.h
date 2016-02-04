@@ -27,7 +27,7 @@ public:
     /**
      * Converts a statement to resource
      */
-    Resource createResourceFromStatement(const Statement& stmt);
+    Resource createResourceFromNode(const Node& node);
 
     /**
      * Creates a property of type type

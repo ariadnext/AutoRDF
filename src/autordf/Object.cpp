@@ -206,7 +206,7 @@ Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     if ( statements.size() > 1 ) {
         throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + value + " found");
     }
-    return Object(_factory->createResourceFromStatement(*statements.begin()));
+    return Object(_factory->createResourceFromNode(statements.begin()->subject));
 }
 
 Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
@@ -220,7 +220,7 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     if ( statements.size() > 1 ) {
         throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
-    return Object(_factory->createResourceFromStatement(*statements.begin()));
+    return Object(_factory->createResourceFromNode(statements.begin()->subject));
 }
 
 void Object::addRdfTypeIfNeeded() {
