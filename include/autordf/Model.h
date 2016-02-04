@@ -6,6 +6,7 @@
 #include <map>
 
 #include <autordf/StatementList.h>
+#include <autordf/NodeList.h>
 
 namespace autordf {
 
@@ -59,7 +60,22 @@ public:
      *
      * If no filter is given, gives back all elements from model
      */
-    StatementList find(const Statement& filter = Statement());
+    StatementList find(const Statement& filter = Statement()) const;
+
+    /**
+     * Return the sources (subjects) of arc in an RDF graph given arc (predicate) and target (object).
+     */
+    NodeList findSources(const Node& arc, const Node& target) const;
+
+    /**
+     * Return the arcs (predicates) of an arc in an RDF graph given source (subject) and target (object).
+     */
+    NodeList findArcs(const Node& source, const Node& target) const;
+
+    /**
+     * Return the targets (objects) of an arc in an RDF graph given source (subject) and arc (predicate).
+     */
+    NodeList findTargets(const Node& source, const Node& arc) const;
 
     /**
      * Adds a statement to model
@@ -118,6 +134,7 @@ private:
     static std::string cleanNamespaceTrailingChars(std::string ns);
 
     friend class StatementList;
+    friend class NodeList;
 };
 
 }

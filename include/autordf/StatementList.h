@@ -44,7 +44,7 @@ public:
 };
 
 typedef StatementListIterator_<Statement> StatementListIterator;
-typedef StatementListIterator_<Statement> StatementListConstIterator;
+typedef StatementListIterator_<const Statement> StatementListConstIterator;
 
 /**
  * Only supposed to be constructed by model class
@@ -66,11 +66,11 @@ private:
     static iterator _END;
     static const_iterator _CEND;
     Statement _query;
-    Model    *_m;
+    const Model    *_m;
 
     std::shared_ptr<internal::Stream> createNewStream() const;
 
-    StatementList(const Statement& query, Model *m) : _query(query), _m(m) {}
+    StatementList(const Statement& query, const Model *m) : _query(query), _m(m) {}
 
     friend class Model;
 };

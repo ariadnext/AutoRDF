@@ -1,6 +1,6 @@
 #include "autordf/internal/Stream.h"
 
-#include "autordf/internal/StatementConverter.h"
+#include "StatementConverter.h"
 
 namespace autordf {
 namespace internal {
@@ -11,7 +11,7 @@ Stream::Stream(librdf_stream* stream) : _stream(stream) {
 Stream::~Stream() {
     if (_stream) {
         librdf_free_stream(_stream);
-        _stream = 0;
+        _stream = nullptr;
     }
 }
 

@@ -8,7 +8,7 @@
 
 namespace autordf {
 namespace internal {
-class StatementConverter;
+class NodeConverter;
 }
 
 /**
@@ -120,7 +120,7 @@ private:
     // Makes sure we are right type when accessing dedicated property
     void assertType(const char* prop, NodeType t) const;
 
-    friend class internal::StatementConverter;
+    friend class internal::NodeConverter;
     friend std::ostream& operator<<(std::ostream& os, const Node&);
 };
 

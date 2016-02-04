@@ -4,8 +4,9 @@ ADD_LIBRARY(
     autordf
     ${LIBRARY_TYPE}
     Model.cpp
-    Node.cpp
     NodeType.cpp
+    Node.cpp
+    NodeList.cpp
     Statement.cpp
     StatementList.cpp
     Resource.cpp
@@ -22,6 +23,7 @@ ADD_LIBRARY(
     internal/Parser.cpp
     internal/Uri.cpp
     internal/Stream.cpp
+    internal/NodeConverter.cpp
     internal/StatementConverter.cpp
 )
 TARGET_LINK_LIBRARIES(

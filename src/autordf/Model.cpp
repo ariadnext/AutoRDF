@@ -13,6 +13,7 @@
 #include "autordf/internal/Parser.h"
 #include "autordf/internal/Stream.h"
 #include "autordf/internal/Uri.h"
+#include "autordf/internal/NodeConverter.h"
 #include "autordf/internal/StatementConverter.h"
 #include "autordf/Exception.h"
 
@@ -82,9 +83,31 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
     }
 }
 
-StatementList Model::find(const Statement& req) {
+StatementList Model::find(const Statement& req) const {
     return StatementList(req, this);
 }
+
+/**
+ * Return the sources (subjects) of arc in an RDF graph given arc (predicate) and target (object).
+ */
+NodeList Model::findSources(const Node& arc, const Node& target) const {
+    return NodeList(Node(), arc, target, this);
+}
+
+/**
+ * Return the arcs (predicates) of an arc in an RDF graph given source (subject) and target (object).
+ */
+NodeList Model::findArcs(const Node& source, const Node& target) const {
+    return NodeList(source, Node(), target, this);
+}
+
+/**
+ * Return the targets (objects) of an arc in an RDF graph given source (subject) and arc (predicate).
+ */
+NodeList Model::findTargets(const Node& source, const Node& arc) const {
+    return NodeList(source, arc, Node(), this);
+}
+
 
 void Model::add(const Statement &stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));

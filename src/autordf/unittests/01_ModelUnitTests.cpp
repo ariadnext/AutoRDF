@@ -37,6 +37,20 @@ TEST(_01_Model, SearchByPredicate) {
     ASSERT_EQ(3, stmtList.size());
 }
 
+TEST(_01_Model, SearchSubject) {
+    Model ts;
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
+
+    Node predicate;
+    predicate.setIri("http://purl.org/dc/elements/1.1/title");
+    Node object;
+    object.setLiteral("RDF/XML Syntax Specification (Revised)");
+
+    const NodeList& nodeList = ts.findSources(predicate, object);
+    ASSERT_EQ(1, nodeList.size());
+    ASSERT_EQ("http://www.w3.org/TR/rdf-syntax-grammar", nodeList.begin()->iri());
+}
+
 TEST(_01_Model, SearchBySubject) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
@@ -45,6 +59,23 @@ TEST(_01_Model, SearchBySubject) {
     req.subject.setIri("http://jimmycricket.com/me");
     const StatementList& stmtList = ts.find(req);
     ASSERT_EQ(2, stmtList.size());
+}
+
+TEST(_01_Model, SearchObject) {
+    Model ts;
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
+
+    Node source;
+    source.setIri("http://www.w3.org/TR/rdf-syntax-grammar");
+    Node predicate;
+    predicate.setIri("http://purl.org/dc/elements/1.1/title");
+
+    const NodeList& nodeList = ts.findTargets(source, predicate);
+    ASSERT_EQ(1, nodeList.size());
+    ASSERT_EQ("RDF/XML Syntax Specification (Revised)", nodeList.begin()->literal());
+
+    predicate.setIri("http://pwet");
+    ASSERT_EQ(0, ts.findTargets(source, predicate).size());
 }
 
 TEST(_01_Model, SearchByObject) {
@@ -105,4 +136,6 @@ TEST(DISABLED_01_Model, All) {
         std::cout << stmt << std::endl;
     }
 }
+
+
 
