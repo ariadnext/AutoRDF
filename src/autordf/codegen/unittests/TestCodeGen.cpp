@@ -15,11 +15,11 @@ int main() {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/../../unittests/foafExample.rdf");
 
     // We can do that
-    std::list<autordf::Object> list = autordf::Object::findByType("http://xmlns.com/foaf/0.1/Person");
+    std::vector<autordf::Object> list = autordf::Object::findByType("http://xmlns.com/foaf/0.1/Person");
     foaf::Person p1 = list.front().as<foaf::Person>();
 
     // Or directly
-    std::list<foaf::Person> list2 = foaf::Person::find();
+    std::vector<foaf::Person> list2 = foaf::Person::find();
     foaf::Person p2 = list2.front();
 
     // FIXME: why is givenName Lost ?

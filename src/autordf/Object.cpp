@@ -62,8 +62,8 @@ std::string Object::prefixedIri() const {
     }
 }
 
-std::list<Uri> Object::getTypes(const std::string& namespaceFilter) const {
-    std::list<Uri> obj;
+std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {
+    std::vector<Uri> obj;
     auto types = getObjectList(autordf::Object::RDF_NS + "type");
     for (const autordf::Object& type: types) {
         if (namespaceFilter.empty() || type.iri().find(namespaceFilter) == 0) {
@@ -86,7 +86,7 @@ std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const 
     }
 }
 
-std::list<Object> Object::getObjectList(const Uri& propertyIRI) const {
+std::vector<Object> Object::getObjectList(const Uri& propertyIRI) const {
     return getObjectListImpl<Object>(propertyIRI);
 }
 
@@ -105,7 +105,7 @@ void Object::addObject(const Uri& propertyIRI, const Object& obj) {
     _r.addProperty(*p);
 }
 
-void Object::setObjectList(const Uri& propertyIRI, const std::list<Object> &values) {
+void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values) {
     setObjectListImpl(propertyIRI, values);
 }
 
@@ -122,11 +122,11 @@ std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& prope
     }
 }
 
-PropertyValueList Object::getPropertyValueList(const Uri& propertyIRI) const {
+PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
     if ( propertyIRI.empty() ) {
-        throw InvalidIRI("Calling Object::getPropertyValueList() with empty IRI is forbidden");
+        throw InvalidIRI("Calling Object::getPropertyValueVector() with empty IRI is forbidden");
     }
-    PropertyValueList valuesList;
+    PropertyValueVector valuesList;
     const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
     for (const Property& prop: propList) {
         valuesList.push_back(prop.value());
@@ -153,7 +153,7 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
     _r.removeSingleProperty(*p);
 }
 
-void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueList& values) {
+void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values) {
     addRdfTypeIfNeeded();
     std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
@@ -189,7 +189,7 @@ Object Object::clone(const Uri& iri) {
     }
 }
 
-std::list<Object> Object::findByType(const Uri& iri) {
+std::vector<Object> Object::findByType(const Uri& iri) {
     return findHelper<Object>(iri);
 }
 
@@ -237,7 +237,7 @@ void Object::addRdfTypeIfNeeded() {
  */
 void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >* rdfTypesInfo) const {
     if ( rdfTypesInfo ) {
-        const std::list<Object>& typesList = getObjectList(RDF_NS + "type");
+        const std::vector<Object>& typesList = getObjectList(RDF_NS + "type");
         if ( typesList.empty() ) {
             // No type, let's say that's ok
             return;
@@ -299,7 +299,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
                 newLine(os, indentLevel);
                 os << '}';
             } else {
-                const PropertyValueList& values = getPropertyValueList(propit->iri());
+                const PropertyValueVector& values = getPropertyValueList(propit->iri());
                 if ( values.size() > 1 ) {
                     os << '[';
                     newLine(os, indentLevel + 1);

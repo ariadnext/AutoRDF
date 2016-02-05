@@ -66,7 +66,7 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Returns the list of all objects of this kind in the store" << std::endl;
     indent(ofs, 1) << " */" << std::endl;
-    indent(ofs, 1) << "static std::list<" << cppName << "> find();" << std::endl;
+    indent(ofs, 1) << "static std::vector<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
 
     for ( const std::shared_ptr<ontology::DataProperty>& key : _decorated.dataKeys()) {
@@ -127,7 +127,7 @@ void Klass::generateDefinition() const {
     ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
-    ofs << "std::list<" << cppName << "> " << cppName << "::find() {" << std::endl;
+    ofs << "std::vector<" << cppName << "> " << cppName << "::find() {" << std::endl;
     indent(ofs, 1) << "return findHelper<" << cppName << ">(I" << cppName << "::TYPEIRI);" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;

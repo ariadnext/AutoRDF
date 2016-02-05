@@ -2,7 +2,7 @@
 #define AUTORDF_OBJECT_H
 
 #include <memory>
-#include <list>
+#include <vector>
 #include <iosfwd>
 #include <stdexcept>
 #include <map>
@@ -10,7 +10,7 @@
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
-#include <autordf/PropertyValueList.h>
+#include <autordf/PropertyValueVector.h>
 #include <autordf/Resource.h>
 #include <autordf/Exception.h>
 #include <autordf/Uri.h>
@@ -84,7 +84,7 @@ public:
      * If namespaceFilter is set, only types in this namespace will be returned
      * @param namespaceFilter A simple namespace
      */
-    std::list<Uri> getTypes(const std::string& namespaceFilter = "") const;
+    std::vector<Uri> getTypes(const std::string& namespaceFilter = "") const;
 
     /**
      * Gets given property as Object
@@ -102,9 +102,9 @@ public:
     std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
 
     /**
-     * Returns the list of object. If no object found returns empty list
+     * Returns the list of object. If no object found returns empty vector
      */
-    std::list<Object> getObjectList(const Uri& propertyIRI) const;
+    std::vector<Object> getObjectList(const Uri& propertyIRI) const;
 
     /**
      * Sets object to given property
@@ -121,7 +121,7 @@ public:
     /**
      * Sets list of objects to given property
      */
-    void setObjectList(const Uri& propertyIRI, const std::list<Object>& values);
+    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values);
 
     /**
      * Gets given property value
@@ -143,7 +143,7 @@ public:
      * Returns the list of the values. If no value are found returns empty list
      * @param propertyIRI Internationalized Resource Identifiers property to query
      */
-    PropertyValueList getPropertyValueList(const Uri& propertyIRI) const;
+    PropertyValueVector getPropertyValueList(const Uri& propertyIRI) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -157,7 +157,7 @@ public:
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      */
-    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueList& values);
+    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values);
 
     /**
      * Adds value to this property, preserving all previous values;
@@ -229,7 +229,7 @@ public:
      *
      * @param typeIRI Internationalized Resource Identifiers of the type to be retrieved
      */
-    static std::list<Object> findByType(const Uri& typeIRI = "");
+    static std::vector<Object> findByType(const Uri& typeIRI = "");
 
     /**
      * Returns the only Object with property key set to value
@@ -284,12 +284,12 @@ public:
     /**
      * Offered to interfaces
      */
-    template<typename T> static std::list<T> findHelper(const Uri& iri) {
+    template<typename T> static std::vector<T> findHelper(const Uri& iri) {
         Statement query;
         query.predicate.setIri(RDF_NS + "type");
         query.object.setIri(iri);
         const StatementList& statements = _factory->find(query);
-        std::list<T> objList;
+        std::vector<T> objList;
         for(const Statement& stmt : statements) {
             objList.push_back(T(_factory->createResourceFromNode(stmt.subject)));
         }
@@ -300,12 +300,13 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> std::list<T> getObjectListImpl(const Uri& propertyIRI) const {
+    template<typename T> std::vector<T> getObjectListImpl(const Uri& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
         }
-        std::list<T> objList;
         const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        std::vector<T> objList;
+        objList.reserve(propList.size());
         for (const Property& prop: propList) {
             objList.push_back(T(prop.asResource()));
         }
@@ -316,7 +317,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::list<T>& values) {
+    template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
         addRdfTypeIfNeeded();
         std::shared_ptr<Property> p =_factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
@@ -330,12 +331,13 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> std::list<T> getValueListImpl(const Uri& propertyIRI) const {
+    template<cvt::RdfTypeEnum rdftype, typename T> std::vector<T> getValueListImpl(const Uri& propertyIRI) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
         }
-        std::list<T> valueList;
         const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        std::vector<T> valueList;
+        valueList.reserve(propList.size());
         for (const Property& prop: propList) {
             valueList.push_back(prop.value().get<rdftype, T>());
         }
@@ -346,7 +348,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::list<T>& values) {
+    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
         addRdfTypeIfNeeded();
         std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);

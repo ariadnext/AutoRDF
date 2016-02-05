@@ -1,7 +1,7 @@
 #ifndef AUTORDF_PROPERTYVALUELIST_H
 #define AUTORDF_PROPERTYVALUELIST_H
 
-#include <list>
+#include <vector>
 #include <memory>
 
 #include <autordf/PropertyValue.h>
@@ -11,9 +11,9 @@ namespace autordf {
 /**
  * Stores a List of values(aka Literal) of a Web Semantic Resource
  */
-class PropertyValueList : public std::list<PropertyValue> {
+class PropertyValueVector : public std::vector<PropertyValue> {
 public:
-    using std::list<PropertyValue>::list;
+    using std::vector<PropertyValue>::vector;
 
     /**
      * Returns the Value from the whose language is idendified by lang

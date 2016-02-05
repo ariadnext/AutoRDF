@@ -44,7 +44,7 @@ void Ontology::populateSchemaClasses(Factory *f) {
     // END Add well known classes //
 
     // Gather data Properties
-    const std::list<Object>& owlDataProperties = Object::findByType(OWL_NS + "DatatypeProperty");
+    const std::vector<Object>& owlDataProperties = Object::findByType(OWL_NS + "DatatypeProperty");
     for ( auto const& owlDataProperty : owlDataProperties) {
         if ( _verbose ) {
             std::cout << "Found data property " << owlDataProperty.iri() << std::endl;
@@ -56,7 +56,7 @@ void Ontology::populateSchemaClasses(Factory *f) {
     }
 
     // Gather object Properties
-    const std::list<Object>& owlObjectProperties = Object::findByType(OWL_NS + "ObjectProperty");
+    const std::vector<Object>& owlObjectProperties = Object::findByType(OWL_NS + "ObjectProperty");
     for ( auto const& owlObjectProperty : owlObjectProperties) {
         if ( _verbose ) {
             std::cout << "Found object property " << owlObjectProperty.iri() << std::endl;
@@ -171,7 +171,7 @@ void Ontology::extractClassCardinality(const Object& o, Klass *kls, const char *
 }
 
 void Ontology::extractClass(const Object& o, Klass *kls) {
-    const std::list<Object>& subClasses = o.getObjectList(RDFS_NS + "subClassOf");
+    const std::vector<Object>& subClasses = o.getObjectList(RDFS_NS + "subClassOf");
     for ( const Object& subclass : subClasses ) {
         if ( !subclass.iri().empty() ) {
             // This is a named ancestor, that will be processes seperately, handle that through
@@ -227,7 +227,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     }
 
     // Handle keys
-    std::list<Object> keys = o.getObjectList(OWL_NS + "hasKey");
+    std::vector<Object> keys = o.getObjectList(OWL_NS + "hasKey");
     for ( const Object& key : keys ) {
         std::shared_ptr<Object> rest(new Object(key));
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
@@ -237,14 +237,14 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     }
 
     // FIXME can loop endlessly
-    const std::list<Object>& equivalentClasses = o.getObjectList(OWL_NS + "equivalentClass");
+    const std::vector<Object>& equivalentClasses = o.getObjectList(OWL_NS + "equivalentClass");
     for ( const Object& equivalentClass: equivalentClasses ) {
         extractClass(equivalentClass, kls);
     }
 }
 
 void Ontology::extractProperty(const Object& o, Property *prop) {
-    std::list<Object> domainList = o.getObjectList(RDFS_NS + "domain");
+    std::vector<Object> domainList = o.getObjectList(RDFS_NS + "domain");
     if ( domainList.size() == 1 ) {
         const Object& frontDomain = domainList.front();
 
@@ -264,7 +264,7 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
         std::cerr << "rdfs#domain has more than one item for " << o.iri() << ", skipping!" << std::endl;
     }
 
-    std::list<Object> rangeList = o.getObjectList(RDFS_NS + "range");
+    std::vector<Object> rangeList = o.getObjectList(RDFS_NS + "range");
     if ( rangeList.size() == 1 ) {
         prop->_range = rangeList.front().iri();
     } else if ( rangeList.size() > 1 ) {
@@ -286,7 +286,7 @@ void Ontology::extractClass(const Object& rdfsClass) {
 }
 
 void Ontology::extractClasses(const std::string& classTypeIRI) {
-    const std::list<Object>& classes = Object::findByType(classTypeIRI);
+    const std::vector<Object>& classes = Object::findByType(classTypeIRI);
     for ( auto const& rdfsclass : classes) {
         if ( rdfsclass.iri().length() ) {
             if ( !containsClass(rdfsclass.iri()) ) {

@@ -35,7 +35,7 @@ TEST(_03_Object, Display) {
 
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
 
-    std::list<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
     Object first = objs.front();
 
@@ -60,7 +60,7 @@ TEST(_03_Object, Copy) {
 
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
 
-    std::list<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
     Object first = objs.front();
 
@@ -76,7 +76,7 @@ TEST(_03_Object, Accessors) {
 
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
 
-    std::list<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
     Object person = objs.front();
 
@@ -87,8 +87,8 @@ TEST(_03_Object, Accessors) {
 
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
-    ASSERT_EQ(std::list<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name"));
-    ASSERT_EQ(std::list<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineAccount", "http://xmlns.com/foaf/0.1/OnlineChatAccount"}),
+    ASSERT_EQ(std::vector<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name"));
+    ASSERT_EQ(std::vector<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineAccount", "http://xmlns.com/foaf/0.1/OnlineChatAccount"}),
               account.getPropertyValueList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
 
     // Trying to access a value as a resource

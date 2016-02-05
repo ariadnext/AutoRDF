@@ -12,7 +12,7 @@ ADD_LIBRARY(
     Resource.cpp
     Property.cpp
     PropertyValue.cpp
-    PropertyValueList.cpp
+    PropertyValueVector.cpp
     Factory.cpp
     Object.cpp
     Exception.cpp

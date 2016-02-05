@@ -29,7 +29,7 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
         generateComment(ofs, 1,
                         "@return the list typed objects.  List can be empty if not values are set in database", &propertyClass);
-        indent(ofs, 1) << "std::list<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::vector<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
         ofs << std::endl;
         generateDeclarationSetterForMany(ofs, onClass);
     }
@@ -75,7 +75,7 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
         }
     }
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
-        ofs << "std::list<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
+        ofs << "std::vector<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
                 _decorated.prettyIRIName() << "List() const {" << std::endl;
         indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\");" << std::endl;
         ofs << "}" << std::endl;
@@ -100,7 +100,7 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
     generateComment(ofs, 1,
                     "Sets the values for this property.\n"
                             "@param values values to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "List( const std::list<" << propertyClass.genCppNameWithNamespace(false) << ">& values);" << std::endl;
+    indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "List( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values);" << std::endl;
     ofs << std::endl;
     generateComment(ofs, 1,
                     "Adds a value for this property.\n"
@@ -119,7 +119,7 @@ void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Kla
 void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
-    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "List( const std::list<" << propertyClass.genCppNameWithNamespace(false) << ">& values) {" << std::endl;
+    ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "List( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values) {" << std::endl;
     indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;

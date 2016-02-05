@@ -111,13 +111,13 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
             }
         }
         if (_decorated.maxCardinality(onClass.decorated()) > 1) {
-            ofs << "std::list<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
+            ofs << "std::vector<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
             cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\");" << std::endl;
             ofs << "}" << std::endl;
             ofs << std::endl;
-            ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::list<" << cppType << ">& values) {" << std::endl;
+            ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << ">& values) {" << std::endl;
             indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
             cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values);" << std::endl;
             ofs << "}" << std::endl;
@@ -203,9 +203,9 @@ void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "std::list<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::vector<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "autordf::PropertyValueList " << _decorated.prettyIRIName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "autordf::PropertyValueVector " << _decorated.prettyIRIName() << "List() const {" << std::endl;
         indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
@@ -218,9 +218,9 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::list<" << cppType << "> " << "& values);" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueList& values) {" << std::endl;
+        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueVector& values) {" << std::endl;
         indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
