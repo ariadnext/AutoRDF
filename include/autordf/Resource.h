@@ -41,7 +41,7 @@ public:
      * @throws PropertyNotFound If no available
      * @throws DuplicateException If more than one is available
      */
-    Property getProperty(const Uri& iri) const;
+    std::shared_ptr<Property> getProperty(const Uri& iri) const;
 
     /**
      * Returns exactly one property, ia available.

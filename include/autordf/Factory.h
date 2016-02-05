@@ -2,6 +2,7 @@
 #define AUTORDF_FACTORY_H
 
 #include <string>
+#include <memory>
 
 #include <autordf/Model.h>
 #include <autordf/Property.h>
@@ -33,7 +34,7 @@ public:
      * Creates a property of type type
      * If not type is given, defaults to EMPTY
      */
-    Property createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
+    std::shared_ptr<Property> createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
 };
 
 }

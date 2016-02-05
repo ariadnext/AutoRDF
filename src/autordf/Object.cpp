@@ -74,7 +74,7 @@ std::list<Uri> Object::getTypes(const std::string& namespaceFilter) const {
 }
 
 Object Object::getObject(const Uri &propertyIRI) const {
-    return Object(_r.getProperty(propertyIRI).asResource());
+    return Object(_r.getProperty(propertyIRI)->asResource());
 }
 
 std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const {
@@ -92,17 +92,17 @@ std::list<Object> Object::getObjectList(const Uri& propertyIRI) const {
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
     addRdfTypeIfNeeded();
-    Property p = _factory->createProperty(propertyIRI);
-    p.setValue(obj._r);
+    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    p->setValue(obj._r);
     _r.removeProperties(propertyIRI);
-    _r.addProperty(p);
+    _r.addProperty(*p);
 }
 
 void Object::addObject(const Uri& propertyIRI, const Object& obj) {
     addRdfTypeIfNeeded();
-    Property p = _factory->createProperty(propertyIRI);
-    p.setValue(obj._r);
-    _r.addProperty(p);
+    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    p->setValue(obj._r);
+    _r.addProperty(*p);
 }
 
 void Object::setObjectList(const Uri& propertyIRI, const std::list<Object> &values) {
@@ -110,7 +110,7 @@ void Object::setObjectList(const Uri& propertyIRI, const std::list<Object> &valu
 }
 
 PropertyValue Object::getPropertyValue(const Uri& propertyIRI) const {
-    return _r.getProperty(propertyIRI).value();
+    return _r.getProperty(propertyIRI)->value();
 }
 
 std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& propertyIRI) const {
@@ -136,30 +136,30 @@ PropertyValueList Object::getPropertyValueList(const Uri& propertyIRI) const {
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     addRdfTypeIfNeeded();
-    Property p = _factory->createProperty(propertyIRI);
-    p.setValue(val);
+    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    p->setValue(val);
     _r.removeProperties(propertyIRI);
-    _r.addProperty(p);
+    _r.addProperty(*p);
 }
 
 void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     addRdfTypeIfNeeded();
-    _r.addProperty(_factory->createProperty(propertyIRI).setValue(val));
+    _r.addProperty(_factory->createProperty(propertyIRI)->setValue(val));
 }
 
 void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
-    Property p = _factory->createProperty(propertyIRI);
-    p.setValue(val);
-    _r.removeSingleProperty(p);
+    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    p->setValue(val);
+    _r.removeSingleProperty(*p);
 }
 
 void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueList& values) {
     addRdfTypeIfNeeded();
-    Property p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const PropertyValue& val: values) {
-        p.setValue(val);
-        _r.addProperty(p);
+        p->setValue(val);
+        _r.addProperty(*p);
     }
 }
 

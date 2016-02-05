@@ -24,24 +24,6 @@ void Resource::setType(NodeType t) {
  * @throws If not found, returns null
  */
 std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
-    auto list = getPropertyValues(iri);
-    if ( list.size() == 1 ) {
-        return std::make_shared<Property>(list.front());
-    } else if ( list.size() == 0 ) {
-        return std::shared_ptr<Property>(nullptr);
-    } else {
-        std::stringstream ss;
-        ss << "Property " << iri << " multi instanciated for " << name() << " resource." << std::endl;
-        throw DuplicateProperty(ss.str());
-    }
-}
-
-/**
- * Returns exactly one property.
- * @throws If more are available, throws DuplicatePropertyException
- *         If no available, throws PropertyNotFoundException
- */
-Property Resource::getProperty(const Uri& iri) const {
     Node subject, predicate;
     if ( type() == NodeType::RESOURCE ) {
         subject.setIri(name());
@@ -56,19 +38,31 @@ Property Resource::getProperty(const Uri& iri) const {
 
     Node object = _factory->findTarget(subject, predicate);
     if ( object.empty() ) {
+        return nullptr;
+    }
+
+    std::shared_ptr<Property> p(_factory->createProperty(predicate.iri(), object.type));
+    if (object.type == NodeType::LITERAL) {
+        p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
+    } else if (object.type == NodeType::RESOURCE) {
+        p->setValue(object.iri(), false);
+    } else if (object.type == NodeType::BLANK) {
+        p->setValue(object.bNodeId(), false);
+    }
+    return p;
+}
+
+/**
+ * Returns exactly one property.
+ * @throws If more are available, throws DuplicatePropertyException
+ *         If no available, throws PropertyNotFoundException
+ */
+std::shared_ptr<Property> Resource::getProperty(const Uri& iri) const {
+    auto p = getOptionalProperty(iri);
+    if ( !p ) {
         std::stringstream ss;
         ss << "Property " << iri << " not found in " << name() << " resource." << std::endl;
         throw PropertyNotFound(ss.str());
-    }
-
-    Property p;
-    p = _factory->createProperty(predicate.iri(), object.type);
-    if (object.type == NodeType::LITERAL) {
-        p.setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
-    } else if (object.type == NodeType::RESOURCE) {
-        p.setValue(object.iri(), false);
-    } else if (object.type == NodeType::BLANK) {
-        p.setValue(object.bNodeId(), false);
     }
     return p;
 }
@@ -93,15 +87,15 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
 
     std::list<Property> resp;
     for (const Node& object: foundTriples) {
-        Property p = _factory->createProperty(predicate.iri(), object.type);
+        std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type);
         if ( object.type == NodeType::LITERAL) {
-            p.setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
+            p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
         } else if ( object.type == NodeType::RESOURCE) {
-            p.setValue(object.iri(), false);
+            p->setValue(object.iri(), false);
         } else if ( object.type == NodeType::BLANK) {
-            p.setValue(object.bNodeId(), false);
+            p->setValue(object.bNodeId(), false);
         }
-        resp.push_back(p);
+        resp.push_back(*p);
     }
     return resp;
 }

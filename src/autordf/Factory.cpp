@@ -38,9 +38,8 @@ Resource Factory::createResourceFromNode(const Node& node) {
     }
 }
 
-Property Factory::createProperty(const std::string &iri, NodeType type) {
-    Property p(type, iri, this);
-    return p;
+std::shared_ptr<Property> Factory::createProperty(const std::string &iri, NodeType type) {
+    return std::shared_ptr<Property>(new Property(type, iri, this));
 }
 
 }

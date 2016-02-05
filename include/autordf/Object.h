@@ -318,11 +318,11 @@ public:
      */
     template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::list<T>& values) {
         addRdfTypeIfNeeded();
-        Property p =_factory->createProperty(propertyIRI);
+        std::shared_ptr<Property> p =_factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (const Object& object : values) {
-            p.setValue(object._r);
-            _r.addProperty(p);
+            p->setValue(object._r);
+            _r.addProperty(*p);
         }
     }
 
@@ -348,11 +348,11 @@ public:
      */
     template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::list<T>& values) {
         addRdfTypeIfNeeded();
-        Property p = _factory->createProperty(propertyIRI);
+        std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (auto const & val: values) {
-            p.setValue(PropertyValue().set<rdftype>(val));
-            _r.addProperty(p);
+            p->setValue(PropertyValue().set<rdftype>(val));
+            _r.addProperty(*p);
         }
     }
 
