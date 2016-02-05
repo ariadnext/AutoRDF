@@ -23,6 +23,9 @@ Object::Object(const Object& other, const Uri& rdfTypeIRI, const std::map<std::s
     runtimeTypeCheck(rtti);
 }
 
+Object::Object(const Object& other) : _r(other._r), _rdfTypeWritingRequired(other._rdfTypeWritingRequired), _rdfTypeIRI(other._rdfTypeIRI) {
+}
+
 Object::Object(Resource r, const Uri& rdfTypeIRI) : _r(r) {
     construct(rdfTypeIRI);
 }

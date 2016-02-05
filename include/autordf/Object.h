@@ -62,7 +62,12 @@ public:
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
-    Object(const Object& obj, const Uri& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+    Object(const Object& obj, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+
+    /**
+     * Optimized Copy constructor. Doest not perform any kind of type checking
+     */
+    Object(const Object& obj);
 
     /**
      * Return object iri, or empty if it is a blank node
