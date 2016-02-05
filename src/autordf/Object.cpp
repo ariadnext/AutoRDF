@@ -184,7 +184,7 @@ void Object::remove() {
 }
 
 Object Object::clone(const Uri& iri) {
-    const std::list<Property>& props = _r.getPropertyValues("");
+    const std::list<Property>& props = _r.getPropertyValues();
     if ( !iri.empty() ) {
         return Object(_factory->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
     } else {
@@ -240,6 +240,11 @@ void Object::addRdfTypeIfNeeded() {
  */
 void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >* rdfTypesInfo) const {
     if ( rdfTypesInfo ) {
+        /**
+         * Code below is called VERY often, that's why we don't use the resource layer, but call directly the
+         * internal layer
+         */
+
         Node subject, predicate;
         if ( _r.type() == NodeType::RESOURCE ) {
             subject.setIri(_r.name());
@@ -297,7 +302,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
     os << "\"Subject\": \"" << _r.name() <<'"';
     std::set<std::string> donePropsIRI;
     // Get all props
-    const std::list<Property>& propsList = _r.getPropertyValues("");
+    const std::list<Property>& propsList = _r.getPropertyValues();
     for ( auto propit = propsList.begin(); propit != propsList.end(); ++propit ) {
         if ( !donePropsIRI.count(propit->iri()) ) {
             if ( propit != propsList.begin() ) {
@@ -306,7 +311,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
             newLine(os, indentLevel);
             donePropsIRI.insert(propit->iri());
             os << '"' << propit->iri() << "\": ";
-            if ( (recurse > 0) && (propit->type() == NodeType::BLANK || propit->type() == NodeType::RESOURCE ) && propit->asResource().getPropertyValues("").size() ) {
+            if ( (recurse > 0) && (propit->type() == NodeType::BLANK || propit->type() == NodeType::RESOURCE ) && propit->asResource().getPropertyValues().size() ) {
                 Object child(propit->asResource());
                 os << '{' << std::endl;
                 child.printStream(os, recurse - 1, indentLevel + 1);

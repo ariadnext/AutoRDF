@@ -56,6 +56,11 @@ public:
     std::list<Property> getPropertyValues(const Uri& iri) const;
 
     /**
+     * Lists all values for all properties
+     */
+    std::list<Property> getPropertyValues() const;
+
+    /**
      * Adds a property to the resource. Property should not be empty
      * @returns a reference to current object
      */

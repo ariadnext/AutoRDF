@@ -52,11 +52,6 @@ AUTORDFEXCEPTION(InvalidClass)
 AUTORDFEXCEPTION(InvalidEnum)
 
 /**
- * Property is instanciated more than once for current object
- */
-AUTORDFEXCEPTION(DuplicateProperty)
-
-/**
  * No object fullfills given criteria
  */
 AUTORDFEXCEPTION(ObjectNotFound)

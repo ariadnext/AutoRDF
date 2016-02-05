@@ -78,7 +78,7 @@ TEST(_03_Object, Accessors) {
 
     std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
-    Object person = objs.front();
+    Object person = objs[2];
 
     ASSERT_NO_THROW(person.getObject("http://xmlns.com/foaf/0.1/account"));
     ASSERT_EQ(nullptr, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
@@ -88,7 +88,7 @@ TEST(_03_Object, Accessors) {
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
     ASSERT_EQ(std::vector<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name"));
-    ASSERT_EQ(std::vector<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineAccount", "http://xmlns.com/foaf/0.1/OnlineChatAccount"}),
+    ASSERT_EQ(std::vector<PropertyValue>({"http://xmlns.com/foaf/0.1/OnlineChatAccount", "http://xmlns.com/foaf/0.1/OnlineAccount"}),
               account.getPropertyValueList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
 
     // Trying to access a value as a resource
@@ -96,10 +96,6 @@ TEST(_03_Object, Accessors) {
 
     // Unexisting object
     ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/unexistingPropery"), PropertyNotFound);
-
-    // Duplicates
-    ASSERT_THROW(person.getObject("http://xmlns.com/foaf/0.1/knows"), DuplicateProperty);
-    ASSERT_THROW(person.getOptionalObject("http://xmlns.com/foaf/0.1/knows"), DuplicateProperty);
 }
 
 TEST(_03_Object, DelayedTypeWriting) {

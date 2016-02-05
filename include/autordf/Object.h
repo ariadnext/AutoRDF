@@ -94,15 +94,15 @@ public:
     /**
      * Gets given property as Object
      * Property should be set.
+     * If property is instanciated more than one, return one of the values, with no particular rule
      * @throw PropertyNotFound if property not set
-     * @throw DuplicateProperty if property contains more than one value
      */
     Object getObject(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
+     * If property is instanciated more than one, return one of the values, with no particular rule
      * @returns pointer if property exists, null otherwise
-     * @throw DuplicateProperty if property contains more than one value
      */
     std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
 
@@ -131,16 +131,16 @@ public:
     /**
      * Gets given property value
      * Property should be set.
+     * If property is instanciated more than one, return one of the values, with no particular rule
      * @throw PropertyNotFound if property not set
-     * @throw DuplicateProperty if property contains more than one value
      */
     PropertyValue getPropertyValue(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
+     * If property is instanciated more than one, return one of the values, with no particular rule
      * @param propertyIRI Internationalized Resource Identifiers property to query
      * @returns pointer if property exists, null otherwise
-     * @throw DuplicateProperty if property contains more than one value
      */
     std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI) const;
 

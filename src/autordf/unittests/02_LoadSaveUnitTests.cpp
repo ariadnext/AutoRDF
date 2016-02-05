@@ -33,7 +33,7 @@ TEST(_02_LoadSave, AllProperties) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
-    ASSERT_EQ(2, r.getPropertyValues("").size());
+    ASSERT_EQ(2, r.getPropertyValues().size());
 }
 
 TEST(_02_LoadSave, loadPerson) {
@@ -42,10 +42,10 @@ TEST(_02_LoadSave, loadPerson) {
     Statement req;
     req.object.setLiteral("Jimmy Wales");
     Resource person = f.createResourceFromNode(f.find(req).begin()->subject);
-    for (const Property& p : person.getPropertyValues("")) {
+    for (const Property& p : person.getPropertyValues()) {
         std::cout << p << std::endl;
     }
-    ASSERT_EQ(14, person.getPropertyValues("").size());
+    ASSERT_EQ(14, person.getPropertyValues().size());
 
     ASSERT_EQ("jwales", person
             .getProperty("http://xmlns.com/foaf/0.1/account")->asResource()

@@ -7,8 +7,8 @@ namespace autordf {
 namespace internal {
 
 Storage::Storage() {
-    /* Default storage type, which is memory */
-    _storage = librdf_new_storage(World().get(), NULL, NULL, NULL);
+    /* Default storage type, which is memory hash */
+    _storage = librdf_new_storage(World().get(), "hashes", nullptr, "hash-type='memory'");
     if (!_storage) {
         throw InternalError("Failed to create RDF data storage");
     }
