@@ -237,24 +237,35 @@ void Object::addRdfTypeIfNeeded() {
  */
 void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >* rdfTypesInfo) const {
     if ( rdfTypesInfo ) {
-        const std::vector<Object>& typesList = getObjectList(RDF_NS + "type");
-        if ( typesList.empty() ) {
-            // No type, let's say that's ok
-            return;
+        Node subject, predicate;
+        if ( _r.type() == NodeType::RESOURCE ) {
+            subject.setIri(_r.name());
+        } else {
+            subject.setBNodeId(_r.name());
         }
-        for ( const Object& t : typesList ) {
-            if ( _rdfTypeIRI == t.iri() ) {
-                return;
-            }
-            auto typeInfo = rdfTypesInfo->find(t.iri());
-            if ( typeInfo != rdfTypesInfo->end() ) {
-                if ( typeInfo->second.count(_rdfTypeIRI) ) {
+        predicate.setIri(RDF_NS + "type");
+
+        NodeList foundTypes = _factory->findTargets(subject, predicate);
+
+        unsigned int count = 0;
+        for (const Node& type: foundTypes) {
+            if ( type.type == NodeType::RESOURCE) {
+                if ( _rdfTypeIRI == type.iri() ) {
                     return;
                 }
+                auto typeInfo = rdfTypesInfo->find(type.iri());
+                if ( typeInfo != rdfTypesInfo->end() ) {
+                    if ( typeInfo->second.count(_rdfTypeIRI) ) {
+                        return;
+                    }
+                }
+                ++count;
             }
         }
 
-        throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
+        if ( count > 0 ) {
+            throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
+        }
     }
 }
 
