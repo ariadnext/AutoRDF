@@ -23,7 +23,7 @@ public:
      * Constructor to make Uri from string.
      * Should be automatically done by above declaration but not working
      */
-    Uri(const std::string& str) : std::string(str) {};
+    Uri(const std::string& str = "") : std::string(str) {};
 
     /**
      * Returns local part of uri
@@ -31,6 +31,13 @@ public:
      * e.g. my:attribute --> attribute
      */
     std::string localPart() const;
+
+    /**
+     * Display friendly name: takes last part of IRI and make it something short and understandable for
+     * human begin.
+     */
+    std::string prettyName(bool uppercaseFirst = false) const;
+
 };
 
 }

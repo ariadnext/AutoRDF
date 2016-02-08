@@ -4,6 +4,8 @@
 #include <string>
 #include <iosfwd>
 
+#include "autordf/Uri.h"
+
 namespace autordf {
 
 class Model;
@@ -27,7 +29,7 @@ public:
     /**
      * IRI for entity
      */
-    std::string rdfname() const { return _rdfname; }
+    Uri rdfname() const { return _rdfname; }
 
     /**
      * Label
@@ -74,7 +76,7 @@ protected:
 private:
     static Model *_m;
     // Object iri
-    std::string _rdfname;
+    Uri _rdfname;
     // rdfs comment
     std::string _comment;
     // rdfs label

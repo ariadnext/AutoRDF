@@ -13,4 +13,12 @@ std::string Uri::localPart() const {
     }
 }
 
+std::string Uri::prettyName(bool uppercaseFirst) const {
+    std::string pretty = substr(find_last_of("/#:") + 1);
+    if ( uppercaseFirst ) {
+        pretty[0] = ::toupper(pretty[0]);
+    }
+    return pretty;
+}
+
 }
