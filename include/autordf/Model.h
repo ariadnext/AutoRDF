@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <list>
 
 #include <autordf/StatementList.h>
 #include <autordf/NodeList.h>
@@ -79,6 +80,11 @@ public:
      * @throw InternalError if for some strange reason data serialization failed
      */
     void saveToFile(FILE *fileHandle, const char *format = "", const std::string& baseIRI = "");
+    
+    /*
+     * Retrieve supported output format for use with saveToFile
+     */
+    std::list<std::string>  supportedFormat() const;
 
     /**
      * Search for statements in model

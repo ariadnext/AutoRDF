@@ -6,6 +6,10 @@
 
 #include <sstream>
 #include <set>
+#include <bits/stl_list.h>
+#include <iostream>
+
+#include <raptor2.h>
 
 #include "autordf/internal/World.h"
 #include "autordf/internal/ModelPrivate.h"
@@ -103,6 +107,20 @@ void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& 
         throw InternalError("Failed to export RDF model to file");
     }
 }
+
+std::list<std::string> Model::supportedFormat() const {
+    std::list<std::string> format;
+    unsigned int i = 0;
+    const raptor_syntax_description *descr = librdf_serializer_get_description(_world->get(), i++);
+
+    while(descr != NULL) {
+        for (unsigned int j = 0; j < descr->names_count; j++) {
+            format.push_back(descr->names[j]);
+        }
+        descr = librdf_serializer_get_description(_world->get(), i++);
+    };
+    return format;
+};
 
 StatementList Model::find(const Statement& req) const {
     return StatementList(req, this);
