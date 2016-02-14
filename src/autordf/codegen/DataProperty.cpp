@@ -141,8 +141,7 @@ std::pair<cvt::RdfTypeEnum, std::string> DataProperty::getRdfCppTypes(const Klas
 void DataProperty::generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
                     "@return the mandatory value for this property.\n"
-                            "@throw PropertyNotFound if value is not set in database\n"
-                            "@throw DuplicateProperty if database contains more than one value");
+                            "@throw PropertyNotFound if value is not set in database");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
     if (!rdfCppType.second.empty()) {
@@ -181,8 +180,7 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
 
 void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& onClass) const {
     generateComment(ofs, 1,
-                    "@return the valueif it is set, or nullptr if it is not set.\n"
-                            "@throw DuplicateProperty if database contains more than one value");
+                    "@return the valueif it is set, or nullptr if it is not set.");
 
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 

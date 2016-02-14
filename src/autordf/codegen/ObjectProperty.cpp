@@ -16,13 +16,11 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
         if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
             generateComment(ofs, 1,
                 "@return the mandatory instance.\n"
-                "@throw PropertyNotFound if object reference is not set\n"
-                "@throw DuplicateProperty if database contains more than one value", &propertyClass);
+                "@throw PropertyNotFound if object reference is not set", &propertyClass);
             indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << _decorated.prettyIRIName()<< "() const;" << std::endl;
         } else {
             generateComment(ofs, 1,
-                            "@return the object instance if it is set, or nullptr if it is not set.\n"
-                            "@throw DuplicateProperty if database contains more than one value", &propertyClass);
+                            "@return the object instance if it is set, or nullptr if it is not set.", &propertyClass);
             indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
         }
     }
