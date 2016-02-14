@@ -48,6 +48,7 @@ std::string RdfsEntity::genCppNameWithNamespace(bool interfaceMode) const {
 }
 
 void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {
+    static const boost::char_separator<char> NEWLINE("\r\n");
     const RdfsEntity *used = this;
     if ( used->_decorated.label().empty() && used->_decorated.comment().empty() ) {
         if ( alternate ) {
@@ -61,7 +62,12 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
             indent(ofs, numIndent) << " * " << std::endl;
         }
         if ( !used->_decorated.comment().empty() ) {
-            indent(ofs, numIndent) << " * " << used->_decorated.comment() << std::endl;
+            boost::tokenizer<boost::char_separator<char> > lines(used->_decorated.comment(), NEWLINE);
+            for (const std::string& line : lines) {
+                if ( !line.empty() ) {
+                    indent(ofs, numIndent) << " * " << line << std::endl;
+                }
+            }
         }
         if ( !used->_decorated.seeAlso().empty() ) {
             indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
@@ -70,10 +76,11 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
             indent(ofs, numIndent) << " * @see " << used->_decorated.isDefinedBy() << std::endl;
         }
 
-        boost::char_separator<char> sep("\n");
-        boost::tokenizer<boost::char_separator<char> > tokens(additionalComment, sep);
-        for (auto const& token : tokens) {
-            indent(ofs, numIndent) << " * " << token << std::endl;
+        boost::tokenizer<boost::char_separator<char> > lines(additionalComment, NEWLINE);
+        for (const std::string& line : lines) {
+            if ( !line.empty() ) {
+                indent(ofs, numIndent) << " * " << line << std::endl;
+            }
         }
 
         indent(ofs, numIndent) << " */" << std::endl;
