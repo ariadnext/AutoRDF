@@ -77,7 +77,7 @@ AUTORDFEXCEPTION(UnsupportedRdfFileFormat)
 AUTORDFEXCEPTION(FileIOError)
 
 /**
- * e.g. Invalid cast as a Resource node
+ * Invalid cast as a Resource node for instance
  */
 AUTORDFEXCEPTION(InvalidNodeType)
 
