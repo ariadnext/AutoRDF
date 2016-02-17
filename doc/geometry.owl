@@ -64,6 +64,7 @@
     <!-- http://example.org/geometry#borderColor -->
 
     <owl:DatatypeProperty rdf:about="http://example.org/geometry#borderColor">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://example.org/geometry#Shape"/>
         <rdfs:comment xml:lang="en">Color used to draw the border of the shape</rdfs:comment>
     </owl:DatatypeProperty>
@@ -84,6 +85,7 @@
     <!-- http://example.org/geometry#fillColor -->
 
     <owl:DatatypeProperty rdf:about="http://example.org/geometry#fillColor">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://example.org/geometry#Shape"/>
         <rdfs:comment xml:lang="en">Color used to fill the shape</rdfs:comment>
     </owl:DatatypeProperty>
@@ -113,6 +115,7 @@
     <!-- http://example.org/geometry#textString -->
 
     <owl:DatatypeProperty rdf:about="http://example.org/geometry#textString">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://example.org/geometry#Text"/>
         <rdfs:comment xml:lang="en">Text to be displayed on the shape</rdfs:comment>
     </owl:DatatypeProperty>
@@ -152,6 +155,12 @@
 
     <owl:Class rdf:about="http://example.org/geometry#Circle">
         <rdfs:subClassOf rdf:resource="http://example.org/geometry#Shape"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://example.org/geometry#radius"/>
+                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">A circle, specified by its radius</rdfs:comment>
     </owl:Class>
     

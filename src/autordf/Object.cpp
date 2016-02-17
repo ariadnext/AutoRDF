@@ -13,7 +13,7 @@ void Object::setFactory(Factory *f) {
     _factory = f;
 }
 
-Object::Object(const Uri &iri, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(iri.empty() ? _factory->createBlankNodeResource() :_factory->createIRIResource(iri)) {
+Object::Object(const Uri &iri, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(iri.empty() ? factory()->createBlankNodeResource() :factory()->createIRIResource(iri)) {
     construct(rdfTypeIRI);
     runtimeTypeCheck(rtti);
 }
@@ -52,7 +52,7 @@ std::string Object::prefixedIri() const {
     std::pair<std::string, std::string> bestPrefix;
 
     Uri i = iri();
-    for ( auto const& pair : _factory->namespacesPrefixes() ) {
+    for ( auto const& pair : factory()->namespacesPrefixes() ) {
         if ( (i.find(pair.second) == 0) && (i.length() > pair.second.length() ) ) {
             // Found !
             bestPrefix = pair;
@@ -95,7 +95,7 @@ std::vector<Object> Object::getObjectList(const Uri& propertyIRI) const {
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
     addRdfTypeIfNeeded();
-    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(obj._r);
     _r.removeProperties(propertyIRI);
     _r.addProperty(*p);
@@ -103,7 +103,7 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
 
 void Object::addObject(const Uri& propertyIRI, const Object& obj) {
     addRdfTypeIfNeeded();
-    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(obj._r);
     _r.addProperty(*p);
 }
@@ -139,7 +139,7 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     addRdfTypeIfNeeded();
-    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(val);
     _r.removeProperties(propertyIRI);
     _r.addProperty(*p);
@@ -147,18 +147,18 @@ void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
 
 void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     addRdfTypeIfNeeded();
-    _r.addProperty(_factory->createProperty(propertyIRI)->setValue(val));
+    _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
 }
 
 void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
-    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(val);
     _r.removeSingleProperty(*p);
 }
 
 void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values) {
     addRdfTypeIfNeeded();
-    std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const PropertyValue& val: values) {
         p->setValue(val);
@@ -186,9 +186,9 @@ void Object::remove() {
 Object Object::clone(const Uri& iri) {
     const std::list<Property>& props = _r.getPropertyValues();
     if ( !iri.empty() ) {
-        return Object(_factory->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
+        return Object(factory()->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
     } else {
-        return Object(_factory->createBlankNodeResource("").setProperties(props), _rdfTypeIRI);
+        return Object(factory()->createBlankNodeResource("").setProperties(props), _rdfTypeIRI);
     }
 }
 
@@ -202,28 +202,28 @@ Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     query.object.setLiteral(value);
     query.object.setLang(value.lang());
     query.object.setDataType(value.dataTypeIri());
-    const StatementList& statements = _factory->find(query);
+    const StatementList& statements = factory()->find(query);
     if ( statements.size() == 0 ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + value + " found");
     }
     if ( statements.size() > 1 ) {
         throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + value + " found");
     }
-    return Object(_factory->createResourceFromNode(statements.begin()->subject));
+    return Object(factory()->createResourceFromNode(statements.begin()->subject));
 }
 
 Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     Statement query;
     query.predicate.setIri(propertyIRI);
     query.object.setIri(object.iri());
-    const StatementList& statements = _factory->find(query);
+    const StatementList& statements = factory()->find(query);
     if ( statements.size() == 0 ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
     if ( statements.size() > 1 ) {
         throw DuplicateObject(std::string("More than one object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
-    return Object(_factory->createResourceFromNode(statements.begin()->subject));
+    return Object(factory()->createResourceFromNode(statements.begin()->subject));
 }
 
 void Object::addRdfTypeIfNeeded() {
@@ -253,7 +253,7 @@ void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> 
         }
         predicate.setIri(RDF_NS + "type");
 
-        NodeList foundTypes = _factory->findTargets(subject, predicate);
+        NodeList foundTypes = factory()->findTargets(subject, predicate);
 
         unsigned int count = 0;
         for (const Node& type: foundTypes) {
@@ -276,6 +276,14 @@ void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> 
         }
     }
 }
+
+Factory *Object::factory() {
+    if ( !_factory ) {
+        throw std::runtime_error("You must call autordf::Object::setFactory() before using any of your objects methods");
+    }
+    return _factory;
+}
+
 
 namespace {
 

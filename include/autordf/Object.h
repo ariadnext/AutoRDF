@@ -293,10 +293,10 @@ public:
         Statement query;
         query.predicate.setIri(RDF_NS + "type");
         query.object.setIri(iri);
-        const StatementList& statements = _factory->find(query);
+        const StatementList& statements = factory()->find(query);
         std::vector<T> objList;
         for(const Statement& stmt : statements) {
-            objList.push_back(T(_factory->createResourceFromNode(stmt.subject)));
+            objList.push_back(T(factory()->createResourceFromNode(stmt.subject)));
         }
         return objList;
     }
@@ -324,7 +324,7 @@ public:
      */
     template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
         addRdfTypeIfNeeded();
-        std::shared_ptr<Property> p =_factory->createProperty(propertyIRI);
+        std::shared_ptr<Property> p =factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (const Object& object : values) {
             p->setValue(object._r);
@@ -355,7 +355,7 @@ public:
      */
     template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
         addRdfTypeIfNeeded();
-        std::shared_ptr<Property> p = _factory->createProperty(propertyIRI);
+        std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (auto const & val: values) {
             p->setValue(PropertyValue().set<rdftype>(val));
@@ -402,6 +402,11 @@ private:
      * @param rdfTypesInfo, the types inferred for current class hierarchy
      */
     void runtimeTypeCheck(const std::map<std::string, std::set<std::string> > *rdfTypesInfo) const;
+
+    /**
+     * Returns the associated factory, or throws if nullptr
+     */
+    static Factory *factory();
 };
 
 /**
