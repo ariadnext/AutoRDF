@@ -117,9 +117,10 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
             cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\");" << std::endl;
             ofs << "}" << std::endl;
             ofs << std::endl;
-            ofs << "void " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << ">& values) {" << std::endl;
+            ofs << currentClassName << "& " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << ">& values) {" << std::endl;
             indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
             cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values);" << std::endl;
+            indent(ofs, 1) << "return *this;" << std::endl;
             ofs << "}" << std::endl;
         }
     }
@@ -163,17 +164,21 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
                             "@param value value to set for this property, removing all other values");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
-        indent(ofs, 2) << "return object().setPropertyValue(\"" << _decorated.rdfname() <<
+        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "object().setPropertyValue(\"" << _decorated.rdfname() <<
             "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
             ">(value));" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
         indent(ofs, 2) << "object().setPropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -214,12 +219,15 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
                     "Sets property to list of values \n@param values the list of values");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
+        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
     } else {
-        indent(ofs, 1) << "void set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueVector& values) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueVector& values) {" << std::endl;
         indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
+        indent(ofs, 2) <<     "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
     ofs << std::endl;
@@ -228,14 +236,16 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
-        indent(ofs, 2) << "return object().addPropertyValue(\"" << _decorated.rdfname() <<
+        indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() <<
         "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
         ">(value));" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "void add" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
         indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
