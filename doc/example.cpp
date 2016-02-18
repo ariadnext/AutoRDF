@@ -21,5 +21,5 @@ int main(int argc, char ** argv) {
     r.setBottomRight(geo::Point().setX(11).setY(12));
 
     // Set result of my work
-    f.saveToFile("/tmp/file.ttl");
+    f.saveToFile(stdout, "turtle");
 }

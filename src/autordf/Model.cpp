@@ -24,7 +24,7 @@ using namespace internal;
 Model::Model() : _world(new World()), _model(new ModelPrivate(std::make_shared<Storage>())) {
 }
 
-void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
+void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
     FILE *f = ::fopen(path.c_str(), "r");
     if ( !f ) {
         std::stringstream ss;
@@ -33,21 +33,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
     }
 
     try {
-        std::shared_ptr<Parser> p = Parser::guessFromUri(Uri(path));
-        if ( !p ) {
-            throw UnsupportedRdfFileFormat("File format not recognized");
-        }
-        if ( librdf_parser_parse_file_handle_into_model(p->get(), f, 0, (baseUri.length() ? Uri(baseUri).get() : nullptr), _model->get()) ) {
-            throw InternalError("Failed to read model from file");
-        }
-        int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
-        for ( unsigned int i = 0; i < prefixCount; ++i ) {
-            const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
-            librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
-            if ( prefix && uri ) {
-                addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
-            }
-        }
+        loadFromFile(f, path, baseIRI);
     }
     catch(...) {
         ::fclose(f);
@@ -56,7 +42,25 @@ void Model::loadFromFile(const std::string& path, const std::string& baseUri) {
     ::fclose(f);
 }
 
-void Model::saveToFile(const std::string& path, const std::string& baseUri, const char *format) {
+void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI) {
+    std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
+    if ( !p ) {
+        throw UnsupportedRdfFileFormat("File format not recognized");
+    }
+    if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
+        throw InternalError("Failed to read model from file");
+    }
+    int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
+    for ( unsigned int i = 0; i < prefixCount; ++i ) {
+        const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
+        librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
+        if ( prefix && uri ) {
+            addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
+        }
+    }
+}
+
+void Model::saveToFile(const std::string& path, const std::string& baseIRI, const char *format) {
     if ( !format ) {
         format = librdf_parser_guess_name2(_world->get(), NULL, NULL, reinterpret_cast<const unsigned char *>(path.c_str()));
     }
@@ -64,6 +68,24 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
         throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
     }
 
+    FILE *f = ::fopen(path.c_str(), "w");
+    if ( !f ) {
+        std::stringstream ss;
+        ss << "Unable to open " << path << ": " << ::strerror(errno);
+        throw FileIOError(ss.str().c_str());
+    }
+
+    try {
+        saveToFile(f, format, baseIRI);
+    }
+    catch(...) {
+        ::fclose(f);
+        throw;
+    }
+    ::fclose(f);
+}
+
+void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI) {
     std::shared_ptr<librdf_serializer> s(librdf_new_serializer(_world->get(), format, 0, 0), librdf_free_serializer);
     if ( !s ) {
         throw InternalError("Failed to construct RDF serializer");
@@ -78,7 +100,7 @@ void Model::saveToFile(const std::string& path, const std::string& baseUri, cons
         }
     }
 
-    if ( librdf_serializer_serialize_model_to_file(s.get(), path.c_str(), baseUri.length() ? Uri(baseUri).get() : nullptr, _model->get()) ) {
+    if ( librdf_serializer_serialize_model_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, _model->get()) ) {
         throw InternalError("Failed to export RDF model to file");
     }
 }

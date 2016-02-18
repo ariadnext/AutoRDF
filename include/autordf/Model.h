@@ -8,6 +8,8 @@
 #include <autordf/StatementList.h>
 #include <autordf/NodeList.h>
 
+#include <cstdlib>
+
 namespace autordf {
 
 namespace internal {
@@ -39,12 +41,23 @@ public:
      * @param path: where to load data from
      * @param baseIRI: prefix for prefix-less data
      * @throw UnsupportedRdfFileFormat if format is not recognized
-     * @throw FileIOError is fil does not exist
+     * @throw FileIOError is file does not exist
      * @throw InternalError
      */
     void loadFromFile(const std::string& path, const std::string& baseIRI = ".");
 
-    /** Save model to file.
+    /**
+     * Loads rdf resource from a local file
+     * @param fileHandle: file handle where to load data from - open with fopen()
+     * @param format: extension of the file
+     * @param baseIRI: prefix for prefix-less data
+     * @throw UnsupportedRdfFileFormat if format is not recognized
+     * @throw InternalError
+     */
+    void loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI = ".");
+
+    /**
+     * Save model to file.
      * If no format is supplied, auto-detection is guessed
      * from provided file name
      * @param path filename to write file to
@@ -54,6 +67,18 @@ public:
      * @throw InternalError if for some strange reason data serialization failed
      */
     void saveToFile(const std::string& path, const std::string& baseIRI = "", const char *format = 0);
+
+    /**
+     * Save model to file.
+     * If no format is supplied, auto-detection is guessed
+     * from provided file name
+     * @param fileHandle: file handle where to write data to - open with fopen()
+     * @param format fileformat to use. If empty use default RDF/XML format
+     * @param baseIRI if not empty, serializer will express all iris relatively to this one
+     * @throw UnsupportedRdfFileFormat if format is not recognized
+     * @throw InternalError if for some strange reason data serialization failed
+     */
+    void saveToFile(FILE *fileHandle, const char *format = "", const std::string& baseIRI = "");
 
     /**
      * Search for statements in model

@@ -161,7 +161,7 @@
                 <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment xml:lang="en">A circle, specified by its radius</rdfs:comment>
+        <rdfs:comment xml:lang="en">A circle, specified by its radius.</rdfs:comment>
     </owl:Class>
     
 
