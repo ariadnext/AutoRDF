@@ -183,7 +183,7 @@ void Object::remove() {
     }
 }
 
-Object Object::clone(const Uri& iri) {
+Object Object::clone(const Uri& iri) const {
     const std::list<Property>& props = _r.getPropertyValues();
     if ( !iri.empty() ) {
         return Object(factory()->createIRIResource(iri).setProperties(props), _rdfTypeIRI);

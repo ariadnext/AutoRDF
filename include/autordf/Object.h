@@ -224,10 +224,12 @@ public:
     void remove();
 
     /**
-     * Copies this object, to given iri. If iri empty,
-     * creates an anonymous (aka blank) object
+     * Copies this object, to given iri.
+     *
+     * Object is copied by duplicating all it properties values.
+     * @param iri if empty, creates an anonymous (aka blank) object.
      */
-    Object clone(const Uri& iri = "");
+    Object clone(const Uri& iri = "") const;
 
     /**
      * Returns all Objects matching type specified as IRI

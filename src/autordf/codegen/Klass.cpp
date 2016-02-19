@@ -64,6 +64,16 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "explicit " << cppName << "(const Object& other);" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief Clone the object, to given iri" << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * Object is copied by duplicating all it properties values. " << std::endl;
+    indent(ofs, 1) << " * @param iri if empty, creates an anonymous (aka blank) object." << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << cppName << " clone(const autordf::Uri& iri = \"\") const {" << std::endl;
+    indent(ofs, 2) <<     "return Object::clone(iri).as<" << cppName << ">();" << std::endl;
+    indent(ofs, 1) << "}" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Returns the list of all objects of this kind in the store" << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static std::vector<" << cppName << "> find();" << std::endl;
