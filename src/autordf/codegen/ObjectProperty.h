@@ -36,9 +36,14 @@ private:
 
     void generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const;
 
+    void generateRemoverDeclaration(std::ostream& ofs, const Klass& onClass) const;
+
     void generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const;
 
     void generateDefinitionSetterForMany(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateRemoverDefinition(std::ostream& ofs, const Klass& onClass) const;
+
 };
 }
 }

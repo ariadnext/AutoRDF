@@ -112,6 +112,12 @@ void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &va
     setObjectListImpl(propertyIRI, values);
 }
 
+void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
+    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
+    p->setValue(obj._r);
+    _r.removeSingleProperty(*p);
+}
+
 PropertyValue Object::getPropertyValue(const Uri& propertyIRI) const {
     return _r.getProperty(propertyIRI)->value();
 }

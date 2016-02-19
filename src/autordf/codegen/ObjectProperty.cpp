@@ -33,6 +33,10 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
     }
     ofs << std::endl;
     generateDeclarationSetterForOne(ofs, onClass);
+    if ( _decorated.minCardinality(onClass.decorated()) != _decorated.maxCardinality(onClass.decorated()) ) {
+        ofs << std::endl;
+        generateRemoverDeclaration(ofs, onClass);
+    }
     ofs << std::endl;
 }
 
@@ -82,6 +86,10 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
     }
     ofs << std::endl;
     generateDefinitionSetterForOne(ofs, onClass);
+    if ( _decorated.minCardinality(onClass.decorated()) != _decorated.maxCardinality(onClass.decorated()) ) {
+        ofs << std::endl;
+        generateRemoverDefinition(ofs, onClass);
+    }
     ofs << std::endl;
 }
 
@@ -144,6 +152,28 @@ Klass ObjectProperty::effectiveClass(const Klass& onClass) const {
     }
 }
 
+void ObjectProperty::generateRemoverDeclaration(std::ostream& ofs, const Klass& onClass) const {
+    auto propertyClass = effectiveClass(onClass);
+
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
+    generateComment(ofs, 1,
+                    "Remove a value for this property.\n"
+                            "@param obj value to remove for this property.\n"
+                            "@throw PropertyNotFound if propertyIRI has not obj as value", &propertyClass);
+    indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& obj);" << std::endl;
+}
+
+void ObjectProperty::generateRemoverDefinition(std::ostream& ofs, const Klass& onClass) const {
+    auto propertyClass = effectiveClass(onClass);
+
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
+    ofs << currentClassName << "& " << currentClassName << "::remove" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value) {" << std::endl;
+    indent(ofs, 1) << "object().removeObject(\"" << _decorated.rdfname() << "\", value.object());" << std::endl;
+    indent(ofs, 1) << "return *this;" << std::endl;
+    ofs  << "}" << std::endl;
+}
 
 }
 }

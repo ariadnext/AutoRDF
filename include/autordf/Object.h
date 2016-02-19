@@ -129,6 +129,14 @@ public:
     void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values);
 
     /**
+     * Remove the first value matching val for this object property
+     * @param propertyIRI Internationalized Resource Identifiers property to remove one value from
+     * @param obj object to remove from property value
+     * @throw PropertyNotFound if propertyIRI has not obj as value
+     */
+    void removeObject(const Uri& propertyIRI, const Object& obj);
+
+    /**
      * Gets given property value
      * Property should be set.
      * If property is instanciated more than one, return one of the values, with no particular rule

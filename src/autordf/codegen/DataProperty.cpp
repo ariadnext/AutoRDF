@@ -52,6 +52,10 @@ void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) 
         ofs << std::endl;
         generateSetterForMany(ofs, onClass);
     }
+    if ( _decorated.minCardinality(onClass.decorated()) != _decorated.maxCardinality(onClass.decorated()) ) {
+        ofs << std::endl;
+        generateRemover(ofs, onClass);
+    }
 }
 
 void DataProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const {
@@ -249,5 +253,32 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
         indent(ofs, 1) << "}" << std::endl;
     }
 }
+
+void DataProperty::generateRemover(std::ostream& ofs, const Klass& onClass) const {
+    generateComment(ofs, 1,
+                    "Remove a value for this property.\n"
+                            "@param value to remove for this property.\n"
+                            "@throw PropertyNotFound if propertyIRI has not obj as value\n");
+    std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
+
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
+    if (!rdfCppType.second.empty()) {
+        cvt::RdfTypeEnum rdfType = rdfCppType.first;
+        std::string cppType = rdfCppType.second;
+        indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 2) << "object().removePropertyValue(\"" << _decorated.rdfname() <<
+        "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
+        ">(value));" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    } else {
+        indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 2) << "object().removePropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+        indent(ofs, 2) << "return *this;" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+}
+
 }
 }

@@ -38,6 +38,8 @@ private:
     void generateSetterForOne(std::ostream& ofs, const Klass& onClass) const;
 
     void generateSetterForMany(std::ostream& ofs, const Klass& onClass) const;
+
+    void generateRemover(std::ostream& ofs, const Klass& onClass) const;
 };
 
 }
