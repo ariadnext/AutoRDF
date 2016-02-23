@@ -1,5 +1,7 @@
 #include <autordf/PropertyValueVector.h>
 
+#include <ostream>
+
 namespace autordf {
 
 std::shared_ptr<PropertyValue> PropertyValueVector::langOptional(const std::string& lang) const {
@@ -9,6 +11,16 @@ std::shared_ptr<PropertyValue> PropertyValueVector::langOptional(const std::stri
         }
     }
     return nullptr;
+}
+
+std::ostream& operator<<(std::ostream& os, const PropertyValueVector& vv) {
+    for ( auto it = vv.begin(); it != vv.end(); ++it ) {
+        if ( it != vv.begin() ) {
+            os << ", ";
+        }
+        os << *it;
+    }
+    return os;
 }
 
 }

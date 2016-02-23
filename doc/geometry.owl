@@ -31,6 +31,15 @@
     
 
 
+    <!-- http://example.org/geometry#center -->
+
+    <owl:ObjectProperty rdf:about="http://example.org/geometry#center">
+        <rdfs:range rdf:resource="http://example.org/geometry#Point"/>
+        <rdfs:comment xml:lang="en">Shape center</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://example.org/geometry#text -->
 
     <owl:ObjectProperty rdf:about="http://example.org/geometry#text">
@@ -155,6 +164,12 @@
 
     <owl:Class rdf:about="http://example.org/geometry#Circle">
         <rdfs:subClassOf rdf:resource="http://example.org/geometry#Shape"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://example.org/geometry#center"/>
+                <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:cardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://example.org/geometry#radius"/>

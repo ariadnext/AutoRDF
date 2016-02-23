@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <iosfwd>
 
 #include <autordf/PropertyValue.h>
 
@@ -21,6 +22,8 @@ public:
      */
     std::shared_ptr<PropertyValue> langOptional(const std::string& lang) const;
 };
+
+std::ostream& operator<<(std::ostream& os, const PropertyValueVector& v);
 
 }
 

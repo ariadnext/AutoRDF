@@ -25,6 +25,7 @@ ADD_LIBRARY(
     internal/Stream.cpp
     internal/NodeConverter.cpp
     internal/StatementConverter.cpp
+    cvt/RdfTypeEnum.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf
