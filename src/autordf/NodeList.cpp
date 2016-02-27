@@ -5,7 +5,6 @@
 #include "autordf/internal/Iterator.h"
 #include "autordf/Model.h"
 #include "autordf/internal/ModelPrivate.h"
-#include "autordf/internal/NodeConverter.h"
 #include "autordf/Exception.h"
 
 namespace autordf {
@@ -14,17 +13,13 @@ using namespace internal;
 
 NodeIteratorBase::NodeIteratorBase(std::shared_ptr<Iterator> iterator) : _iterator(iterator)  {
     if ( _iterator && _iterator->object() )  {
-        _current = std::make_shared<Node>();
-        NodeConverter::fromLibRdfNode(static_cast<librdf_node*>(_iterator->object()), _current.get());
+        _current = std::make_shared<Node>(static_cast<librdf_node*>(_iterator->object()), false);
     }
 }
 
 void NodeIteratorBase::operatorPlusPlusHelper() {
     if ( _iterator->next() )  {
-        if ( !_current ) {
-            _current = std::make_shared<Node>();
-        }
-        NodeConverter::fromLibRdfNode(static_cast<librdf_node*>(_iterator->object()), _current.get());
+        _current = std::make_shared<Node>(static_cast<librdf_node*>(_iterator->object()), false);
     } else {
         _current.reset();
     }
@@ -65,25 +60,15 @@ NodeList::const_iterator NodeList::begin() const {
 
 std::shared_ptr<Iterator> NodeList::createNewIterator() const {
     std::shared_ptr<Iterator> it;
-    std::shared_ptr<librdf_node> s, p, o;
-    if ( !_subject.empty() ) {
-        s = NodeConverter::toLibRdfNodeSmartPtr(_subject);
-    }
-    if ( !_predicate.empty() ) {
-        p = NodeConverter::toLibRdfNodeSmartPtr(_predicate);
-    }
-    if ( !_object.empty() ) {
-        o = NodeConverter::toLibRdfNodeSmartPtr(_object);
-    }
 
     if ( _subject.empty() ) {
-        it = std::make_shared<Iterator>(librdf_model_get_sources(_m->_model->get(), p.get(), o.get()));
+        it = std::make_shared<Iterator>(librdf_model_get_sources(_m->_model->get(), _predicate.get(), _object.get()));
     }
     if ( _predicate.empty() ) {
-        it = std::make_shared<Iterator>(librdf_model_get_arcs(_m->_model->get(), s.get(), o.get()));
+        it = std::make_shared<Iterator>(librdf_model_get_arcs(_m->_model->get(), _subject.get(), _object.get()));
     }
     if ( _object.empty() ) {
-        it = std::make_shared<Iterator>(librdf_model_get_targets(_m->_model->get(), s.get(), p.get()));
+        it = std::make_shared<Iterator>(librdf_model_get_targets(_m->_model->get(), _subject.get(), _predicate.get()));
     }
     return it;
 }

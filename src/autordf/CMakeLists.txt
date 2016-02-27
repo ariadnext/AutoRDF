@@ -23,7 +23,6 @@ ADD_LIBRARY(
     internal/Parser.cpp
     internal/Uri.cpp
     internal/Stream.cpp
-    internal/NodeConverter.cpp
     internal/StatementConverter.cpp
     cvt/RdfTypeEnum.cpp
 )

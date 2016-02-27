@@ -114,13 +114,11 @@ TEST(_01_Model, TypeLiterals) {
     Statement st;
     st.subject.setIri("http://mydomain/me");
     st.predicate.setIri("http://mydomain/firstName");
-    st.object.setLiteral("Fabien");
-    st.object.setDataType("http://www.w3.org/2001/XMLSchema#string");
+    st.object.setLiteral("Fabien", "", "http://www.w3.org/2001/XMLSchema#string");
     ts.add(st);
 
     st.predicate.setIri("http://mydomain/town");
-    st.object.setDataType("");
-    st.object.setLang("fr");
+    st.object.setLiteral("Fabien", "fr");
     ts.add(st);
 
     const StatementList& stmtList = ts.find();

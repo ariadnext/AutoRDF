@@ -103,7 +103,7 @@ public:
     NodeList findTargets(const Node& source, const Node& arc) const;
 
     /**
-     * Return one arc (predicate) of an arc in an RDF graph given source (subject) and target (object).
+     * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
      */
     Node findTarget(const Node& source, const Node& arc) const;
 

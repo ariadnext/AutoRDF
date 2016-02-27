@@ -2,59 +2,132 @@
 
 #include <stdexcept>
 #include <ostream>
+#include <memory>
 
 #include "autordf/Exception.h"
+#include "autordf/internal/World.h"
 
 namespace autordf {
 
 void Node::assertType(const char* prop, NodeType t) const {
-    if ( _type != t ) {
-        throw InvalidNodeType(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(_type));
+    if ( type() != t ) {
+        throw InvalidNodeType(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(type()));
+    }
+}
+
+Node::Node(const Node& n) : _own(true) {
+    if ( n._node ) {
+        _node = librdf_new_node_from_node(n._node);
+    } else {
+        _node = nullptr;
+    }
+}
+
+Node::Node(Node&& n) : _own(n._own) {
+    _node = n._node;
+    n._node = nullptr;
+}
+
+Node::~Node() {
+    clear();
+}
+
+void Node::clear() {
+    if ( _node ) {
+        if ( _own ) {
+            librdf_free_node(_node);
+        }
+        _node = nullptr;
+    }
+    _own = true;
+}
+
+NodeType Node::type() const {
+    if ( !_node ) {
+        return NodeType::EMPTY;
+    } else {
+        switch(librdf_node_get_type(_node)) {
+            case LIBRDF_NODE_TYPE_RESOURCE:
+                return NodeType::RESOURCE;
+            case LIBRDF_NODE_TYPE_LITERAL:
+                return NodeType::LITERAL;
+            case LIBRDF_NODE_TYPE_BLANK:
+                return NodeType::BLANK;
+            default:
+                return NodeType::EMPTY;
+        }
     }
 }
 
 // Only valid if node type is resource;
-const std::string& Node::iri() const {
+const char* Node::iri() const {
     assertType("iri", NodeType::RESOURCE);
-    return _value;
+    return reinterpret_cast<const char*>(librdf_uri_as_string(librdf_node_get_uri(_node)));
 }
 
 // Only valid if node type is literal
-const std::string& Node::literal() const {
+const char* Node::literal() const {
     assertType("literal", NodeType::LITERAL);
-    return _value;
+    return reinterpret_cast<const char*>(librdf_node_get_literal_value(_node));
 }
 
 // Blank node id
-const std::string& Node::bNodeId() const {
+const char* Node::bNodeId() const {
     assertType("bNodeId", NodeType::BLANK);
-    return _value;
+    return reinterpret_cast<const char*>(librdf_node_get_blank_identifier(_node));
 }
 
-const std::string& Node::dataType() const {
+const char* Node::dataType() const {
     assertType("literal", NodeType::LITERAL);
-    return _dataType;
+    return reinterpret_cast<const char*>(librdf_uri_as_string(librdf_node_get_literal_value_datatype_uri(_node)));
 }
 
-const std::string& Node::lang() const {
+const char* Node::lang() const {
     assertType("literal", NodeType::LITERAL);
-    return _lang;
+    return reinterpret_cast<const char*>(librdf_node_get_literal_value_language(_node));
 }
 
-void Node::setDataType(const std::string& dataType) {
-    assertType("literal", NodeType::LITERAL);
-    if ( !_lang.empty() && !dataType.empty() ) {
-        throw CantSetLiteralTypeAndLang("Can't set dataType on node as lang is already set");
+/**
+ * Set node type to Resource, and set IRI as value
+ */
+void Node::setIri(const std::string& iri) {
+    clear();
+    _node = librdf_new_node_from_uri_string(internal::World().get(), reinterpret_cast<const unsigned char*>(iri.c_str()));
+    if (!_node) {
+        throw InternalError("Failed to construct node from URI");
     }
-    _dataType = dataType;
 }
 
-void Node::setLang(const std::string& lang) {
-    assertType("literal", NodeType::LITERAL);
-    if ( !_dataType.empty() && !lang.empty() ) {
-        throw CantSetLiteralTypeAndLang("Can't set lang on node as dataType is already set");
+/**
+ * Set node type to Literal, and set literal as value
+ */
+void Node::setLiteral(const std::string& literal, const std::string& lang, const std::string& dataTypeUri) {
+    std::shared_ptr<librdf_uri> dataTypeUriPtr;
+    if ( dataTypeUri.length() ) {
+        dataTypeUriPtr = std::shared_ptr<librdf_uri>(librdf_new_uri(internal::World().get(), reinterpret_cast<const unsigned char*>(dataTypeUri.c_str())),
+                                                  librdf_free_uri);
+        if (!dataTypeUriPtr) {
+            throw InternalError(std::string("Failed to construct URI from value: ") + dataTypeUri);
+        }
     }
-    _lang = lang;
+    _node = librdf_new_node_from_typed_literal(internal::World().get(),
+                                                  reinterpret_cast<const unsigned char*>(literal.c_str()), (lang.length() ? lang.c_str() : nullptr),
+                                               dataTypeUriPtr.get());
+    if (!_node) {
+        throw InternalError(std::string("Failed to construct node from literal: ") + literal);
+    }
+}
+
+/**
+ * Set type type Blank Node, and set bnodeid as value
+ */
+void Node::setBNodeId(const std::string& bnodeid) {
+    _node = librdf_new_node_from_blank_identifier(internal::World().get(),
+                                                     reinterpret_cast<const unsigned char*>(bnodeid.c_str()));
+    if (!_node) {
+        throw InternalError(std::string("Failed to construct node from blank identifier: ") +
+                                    bnodeid);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Node& n) {
@@ -72,15 +145,24 @@ std::ostream& operator<<(std::ostream& os, const Node& n) {
             os << "E";
             break;
     }
-    os << "{\"" << (n.empty() ? "" : n._value) << "\"";
-    if ( n.type() == NodeType::LITERAL ) {
-        if ( !n.dataType().empty() ) {
-            os << "^^" << n.dataType();
-        }
-        if ( !n.lang().empty() ) {
-            os << "@" << n.lang();
-        }
+    switch(n.type()) {
+        case NodeType::LITERAL:
+            os << "{\"" << n.literal() << "\"";
+            if ( n.dataType() ) {
+                os << "^^" << n.dataType();
+            }
+            if ( n.lang() ) {
+                os << "@" << n.lang();
+            }
+            break;
+        case NodeType::RESOURCE:
+            os << "{\"" << n.iri() << "\"";
+            break;
+        default:
+            os << "{";
+            break;
     }
+
     os << "}";
     return os;
 }

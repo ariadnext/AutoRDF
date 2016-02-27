@@ -13,7 +13,6 @@
 #include "autordf/internal/Parser.h"
 #include "autordf/internal/Stream.h"
 #include "autordf/internal/Uri.h"
-#include "autordf/internal/NodeConverter.h"
 #include "autordf/internal/StatementConverter.h"
 #include "autordf/Exception.h"
 
@@ -131,17 +130,10 @@ NodeList Model::findTargets(const Node& source, const Node& arc) const {
 }
 
 /**
- * Return one arc (predicate) of an arc in an RDF graph given source (subject) and target (object).
+     * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
  */
 Node Model::findTarget(const Node& source, const Node& arc) const {
-    auto s = NodeConverter::toLibRdfNodeSmartPtr(source);
-    auto p = NodeConverter::toLibRdfNodeSmartPtr(arc);
-    librdf_node *node = librdf_model_get_target(_model->get(), s.get(), p.get());
-    Node n;
-    if ( node ) {
-        NodeConverter::fromLibRdfNode(node, &n);
-    }
-    return n;
+    return Node(librdf_model_get_target(_model->get(), source.get(), arc.get()), true);
 }
 
 void Model::add(const Statement &stmt) {

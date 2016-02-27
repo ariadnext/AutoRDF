@@ -205,9 +205,7 @@ std::vector<Object> Object::findByType(const Uri& iri) {
 Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     Statement query;
     query.predicate.setIri(propertyIRI);
-    query.object.setLiteral(value);
-    query.object.setLang(value.lang());
-    query.object.setDataType(value.dataTypeIri());
+    query.object.setLiteral(value, value.lang(), value.dataTypeIri());
     const StatementList& statements = factory()->find(query);
     if ( statements.size() == 0 ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + value + " found");

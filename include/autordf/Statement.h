@@ -15,6 +15,16 @@ namespace autordf {
 class Statement {
 public:
     /**
+     * Build empty
+     */
+    Statement() {}
+
+    /**
+     * Construct from individual nodes
+     */
+    Statement(Node s, Node p, Node o) : subject(s), predicate(p), object(o) {}
+
+    /**
      * Statement subject
      *
      * Can be empty (empty value or EMPTY type) when used as a model query

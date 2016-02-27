@@ -139,9 +139,7 @@ void Resource::propertyAsNode(const Property& p, Node *n) {
             n->setBNodeId(p.value());
             break;
         case NodeType::LITERAL:
-            n->setLiteral(p.value());
-            n->setLang(p.value().lang());
-            n->setDataType(p.value().dataTypeIri());
+            n->setLiteral(p.value(), p.value().lang(), p.value().dataTypeIri());
             break;
         case NodeType::EMPTY:
             throw InvalidNodeType("Unable to add an Empty property!");
