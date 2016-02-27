@@ -263,7 +263,7 @@ void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> 
 
         unsigned int count = 0;
         for (const Node& type: foundTypes) {
-            if ( type.type == NodeType::RESOURCE) {
+            if ( type.type() == NodeType::RESOURCE) {
                 if ( _rdfTypeIRI == type.iri() ) {
                     return;
                 }

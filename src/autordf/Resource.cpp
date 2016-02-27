@@ -41,12 +41,12 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
         return nullptr;
     }
 
-    std::shared_ptr<Property> p(_factory->createProperty(predicate.iri(), object.type));
-    if (object.type == NodeType::LITERAL) {
+    std::shared_ptr<Property> p(_factory->createProperty(predicate.iri(), object.type()));
+    if (object.type() == NodeType::LITERAL) {
         p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
-    } else if (object.type == NodeType::RESOURCE) {
+    } else if (object.type() == NodeType::RESOURCE) {
         p->setValue(object.iri(), false);
-    } else if (object.type == NodeType::BLANK) {
+    } else if (object.type() == NodeType::BLANK) {
         p->setValue(object.bNodeId(), false);
     }
     return p;
@@ -87,12 +87,12 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
 
     std::list<Property> resp;
     for (const Node& object: foundTriples) {
-        std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type);
-        if ( object.type == NodeType::LITERAL) {
+        std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type());
+        if ( object.type() == NodeType::LITERAL) {
             p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
-        } else if ( object.type == NodeType::RESOURCE) {
+        } else if ( object.type() == NodeType::RESOURCE) {
             p->setValue(object.iri(), false);
-        } else if ( object.type == NodeType::BLANK) {
+        } else if ( object.type() == NodeType::BLANK) {
             p->setValue(object.bNodeId(), false);
         }
         resp.push_back(*p);
@@ -117,12 +117,12 @@ std::list<Property> Resource::getPropertyValues() const {
     for (const Statement& triple: foundTriples) {
         const Node& object = triple.object;
         const Node& predicate = triple.predicate;
-        std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type);
-        if ( object.type == NodeType::LITERAL) {
+        std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type());
+        if ( object.type() == NodeType::LITERAL) {
             p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
-        } else if ( object.type == NodeType::RESOURCE) {
+        } else if ( object.type() == NodeType::RESOURCE) {
             p->setValue(object.iri(), false);
-        } else if ( object.type == NodeType::BLANK) {
+        } else if ( object.type() == NodeType::BLANK) {
             p->setValue(object.bNodeId(), false);
         }
         resp.push_back(*p);

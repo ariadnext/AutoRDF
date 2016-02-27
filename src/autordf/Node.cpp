@@ -8,8 +8,8 @@
 namespace autordf {
 
 void Node::assertType(const char* prop, NodeType t) const {
-    if ( type != t ) {
-        throw InvalidNodeType(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(type));
+    if ( _type != t ) {
+        throw InvalidNodeType(std::string("Called Node::") + prop + "() on resource type " + nodeTypeString(_type));
     }
 }
 
@@ -58,7 +58,7 @@ void Node::setLang(const std::string& lang) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Node& n) {
-    switch(n.type) {
+    switch(n.type()) {
         case NodeType::RESOURCE:
             os << "R";
             break;
@@ -73,7 +73,7 @@ std::ostream& operator<<(std::ostream& os, const Node& n) {
             break;
     }
     os << "{\"" << (n.empty() ? "" : n._value) << "\"";
-    if ( n.type == NodeType::LITERAL ) {
+    if ( n.type() == NodeType::LITERAL ) {
         if ( !n.dataType().empty() ) {
             os << "^^" << n.dataType();
         }

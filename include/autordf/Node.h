@@ -20,12 +20,17 @@ public:
     /**
      * This node type
      */
-    NodeType type;
+    NodeType type() const { return _type; }
+
+    /**
+    * This node type
+    */
+    void setType(NodeType type) { _type = type; }
 
     /**
      * Builds an empty node
      */
-    Node() : type(NodeType::EMPTY) {}
+    Node() : _type(NodeType::EMPTY) {}
 
     /**
      * @return Internationalized Resource Identifier
@@ -72,17 +77,17 @@ public:
     /**
      * Set node type to Resource, and set IRI as value
      */
-    void setIri(const std::string& iri) { type = NodeType::RESOURCE; _value = iri; }
+    void setIri(const std::string& iri) { _type = NodeType::RESOURCE; _value = iri; }
 
     /**
      * Set node type to Literal, and set literal as value
      */
-    void setLiteral(const std::string& literal) { type = NodeType::LITERAL; _value = literal; }
+    void setLiteral(const std::string& literal) { _type = NodeType::LITERAL; _value = literal; }
 
     /**
      * Set type type Blank Node, and set bnodeid as value
      */
-    void setBNodeId(const std::string& bnodeid) { type = NodeType::BLANK; _value = bnodeid; }
+    void setBNodeId(const std::string& bnodeid) { _type = NodeType::BLANK; _value = bnodeid; }
 
     /**
      * Set Literal data type
@@ -100,16 +105,21 @@ public:
     /**
      * @return true if node is of empty type
      */
-    bool empty() const { return type == NodeType::EMPTY; }
+    bool empty() const { return _type == NodeType::EMPTY; }
 
     /**
      * Empties the node
      *
      * Sets node type to Empty, and clears content
      */
-    void clear() { type = NodeType::EMPTY; _value.clear(); }
+    void clear() { _type = NodeType::EMPTY; _value.clear(); }
 
 private:
+    /**
+     * This node type
+     */
+    NodeType _type;
+
     std::string _value;
 
     // Only for literal nodes: optional language tag

@@ -29,12 +29,12 @@ Resource Factory::createIRIResource(const std::string &iri) {
 }
 
 Resource Factory::createResourceFromNode(const Node& node) {
-    if ( node.type == NodeType::RESOURCE ) {
+    if ( node.type() == NodeType::RESOURCE ) {
         return createIRIResource(node.iri());
-    } else if ( node.type == NodeType::BLANK ) {
+    } else if ( node.type() == NodeType::BLANK ) {
         return createBlankNodeResource(node.bNodeId());
     } else {
-        throw InternalError(std::string("Unable to create resource from subject type ") + nodeTypeString(node.type));
+        throw InternalError(std::string("Unable to create resource from subject type ") + nodeTypeString(node.type()));
     }
 }
 
