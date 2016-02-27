@@ -13,13 +13,7 @@ librdf_node* NodeConverter::toLibRdfNode(const Node& node) {
     World w;
     switch (node.type) {
         case NodeType::RESOURCE: {
-            std::shared_ptr<librdf_uri> uri(
-                    librdf_new_uri(w.get(), reinterpret_cast<const unsigned char*>(node.iri().c_str())),
-                    librdf_free_uri);
-            if (!uri) {
-                throw InternalError(std::string("Failed to construct URI from value: ") + node.iri());
-            }
-            lrdfNode = librdf_new_node_from_uri(w.get(), uri.get());
+            lrdfNode = librdf_new_node_from_uri_string(w.get(), reinterpret_cast<const unsigned char*>(node.iri().c_str()));
             if (!lrdfNode) {
                 throw InternalError("Failed to construct node from URI");
             }
