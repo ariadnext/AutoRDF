@@ -8,17 +8,17 @@
 namespace autordf {
 namespace internal {
 
-std::shared_ptr<librdf_statement> StatementConverter::toLibRdfStatement(const Statement& stmt) {
+std::shared_ptr<librdf_statement> StatementConverter::toLibRdfStatement(Statement* stmt) {
     World w;
     std::shared_ptr<librdf_statement> lrdfstatement(librdf_new_statement(w.get()), librdf_free_statement);
-    if (!stmt.subject.empty()) {
-        librdf_statement_set_subject(lrdfstatement.get(), stmt.subject.get());
+    if (!stmt->subject.empty()) {
+        librdf_statement_set_subject(lrdfstatement.get(), stmt->subject.pull());
     }
-    if (!stmt.predicate.empty()) {
-        librdf_statement_set_predicate(lrdfstatement.get(), stmt.predicate.get());
+    if (!stmt->predicate.empty()) {
+        librdf_statement_set_predicate(lrdfstatement.get(), stmt->predicate.pull());
     }
-    if (!stmt.object.empty()) {
-        librdf_statement_set_object(lrdfstatement.get(), stmt.object.get());
+    if (!stmt->object.empty()) {
+        librdf_statement_set_object(lrdfstatement.get(), stmt->object.pull());
     }
     return lrdfstatement;
 }

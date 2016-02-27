@@ -29,7 +29,7 @@ public:
     /**
      * Builds a node from librdf
      */
-    Node(librdf_node *node, bool own = true) : _node(nullptr) {}
+    Node(librdf_node *node, bool own = true) : _node(node), _own(own) {}
 
     /**
      * Copy constructor
@@ -122,6 +122,13 @@ public:
      * Internal
      */
     librdf_node* get() const { return _node; }
+
+    /**
+     * Internal
+     * Extracts the node pointer.
+     * It it the caller reponsibbility to free it
+     */
+    librdf_node* pull();
 
 private:
     librdf_node *_node;

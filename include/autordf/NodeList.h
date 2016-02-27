@@ -28,7 +28,7 @@ protected:
 };
 
 template<typename T>
-class NodeListIterator_: public NodeIteratorBase, public std::iterator<std::forward_iterator_tag, const Node> {
+class NodeListIterator_: public NodeIteratorBase, public std::iterator<std::forward_iterator_tag, Node> {
 public:
     typedef NodeListIterator_ self_type;
 

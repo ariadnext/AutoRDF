@@ -155,7 +155,7 @@ Resource& Resource::addProperty(const Property &p) {
     }
     addreq.predicate.setIri(p.iri());
     propertyAsNode(p, &addreq.object);
-    _factory->add(addreq);
+    _factory->add(&addreq);
     return *this;
 }
 
@@ -169,7 +169,7 @@ Resource& Resource::removeSingleProperty(const Property &p) {
     rmreq.predicate.setIri(p.iri());
     propertyAsNode(p, &rmreq.object);
     try {
-        _factory->remove(rmreq);
+        _factory->remove(&rmreq);
     }
     catch (const InternalError &) {
         throw PropertyNotFound("Unable to remove Property " + p.iri() + ", value " + p.value());
@@ -191,8 +191,8 @@ Resource& Resource::removeProperties(const Uri &iri) {
     StatementList foundTriples = _factory->find(request);
 
     std::list<Property> resp;
-    for (const Statement& triple: foundTriples) {
-        _factory->remove(triple);
+    for (Statement& triple: foundTriples) {
+        _factory->remove(&triple);
     }
     return *this;
 }

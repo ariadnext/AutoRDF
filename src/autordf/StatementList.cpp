@@ -49,7 +49,8 @@ StatementList::const_iterator StatementList::begin() const {
 }
 
 std::shared_ptr<Stream> StatementList::createNewStream() const {
-    std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(_query));
+    Statement query(_query);
+    std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(&query));
     std::shared_ptr<Stream> stream(new Stream(librdf_model_find_statements(_m->_model->get(), search.get())));
     if ( !stream ) {
         throw InternalError("Redland librdf_model_find_statements failed");

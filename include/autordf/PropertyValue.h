@@ -35,6 +35,15 @@ public:
             : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
 
     /**
+     * Builds from a string literal
+     *
+     * @param rawValue Literal value
+     * @param lang optional xml:lang for this literal property
+     * @param dataTypeIri optional literal data type
+     */
+    PropertyValue(const std::string& rawValue, const char* lang, const char* dataTypeIri)
+            : std::string(rawValue), _lang(lang ? lang : ""), _dataTypeIri(dataTypeIri ? dataTypeIri : "") {}
+    /**
      * @return the literal data type if it is set, blank string otherwise
      * Does makes sense only in case this property holds a literal
      */

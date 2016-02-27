@@ -42,6 +42,13 @@ void Node::clear() {
     _own = true;
 }
 
+librdf_node* Node::pull() {
+    librdf_node *n = _node;
+    _own = false;
+    clear();
+    return n;
+}
+
 NodeType Node::type() const {
     if ( !_node ) {
         return NodeType::EMPTY;
@@ -79,7 +86,8 @@ const char* Node::bNodeId() const {
 
 const char* Node::dataType() const {
     assertType("literal", NodeType::LITERAL);
-    return reinterpret_cast<const char*>(librdf_uri_as_string(librdf_node_get_literal_value_datatype_uri(_node)));
+    librdf_uri *dataTypeUri = librdf_node_get_literal_value_datatype_uri(_node);
+    return reinterpret_cast<const char*>(dataTypeUri ? librdf_uri_as_string(dataTypeUri) : nullptr);
 }
 
 const char* Node::lang() const {
@@ -102,15 +110,16 @@ void Node::setIri(const std::string& iri) {
  * Set node type to Literal, and set literal as value
  */
 void Node::setLiteral(const std::string& literal, const std::string& lang, const std::string& dataTypeUri) {
+    internal::World w;
     std::shared_ptr<librdf_uri> dataTypeUriPtr;
     if ( dataTypeUri.length() ) {
-        dataTypeUriPtr = std::shared_ptr<librdf_uri>(librdf_new_uri(internal::World().get(), reinterpret_cast<const unsigned char*>(dataTypeUri.c_str())),
+        dataTypeUriPtr = std::shared_ptr<librdf_uri>(librdf_new_uri(w.get(), reinterpret_cast<const unsigned char*>(dataTypeUri.c_str())),
                                                   librdf_free_uri);
         if (!dataTypeUriPtr) {
             throw InternalError(std::string("Failed to construct URI from value: ") + dataTypeUri);
         }
     }
-    _node = librdf_new_node_from_typed_literal(internal::World().get(),
+    _node = librdf_new_node_from_typed_literal(w.get(),
                                                   reinterpret_cast<const unsigned char*>(literal.c_str()), (lang.length() ? lang.c_str() : nullptr),
                                                dataTypeUriPtr.get());
     if (!_node) {

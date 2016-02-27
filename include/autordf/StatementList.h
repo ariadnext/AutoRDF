@@ -28,7 +28,7 @@ protected:
 };
 
 template<typename T>
-class StatementListIterator_: public StatementIteratorBase, public std::iterator<std::forward_iterator_tag, const Statement> {
+class StatementListIterator_: public StatementIteratorBase, public std::iterator<std::forward_iterator_tag, Statement> {
 public:
     typedef StatementListIterator_ self_type;
 

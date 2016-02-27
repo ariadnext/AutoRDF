@@ -130,13 +130,13 @@ NodeList Model::findTargets(const Node& source, const Node& arc) const {
 }
 
 /**
-     * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
+ * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
  */
 Node Model::findTarget(const Node& source, const Node& arc) const {
     return Node(librdf_model_get_target(_model->get(), source.get(), arc.get()), true);
 }
 
-void Model::add(const Statement &stmt) {
+void Model::add(Statement *stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));
     if ( librdf_model_add_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
@@ -145,7 +145,7 @@ void Model::add(const Statement &stmt) {
     }
 }
 
-void Model::remove(const Statement &stmt) {
+void Model::remove(Statement *stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));
     if ( librdf_model_remove_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;

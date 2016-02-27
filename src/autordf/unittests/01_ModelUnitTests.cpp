@@ -48,7 +48,7 @@ TEST(_01_Model, SearchSubject) {
 
     const NodeList& nodeList = ts.findSources(predicate, object);
     ASSERT_EQ(1, nodeList.size());
-    ASSERT_EQ("http://www.w3.org/TR/rdf-syntax-grammar", nodeList.begin()->iri());
+    ASSERT_STREQ("http://www.w3.org/TR/rdf-syntax-grammar", nodeList.begin()->iri());
 }
 
 TEST(_01_Model, SearchBySubject) {
@@ -72,7 +72,7 @@ TEST(_01_Model, SearchObject) {
 
     const NodeList& nodeList = ts.findTargets(source, predicate);
     ASSERT_EQ(1, nodeList.size());
-    ASSERT_EQ("RDF/XML Syntax Specification (Revised)", nodeList.begin()->literal());
+    ASSERT_STREQ("RDF/XML Syntax Specification (Revised)", nodeList.begin()->literal());
 
     predicate.setIri("http://pwet");
     ASSERT_EQ(0, ts.findTargets(source, predicate).size());
@@ -95,8 +95,9 @@ TEST(_01_Model, AddSaveEraseStatement) {
     st.subject.setIri("http://mydomain/me");
     st.predicate.setIri("http://mydomain/firstName");
     st.object.setLiteral("Fabien");
+    Statement stClone = st;
 
-    ts.add(st);
+    ts.add(&st);
     ts.saveToFile("/tmp/test1.ttl");
 
     Model read1;
@@ -104,7 +105,7 @@ TEST(_01_Model, AddSaveEraseStatement) {
     const StatementList& stmtList = read1.find();
     ASSERT_EQ(1, stmtList.size());
 
-    read1.remove(st);
+    read1.remove(&stClone);
     const StatementList& stmtList1 = read1.find();
     ASSERT_EQ(0, stmtList1.size());
 }
@@ -115,11 +116,12 @@ TEST(_01_Model, TypeLiterals) {
     st.subject.setIri("http://mydomain/me");
     st.predicate.setIri("http://mydomain/firstName");
     st.object.setLiteral("Fabien", "", "http://www.w3.org/2001/XMLSchema#string");
-    ts.add(st);
+    ts.add(&st);
 
+    st.subject.setIri("http://mydomain/me");
     st.predicate.setIri("http://mydomain/town");
     st.object.setLiteral("Fabien", "fr");
-    ts.add(st);
+    ts.add(&st);
 
     const StatementList& stmtList = ts.find();
 

@@ -109,15 +109,17 @@ public:
 
     /**
      * Adds a statement to model
+     * When this function returns, stmt is erased
      * @throw InternalError on issue
      */
-    void add(const Statement& stmt);
+    void add(Statement* stmt);
 
     /**
      * Removes a statement from model
+     * When this function returns, stmt is erased
      * @throw InternalError on issue
      */
-    void remove(const Statement& stmt);
+    void remove(Statement* stmt);
 
     /**
      * Maps a XML namespace to its prefix

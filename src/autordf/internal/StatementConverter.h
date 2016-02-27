@@ -12,7 +12,10 @@ namespace internal {
 
 class StatementConverter {
 public:
-    static std::shared_ptr<librdf_statement> toLibRdfStatement(const Statement& ours);
+    /**
+     * Once called ours is emptyed
+     */
+    static std::shared_ptr<librdf_statement> toLibRdfStatement(Statement* ours);
 
     static std::shared_ptr<Statement> fromLibRdfStatement(librdf_statement* librdf);
 };
