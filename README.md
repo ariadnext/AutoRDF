@@ -6,7 +6,7 @@ AutoRDF is a framework that makes it easy to manipulate concepts described in We
 
 It hides away most of the complexity of OWL/RDF technologies, and makes it easy for the developer to concentrate on its business logic with familiar C++ objects rather than on how its data is read from or written to persistent storage.
 
-[[images/intro.png]]
+![UML to code image](doc/images/intro.png)
 
 # Content
 AutoRDF contains:
@@ -19,9 +19,9 @@ AutoRDF contains:
 AutoRDF is based upon Redland library found at http://librdf.org/
 
 # Compatibility
-AutoRDF should work on any platform where a C++11 compilter is found, and where boost is supported.
+AutoRDF should work on any platform where a C++11 compiler is found, and where boost is supported.
 Currently only Linux/Clang 3.5 is tested, but soon it will be ready for iOS/Android as well.
 
 # Video introduction
 
-[![AutoRDF introduction video](http://img.youtube.com/vi/_4wxP7Qxt0kA/0.jpg)](https://youtu.be/_4wxP7Qxt0kA)
+[![AutoRDF introduction video](http://img.youtube.com/vi/_4wxP7Qxt0k/0.jpg)](https://youtu.be/_4wxP7Qxt0kA)
