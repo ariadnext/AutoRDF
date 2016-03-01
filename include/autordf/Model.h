@@ -81,10 +81,10 @@ public:
      */
     void saveToFile(FILE *fileHandle, const char *format = "", const std::string& baseIRI = "");
     
-    /*
+    /**
      * Retrieve supported output format for use with saveToFile
      */
-    std::list<std::string>  supportedFormat() const;
+    std::list<std::string> supportedFormat() const;
 
     /**
      * Search for statements in model
