@@ -1,0 +1,15 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    packages:
+    - cmake
+    - librdf0-dev
+
+# Run the Build script
+script:
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install .. && cmake --build . --target install
