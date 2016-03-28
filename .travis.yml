@@ -8,6 +8,8 @@ addons:
     packages:
     - cmake
     - librdf0-dev
+    - libboost-filesystem-dev
+    - libboost-date-time-dev
 
 # Run the Build script
 script:

@@ -5,6 +5,8 @@ Maintainer: Sebastien Baguet <sebastien.baguet@ariadnext.com>
 Build-Depends:
  debhelper (>= 9),
  cmake,
+ libboost-filesystem-dev,
+ libboost-date-time-dev,
  librdf0-dev,
  redland-utils
 
