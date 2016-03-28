@@ -20,5 +20,6 @@ add_executable(
 target_link_libraries (
     gtest-all
     autordf
+    pthread #Required for google test
     ${Boost_LIBRARIES}
 )
