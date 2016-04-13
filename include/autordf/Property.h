@@ -29,6 +29,16 @@ public:
     NodeType type() const { return _type; }
 
     /**
+     * Return if property is a literal
+     */
+    bool isLiteral() const { return _type == NodeType::LITERAL; };
+
+    /**
+     * Return if property is resource compatible (either a blank node or ressource
+     */
+    bool isResource() const { return _type == NodeType::BLANK || _type == NodeType::RESOURCE; };
+
+    /**
      * Returns property IRI
      */
     const std::string& iri() const { return _iri; }

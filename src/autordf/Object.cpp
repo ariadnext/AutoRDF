@@ -138,7 +138,9 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
     PropertyValueVector valuesList;
     const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
     for (const Property& prop: propList) {
-        valuesList.push_back(prop.value());
+        if (prop.isLiteral()) {
+            valuesList.push_back(prop.value());
+        }
     }
     return valuesList;
 }

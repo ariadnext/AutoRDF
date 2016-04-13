@@ -323,7 +323,9 @@ public:
         std::vector<T> objList;
         objList.reserve(propList.size());
         for (const Property& prop: propList) {
-            objList.push_back(T(prop.asResource()));
+            if (prop.isResource()) {
+                objList.push_back(T(prop.asResource()));
+            }
         }
         return objList;
     }
