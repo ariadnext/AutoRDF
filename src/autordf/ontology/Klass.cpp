@@ -30,6 +30,19 @@ std::set<std::shared_ptr<const Klass> > Klass::getAllAncestors() const {
     }
     return all;
 }
+
+std::set<std::shared_ptr<const Klass> > Klass::getAllPredecessors() const {
+    std::set<std::shared_ptr<const Klass> > predecessors;
+    for ( auto uriKlass : _ontology->classUri2Ptr()) {
+        for (auto ancestor = uriKlass.second->_directAncestors.begin(); ancestor != uriKlass.second->_directAncestors.end(); ++ancestor ) {
+            if (rdfname() == *ancestor) {
+                predecessors.insert(uriKlass.second);
+                break;
+            }
+        }
+    }
+    return predecessors;
+}
 }
 }
 

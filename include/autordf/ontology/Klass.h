@@ -60,6 +60,11 @@ public:
      */
     std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
 
+    /**
+     * Returns all (direct and indirect) predecessors for this class
+     */
+    std::set<std::shared_ptr<const Klass> > getAllPredecessors() const;
+
     /*
      * ===================================================================
      * All methods below are purely internal
