@@ -59,6 +59,8 @@ void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std:
         librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
         if ( prefix && uri ) {
             addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
+        } else if ( !prefix && uri ) {
+            _baseUri = cleanNamespaceTrailingChars(reinterpret_cast<char*>(librdf_uri_as_string(uri)));
         }
     }
 }

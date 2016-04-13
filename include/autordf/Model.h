@@ -140,6 +140,11 @@ public:
     const std::string& prefixToNs(const std::string& prefix) const;
 
     /**
+     * Return the base Uri
+     */
+    std::string baseUri() const { return _baseUri; };
+
+    /**
      * Returns the list of namespaces known in this model in a prefix --> IRI map
      */
     const std::map<std::string, std::string>& namespacesPrefixes() const { return _namespacesPrefixes; }
