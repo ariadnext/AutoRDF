@@ -42,14 +42,14 @@ void Klass::generateDeclaration() const {
     ofs << ", public I" << cppName << " {" << std::endl;
     ofs << "public:" << std::endl;
     ofs << std::endl;
-    if ( !_decorated.oneOfValues().size() ) {
-        indent(ofs, 1) << "/**" << std::endl;
-        indent(ofs, 1) << " * @brief Creates new object, to given iri." << std::endl;
-        indent(ofs, 1) << " * " << std::endl;
-        indent(ofs, 1) << " * If iri empty, creates an anonymous (aka blank) object" << std::endl;
-        indent(ofs, 1) << " */" << std::endl;
-        indent(ofs, 1) << "explicit " << cppName << "(const std::string& iri = \"\");" << std::endl;
-    } else {
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief Creates new object, to given iri." << std::endl;
+    indent(ofs, 1) << " * " << std::endl;
+    indent(ofs, 1) << " * If iri empty, creates an anonymous (aka blank) object" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << "explicit " << cppName << "(const std::string& iri = \"\");" << std::endl;
+    if ( _decorated.oneOfValues().size() ) {
+        indent(ofs, 1) << std::endl;
         indent(ofs, 1) << "/**" << std::endl;
         indent(ofs, 1) << " * @brief Load enum from RDF model, from given C++ Type enum." << std::endl;
         indent(ofs, 1) << " * " << std::endl;
@@ -127,10 +127,10 @@ void Klass::generateDefinition() const {
 
     enterNameSpace(ofs);
     ofs << std::endl;
-    if ( !_decorated.oneOfValues().size() ) {
-        ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
-        ofs << "}" << std::endl;
-    } else {
+    ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
+    ofs << "}" << std::endl;
+    if ( _decorated.oneOfValues().size() ) {
+        ofs << std::endl;
         ofs << cppName << "::"<< cppName << "(I" << cppName << "::Enum enumVal) : autordf::Object(enumIri(enumVal)) {}" << std::endl;
     }
     ofs << std::endl;
