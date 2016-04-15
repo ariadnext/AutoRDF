@@ -329,7 +329,7 @@ void Klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
         indent(ofs, 2) << "if ( object().iri() == std::get<1>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
-        indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \"does not point to a valid individual for C++ enum " <<
+        indent(ofs, 1) << "throw autordf::InvalidEnum(object().iri() + \" is not a valid individual for owl:oneOf type " <<
                 _decorated.prettyIRIName() << "\");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
