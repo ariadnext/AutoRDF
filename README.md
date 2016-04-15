@@ -4,3 +4,5 @@ by providing transparent access to RDF resources from within standard C++ object
 suitable not only for the desktop and server, but also to low computing power embedded devices.
 
 More info at https://github.com/ariadnext/AutoRDF/wiki
+
+[![Build Status](https://travis-ci.org/ariadnext/AutoRDF.svg?branch=master)](https://travis-ci.org/ariadnext/AutoRDF)
