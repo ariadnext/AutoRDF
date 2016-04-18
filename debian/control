@@ -9,9 +9,68 @@ Build-Depends:
  libboost-date-time-dev,
  librdf0-dev,
  redland-utils
+Standards-Version: 3.9.3
 
-Package: libautordf
+Package: libautordf-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
+Depends: libautordf0 (= ${binary:Version}), ${misc:Depends}
+Description:A framework for automatic C++ proxy code generation from RDF Ontology
+ .
+ AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
+ Building on top of the Redland software package, it bridges the gap between semantic web ontology and legacy object oriented languages,
+ by providing transparent access to RDF resources from within standard C++ objects. Its use of widespread C++11,
+ Boost and Redland make it suitable not only for the desktop and server, but also to low computing power embedded devices.
+ .
+ This package contains development headers, as well as code generation executables
+
+Package: autordf-dbg
+Section: debug
+Architecture: any
+Multi-Arch: same
+Depends: libautordf0 (= ${binary:Version}),
+         ${misc:Depends}
+Description:A framework for automatic C++ proxy code generation from RDF Ontology
+ .
+ AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
+ Building on top of the Redland software package, it bridges the gap between semantic web ontology and legacy object oriented languages,
+ by providing transparent access to RDF resources from within standard C++ objects. Its use of widespread C++11,
+ Boost and Redland make it suitable not only for the desktop and server, but also to low computing power embedded devices.
+ .
+ This package provides debugging symbols.
+
+Package: libautordf0
+Section: libs
+Architecture: any
+Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A framework for automatic C++ proxy code generation from RDF Ontology
+Description:A framework for automatic C++ proxy code generation from RDF Ontology
+ .
+ AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
+ Building on top of the Redland software package, it bridges the gap between semantic web ontology and legacy object oriented languages,
+ by providing transparent access to RDF resources from within standard C++ objects. Its use of widespread C++11,
+ Boost and Redland make it suitable not only for the desktop and server, but also to low computing power embedded devices.
+ .
+ This package contains the main library
+
+Package: libautordf-ontology0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description:A framework for automatic C++ proxy code generation from RDF Ontology
+ .
+ AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
+ Building on top of the Redland software package, it bridges the gap between semantic web ontology and legacy object oriented languages,
+ by providing transparent access to RDF resources from within standard C++ objects. Its use of widespread C++11,
+ Boost and Redland make it suitable not only for the desktop and server, but also to low computing power embedded devices.
+ .
+ This package contains the ontology additional-library
+
+Package: libautordf0-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: libautordf-dev
+Description:A framework for automatic C++ proxy code generation from RDF Ontology
