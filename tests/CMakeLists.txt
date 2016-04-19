@@ -23,3 +23,7 @@ target_link_libraries (
     pthread #Required for google test
     ${Boost_LIBRARIES}
 )
+
+add_custom_target(check
+    COMMAND gtest-all
+    DEPENDS gtest-all)

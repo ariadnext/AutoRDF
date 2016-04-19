@@ -20,5 +20,4 @@ addons:
 
 # Run the Build script
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install && cmake --build . --target install
-  - ./tests/gtest-all
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install && cmake --build . --target check && cmake --build . --target install
