@@ -15,7 +15,7 @@ Package: libautordf-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: libautordf0 (= ${binary:Version}), ${misc:Depends}
+Depends: libautordf0 (= ${binary:Version}), libautordf-ontology0 (= ${binary:Version}), ${misc:Depends}
 Description:A framework for automatic C++ proxy code generation from RDF Ontology
  .
  AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
@@ -29,7 +29,7 @@ Package: autordf-dbg
 Section: debug
 Architecture: any
 Multi-Arch: same
-Depends: libautordf0 (= ${binary:Version}),
+Depends: libautordf0 (= ${binary:Version}), libautordf-ontology0 (= ${binary:Version}),
          ${misc:Depends}
 Description:A framework for automatic C++ proxy code generation from RDF Ontology
  .
@@ -58,7 +58,7 @@ Package: libautordf-ontology0
 Section: libs
 Architecture: any
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libautordf0 (= ${binary:Version})
 Description:A framework for automatic C++ proxy code generation from RDF Ontology
  .
  AutoRDF is an original open source framework used to make it a lot easier to work with RDF data from a software engineering point of view.
@@ -68,7 +68,7 @@ Description:A framework for automatic C++ proxy code generation from RDF Ontolog
  .
  This package contains the ontology additional-library
 
-Package: libautordf0-doc
+Package: autordf-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
