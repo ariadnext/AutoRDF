@@ -23,7 +23,7 @@ unsigned int Property::maxCardinality(const Klass& kls) const {
     return _maxCardinality;
 }
 
-std::string Property::range(const Klass* kls) const {
+Uri Property::range(const Klass* kls) const {
     if ( kls ) {
         auto const& m = kls->overridenRange();
         auto it = m.find(rdfname());

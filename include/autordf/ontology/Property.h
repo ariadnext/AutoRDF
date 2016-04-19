@@ -32,7 +32,7 @@ public:
      * @param kls the class this property will be instantiated in. If nullptr qualified cardinality restrictions
      * will be ignored
      */
-    std::string range(const Klass* kls = nullptr) const;
+    Uri range(const Klass* kls = nullptr) const;
 
     /**
      * Returns the minimum number of times this property must be found in objects of given class
