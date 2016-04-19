@@ -112,7 +112,7 @@ public:
     std::vector<Object> getObjectList(const Uri& propertyIRI) const;
 
     /**
-     * Sets object to given property
+     * Sets object to given property replacing existing value
      */
     void setObject(const Uri& propertyIRI, const Object& obj);
 
