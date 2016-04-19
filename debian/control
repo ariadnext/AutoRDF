@@ -7,7 +7,7 @@ Build-Depends:
  cmake,
  libboost-filesystem-dev,
  libboost-date-time-dev,
- librdf0-dev >= 1.0.15
+ librdf0-dev (>= 1.0.15)
 Standards-Version: 3.9.3
 
 Package: libautordf-dev
