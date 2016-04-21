@@ -94,7 +94,7 @@ std::vector<Object> Object::getObjectList(const Uri& propertyIRI) const {
 }
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
-    addRdfTypeIfNeeded();
+    writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(obj._r);
     _r.removeProperties(propertyIRI);
@@ -102,7 +102,7 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
 }
 
 void Object::addObject(const Uri& propertyIRI, const Object& obj) {
-    addRdfTypeIfNeeded();
+    writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(obj._r);
     _r.addProperty(*p);
@@ -146,7 +146,7 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
 }
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
-    addRdfTypeIfNeeded();
+    writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(val);
     _r.removeProperties(propertyIRI);
@@ -154,7 +154,7 @@ void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
 }
 
 void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
-    addRdfTypeIfNeeded();
+    writeRdfType();
     _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
 }
 
@@ -165,7 +165,7 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
 }
 
 void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values) {
-    addRdfTypeIfNeeded();
+    writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const PropertyValue& val: values) {
@@ -232,7 +232,7 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     return Object(factory()->createResourceFromNode(statements.begin()->subject));
 }
 
-void Object::addRdfTypeIfNeeded() {
+void Object::writeRdfType() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
         setObject(RDF_NS + "type", Object(_rdfTypeIRI));

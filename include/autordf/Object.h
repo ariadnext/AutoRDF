@@ -188,6 +188,14 @@ public:
     void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
+     * Forces the underlying resource to the type associated with this object.
+     * This method can be called more than once, it effectively writes the type to the triple store only the first time it
+     * is called.
+     * This method is called by all setters of Object class
+     */
+    void writeRdfType();
+
+    /**
      * Returns true if this object is also of the specified type IRI.
      * @return true If object type attribute contains typeIRI
      * @return false If type attribute does not contains typeIRI
@@ -335,7 +343,7 @@ public:
      * @throw InvalidIRI if propertyIRI is empty
      */
     template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
-        addRdfTypeIfNeeded();
+        writeRdfType();
         std::shared_ptr<Property> p =factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (const Object& object : values) {
@@ -366,7 +374,7 @@ public:
      * @throw InvalidIRI if propertyIRI is empty
      */
     template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
-        addRdfTypeIfNeeded();
+        writeRdfType();
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (auto const & val: values) {
@@ -397,12 +405,6 @@ private:
     std::string _rdfTypeIRI;
 
     Object(Resource r, const Uri& rdfTypeIRI = "");
-
-    /**
-     * Checks if underlying resource is of given type
-     * If not add it to the types list
-     */
-    void addRdfTypeIfNeeded();
 
     /**
      * Shared constructor
