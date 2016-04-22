@@ -10,7 +10,7 @@ namespace autordf {
 namespace codegen {
 
 Klass Klass::uri2Klass(const std::string& uri) const {
-    return Klass(_decorated.ontology()->findClass(uri));
+    return Klass(*_decorated.ontology()->findClass(uri));
 }
 
 void Klass::generateDeclaration() const {
@@ -371,7 +371,7 @@ std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
                 deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
             }
         } else {
-            deps.insert(std::shared_ptr<Klass>(new Klass(_decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing"))));
+            deps.insert(std::shared_ptr<Klass>(new Klass(*_decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing"))));
         }
     }
 

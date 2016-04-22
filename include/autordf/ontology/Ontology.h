@@ -39,7 +39,7 @@ public:
      * Finds class using IRI
      * @throw std::out_of_range if not found
      */
-    const Klass& findClass(const std::string& iri) const { return *_classUri2Ptr.at(iri); }
+    std::shared_ptr<const Klass> findClass(const std::string& iri) const { return _classUri2Ptr.at(iri); }
 
     /**
      * Does the static map contains the given element class ?
