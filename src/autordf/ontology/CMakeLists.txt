@@ -7,6 +7,7 @@ ADD_LIBRARY(
     ObjectProperty.cpp
     DataProperty.cpp
     Ontology.cpp
+    Validator.cpp
 )
 TARGET_LINK_LIBRARIES(
     autordf-ontology
