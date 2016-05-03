@@ -23,6 +23,14 @@ Node::Node(const Node& n) : _own(true) {
     }
 }
 
+Node& Node::operator=(const Node& n) {
+    clear();
+    if ( n._node ) {
+        _node = librdf_new_node_from_node(n._node);
+    }
+    return *this;
+}
+
 Node::Node(Node&& n) : _own(n._own) {
     _node = n._node;
     n._node = nullptr;

@@ -105,6 +105,10 @@ public:
      */
     void setBNodeId(const std::string& bnodeid);
 
+    /**
+     * Assigment operator
+     */
+    Node& operator=(const Node& n);
 
     /**
      * @return true if node is of empty type
