@@ -26,6 +26,7 @@ public:
 
         //TODO: X macroize that
         enum Type {
+            INVALIDDATATYPE,    // rdf type for this property for is not allowed - subject, property are filled
             INVALIDTYPE,    // rdf type for this property for is not allowed - subject, property are filled
             NOTENOUHVALUES, // This property has not enough values - subject, property, val are filled
             TOOMANYVALUES   // This property has too many values - subject, property, count are filled
@@ -45,7 +46,18 @@ public:
          * Message @subject and @property, @count are used as placeholder subject and property
          */
         std::string message;
-
+        /**
+         * min/maxcardinality of the property in given object
+         */
+        int cardinality;
+        /**
+         * how many values of this property we have
+         */
+        int count ;
+        /**
+         * error type
+         */
+        Type type;
         /**
          * Message,with placeholders replaced with their actual values
          */
@@ -61,10 +73,11 @@ public:
      * Checks this object is compatible with ontology,
      * that means all its properties are compatible with the ontology
      */
-    std::shared_ptr<std::vector<Error>> validateObject(const Object& object);
+    std::vector<Error> validateObject(const Object& object);
 
 private:
     Ontology _ontology;
+    bool isDatatypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
 };
 
 }

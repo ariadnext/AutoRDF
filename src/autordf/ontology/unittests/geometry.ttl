@@ -1,0 +1,66 @@
+@base <http://example.org/geometry/base> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo: <http://example.org/geometry#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+
+<myShape>
+ geo:text [
+     geo:textString "titi" ;
+     geo:textColor "color" ;
+     a geo:Text
+ ] ;
+ geo:topLeft [
+     geo:x 1.0 ;
+     geo:y 2 ;
+     a geo:Point
+ ] ;
+ geo:borderThickness 3 ;
+ geo:fillColor "blue" ;
+ geo:borderColor "orange" ;
+a geo:Circle .
+
+<shape>
+ geo:topLeft [
+     geo:x "1.0" ;
+    a geo:Point
+  ] ;
+   geo:bottomRight [
+     geo:x "1.0" ;
+     geo:y "2.0" ;
+     a geo:Point
+     ] ;
+ geo:borderThickness "toto" ;
+ geo:borderColor "orange" ;
+a geo:Rectangle .
+
+<rectangle>
+ geo:topLeft [
+    geo:x "1.0" ;
+    geo:y "2.0" ;
+    a geo:Point
+  ] ;
+ geo:topLeft [
+    geo:x "1.0" ;
+    geo:y "2.0" ;
+    a geo:Point
+    ] ;
+ geo:bottomRight [
+   geo:x "1.0" ;
+   geo:y "2.0" ;
+   a geo:Point
+   ] ;
+a geo:Rectangle .
+
+<circle>
+  geo:center [
+      geo:x "1.0" ;
+      geo:y "2" ;
+      a geo:Point
+  ] ;
+  a geo:Circle .
+
+<point>
+  geo:x "toto" ;
+   geo:y "-2" ;
+a geo:Point .

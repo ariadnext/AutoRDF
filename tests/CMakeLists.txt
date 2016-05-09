@@ -20,6 +20,7 @@ add_executable(
 target_link_libraries (
     gtest-all
     autordf
+    autordf-ontology
     pthread #Required for google test
     ${Boost_LIBRARIES}
 )
