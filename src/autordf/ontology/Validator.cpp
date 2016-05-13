@@ -11,8 +11,7 @@ std::string Validator::Error::fullMessage() {
     std::string str(message);
 
     std::string placeholder_1("@property");
-    std::string placeholder_2("@cardinality");
-    std::string placeholder_3("@count");
+    std::string placeholder_2("@count");
     std::string placeholder_4("@subject");
 
     std::size_t foundPlaceholder_1 = str.find(placeholder_1);
@@ -21,27 +20,32 @@ std::string Validator::Error::fullMessage() {
     }
     std::size_t foundPlaceholder_2 = str.find(placeholder_2);
     if(foundPlaceholder_2 != std::string::npos) {
-        str.replace(foundPlaceholder_2, placeholder_2.length(), std::to_string(cardinality));
-    }
-    std::size_t foundPlaceholder_3 = str.find(placeholder_3);
-    if(foundPlaceholder_3 != std::string::npos) {
-        str.replace(foundPlaceholder_3, placeholder_3.length(), std::to_string(count));
+        str.replace(foundPlaceholder_2, placeholder_2.length(), std::to_string(count));
     }
     std::size_t foundPlaceholder_4 = str.find(placeholder_4);
     if(foundPlaceholder_4 != std::string::npos) {
         str.replace(foundPlaceholder_4, placeholder_4.length(), subject.iri());
     }
 
-    return str;
+    return std::string(subject.iri() + "=> " + str);
 }
 
 std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model& model) {
+    std::vector<Validator::Error>  errorList;
+    for ( auto uriKlass : _ontology.classUri2Ptr()) {
+        std::vector<Object> objects = Object::findByType(uriKlass.first);
+        for (auto const& object: objects) {
+            std::vector<Validator::Error> objErrors = *validateObject(object);
+            for (auto const& objError: objErrors) {
+                errorList.push_back(objError);
+            }
+        }
+    }
 
-    std::shared_ptr<std::vector<Validator::Error>>  errorList;
-    return errorList;
+    return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
 
-std::vector<Validator::Error> Validator::validateObject(const Object& object) {
+std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const Object& object) {
     std::vector<Validator::Error>  errorList;
     std::vector<Uri> types = object.getTypes();
 
@@ -59,14 +63,14 @@ std::vector<Validator::Error> Validator::validateObject(const Object& object) {
                     error.count = propList.size();
                     if (propList.size() > maxCardinality) {
                         error.type = error.TOOMANYVALUES;
-                        error.message = "Property @property has too many values: @count. Maximum allowed is @cardinality";
-                        error.cardinality = maxCardinality;
+                        error.message = "Property \'@property\' has too many values:@count. Maximum allowed is "
+                                        + std::to_string(maxCardinality);
                         errorList.push_back(error);
                     }
                     if (propList.size() < minCardinality) {
                         error.type = error.NOTENOUHVALUES;
-                        error.message = "Property @property doesn't have enough values: @count. Minimum allowed is @cardinality" ;
-                        error.cardinality = minCardinality;
+                        error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is "
+                                        + std::to_string(minCardinality);
                         errorList.push_back(error);
                     }
 
@@ -76,9 +80,10 @@ std::vector<Validator::Error> Validator::validateObject(const Object& object) {
                         if (rdfType != autordf::cvt::rdfMapType.end()) {
                             rdfTypeEnum = rdfType->second;
                         }
-                        if (!isDatatypeValid(prop, rdfTypeEnum)) {
+                        if (!isDataTypeValid(prop, rdfTypeEnum)) {
                             error.type = error.INVALIDDATATYPE;
-                            error.message = "Rdf type for this property @property not allowed. Rdf type required: " + cvt::rdfTypeEnumXMLString(rdfTypeEnum);
+                            error.message = "Rdf type for the property \'@property\' not allowed. "
+                                                    "Rdf type required: " + cvt::rdfTypeEnumXMLString(rdfTypeEnum);
                             errorList.push_back(error);
                         }
                     }
@@ -93,19 +98,20 @@ std::vector<Validator::Error> Validator::validateObject(const Object& object) {
                     error.count = objList.size();
                     if(objList.size() > maxCardinality) {
                         error.type = error.TOOMANYVALUES;
-                        error.cardinality = maxCardinality;
-                        error.message =  "Property @property has too many values: @count. Maximum allowed is @cardinality";
+                        error.message =  "Property \'@property\' has too many values:@count. Maximum allowed is "
+                                         + std::to_string(maxCardinality);
                         errorList.push_back(error);
                     }
                     if (objList.size() < minCardinality) {
                         error.type = error.NOTENOUHVALUES;
-                        error.cardinality = minCardinality;
-                        error.message = "Property @property doesn't have enough values: @count. Minimum allowed is @cardinality" ;
+                        error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is "
+                                        + std::to_string(minCardinality);
                         errorList.push_back(error);
                     }
                     for (auto const& object: objList) {
                         if (!object.isA(range)) {
-                            error.message = "Rdf type for this property @property not allowed. Rdf type required: " + range;
+                            error.message = "Rdf type for the property \'@property\' not allowed. "
+                                                    "Rdf type required: " + range;
                             error.type = error.INVALIDTYPE;
                             errorList.push_back(error);
                         }
@@ -115,10 +121,10 @@ std::vector<Validator::Error> Validator::validateObject(const Object& object) {
             }
         }
     }
-    return errorList;
+    return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
 
-bool Validator::isDatatypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType) {
+bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType) {
     bool valid = true;
 
     try {
@@ -130,58 +136,49 @@ bool Validator::isDatatypeValid(const autordf::PropertyValue& property, const au
                 property.get<cvt::RdfTypeEnum::xsd_decimal, double>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_float:
-                    property.get<cvt::RdfTypeEnum::xsd_float, float>();
+                property.get<cvt::RdfTypeEnum::xsd_float, float>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_double:
-                    property.get<autordf::cvt::RdfTypeEnum::xsd_double, double>();
+                property.get<autordf::cvt::RdfTypeEnum::xsd_double, double>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_integer:
-                    property.get < cvt::RdfTypeEnum::xsd_integer, long
-                    long
-                    int > ();
+                property.get < cvt::RdfTypeEnum::xsd_integer, long long int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_nonNegativeInteger:
-                    property.get < cvt::RdfTypeEnum::xsd_integer, long
-                    long
-                    int > ();
+                property.get < cvt::RdfTypeEnum::xsd_integer, long long int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_positiveInteger:
-                    property.get < cvt::RdfTypeEnum::xsd_positiveInteger, long
-                    long
-                    unsigned
-                    int > ();
+                property.get < cvt::RdfTypeEnum::xsd_positiveInteger, long long unsigned int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_nonPositiveInteger:
-                    property.get < cvt::RdfTypeEnum::xsd_nonPositiveInteger, long
-                    long
-                    int > ();
+                property.get < cvt::RdfTypeEnum::xsd_nonPositiveInteger, long long int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_negativeInteger:
-                    property.get<cvt::RdfTypeEnum::xsd_negativeInteger, long long int>() ;
+                property.get<cvt::RdfTypeEnum::xsd_negativeInteger, long long int>() ;
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_long:
-                    property.get<cvt::RdfTypeEnum::xsd_long, long long int >();
+                property.get<cvt::RdfTypeEnum::xsd_long, long long int >();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_unsignedLong:
-                    property.get<cvt::RdfTypeEnum::xsd_unsignedLong, long long unsigned int >();
+                property.get<cvt::RdfTypeEnum::xsd_unsignedLong, long long unsigned int >();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_unsignedInt:
-                    property.get<cvt::RdfTypeEnum::xsd_unsignedInt, long unsigned int>();
+                property.get<cvt::RdfTypeEnum::xsd_unsignedInt, long unsigned int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_int:
-                    property.get<cvt::RdfTypeEnum::xsd_int,long int>();
+                property.get<cvt::RdfTypeEnum::xsd_int,long int>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_short:
-                    property.get<cvt::RdfTypeEnum::xsd_short, short>();
+                property.get<cvt::RdfTypeEnum::xsd_short, short>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_unsignedShort:
-                    property.get<cvt::RdfTypeEnum::xsd_unsignedShort, unsigned short>();
+                property.get<cvt::RdfTypeEnum::xsd_unsignedShort, unsigned short>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_dateTime:
-                    property.get<cvt::RdfTypeEnum::xsd_dateTime, boost::posix_time::ptime>();
+                property.get<cvt::RdfTypeEnum::xsd_dateTime, boost::posix_time::ptime>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_dateTimeStamp:
-                    property.get<cvt::RdfTypeEnum::xsd_dateTime, boost::posix_time::ptime>();
+                property.get<cvt::RdfTypeEnum::xsd_dateTime, boost::posix_time::ptime>();
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_string:
                 property.get<cvt::RdfTypeEnum::xsd_string, std::string>();
@@ -192,7 +189,6 @@ bool Validator::isDatatypeValid(const autordf::PropertyValue& property, const au
             case autordf::cvt::RdfTypeEnum::xsd_byte:
                 property.get<cvt::RdfTypeEnum::xsd_byte, char>();
                 break;
-
         }
     } catch (const DataConvertionFailure& e) {
         valid = false;

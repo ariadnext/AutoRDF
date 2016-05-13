@@ -116,6 +116,7 @@
     <owl:DatatypeProperty rdf:about="http://example.org/geometry#textColor">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://example.org/geometry#Text"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
         <rdfs:comment xml:lang="en">color used to draw a text</rdfs:comment>
     </owl:DatatypeProperty>
     
@@ -126,6 +127,7 @@
     <owl:DatatypeProperty rdf:about="http://example.org/geometry#textString">
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
         <rdfs:domain rdf:resource="http://example.org/geometry#Text"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
         <rdfs:comment xml:lang="en">Text to be displayed on the shape</rdfs:comment>
     </owl:DatatypeProperty>
     
@@ -229,6 +231,13 @@
     <!-- http://example.org/geometry#Shape -->
 
     <owl:Class rdf:about="http://example.org/geometry#Shape">
+            <rdfs:subClassOf>
+                <owl:Restriction>
+                     <owl:onProperty rdf:resource="http://example.org/geometry#borderThickness"/>
+                     <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:minCardinality>
+                     <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+                </owl:Restriction>
+            </rdfs:subClassOf>
         <rdfs:comment xml:lang="en">The parent class for all shapes</rdfs:comment>
     </owl:Class>
     
@@ -236,7 +245,22 @@
 
     <!-- http://example.org/geometry#Text -->
 
-    <owl:Class rdf:about="http://example.org/geometry#Text"/>
+    <owl:Class rdf:about="http://example.org/geometry#Text">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                 <owl:onProperty rdf:resource="http://example.org/geometry#textString"/>
+                 <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0</owl:minCardinality>
+                 <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://example.org/geometry#textColor"/>
+                <owl:qualifiedCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
 </rdf:RDF>
 
 

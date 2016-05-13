@@ -6,7 +6,7 @@
 
 <myShape>
  geo:text [
-     geo:textString "titi" ;
+     geo:textString 2.0 ;
      geo:textColor "color" ;
      a geo:Text
  ] ;
@@ -15,24 +15,17 @@
      geo:y 2 ;
      a geo:Point
  ] ;
- geo:borderThickness 3 ;
+ geo:borderThickness "titi" ;
  geo:fillColor "blue" ;
  geo:borderColor "orange" ;
 a geo:Circle .
 
-<shape>
- geo:topLeft [
-     geo:x "1.0" ;
+<text>
+ geo:text [
+    geo:textColor 1 ;
     a geo:Point
   ] ;
-   geo:bottomRight [
-     geo:x "1.0" ;
-     geo:y "2.0" ;
-     a geo:Point
-     ] ;
- geo:borderThickness "toto" ;
- geo:borderColor "orange" ;
-a geo:Rectangle .
+a geo:Text .
 
 <rectangle>
  geo:topLeft [

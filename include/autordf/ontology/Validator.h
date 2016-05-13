@@ -24,14 +24,17 @@ public:
     public:
         Error() {}
 
-        //TODO: X macroize that
-        enum Type {
-            INVALIDDATATYPE,    // rdf type for this property for is not allowed - subject, property are filled
-            INVALIDTYPE,    // rdf type for this property for is not allowed - subject, property are filled
-            NOTENOUHVALUES, // This property has not enough values - subject, property, val are filled
-            TOOMANYVALUES   // This property has too many values - subject, property, count are filled
-        };
+        #define ERROR_TYPE(X) \
+            X(INVALIDDATATYPE,   "Rdf type of dataproperty is not allowed. subject, property are filled") \
+            X(INVALIDTYPE,       "Rdf type of object is not allowed. subject, property are filled") \
+            X(NOTENOUHVALUES,    "This property does not have enough values - subject, property, count and expected value are filled") \
+            X(TOOMANYVALUES,     "This property has too many values. subject, property, count and expected value are filled")
 
+        enum Type {
+        #define X(a, b) a,
+            ERROR_TYPE(X)
+        #undef X
+        };
         /**
          * The object the error applies to
          */
@@ -40,24 +43,23 @@ public:
         /**
          * The property in the given object the error applies to
          */
-        Uri    property;
+        Uri property;
 
         /**
          * Message @subject and @property, @count are used as placeholder subject and property
          */
         std::string message;
-        /**
-         * min/maxcardinality of the property in given object
-         */
-        int cardinality;
+
         /**
          * how many values of this property we have
          */
-        int count ;
+        int count;
+
         /**
          * error type
          */
         Type type;
+
         /**
          * Message,with placeholders replaced with their actual values
          */
@@ -66,6 +68,7 @@ public:
 
     /**
      * Checks all model resources are compatible with ontology
+     * FIXME @param model is not used in this case. autordf::Object has the model
      */
     std::shared_ptr<std::vector<Error>> validateModel(const Model& model);
 
@@ -73,11 +76,11 @@ public:
      * Checks this object is compatible with ontology,
      * that means all its properties are compatible with the ontology
      */
-    std::vector<Error> validateObject(const Object& object);
+    std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object);
 
 private:
     Ontology _ontology;
-    bool isDatatypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
+    bool isDataTypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
 };
 
 }
