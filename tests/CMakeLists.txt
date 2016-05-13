@@ -21,7 +21,7 @@ target_link_libraries (
     gtest-all
     autordf
     autordf-ontology
-    pthread #Required for google test
+    ${CMAKE_THREAD_LIBS_INIT} #Required for google test
     ${Boost_LIBRARIES}
 )
 
