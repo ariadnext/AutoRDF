@@ -33,7 +33,7 @@ public:
      * @param f where to read this ontology from
      * @param verbose if true prints debug output to standard output
      */
-    Ontology(Factory *f, bool verbose = false);
+    Ontology(const Factory *f, bool verbose = false);
 
     /**
      * Finds class using IRI
@@ -107,7 +107,7 @@ private:
     /**
      * Reads ontology from given Factory
      */
-    void populateSchemaClasses(Factory *f);
+    void populateSchemaClasses(const Factory *f);
 
     /**
      * Adds or overwrites the object in static map
@@ -129,7 +129,7 @@ private:
      */
     bool _verbose;
 
-    Factory *_f;
+    const Factory *_f;
 
     std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
     std::map<std::string, std::shared_ptr<ObjectProperty> > _objectPropertyUri2Ptr;

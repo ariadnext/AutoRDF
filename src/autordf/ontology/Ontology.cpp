@@ -12,7 +12,7 @@ const std::string Ontology::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns
 const std::string Ontology::RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const std::string Ontology::OWL_NS  = "http://www.w3.org/2002/07/owl#";
 
-Ontology::Ontology(Factory* f, bool verbose) : _verbose(verbose), _f(f) {
+Ontology::Ontology(const Factory* f, bool verbose) : _verbose(verbose), _f(f) {
     populateSchemaClasses(f);
 }
 
@@ -20,8 +20,8 @@ const Model* Ontology::model() const {
     return _f;
 }
 
-void Ontology::populateSchemaClasses(Factory *f) {
-    autordf::Object::setFactory(f);
+void Ontology::populateSchemaClasses(const Factory *f) {
+    autordf::Object::setFactory(const_cast<Factory*>(f)) ;
 
     // BEGIN Add well known classes //
     auto owlThing = std::make_shared<Klass>(this);
