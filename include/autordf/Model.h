@@ -52,10 +52,11 @@ public:
      * @param fileHandle: file handle where to load data from - open with fopen()
      * @param format: extension of the file
      * @param baseIRI: prefix for prefix-less data
+     * @param streamInfo: Usually named of the file, used only to output more precise exceptions text in case of error
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError
      */
-    void loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI = ".");
+    void loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI = ".", const std::string& streamInfo = "<unknown stream>");
 
     /**
      * Save model to file.

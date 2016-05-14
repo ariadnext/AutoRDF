@@ -36,7 +36,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
     }
 
     try {
-        loadFromFile(f, path, baseIRI);
+        loadFromFile(f, path, baseIRI, path);
     }
     catch(...) {
         ::fclose(f);
@@ -45,13 +45,13 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
     ::fclose(f);
 }
 
-void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI) {
+void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI, const std::string& streamInfo) {
     std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
     if ( !p ) {
-        throw UnsupportedRdfFileFormat("File format not recognized");
+        throw UnsupportedRdfFileFormat(streamInfo + ": File format not recognized");
     }
     if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
-        throw InternalError("Failed to read model from file");
+        throw InternalError(streamInfo + ": Failed to read model from stream");
     }
     int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
     for ( unsigned int i = 0; i < prefixCount; ++i ) {

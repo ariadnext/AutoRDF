@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <raptor.h>
 
 #include "autordf/Exception.h"
 
@@ -18,9 +19,7 @@ World::World() {
         _world = librdf_new_world();
         librdf_world_open(_world);
 
-        //librdf_world_set_logger(_world, NULL, logCB);
-        librdf_world_set_warning(_world, NULL, warnCB);
-        librdf_world_set_error(_world, NULL, errorCB);
+        librdf_world_set_logger(_world, NULL, logCB);
     }
     ++_refcount;
 }
@@ -34,23 +33,34 @@ World::~World() {
 }
 
 int World::logCB(void* user_data, librdf_log_message* message) {
-    std::cerr << "Redland INFO: " << message << std::endl;
-    return 1;
-}
+    raptor_locator *locator = (raptor_locator*)(message->locator);
 
-int World::warnCB(void* user_data, const char* message, va_list arguments) {
-    char text[255];
-    vsnprintf(text, sizeof(text), message, arguments);
-    text[sizeof(text) - 1] = 0;
-    std::cerr << "Redland WARN: " << text << std::endl;
-    return 1;
-}
+    /* Do not handle messages below warning*/
+    if (message->level < LIBRDF_LOG_WARN) {
+        return 0;
+    }
 
-int World::errorCB(void* user_data, const char* message, va_list arguments) {
-    char text[255];
-    vsnprintf(text, sizeof(text), message, arguments);
-    text[sizeof(text) - 1] = 0;
-    throw InternalError(std::string("Redland ERROR: ") + text);
+    if (message->level == LIBRDF_LOG_WARN) {
+        std::cerr << "Redland WARNING - ";
+    } else {
+        std::cerr << "Redland ERROR - ";
+    }
+
+    if ( locator ) {
+        std::cerr << "line " << locator->line;
+        if ( locator->column >= 0 ) {
+            std::cerr <<  ", column " << locator->column;
+        }
+        std::cerr << ": ";
+    }
+
+    std::cerr << message->message << std::endl;
+
+    if (message->level >= LIBRDF_LOG_FATAL) {
+        exit(1);
+    }
+
+    /* Handled */
     return 1;
 }
 
