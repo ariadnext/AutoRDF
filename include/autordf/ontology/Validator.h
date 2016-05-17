@@ -80,7 +80,32 @@ public:
 
 private:
     Ontology _ontology;
-    bool isDataTypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
+
+    /**
+     * @brief validateDataProperty
+     * @param object autordf::Object to validate
+     * @param currentCLass Rdf Class to get all data property from
+     * @param errorList list of errors
+     * Fill the given error list with OWL errors found on the object Dataproperty
+     */
+    void validateDataProperty(const Object& object, std::shared_ptr<const Klass> currentCLass, std::vector<Validator::Error>*);
+
+    /**
+     * @brief validateObjectProperty
+     * @param object autordf::Object to validate
+     * @param currentCLass Rdf Class to get all data property from
+     * @param errorList list of errors
+     * Fill the given error list with OWL errors found on the object's objectProperties
+     */
+    void validateObjectProperty(const Object& object, std::shared_ptr<const Klass>, std::vector<Validator::Error>*);
+
+    /**
+     * @brief isDataTypeValid
+     * @param property PropertyValue to check type from
+     * @param rdfType expectd Rdf type for the property value
+     * return true if the property value has the correct type, false otherwise
+     */
+    static bool isDataTypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
 };
 
 }
