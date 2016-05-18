@@ -57,3 +57,8 @@ a geo:Rectangle .
   geo:x "toto" ;
    geo:y "-2" ;
 a geo:Point .
+
+<objectType>
+    geo:radius "2" ;
+    geo:center <point/center> ;
+    a geo:Circle .

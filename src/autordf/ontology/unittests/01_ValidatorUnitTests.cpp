@@ -12,124 +12,89 @@
 using namespace autordf;
 using namespace ontology;
 
+class ValidatorTest : public ::testing::Test {
+public:
 
-TEST(_01_Validator, ObjectValidator) {
+    autordf::Factory factory;
+    Validator* validator;
+    void SetUp() {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
-
-    Ontology _ontology(&factory);
-    Validator validator(_ontology);
-
-    std::shared_ptr<std::vector<Validator::Error>> errors = validator.validateObject(Object("http://example.org/geometry/myShape"));
-
-    ASSERT_EQ("http://example.org/geometry/myShape=> Property 'http://example.org/geometry#center' doesn't have enough values:0. Minimum allowed is 1",
-              errors->back().fullMessage());
-    ASSERT_EQ("http://example.org/geometry/myShape=> Property 'http://example.org/geometry#radius' doesn't have enough values:0. Minimum allowed is 1",
-              errors->front().fullMessage());
-
-    for (auto error: *errors) {
-        std::cout << error.fullMessage() << std::endl;
+        Object::setFactory(&factory);
+        factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
+        factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
+        Ontology _ontology(&factory);
+        validator = new Validator(_ontology);
     }
-}
-TEST(_01_Validator, DataType) {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
-
-    Ontology _ontology(&factory);
-    Validator validator(_ontology);
-
-    std::shared_ptr<std::vector<Validator::Error>> errors = validator.validateObject(Object("http://example.org/geometry/point"));
-    Validator::Error firstError = errors->front();
-    for (auto error: *errors) {
-        std::cout << error.fullMessage() << std::endl;
+    void TearDown( ) {
+        delete validator;
     }
-    ASSERT_EQ("http://example.org/geometry/point=> Rdf type for the property 'http://example.org/geometry#x' not allowed. Rdf type required: xsd:double",
-              firstError.fullMessage());
+
+};
+
+TEST_F(ValidatorTest, ObjectValidator) {
+
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/myShape"));
+
+    ASSERT_EQ("http://example.org/geometry#center",  errors->back().property);
+    ASSERT_EQ("http://example.org/geometry#radius",  errors->front().property);
+
+    ASSERT_EQ(2, errors->size());
+    ASSERT_EQ(2,  errors->front().type);
+    ASSERT_EQ(0,  errors->back().count);
 }
 
-TEST(_01_Validator, MinCardinality) {
+TEST_F(ValidatorTest, DataType) {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/point"));
 
-    Ontology _ontology(&factory);
-    Validator validator(_ontology);
+    ASSERT_EQ("http://example.org/geometry#x",  errors->front().property);
+    ASSERT_EQ("xsd:double",  errors->front().range);
+    ASSERT_EQ(0,  errors->front().type);
+}
 
-    std::shared_ptr<std::vector<Validator::Error>>  errors = validator.validateObject(Object("http://example.org/geometry/circle"));
-    Validator::Error firstError = errors->front();
+TEST_F(ValidatorTest, MinCardinality) {
+
+    std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/circle"));
 
     ASSERT_EQ(1, errors->size());
-    ASSERT_EQ("http://example.org/geometry#radius", firstError.property);
-    ASSERT_EQ("http://example.org/geometry/circle=> Property 'http://example.org/geometry#radius' doesn't have enough values:0. Minimum allowed is 1",
-              firstError.fullMessage());
+    ASSERT_EQ("http://example.org/geometry#radius", errors->front().property);
+    ASSERT_EQ(1, errors->front().val);
+    ASSERT_EQ(2,  errors->front().type);
 }
 
-TEST(_01_Validator, MaxCardinality) {
+TEST_F(ValidatorTest, MaxCardinality) {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
-
-    Ontology _ontology(&factory);
-    Validator validator(_ontology);
-
-    std::shared_ptr<std::vector<Validator::Error>>  errors = validator.validateObject(Object("http://example.org/geometry/rectangle"));
-    Validator::Error firstError = errors->front();
+    std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/rectangle"));
 
     ASSERT_EQ(1, errors->size());
-    ASSERT_EQ("http://example.org/geometry#topLeft", firstError.property);
-    ASSERT_EQ("http://example.org/geometry/rectangle=> Property 'http://example.org/geometry#topLeft' has too many values:2. Maximum allowed is 1",
-              firstError.fullMessage());
+    ASSERT_EQ("http://example.org/geometry#topLeft", errors->front().property);
+    ASSERT_EQ(2,  errors->front().count);
+    ASSERT_EQ(3,  errors->front().type);
 }
 
-TEST(_01_Validator, Type) {
+TEST_F(ValidatorTest, Type) {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
+    std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/objectType"));
 
-    Ontology _ontology(&factory);
-    Object::setFactory(&factory);
+    ASSERT_EQ(1, errors->size());
+    ASSERT_EQ("http://example.org/geometry#center", errors->front().property);
+    ASSERT_EQ(1,  errors->front().type);
+    ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
 
-    Object obj("http://example.org/geometry/type", "http://example.org/geometry#Shape");
-    Object objProp;
-    objProp.setPropertyValue("http://example.org/geometry#textString", "val");
-    obj.setObject("http://example.org/geometry/text", objProp);
-    std::cout << obj << std::endl;
-
-    Validator validator(_ontology);
-
-    std::shared_ptr<std::vector<Validator::Error>>  errors = validator.validateObject(obj);
-    for (auto error: *errors) {
-        std::cout << error.fullMessage() << std::endl;
-    }
 }
 
-TEST(_01_Validator, ModelValidator) {
+TEST_F(ValidatorTest, ModelValidator) {
 
-    Factory factory;
-    factory.addNamespacePrefix("geo", "http://example.org/geometry");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
-    factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
+    std::shared_ptr<std::vector<Validator::Error>> SError = validator->validateModel(factory);
 
-    Ontology _ontology(&factory);
-    Validator validator(_ontology);
+    EXPECT_EQ(9, SError->size());
+    ASSERT_EQ("http://example.org/geometry#textColor", SError->back().property);
+    ASSERT_EQ(0,  SError->back().count);
+    ASSERT_EQ(2,  SError->back().type);
+    ASSERT_EQ(1,  SError->front().type);
+    ASSERT_EQ("http://example.org/geometry/text",  SError->back().subject.iri());
+    ASSERT_EQ("http://example.org/geometry/objectType",  SError->front().subject.iri());
+    ASSERT_EQ("http://example.org/geometry#Point",  SError->front().range);
 
-    std::shared_ptr<std::vector<Validator::Error>> SError = validator.validateModel(factory);
-    EXPECT_EQ(8, SError->size());
-    ASSERT_EQ("http://example.org/geometry/text=> Property 'http://example.org/geometry#textColor' doesn't have enough values:0. Minimum allowed is 1",
-              SError->back().fullMessage());
-    for (auto error: *SError) {
-        std::cout << error.fullMessage() << std::endl;
-    }
 }
