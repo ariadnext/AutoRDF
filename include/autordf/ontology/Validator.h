@@ -46,7 +46,7 @@ public:
         Uri property;
 
         /**
-         * Message @subject and @property, @count are used as placeholder subject and property
+         * Message @subject and @property, @count, @val, @range are used as placeholder subject and property
          */
         std::string message;
 
@@ -72,7 +72,7 @@ public:
         /**
          * Message,with placeholders replaced with their actual values
          */
-        std::string fullMessage();
+        std::string fullMessage() const;
     };
 
     /**

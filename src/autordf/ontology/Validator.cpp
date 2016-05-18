@@ -7,7 +7,7 @@ namespace autordf {
 namespace ontology {
 
 
-std::string Validator::Error::fullMessage() {
+std::string Validator::Error::fullMessage() const {
     std::string str(message);
 
     std::string placeholder_1("@property");
@@ -37,7 +37,7 @@ std::string Validator::Error::fullMessage() {
         str.replace(foundPlaceholder_5, placeholder_5.length(), range);
     }
 
-    return std::string(subject.iri() + "=> " + str);
+    return str;
 }
 
 std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model& model) {
@@ -67,13 +67,13 @@ void Validator::validateDataProperty(const Object& object, std::shared_ptr<const
         error.count = propList.size();
         if (propList.size() > maxCardinality) {
             error.type = error.TOOMANYVALUES;
-            error.message = "Property \'@property\' has too many values:@count. Maximum allowed is @val";
+            error.message = "\'@subject\' property \'@property\' has @count distinct values. Maximum allowed is @val";
             error.val = maxCardinality;
             errorList->push_back(error);
         }
         if (propList.size() < minCardinality) {
             error.type = error.NOTENOUHVALUES;
-            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is @val";
+            error.message = "\'@subject\' property \'@property\' has @count distinct values. Minimum allowed is @val";
             error.val = minCardinality;
             errorList->push_back(error);
         }
@@ -84,8 +84,7 @@ void Validator::validateDataProperty(const Object& object, std::shared_ptr<const
             for (auto const& prop: propList) {
                 if (!isDataTypeValid(prop, rdfTypeEnum)) {
                     error.type = error.INVALIDDATATYPE;
-                    error.message = "Rdf type for the property \'@property\' not allowed. "
-                            "Rdf type required: @range";
+                    error.message = "\'@subject\' property \'@property\' value is not convertible as @range";
                     error.range = cvt::rdfTypeEnumXMLString(rdfTypeEnum);
                     errorList->push_back(error);
                 }
@@ -106,19 +105,19 @@ void Validator::validateObjectProperty(const Object& object, std::shared_ptr<con
         error.count = objList.size();
         if(objList.size() > maxCardinality) {
             error.type = error.TOOMANYVALUES;
-            error.message = "Property \'@property\' has too many values:@count. Maximum allowed is @val";
+            error.message = "\'@subject\' property \'@property\' has @count distinct values. Maximum allowed is @val";
             error.val = maxCardinality;
             errorList->push_back(error);
         }
         if (objList.size() < minCardinality) {
             error.type = error.NOTENOUHVALUES;
-            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is @val";
+            error.message = "\'@subject\' property \'@property\' has @count distinct values. Minimum allowed is @val";
             error.val = minCardinality;
             errorList->push_back(error);
         }
         for (auto const& object: objList) {
             if (!object.isA(range)) {
-                error.message = "Rdf type for the property \'@property\' not allowed. Rdf type required: @range";
+                error.message = "\'@subject\' property \'@property\' is of incompatible object type. Rdf type required is @range";
                 error.range = range;
                 error.type = error.INVALIDTYPE;
                 errorList->push_back(error);

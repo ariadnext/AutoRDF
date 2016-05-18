@@ -30,11 +30,17 @@ public:
         delete validator;
     }
 
+    static void dumpErrors(const std::shared_ptr<std::vector<Validator::Error>>& errors) {
+        for ( auto const& error : *errors ) {
+            std::cout << error.fullMessage() << std::endl;
+        }
+    }
+
 };
 
 TEST_F(ValidatorTest, ObjectValidator) {
-
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/myShape"));
+    dumpErrors(errors);
 
     ASSERT_EQ("http://example.org/geometry#center",  errors->back().property);
     ASSERT_EQ("http://example.org/geometry#radius",  errors->front().property);
@@ -45,8 +51,8 @@ TEST_F(ValidatorTest, ObjectValidator) {
 }
 
 TEST_F(ValidatorTest, DataType) {
-
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/point"));
+    dumpErrors(errors);
 
     ASSERT_EQ("http://example.org/geometry#x",  errors->front().property);
     ASSERT_EQ("xsd:double",  errors->front().range);
@@ -54,8 +60,8 @@ TEST_F(ValidatorTest, DataType) {
 }
 
 TEST_F(ValidatorTest, MinCardinality) {
-
     std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/circle"));
+    dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
     ASSERT_EQ("http://example.org/geometry#radius", errors->front().property);
@@ -64,8 +70,8 @@ TEST_F(ValidatorTest, MinCardinality) {
 }
 
 TEST_F(ValidatorTest, MaxCardinality) {
-
     std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/rectangle"));
+    dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
     ASSERT_EQ("http://example.org/geometry#topLeft", errors->front().property);
@@ -74,8 +80,8 @@ TEST_F(ValidatorTest, MaxCardinality) {
 }
 
 TEST_F(ValidatorTest, Type) {
-
     std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/objectType"));
+    dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
     ASSERT_EQ("http://example.org/geometry#center", errors->front().property);
@@ -85,16 +91,16 @@ TEST_F(ValidatorTest, Type) {
 }
 
 TEST_F(ValidatorTest, ModelValidator) {
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory);
+    dumpErrors(errors);
 
-    std::shared_ptr<std::vector<Validator::Error>> SError = validator->validateModel(factory);
-
-    EXPECT_EQ(9, SError->size());
-    ASSERT_EQ("http://example.org/geometry#textColor", SError->back().property);
-    ASSERT_EQ(0,  SError->back().count);
-    ASSERT_EQ(2,  SError->back().type);
-    ASSERT_EQ(1,  SError->front().type);
-    ASSERT_EQ("http://example.org/geometry/text",  SError->back().subject.iri());
-    ASSERT_EQ("http://example.org/geometry/objectType",  SError->front().subject.iri());
-    ASSERT_EQ("http://example.org/geometry#Point",  SError->front().range);
+    EXPECT_EQ(9, errors->size());
+    ASSERT_EQ("http://example.org/geometry#textColor", errors->back().property);
+    ASSERT_EQ(0,  errors->back().count);
+    ASSERT_EQ(2,  errors->back().type);
+    ASSERT_EQ(1,  errors->front().type);
+    ASSERT_EQ("http://example.org/geometry/text",  errors->back().subject.iri());
+    ASSERT_EQ("http://example.org/geometry/objectType",  errors->front().subject.iri());
+    ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
 
 }
