@@ -16,13 +16,13 @@ namespace ontology {
 class Validator {
 public:
     Validator(const Ontology& ontology) : _ontology(ontology) {}
-
     /**
      * Each error in given dataset is reported in an Error structure
      */
     class Error {
     public:
         Error() {}
+        Error(const Object& object, const Uri& prop): subject(object), property(prop) {}
 
         #define ERROR_TYPE(X) \
             X(INVALIDDATATYPE,   "Rdf type of dataproperty is not allowed. subject, property are filled") \
@@ -60,6 +60,15 @@ public:
          */
         Type type;
 
+        /**
+         * store any integer value
+         */
+        int val;
+
+        /**
+         * store iri
+         */
+        Uri range;
         /**
          * Message,with placeholders replaced with their actual values
          */

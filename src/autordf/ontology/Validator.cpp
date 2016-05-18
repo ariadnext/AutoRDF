@@ -12,7 +12,9 @@ std::string Validator::Error::fullMessage() {
 
     std::string placeholder_1("@property");
     std::string placeholder_2("@count");
+    std::string placeholder_3("@val");
     std::string placeholder_4("@subject");
+    std::string placeholder_5("@range");
 
     std::size_t foundPlaceholder_1 = str.find(placeholder_1);
     if(foundPlaceholder_1 != std::string::npos) {
@@ -22,9 +24,17 @@ std::string Validator::Error::fullMessage() {
     if(foundPlaceholder_2 != std::string::npos) {
         str.replace(foundPlaceholder_2, placeholder_2.length(), std::to_string(count));
     }
+    std::size_t foundPlaceholder_3 = str.find(placeholder_3);
+    if(foundPlaceholder_3 != std::string::npos) {
+        str.replace(foundPlaceholder_3, placeholder_3.length(), std::to_string(val));
+    }
     std::size_t foundPlaceholder_4 = str.find(placeholder_4);
     if(foundPlaceholder_4 != std::string::npos) {
         str.replace(foundPlaceholder_4, placeholder_4.length(), subject.iri());
+    }
+    std::size_t foundPlaceholder_5 = str.find(placeholder_5);
+    if(foundPlaceholder_5 != std::string::npos) {
+        str.replace(foundPlaceholder_5, placeholder_5.length(), range);
     }
 
     return std::string(subject.iri() + "=> " + str);
@@ -48,39 +58,37 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Mo
 void Validator::validateDataProperty(const Object& object, std::shared_ptr<const Klass> currentCLass,
                                      std::vector<Validator::Error>* errorList) {
 
-    Validator::Error error;
-    error.subject = object;
     for (auto const &dataProperty: currentCLass->dataProperties()) {
         unsigned int maxCardinality = dataProperty->maxCardinality(*currentCLass);
         unsigned int minCardinality = dataProperty->minCardinality(*currentCLass);
         Uri range = dataProperty->range(currentCLass.get());
         std::vector<PropertyValue> propList = object.getPropertyValueList(dataProperty->rdfname());
-        error.property = dataProperty->rdfname();
+        Validator::Error error(object, dataProperty->rdfname());
         error.count = propList.size();
         if (propList.size() > maxCardinality) {
             error.type = error.TOOMANYVALUES;
-            error.message = "Property \'@property\' has too many values:@count. Maximum allowed is "
-                            + std::to_string(maxCardinality);
+            error.message = "Property \'@property\' has too many values:@count. Maximum allowed is @val";
+            error.val = maxCardinality;
             errorList->push_back(error);
         }
         if (propList.size() < minCardinality) {
             error.type = error.NOTENOUHVALUES;
-            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is "
-                            + std::to_string(minCardinality);
+            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is @val";
+            error.val = minCardinality;
             errorList->push_back(error);
         }
 
-        autordf::cvt::RdfTypeEnum rdfTypeEnum;
-        for (auto const& prop: propList) {
-            auto rdfType = cvt::rdfMapType.find(range);
-            if (rdfType != autordf::cvt::rdfMapType.end()) {
-                rdfTypeEnum = rdfType->second;
-            }
-            if (!isDataTypeValid(prop, rdfTypeEnum)) {
-                error.type = error.INVALIDDATATYPE;
-                error.message = "Rdf type for the property \'@property\' not allowed. "
-                                        "Rdf type required: " + cvt::rdfTypeEnumXMLString(rdfTypeEnum);
-                errorList->push_back(error);
+        auto rdfType = cvt::rdfMapType.find(range);
+        if (rdfType != autordf::cvt::rdfMapType.end()) {
+            autordf::cvt::RdfTypeEnum rdfTypeEnum = rdfType->second;
+            for (auto const& prop: propList) {
+                if (!isDataTypeValid(prop, rdfTypeEnum)) {
+                    error.type = error.INVALIDDATATYPE;
+                    error.message = "Rdf type for the property \'@property\' not allowed. "
+                            "Rdf type required: @range";
+                    error.range = cvt::rdfTypeEnumXMLString(rdfTypeEnum);
+                    errorList->push_back(error);
+                }
             }
         }
     }
@@ -88,31 +96,30 @@ void Validator::validateDataProperty(const Object& object, std::shared_ptr<const
 
 void Validator::validateObjectProperty(const Object& object, std::shared_ptr<const Klass> currentClass,
                                        std::vector<Validator::Error>* errorList) {
-    Validator::Error error;
-    error.subject = object;
+
     for (auto const& objectProperty: currentClass->objectProperties()) {
         unsigned int maxCardinality = objectProperty->maxCardinality(*currentClass);
         unsigned int minCardinality = objectProperty->minCardinality(*currentClass);
         autordf::Uri range = objectProperty->range(currentClass.get());
         std::vector<Object> objList = object.getObjectList(objectProperty->rdfname());
-        error.property = objectProperty->rdfname();
+        Validator::Error error(object, objectProperty->rdfname());
         error.count = objList.size();
         if(objList.size() > maxCardinality) {
             error.type = error.TOOMANYVALUES;
-            error.message =  "Property \'@property\' has too many values:@count. Maximum allowed is "
-                             + std::to_string(maxCardinality);
+            error.message = "Property \'@property\' has too many values:@count. Maximum allowed is @val";
+            error.val = maxCardinality;
             errorList->push_back(error);
         }
         if (objList.size() < minCardinality) {
             error.type = error.NOTENOUHVALUES;
-            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is "
-                            + std::to_string(minCardinality);
+            error.message = "Property \'@property\' doesn't have enough values:@count. Minimum allowed is @val";
+            error.val = minCardinality;
             errorList->push_back(error);
         }
         for (auto const& object: objList) {
             if (!object.isA(range)) {
-                error.message = "Rdf type for the property \'@property\' not allowed. "
-                                        "Rdf type required: " + range;
+                error.message = "Rdf type for the property \'@property\' not allowed. Rdf type required: @range";
+                error.range = range;
                 error.type = error.INVALIDTYPE;
                 errorList->push_back(error);
             }
@@ -125,9 +132,11 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const O
     std::vector<Uri> types = object.getTypes();
 
     for (auto const& type: types) {
-        std::shared_ptr<const Klass> uriKlass =  _ontology.findClass(type);
-        validateDataProperty(object, uriKlass, &errorList);
-        validateObjectProperty(object, uriKlass, &errorList);
+        if (_ontology.containsClass(type)) {
+            std::shared_ptr<const Klass> uriKlass =  _ontology.findClass(type);
+            validateDataProperty(object, uriKlass, &errorList);
+            validateObjectProperty(object, uriKlass, &errorList);
+        }
     }
     return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
