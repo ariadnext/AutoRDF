@@ -29,8 +29,8 @@ TARGET_LINK_LIBRARIES (
 ADD_CUSTOM_COMMAND(
     OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/geometry/AllInOne.cpp
-    COMMAND "${CMAKE_BINARY_DIR}/src/autordf/codegen/autordfcodegen" -o geometry -a "${CMAKE_CURRENT_SOURCE_DIR}/geometry.owl"
-    COMMAND "${CMAKE_BINARY_DIR}/src/autordf/xmi/autordfxmi" -o geometry.xmi "${CMAKE_CURRENT_SOURCE_DIR}/geometry.owl"
-    DEPENDS "${CMAKE_BINARY_DIR}/src/autordf/codegen/autordfcodegen" "${CMAKE_BINARY_DIR}/src/autordf/xmi/autordfxmi" "${CMAKE_CURRENT_SOURCE_DIR}/geometry.owl"
+    COMMAND "${CMAKE_BINARY_DIR}/src/autordf/codegen/autordfcodegen" -o geometry -a "${CMAKE_CURRENT_SOURCE_DIR}/geometry.ttl"
+    COMMAND "${CMAKE_BINARY_DIR}/src/autordf/xmi/autordfxmi" -o geometry.xmi "${CMAKE_CURRENT_SOURCE_DIR}/geometry.ttl"
+    DEPENDS "${CMAKE_BINARY_DIR}/src/autordf/codegen/autordfcodegen" "${CMAKE_BINARY_DIR}/src/autordf/xmi/autordfxmi" "${CMAKE_CURRENT_SOURCE_DIR}/geometry.ttl"
     COMMENT "Generating C++ classes and UML model for example geometry ontology"
 )

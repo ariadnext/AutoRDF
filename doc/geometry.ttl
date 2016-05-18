@@ -1,0 +1,241 @@
+@prefix : <http://example.org/geometry#> .
+@prefix geo: <http://example.org/geometry> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://example.org/geometry> .
+
+<http://example.org/geometry> rdf:type owl:Ontology .
+
+
+#################################################################
+#
+#    Object Properties
+#
+#################################################################
+
+
+###  http://example.org/geometry#bottomRight
+
+:bottomRight rdf:type owl:ObjectProperty ;
+             
+             rdfs:domain :Rectangle ;
+             
+             rdfs:comment "Rectangle bottom right coordinates"@en .
+
+
+
+###  http://example.org/geometry#center
+
+:center rdf:type owl:ObjectProperty ;
+        
+        rdfs:range :Point ;
+        
+        rdfs:comment "Shape center"@en .
+
+
+
+###  http://example.org/geometry#text
+
+:text rdf:type owl:ObjectProperty ,
+               owl:FunctionalProperty ;
+      
+      rdfs:domain :Shape ;
+      
+      rdfs:range :Text .
+
+
+
+###  http://example.org/geometry#topLeft
+
+:topLeft rdf:type owl:ObjectProperty ;
+         
+         rdfs:domain :Rectangle ;
+         
+         rdfs:comment "Rectangle top left coordinates"@en .
+
+
+
+
+
+#################################################################
+#
+#    Data properties
+#
+#################################################################
+
+
+###  http://example.org/geometry#borderColor
+
+:borderColor rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+             
+             rdfs:domain :Shape ;
+             
+             rdfs:comment "Color used to draw the border of the shape"@en .
+
+
+
+###  http://example.org/geometry#borderThickness
+
+:borderThickness rdf:type owl:DatatypeProperty ,
+                          owl:FunctionalProperty ;
+                 
+                 rdfs:domain :Shape ;
+                 
+                 rdfs:range xsd:integer ;
+                 
+                 rdfs:comment "Thikness of the border of the shape"@en .
+
+
+
+###  http://example.org/geometry#fillColor
+
+:fillColor rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           
+           rdfs:domain :Shape ;
+           
+           rdfs:comment "Color used to fill the shape"@en .
+
+
+
+###  http://example.org/geometry#radius
+
+:radius rdf:type owl:DatatypeProperty ;
+        
+        rdfs:domain :Circle ;
+        
+        rdfs:range xsd:double ;
+        
+        rdfs:comment "Shape radius"@en .
+
+
+
+###  http://example.org/geometry#textColor
+
+:textColor rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           
+           rdfs:domain :Text ;
+           
+           rdfs:comment "color used to draw a text"@en .
+
+
+
+###  http://example.org/geometry#textString
+
+:textString rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+            
+            rdfs:domain :Text ;
+            
+            rdfs:comment "Text to be displayed on the shape"@en .
+
+
+
+###  http://example.org/geometry#x
+
+:x rdf:type owl:DatatypeProperty ;
+   
+   rdfs:domain :Point ;
+   
+   rdfs:comment "x coordinates"@en .
+
+
+
+###  http://example.org/geometry#y
+
+:y rdf:type owl:DatatypeProperty ;
+   
+   rdfs:domain :Point ;
+   
+   rdfs:comment "y coordinates"@en .
+
+
+
+
+
+#################################################################
+#
+#    Classes
+#
+#################################################################
+
+
+###  http://example.org/geometry#Circle
+
+:Circle rdf:type owl:Class ;
+        
+        rdfs:subClassOf :Shape ,
+                        [ rdf:type owl:Restriction ;
+                          owl:onProperty :center ;
+                          owl:cardinality "1"^^xsd:nonNegativeInteger
+                        ] ,
+                        [ rdf:type owl:Restriction ;
+                          owl:onProperty :radius ;
+                          owl:cardinality "1"^^xsd:nonNegativeInteger
+                        ] ;
+        
+        rdfs:comment "A circle, specified by its radius."@en .
+
+
+
+###  http://example.org/geometry#Point
+
+:Point rdf:type owl:Class ;
+       
+       rdfs:subClassOf [ rdf:type owl:Restriction ;
+                         owl:onProperty :x ;
+                         owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                         owl:onDataRange xsd:double
+                       ] ,
+                       [ rdf:type owl:Restriction ;
+                         owl:onProperty :y ;
+                         owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                         owl:onDataRange xsd:double
+                       ] ;
+       
+       rdfs:comment "A point un a 2 dimension area"@en .
+
+
+
+###  http://example.org/geometry#Rectangle
+
+:Rectangle rdf:type owl:Class ;
+           
+           rdfs:subClassOf :Shape ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :bottomRight ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Point
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :topLeft ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Point
+                           ] ;
+           
+           rdfs:comment "A rectangle identified by its top-left and bottom-right coordinates"@en .
+
+
+
+###  http://example.org/geometry#Shape
+
+:Shape rdf:type owl:Class ;
+       
+       rdfs:comment "The parent class for all shapes"@en .
+
+
+
+###  http://example.org/geometry#Text
+
+:Text rdf:type owl:Class .
+
+
+
+
+###  Generated by the OWL API (version 4.2.1.20160306-0033) https://github.com/owlcs/owlapi
+
