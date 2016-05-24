@@ -115,6 +115,14 @@ private:
      * return true if the property value has the correct type, false otherwise
      */
     static bool isDataTypeValid(const autordf::PropertyValue& property, const autordf::cvt::RdfTypeEnum& rdfType);
+
+    /**
+     * @brief isObjectTypeValid
+     * @param object the object to check type
+     * @param type expected type of the object
+     * return true if the given object is of the given type or type's subclass, false otherwise
+     */
+    bool isObjectTypeValid(const autordf::Object& object, const autordf::Uri& type);
 };
 
 }

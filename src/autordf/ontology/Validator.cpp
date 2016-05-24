@@ -116,7 +116,7 @@ void Validator::validateObjectProperty(const Object& object, std::shared_ptr<con
             errorList->push_back(error);
         }
         for (auto const& object: objList) {
-            if (!object.isA(range)) {
+            if (!isObjectTypeValid(object, range)) {
                 error.message = "\'@subject\' property \'@property\' is of incompatible object type. Rdf type required is @range";
                 error.range = range;
                 error.type = error.INVALIDTYPE;
@@ -213,6 +213,23 @@ bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const au
     return valid;
 }
 
+bool Validator::isObjectTypeValid(const autordf::Object& object, const autordf::Uri& type) {
+    bool isAType = false;
+    if (object.isA(type)) {
+        return true;
+    } else {
+        std::shared_ptr<const autordf::ontology::Klass> klass =  _ontology.findClass(type);
+        if (klass != nullptr) {
+            for (auto predecessor: klass->getAllAncestors()) {
+                if (object.isA(predecessor->rdfname())) {
+                    isAType = true;
+                    break;
+                }
+            }
+        }
+    }
+    return isAType;
+}
 
 }
 }
