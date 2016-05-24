@@ -115,8 +115,9 @@ void Validator::validateObjectProperty(const Object& object, std::shared_ptr<con
             error.val = minCardinality;
             errorList->push_back(error);
         }
-        for (auto const& object: objList) {
-            if (!isObjectTypeValid(object, range)) {
+        for (auto const& subObj: objList) {
+            if (!isObjectTypeValid(subObj, range)) {
+                error.subject = subObj;
                 error.message = "\'@subject\' property \'@property\' is of incompatible object type. Rdf type required is @range";
                 error.range = range;
                 error.type = error.INVALIDTYPE;

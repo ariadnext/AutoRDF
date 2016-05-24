@@ -100,7 +100,7 @@ TEST_F(ValidatorTest, ModelValidator) {
     ASSERT_EQ(2,  errors->back().type);
     ASSERT_EQ(1,  errors->front().type);
     ASSERT_EQ("http://example.org/geometry/text",  errors->back().subject.iri());
-    ASSERT_EQ("http://example.org/geometry/objectType",  errors->front().subject.iri());
+    ASSERT_EQ("http://example.org/geometry/point/center",  errors->front().subject.iri());
     ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
 
 }
