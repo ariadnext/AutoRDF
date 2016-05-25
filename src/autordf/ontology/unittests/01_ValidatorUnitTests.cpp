@@ -79,7 +79,7 @@ TEST_F(ValidatorTest, MaxCardinality) {
     ASSERT_EQ(3,  errors->front().type);
 }
 
-TEST_F(ValidatorTest, Type) {
+TEST_F(ValidatorTest, DISABLED_Type) {
     std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/objectType"));
     dumpErrors(errors);
 
@@ -90,7 +90,7 @@ TEST_F(ValidatorTest, Type) {
 
 }
 
-TEST_F(ValidatorTest, ModelValidator) {
+TEST_F(ValidatorTest,DISABLED_ModelValidator) {
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory);
     dumpErrors(errors);
 
@@ -102,5 +102,4 @@ TEST_F(ValidatorTest, ModelValidator) {
     ASSERT_EQ("http://example.org/geometry/text",  errors->back().subject.iri());
     ASSERT_EQ("http://example.org/geometry/point/center",  errors->front().subject.iri());
     ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
-
 }

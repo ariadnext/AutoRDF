@@ -55,7 +55,7 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Mo
     return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
 
-void Validator::validateDataProperty(const Object& object, std::shared_ptr<const Klass> currentCLass,
+void Validator::validateDataProperty(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
                                      std::vector<Validator::Error>* errorList) {
 
     for (auto const &dataProperty: currentCLass->dataProperties()) {
@@ -93,7 +93,7 @@ void Validator::validateDataProperty(const Object& object, std::shared_ptr<const
     }
 }
 
-void Validator::validateObjectProperty(const Object& object, std::shared_ptr<const Klass> currentClass,
+void Validator::validateObjectProperty(const Object& object, const std::shared_ptr<const Klass>& currentClass,
                                        std::vector<Validator::Error>* errorList) {
 
     for (auto const& objectProperty: currentClass->objectProperties()) {
@@ -117,7 +117,7 @@ void Validator::validateObjectProperty(const Object& object, std::shared_ptr<con
         }
         for (auto const& subObj: objList) {
             if (!isObjectTypeValid(subObj, range)) {
-                error.subject = subObj;
+                error.subject = subObj.iri().empty() ? object : subObj;
                 error.message = "\'@subject\' property \'@property\' is of incompatible object type. Rdf type required is @range";
                 error.range = range;
                 error.type = error.INVALIDTYPE;
@@ -221,7 +221,7 @@ bool Validator::isObjectTypeValid(const autordf::Object& object, const autordf::
     } else {
         std::shared_ptr<const autordf::ontology::Klass> klass =  _ontology.findClass(type);
         if (klass != nullptr) {
-            for (auto predecessor: klass->getAllAncestors()) {
+            for (auto predecessor: klass->getAllPredecessors()) {
                 if (object.isA(predecessor->rdfname())) {
                     isAType = true;
                     break;

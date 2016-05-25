@@ -97,7 +97,7 @@ private:
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object Dataproperty
      */
-    void validateDataProperty(const Object& object, std::shared_ptr<const Klass> currentCLass, std::vector<Validator::Error>*);
+    void validateDataProperty(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>*);
 
     /**
      * @brief validateObjectProperty
@@ -106,7 +106,7 @@ private:
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object's objectProperties
      */
-    void validateObjectProperty(const Object& object, std::shared_ptr<const Klass>, std::vector<Validator::Error>*);
+    void validateObjectProperty(const Object& object, const std::shared_ptr<const Klass>&, std::vector<Validator::Error>*);
 
     /**
      * @brief isDataTypeValid
