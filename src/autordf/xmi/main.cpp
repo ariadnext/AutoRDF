@@ -28,6 +28,31 @@ void escape(std::string *data)
     replace_all(*data, ">",  "&gt;");
 }
 
+// Builds and id that does not contain any non strange char, as modelio chokes on it
+std::string genXmiId(const std::string& rawData) {
+    static std::list<std::string> table;
+    unsigned int id = 0;
+    bool found = false;
+    for ( const std::string& item : table) {
+        if ( item == rawData ) {
+            found = true;
+            break;
+        }
+        ++id;
+    }
+
+    if ( !found ) {
+        table.push_back(rawData);
+        id = table.size() - 1;
+    }
+
+    std::stringstream ss;
+    ss << "_" << (id + 1);
+
+    return ss.str();
+}
+
+
 void genComment(ontology::RdfsEntity& entity, const std::string& xmiid) {
     if ( !entity.label().empty() || !entity.comment().empty() ) {
         std::string xmicomment;
@@ -60,34 +85,34 @@ void run(Factory *f, const std::string& name) {
         } else {
             umlType = "uml:Enumeration";
         }
-        *out << "<packagedElement xmi:type=\"" << umlType << "\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << kls->rdfname() << "\" visibility=\"public\">" << std::endl;
-        genComment(*kls.get(),  kls->rdfname());
+        *out << "<packagedElement xmi:type=\"" << umlType << "\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << genXmiId(kls->rdfname()) << "\" visibility=\"public\">" << std::endl;
+        genComment(*kls.get(), genXmiId(kls->rdfname()));
 
         for (const std::shared_ptr<ontology::Klass>& ancestor : kls->ancestors()) {
             std::string xmiid = kls->rdfname() + "_" + ancestor->rdfname();
-            *out << "    <generalization xmi:type=\"uml:Generalization\" xmi:id=\"" << xmiid << "\" general=\"" << ancestor->rdfname() << "\"/>" << std::endl;
+            *out << "    <generalization xmi:type=\"uml:Generalization\" xmi:id=\"" << genXmiId(xmiid) << "\" general=\"" << genXmiId(ancestor->rdfname()) << "\"/>" << std::endl;
         }
 
         for ( const std::shared_ptr<ontology::DataProperty>& dataProp: kls->dataProperties() ) {
-            std::string xmiid = kls->rdfname() + "_" + dataProp->rdfname();
-            *out << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << dataProp->prettyIRIName() << "\" xmi:id=\"" << xmiid << "\" visibility=\"public\">" << std::endl;
+            std::string xmiid = genXmiId(kls->rdfname() + "_" + dataProp->rdfname());
+            *out << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << dataProp->prettyIRIName() << "\" xmi:id=\"" << genXmiId(xmiid) << "\" visibility=\"public\">" << std::endl;
             genComment(*dataProp.get(), xmiid);
             *out << "</ownedAttribute>" << std::endl;
         }
         for ( const std::shared_ptr<ontology::ObjectProperty>& objectProp: kls->objectProperties() ) {
-            std::string xmiid = kls->rdfname() + "_" + objectProp->rdfname();
-            std::string assocxmiid = "Association_" + kls->rdfname() + "_" + objectProp->rdfname();
-            std::string assocendxmiid = "AssociationEnd_" + kls->rdfname() + "_" + objectProp->rdfname();
-            std::string typexmiid = objectProp->range(kls.get());
+            std::string xmiid = genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            std::string assocxmiid = "Association" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            std::string assocendxmiid = "AssociationEnd" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            std::string typexmiid = genXmiId(objectProp->range(kls.get()));
             if ( typexmiid.empty() ) {
-                typexmiid = ontology::Ontology::OWL_NS + "Thing";
+                typexmiid = genXmiId(ontology::Ontology::OWL_NS + "Thing");
             }
 
             *out << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << objectProp->prettyIRIName()
             << "\" xmi:id=\"" << xmiid << "\" visibility=\"public\""
             << " association=\"" << assocxmiid << "\" aggregation=\"none\">" << std::endl;
             *out << "    <type xmi:type=\"uml:Class\" xmi:idref=\"" << typexmiid << "\"/>" << std::endl;
-            genComment(*objectProp.get(), xmiid);
+            genComment(*objectProp.get(), genXmiId(xmiid));
             *out << "</ownedAttribute>" << std::endl;
 
             *out << "<packagedElement xmi:type=\"uml:Association\" xmi:id=\"" << assocxmiid << "\" visibility=\"public\">" << std::endl;
