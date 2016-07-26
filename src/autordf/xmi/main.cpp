@@ -86,6 +86,16 @@ void genComment(ontology::RdfsEntity& entity, const std::string& xmiid) {
     }
 }
 
+class Association {
+public:
+    std::string id;
+    std::string memberEndId;
+    std::string ownedEndId;
+    std::string type;
+};
+
+std::vector<Association> _associations;
+
 void run(Factory *f, const std::string& name) {
     ontology::Ontology ontology(f, verbose);
 
@@ -102,17 +112,20 @@ void run(Factory *f, const std::string& name) {
     for ( auto const& klassMapItem: ontology.classUri2Ptr() ) {
         const std::shared_ptr<ontology::Klass>& kls = klassMapItem.second;
         std::string umlType;
-        if ( kls->oneOfValues().empty() ) {
-            umlType = "uml:Class";
-        } else {
+        bool isAnEnum = !kls->oneOfValues().empty();
+        if ( isAnEnum ) {
             umlType = "uml:Enumeration";
+        } else {
+            umlType = "uml:Class";
         }
         indent(out) << "<packagedElement xmi:type=\"" << umlType << "\" name=\"" << kls->prettyIRIName() << "\"" << " xmi:id=\"" << genXmiId(kls->rdfname()) << "\" visibility=\"public\">";
         pushIndent();
         genComment(*kls.get(), genXmiId(kls->rdfname()));
-        for (const std::shared_ptr<ontology::Klass>& ancestor : kls->ancestors()) {
-            std::string xmiid = kls->rdfname() + "_" + ancestor->rdfname();
-            indent(out) << "<generalization xmi:type=\"uml:Generalization\" xmi:id=\"" << genXmiId(xmiid) << "\" general=\"" << genXmiId(ancestor->rdfname()) << "\"/>";
+        if ( !isAnEnum ) {
+            for (const std::shared_ptr<ontology::Klass>& ancestor : kls->ancestors()) {
+                std::string xmiid = kls->rdfname() + "_" + ancestor->rdfname();
+                indent(out) << "<generalization xmi:type=\"uml:Generalization\" xmi:id=\"" << genXmiId(xmiid) << "\" general=\"" << genXmiId(ancestor->rdfname()) << "\"/>";
+            }
         }
         for ( const std::shared_ptr<ontology::DataProperty>& dataProp: kls->dataProperties() ) {
             std::string xmiid = genXmiId(kls->rdfname() + "_" + dataProp->rdfname());
@@ -123,36 +136,44 @@ void run(Factory *f, const std::string& name) {
             indent(out) << "</ownedAttribute>";
         }
         for ( const std::shared_ptr<ontology::ObjectProperty>& objectProp: kls->objectProperties() ) {
-            std::string xmiid = genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
-            std::string assocxmiid = "Association" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
-            std::string assocendxmiid = "AssociationEnd" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            Association a;
+            a.id = "Association" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            a.memberEndId = genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            a.ownedEndId = "AssociationEnd" + genXmiId(kls->rdfname() + "_" + objectProp->rdfname());
+            a.type = genXmiId(kls->rdfname());
+
             std::string typexmiid = genXmiId(objectProp->range(kls.get()));
             if ( typexmiid.empty() ) {
                 typexmiid = genXmiId(ontology::Ontology::OWL_NS + "Thing");
             }
 
             indent(out) << "<ownedAttribute xmi:type=\"uml:Property\" name=\"" << objectProp->prettyIRIName()
-            << "\" xmi:id=\"" << xmiid << "\" visibility=\"public\""
-            << " association=\"" << assocxmiid << "\" aggregation=\"none\">";
+            << "\" xmi:id=\"" << a.memberEndId << "\" visibility=\"public\""
+            << " association=\"" << a.id << "\" aggregation=\"none\">";
             pushIndent();
             indent(out) << "<type xmi:type=\"uml:Class\" xmi:idref=\"" << typexmiid << "\"/>";
-            genComment(*objectProp.get(), genXmiId(xmiid));
+            genComment(*objectProp.get(), genXmiId(a.memberEndId));
             popIndent();
             indent(out) << "</ownedAttribute>";
 
-            indent(out) << "<packagedElement xmi:type=\"uml:Association\" xmi:id=\"" << assocxmiid << "\" visibility=\"public\">";
-            pushIndent();
-            indent(out) << "<memberEnd xmi:idref=\"" << xmiid << "\"/>";
-            indent(out) << "<ownedEnd xmi:type=\"uml:Property\" xmi:id=\"" << assocendxmiid << "\" visibility=\"public\" type=\"" << kls->rdfname() << "\" aggregation=\"none\" isNavigable=\"false\"/>";
-            popIndent();
-            indent(out) << "</packagedElement>";
+            _associations.push_back(a);
         }
+
         popIndent();
         indent(out) << "</packagedElement>";
         *out << std::endl;
     }
 
     *out << std::endl;
+    for ( const Association& a : _associations ) {
+        indent(out) << "<packagedElement xmi:type=\"uml:Association\" xmi:id=\"" << a.id << "\" visibility=\"public\">";
+        pushIndent();
+        indent(out) << "<memberEnd xmi:idref=\"" << a.memberEndId << "\"/>";
+        indent(out) << "<ownedEnd xmi:type=\"uml:Property\" xmi:id=\"" << a.ownedEndId << "\" visibility=\"public\" type=\"" << a.type << "\" association=\"" << a.id << "\"/>";
+        popIndent();
+        indent(out) << "</packagedElement>";
+    }
+
     popIndent();
     indent(out) << "</packagedElement>";
     popIndent();
