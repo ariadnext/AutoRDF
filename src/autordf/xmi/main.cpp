@@ -89,7 +89,7 @@ void genComment(ontology::RdfsEntity& entity, const std::string& xmiid) {
 void run(Factory *f, const std::string& name) {
     ontology::Ontology ontology(f, verbose);
 
-    indent(out) << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    *out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     indent(out) << "<xmi:XMI xmi:version=\"2.1\" xmlns:uml=\"http://schema.omg.org/spec/UML/2.3\" xmlns:xmi=\"http://schema.omg.org/spec/XMI/2.1\">";
     pushIndent();
     indent(out) << "<xmi:Documentation exporter=\"autordf\" />";
