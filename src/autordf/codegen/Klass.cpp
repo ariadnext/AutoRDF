@@ -361,11 +361,12 @@ void Klass::generateInterfaceDefinition() const {
 std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
     std::set<std::shared_ptr<const Klass> > deps;
     std::set<std::shared_ptr<const ontology::ObjectProperty> > objects;
+
     std::copy(_decorated.objectProperties().begin(), _decorated.objectProperties().end(), std::inserter(objects, objects.begin()));
     std::copy(_decorated.objectKeys().begin(), _decorated.objectKeys().end(), std::inserter(objects, objects.begin()));
 
     for ( const std::shared_ptr<const ontology::ObjectProperty> p : objects) {
-        auto val = p->findClass();
+        auto val = p->findClass(&_decorated);
         if ( val ) {
             if ( val->prettyIRIName() != _decorated.prettyIRIName() ) {
                 deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
