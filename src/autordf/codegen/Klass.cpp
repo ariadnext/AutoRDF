@@ -273,18 +273,24 @@ void Klass::generateInterfaceDeclaration() const {
     }
 
     ofs << "};" << std::endl;
+    leaveNameSpace(ofs);
+
     ofs << std::endl;
     if ( _decorated.oneOfValues().size() ) {
+        std::string cppNameSpace;
+        if ( outdir != "." ) {
+            cppNameSpace.append(outdir + "::");
+        }
+        cppNameSpace.append(genCppNameSpace() + "::");
+
         ofs << "/**" << std::endl;
-        ofs << "* Dumps string representation of Enumerated type " << std::endl;
-        ofs << "*" << std::endl;
-        ofs << "*/" << std::endl;
-        ofs << "inline std::ostream& operator<<(std::ostream& os, const " << cppName << "& val) {" << std::endl;
-        indent(ofs, 1) << "os << " << cppName << "::enumString(val.asEnum());" << std::endl;
+        ofs << " * Dumps string representation of Enumerated type " << std::endl;
+        ofs << " */" << std::endl;
+        ofs << "inline std::ostream& operator<<(std::ostream& os, " << cppNameSpace << cppName << "::Enum val) {" << std::endl;
+        indent(ofs, 1) << "os << " << cppNameSpace << cppName << "::enumString(val);" << std::endl;
         indent(ofs, 1) << "return os;" << std::endl;
         ofs << "}" << std::endl;
     }
-    leaveNameSpace(ofs);
 
     generateCodeProtectorEnd(ofs, genCppNameSpaceFullyQualified(), cppName);
 }
