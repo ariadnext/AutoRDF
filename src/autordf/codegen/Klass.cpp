@@ -165,6 +165,7 @@ void Klass::generateInterfaceDeclaration() const {
     if ( _decorated.oneOfValues().size() ) {
         ofs << "#include <array>" << std::endl;
         ofs << "#include <tuple>" << std::endl;
+        ofs << "#include <ostream>" << std::endl;
         ofs << std::endl;
     }
     ofs << "#include <autordf/Object.h>" << std::endl;
@@ -273,6 +274,16 @@ void Klass::generateInterfaceDeclaration() const {
 
     ofs << "};" << std::endl;
     ofs << std::endl;
+    if ( _decorated.oneOfValues().size() ) {
+        ofs << "/**" << std::endl;
+        ofs << "* Dumps string representation of Enumerated type " << std::endl;
+        ofs << "*" << std::endl;
+        ofs << "*/" << std::endl;
+        ofs << "inline std::ostream& operator<<(std::ostream& os, const " << cppName << "& val) {" << std::endl;
+        indent(ofs, 1) << "os << " << cppName << "::enumString(val.asEnum());" << std::endl;
+        indent(ofs, 1) << "return os;" << std::endl;
+        ofs << "}" << std::endl;
+    }
     leaveNameSpace(ofs);
 
     generateCodeProtectorEnd(ofs, genCppNameSpaceFullyQualified(), cppName);
