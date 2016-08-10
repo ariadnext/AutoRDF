@@ -22,6 +22,17 @@ public:
     class Error {
     public:
         Error() {}
+        /**
+         * Copy constructor
+         */
+        Error(const Error& error) :
+            subject(error.subject),
+            property(error.property),
+            message(error.message),
+            count(error.count),
+            type(error.type),
+            val(error.val),
+            range(error.range) {}
         Error(const Object& object, const Uri& prop): subject(object), property(prop) {}
 
         #define ERROR_TYPE(X) \

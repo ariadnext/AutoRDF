@@ -13,8 +13,8 @@ std::string Validator::Error::fullMessage() const {
     std::string placeholder_1("@property");
     std::string placeholder_2("@count");
     std::string placeholder_3("@val");
-    std::string placeholder_4("@subject");
     std::string placeholder_5("@range");
+    std::string placeholder_4 = subject.iri().empty()? "\'@subject\'" : "@subject";
 
     std::size_t foundPlaceholder_1 = str.find(placeholder_1);
     if(foundPlaceholder_1 != std::string::npos) {
