@@ -42,11 +42,6 @@ public: \
 AUTORDFEXCEPTION(PropertyNotFound)
 
 /**
- * Current object is not of the expected type
- */
-AUTORDFEXCEPTION(InvalidClass)
-
-/**
  * Current object is not an instance of the expected enum
  */
 AUTORDFEXCEPTION(InvalidEnum)

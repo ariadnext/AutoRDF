@@ -43,12 +43,10 @@ public:
      * Creates new object, to given iri.
      * @param iri object IRI. If empty, creates an anonymous (aka blank) object
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written
-     * @param rtti Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
-     *   rdfTypeIRI, using rtti type system
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
-    Object(const Uri& iri = "", const Uri& rdfTypeIRI = "", const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+    Object(const Uri& iri = "", const Uri& rdfTypeIRI = "");
 
     /**
      * Build us using the same underlying resource as the other object
@@ -57,12 +55,10 @@ public:
      *
      * @param obj the object to use
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written
-     * @param rtti Rdf Runtime type info, usually auto-generated. If the underlying resource has a type, makes sure it is compatible with
-     *   rdfTypeIRI, using rtti type system
      * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
-    Object(const Object& obj, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti = nullptr);
+    Object(const Object& obj, const Uri& rdfTypeIRI);
 
     /**
      * Optimized Copy constructor. Doest not perform any kind of type checking
@@ -410,12 +406,6 @@ private:
      * Shared constructor
      */
     void construct(const Uri& rdfTypeIRI);
-
-    /**
-     * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
-     * @param rdfTypesInfo, the types inferred for current class hierarchy
-     */
-    void runtimeTypeCheck(const std::map<std::string, std::set<std::string> > *rdfTypesInfo) const;
 
     /**
      * Returns the associated factory, or throws if nullptr

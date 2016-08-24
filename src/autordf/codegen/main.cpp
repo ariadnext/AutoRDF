@@ -22,63 +22,6 @@ namespace codegen {
 bool verbose = false;
 bool generateAllInOne = false;
 
-void generateRdfTypeInfo(const ontology::Ontology& ontology) {
-    std::ofstream oifs;
-    createFile(RdfsEntity::outdir + "/RdfTypeInfo.h", &oifs);
-    startInternal(oifs);
-    generateCodeProtectorBegin(oifs, "", "RdfTypeInfo");
-    oifs << "class RdfTypeInfo {" << std::endl;
-    oifs << "public:" << std::endl;
-    indent(oifs, 1) << "RdfTypeInfo();" << std::endl;
-    oifs << std::endl;
-    indent(oifs, 1) << "static const std::map<std::string, std::set<std::string> >& data() { return DATA; }" << std::endl;
-    oifs << "private:" << std::endl;
-    indent(oifs, 1) << "static std::map<std::string, std::set<std::string> > DATA;" << std::endl;
-    oifs << "};" << std::endl;
-    oifs << std::endl;
-    generateCodeProtectorEnd(oifs, "", "RdfTypeInfo");
-    stopInternal(oifs);
-
-    std::ofstream ofs;
-    createFile(RdfsEntity::outdir + "/RdfTypeInfo.cpp", &ofs);
-    startInternal(ofs);
-    addBoilerPlate(ofs);
-    ofs << std::endl;
-    ofs << "#include <map>" << std::endl;
-    ofs << "#include <set>" << std::endl;
-    ofs << "#include <string>" << std::endl;
-    ofs << std::endl;
-    if ( RdfsEntity::outdir == ".") {
-        ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
-    } else {
-        ofs << "#include \"" << RdfsEntity::outdir << "/RdfTypeInfo.h\"" << std::endl;
-    }
-    ofs << std::endl;
-    for ( auto const& klassMapItem: ontology.classUri2Ptr()) {
-        const Klass cls(*klassMapItem.second);
-        ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/" << klassMapItem.second->prettyIRIName() << ".h" << "\"" << std::endl;
-    }
-    ofs << std::endl;
-
-    ofs << "std::map<std::string, std::set<std::string> > RdfTypeInfo::DATA;" << std::endl;
-    ofs << std::endl;
-    ofs << "RdfTypeInfo::RdfTypeInfo() {" << std::endl;
-    indent(ofs, 1) << "if ( DATA.empty() ) {" << std::endl;
-    for ( auto const& klassMapItem: ontology.classUri2Ptr()) {
-        const Klass& cls = *klassMapItem.second;
-        indent(ofs, 2) << "DATA[\"" << klassMapItem.first << "\"] = " << cls.genCppNameSpaceFullyQualified() << "::" <<
-                klassMapItem.second->prettyIRIName() << "::ancestorsRdfTypeIRI();" << std::endl;
-    }
-    indent(ofs, 1) << "};" << std::endl;
-    ofs << std::endl;
-    ofs << "}" << std::endl;
-    ofs << std::endl;
-    ofs << "namespace {" << std::endl;
-    ofs << "RdfTypeInfo __loader;" << std::endl;
-    ofs << "}" << std::endl;
-    stopInternal(ofs);
-}
-
 void run(Factory *f) {
     ontology::Ontology ontology(f, verbose);
 
@@ -95,9 +38,6 @@ void run(Factory *f) {
         Klass(*klassMapItem.second).generateDeclaration();
         Klass(*klassMapItem.second).generateDefinition();
     }
-
-    // Generate all TypesInfo
-    generateRdfTypeInfo(ontology);
 
     // Generate all inclusions files
     for ( const std::string& cppNameSpace : cppNameSpaces ) {
@@ -122,7 +62,6 @@ void run(Factory *f) {
 
         addBoilerPlate(ofs);
         ofs << std::endl;
-        ofs << "#include \"RdfTypeInfo.cpp\"" << std::endl;
         for ( auto const& klassMapItem: ontology.classUri2Ptr()) {
             const Klass& cls = *klassMapItem.second;
             ofs << "#include \"" << cls.genCppNameSpaceInclusionPath() << "/I" << klassMapItem.second->prettyIRIName() << ".cpp" << "\"" << std::endl;

@@ -13,14 +13,12 @@ void Object::setFactory(Factory *f) {
     _factory = f;
 }
 
-Object::Object(const Uri &iri, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(iri.empty() ? factory()->createBlankNodeResource() :factory()->createIRIResource(iri)) {
+Object::Object(const Uri &iri, const Uri& rdfTypeIRI) : _r(iri.empty() ? factory()->createBlankNodeResource() :factory()->createIRIResource(iri)) {
     construct(rdfTypeIRI);
-    runtimeTypeCheck(rtti);
 }
 
-Object::Object(const Object& other, const Uri& rdfTypeIRI, const std::map<std::string, std::set<std::string> >* rtti) : _r(other._r) {
+Object::Object(const Object& other, const Uri& rdfTypeIRI) : _r(other._r) {
     construct(rdfTypeIRI);
-    runtimeTypeCheck(rtti);
 }
 
 Object::Object(const Object& other) : _r(other._r), _rdfTypeWritingRequired(other._rdfTypeWritingRequired), _rdfTypeIRI(other._rdfTypeIRI) {
@@ -236,50 +234,6 @@ void Object::writeRdfType() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
         setObject(RDF_NS + "type", Object(_rdfTypeIRI));
-    }
-}
-
-/**
- * Checks if current object is of rdf type that is either _rdfTypeIRI, or one of its subclasses
- * @param rdfTypesInfo, the types inferred for current class hierarchy
- * @param expectedTypeIRI
- */
-void Object::runtimeTypeCheck(const std::map<std::string, std::set<std::string> >* rdfTypesInfo) const {
-    if ( rdfTypesInfo ) {
-        /**
-         * Code below is called VERY often, that's why we don't use the resource layer, but call directly the
-         * internal layer
-         */
-
-        Node subject, predicate;
-        if ( _r.type() == NodeType::RESOURCE ) {
-            subject.setIri(_r.name());
-        } else {
-            subject.setBNodeId(_r.name());
-        }
-        predicate.setIri(RDF_NS + "type");
-
-        NodeList foundTypes = factory()->findTargets(subject, predicate);
-
-        unsigned int count = 0;
-        for (const Node& type: foundTypes) {
-            if ( type.type() == NodeType::RESOURCE) {
-                if ( _rdfTypeIRI == type.iri() ) {
-                    return;
-                }
-                auto typeInfo = rdfTypesInfo->find(type.iri());
-                if ( typeInfo != rdfTypesInfo->end() ) {
-                    if ( typeInfo->second.count(_rdfTypeIRI) ) {
-                        return;
-                    }
-                }
-                ++count;
-            }
-        }
-
-        if ( count > 0 ) {
-            throw InvalidClass("Resource " + iri() + " is not of type " + _rdfTypeIRI + ", or one of its subclasses");
-        }
     }
 }
 

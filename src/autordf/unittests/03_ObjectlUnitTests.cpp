@@ -123,50 +123,6 @@ TEST(_03_Object, NoTypeWrittenWhenCloning) {
     ASSERT_EQ(0, f.find().size());
 }
 
-std::map<std::string, std::set<std::string> > rtti = {
-        {"http://myuri/childclass1", {"http://myuri/class1"}}
-};
-
-class ObjectClass1 : public Object {
-public:
-    ObjectClass1(const Object& o) : Object(o, "http://myuri/class1", &rtti) {}
-    ObjectClass1(const std::string& iri) : Object(iri, "http://myuri/class1", &rtti) {}
-};
-
-class ObjectClass2 : public Object {
-public:
-    ObjectClass2(const Object& o) : Object(o, "http://myuri/class2", &rtti) {}
-    ObjectClass2(const std::string& iri) : Object(iri, "http://myuri/class2", &rtti) {}
-};
-
-class ChildClass1 : public Object {
-public:
-    ChildClass1(const Object& o) : Object(o, "http://myuri/childclass1", &rtti) {}
-    ChildClass1(const std::string& iri) : Object(iri, "http://myuri/childclass1", &rtti) {}
-};
-
-TEST(_03_Object, SubClasses) {
-    Factory f;
-    Object::setFactory(&f);
-
-    ObjectClass1 objClass1("http://myuri/myobject");
-
-    ObjectClass2 objClass2 = objClass1.as<ObjectClass2>();
-
-    objClass2.setPropertyValue("http://myuri/myprop", "value");
-    ASSERT_EQ(2, f.find().size());
-
-    ASSERT_EQ("http://myuri/class2", objClass2.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
-
-    ASSERT_THROW(ObjectClass1("http://myuri/myobject"), InvalidClass);
-
-    ChildClass1 childobj("http://myuri/childobject");
-    childobj.setPropertyValue("http://myuri/myprop", "value");
-    childobj.as<ObjectClass1>();
-
-    ASSERT_THROW(childobj.as<ObjectClass2>(), InvalidClass);
-}
-
 TEST(_03_Object, removeSingleProperty) {
     Factory f;
     Object::setFactory(&f);

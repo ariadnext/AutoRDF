@@ -118,23 +118,16 @@ void Klass::generateDefinition() const {
     addBoilerPlate(ofs);
     ofs << std::endl;
 
-    if ( outdir == "." ) {
-        ofs << "#include \"RdfTypeInfo.h\"" << std::endl;
-    } else {
-        ofs << "#include \"" << outdir << "/RdfTypeInfo.h\"" << std::endl;
-    }
-    ofs << std::endl;
-
     enterNameSpace(ofs);
     ofs << std::endl;
-    ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
+    ofs << cppName << "::" << cppName << "(const std::string& iri) : autordf::Object(iri, I" << cppName << "::TYPEIRI) {" << std::endl;
     ofs << "}" << std::endl;
     if ( _decorated.oneOfValues().size() ) {
         ofs << std::endl;
         ofs << cppName << "::"<< cppName << "(I" << cppName << "::Enum enumVal) : autordf::Object(enumIri(enumVal)) {}" << std::endl;
     }
     ofs << std::endl;
-    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other, I" << cppName << "::TYPEIRI, &RdfTypeInfo::data()) {" << std::endl;
+    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other, I" << cppName << "::TYPEIRI) {" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
     ofs << "std::vector<" << cppName << "> " << cppName << "::find() {" << std::endl;
