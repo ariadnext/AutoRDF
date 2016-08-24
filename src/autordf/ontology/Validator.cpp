@@ -14,7 +14,7 @@ std::string Validator::Error::fullMessage() const {
     std::string placeholder_2("@count");
     std::string placeholder_3("@val");
     std::string placeholder_5("@range");
-    std::string placeholder_4 = subject.iri().empty()? "\'@subject\'" : "@subject";
+    std::string placeholder_4("@subject");
 
     std::size_t foundPlaceholder_1 = str.find(placeholder_1);
     if(foundPlaceholder_1 != std::string::npos) {
@@ -30,7 +30,8 @@ std::string Validator::Error::fullMessage() const {
     }
     std::size_t foundPlaceholder_4 = str.find(placeholder_4);
     if(foundPlaceholder_4 != std::string::npos) {
-        str.replace(foundPlaceholder_4, placeholder_4.length(), subject.iri());
+        str.replace(foundPlaceholder_4, placeholder_4.length(),
+                    (subject.iri().empty())? "Blank Node" : subject.iri());
     }
     std::size_t foundPlaceholder_5 = str.find(placeholder_5);
     if(foundPlaceholder_5 != std::string::npos) {
