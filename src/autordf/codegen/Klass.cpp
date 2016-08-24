@@ -87,14 +87,6 @@ void Klass::generateDeclaration() const {
         ObjectProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
     }
 
-    startInternal(ofs, 1);
-    indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * @brief Internal: returns full list of ancestors we have" << std::endl;
-    indent(ofs, 1) << " **/" << std::endl;
-    indent(ofs, 1) << "static std::set<std::string> ancestorsRdfTypeIRI();" << std::endl;
-    stopInternal(ofs, 1);
-    ofs << std::endl;
-
     ofs << "private:" << std::endl;
 
     indent(ofs, 1) << "Object& object() override { return *this; }" << std::endl;
@@ -132,15 +124,6 @@ void Klass::generateDefinition() const {
     ofs << std::endl;
     ofs << "std::vector<" << cppName << "> " << cppName << "::find() {" << std::endl;
     indent(ofs, 1) << "return findHelper<" << cppName << ">(I" << cppName << "::TYPEIRI);" << std::endl;
-    ofs << "}" << std::endl;
-    ofs << std::endl;
-    ofs << "std::set<std::string> " << cppName << "::ancestorsRdfTypeIRI() {" << std::endl;
-    indent(ofs, 1) <<     "return std::set<std::string>({" << std::endl;
-    for ( const std::shared_ptr<const ontology::Klass>& ancestor : _decorated.getAllAncestors() ) {
-        indent(ofs, 3) << Klass(*ancestor.get()).genCppNameSpaceFullyQualified() << "::I" <<
-                ancestor->prettyIRIName() << "::TYPEIRI," << std::endl;
-    }
-    indent(ofs, 2) <<         "});" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
     leaveNameSpace(ofs);
