@@ -32,9 +32,14 @@ public:
     const std::string& name() const { return _name; }
 
     /**
-     * @returns true if property is found
+     * @returns true if property is found, with any value
      */
     bool hasProperty(const Uri& iri) const { return getOptionalProperty(iri).get(); }
+
+    /**
+     * @returns true if property is found, with given value
+     */
+    bool hasProperty(const Property& p) const;
 
     /**
      * Returns exactly one property.
@@ -53,12 +58,12 @@ public:
      * Lists all values for property matching iri name
      * If iri is empty, matches ALL properties with ALL their values
      */
-    std::list<Property> getPropertyValues(const Uri& iri) const;
+    std::shared_ptr<std::list<Property>> getPropertyValues(const Uri& iri) const;
 
     /**
      * Lists all values for all properties
      */
-    std::list<Property> getPropertyValues() const;
+    std::shared_ptr<std::list<Property>> getPropertyValues() const;
 
     /**
      * Adds a property to the resource. Property should not be empty
@@ -70,7 +75,7 @@ public:
      * Add properties one by one
      * @returns a reference to current object
      */
-    Resource& setProperties(const std::list<Property>& list);
+    Resource& setProperties(const std::shared_ptr<std::list<Property>>& list);
 
     /**
      * Removes a single value for a property

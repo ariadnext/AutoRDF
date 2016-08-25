@@ -16,6 +16,9 @@ TEST(_02_LoadSave, OneProperty) {
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_EQ("Jimmy Criket", r.getProperty("http://xmlns.com/foaf/0.1/name")->value());
     ASSERT_EQ("Jimmy Criket", r.getOptionalProperty("http://xmlns.com/foaf/0.1/name")->value());
+    std::shared_ptr<Property> p = f.createProperty("http://xmlns.com/foaf/0.1/name");
+    p->setValue("Jimmy Criket");
+    ASSERT_TRUE(r.hasProperty(*p));
 }
 
 TEST(_02_LoadSave, PropertyNotThere) {
@@ -26,6 +29,10 @@ TEST(_02_LoadSave, PropertyNotThere) {
     ASSERT_THROW(r.getProperty("http://notthereuri"), PropertyNotFound);
 
     ASSERT_EQ(nullptr, r.getOptionalProperty("http://notthereuri"));
+
+    std::shared_ptr<Property> p = f.createProperty("http://notthereuri");
+    p->setValue("1");
+    ASSERT_FALSE(r.hasProperty(*p));
 }
 
 TEST(_02_LoadSave, AllProperties) {
@@ -33,7 +40,7 @@ TEST(_02_LoadSave, AllProperties) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
-    ASSERT_EQ(2, r.getPropertyValues().size());
+    ASSERT_EQ(2, r.getPropertyValues()->size());
 }
 
 TEST(_02_LoadSave, loadPerson) {
@@ -42,10 +49,11 @@ TEST(_02_LoadSave, loadPerson) {
     Statement req;
     req.object.setLiteral("Jimmy Wales");
     Resource person = f.createResourceFromNode(f.find(req).begin()->subject);
-    for (const Property& p : person.getPropertyValues()) {
+    auto values = person.getPropertyValues();
+    for (const Property& p : *values) {
         std::cout << p << std::endl;
     }
-    ASSERT_EQ(14, person.getPropertyValues().size());
+    ASSERT_EQ(14, person.getPropertyValues()->size());
 
     ASSERT_EQ("jwales", person
             .getProperty("http://xmlns.com/foaf/0.1/account")->asResource()

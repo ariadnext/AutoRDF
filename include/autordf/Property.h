@@ -34,7 +34,7 @@ public:
     bool isLiteral() const { return _type == NodeType::LITERAL; };
 
     /**
-     * Return if property is resource compatible (either a blank node or ressource
+     * Return if property is resource compatible (either a blank node or ressource node)
      */
     bool isResource() const { return _type == NodeType::BLANK || _type == NodeType::RESOURCE; };
 

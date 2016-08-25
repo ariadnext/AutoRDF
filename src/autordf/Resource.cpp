@@ -20,6 +20,33 @@ void Resource::setType(NodeType t) {
 }
 
 /**
+ * @returns true if property is found, with given value
+ */
+bool Resource::hasProperty(const Property& p) const {
+    Node subject, predicate;
+    if ( type() == NodeType::RESOURCE ) {
+        subject.setIri(name());
+    } else {
+        subject.setBNodeId(name());
+    }
+
+    if ( p.iri().empty() ) {
+        throw InternalError("Not supported");
+    }
+    predicate.setIri(p.iri());
+
+    Node object = _factory->findTarget(subject, predicate);
+    if ( object.type() == NodeType::LITERAL ) {
+        return PropertyValue(object.literal(), object.lang(), object.dataType()) == p.value();
+    } else if ( object.type() == NodeType::RESOURCE ) {
+        return p.asResource().name() == object.iri();
+    }  else if ( object.type() == NodeType::BLANK ) {
+        return p.asResource().name() == object.bNodeId();
+    }
+    return false;
+}
+
+/**
  * Returns exactly one property, ia available.
  * @throws If not found, returns null
  */
@@ -70,7 +97,7 @@ std::shared_ptr<Property> Resource::getProperty(const Uri& iri) const {
 /**
  * Lists all values for property matching iri name
  */
-std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
+std::shared_ptr<std::list<Property>> Resource::getPropertyValues(const Uri& iri) const {
     Node subject, predicate;
     if ( type() == NodeType::RESOURCE ) {
         subject.setIri(name());
@@ -85,7 +112,7 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
 
     NodeList foundTriples = _factory->findTargets(subject, predicate);
 
-    std::list<Property> resp;
+    auto resp = std::make_shared<std::list<Property>>();
     for (const Node& object: foundTriples) {
         std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type());
         if ( object.type() == NodeType::LITERAL) {
@@ -95,7 +122,7 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
         } else if ( object.type() == NodeType::BLANK) {
             p->setValue(object.bNodeId(), false);
         }
-        resp.push_back(*p);
+        resp->push_back(*p);
     }
     return resp;
 }
@@ -103,7 +130,7 @@ std::list<Property> Resource::getPropertyValues(const Uri& iri) const {
 /**
  * Lists all values for all properties
  */
-std::list<Property> Resource::getPropertyValues() const {
+std::shared_ptr<std::list<Property>> Resource::getPropertyValues() const {
     Statement request;
     if ( type() == NodeType::RESOURCE ) {
         request.subject.setIri(name());
@@ -113,7 +140,7 @@ std::list<Property> Resource::getPropertyValues() const {
 
     StatementList foundTriples = _factory->find(request);
 
-    std::list<Property> resp;
+    auto resp = std::make_shared<std::list<Property>>();
     for (const Statement& triple: foundTriples) {
         const Node& object = triple.object;
         const Node& predicate = triple.predicate;
@@ -125,7 +152,7 @@ std::list<Property> Resource::getPropertyValues() const {
         } else if ( object.type() == NodeType::BLANK) {
             p->setValue(object.bNodeId(), false);
         }
-        resp.push_back(*p);
+        resp->push_back(*p);
     }
     return resp;
 }
@@ -197,14 +224,14 @@ Resource& Resource::removeProperties(const Uri &iri) {
     return *this;
 }
 
-Resource& Resource::setProperties(const std::list<Property>& list) {
+Resource& Resource::setProperties(const std::shared_ptr<std::list<Property>>& list) {
     std::set<std::string> removedProps;
-    for (const Property& p: list) {
+    for (const Property& p: *list) {
         if ( !removedProps.count(p.iri()) ) {
             removeProperties(p.iri());
         }
     }
-    for (const Property& p : list) {
+    for (const Property& p : *list) {
         addProperty(p);
     }
     return *this;

@@ -35,6 +35,27 @@ public:
     static const std::string RDF_NS;
 
     /**
+     * Well known RDF identifier
+     */
+    static const std::string RDF_TYPE;
+    /**
+     * Well known RDF identifier
+     */
+    static const std::string RDF_STATEMENT;
+    /**
+     * Well known RDF identifier
+     */
+    static const std::string RDF_SUBJECT;
+    /**
+     * Well known RDF identifier
+     */
+    static const std::string RDF_PREDICATE;
+    /**
+     * Well known RDF identifier
+     */
+    static const std::string RDF_OBJECT;
+
+    /**
      * All newly Objects will be created in this Model
      */
     static void setFactory(Factory *f);
@@ -158,6 +179,7 @@ public:
      * Erases all previous values for property, and write unique value on place
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param val unique value for property
+     * @throw CannotUnreify if this property already has a reified a value with additional data
      */
     void setPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
@@ -180,8 +202,51 @@ public:
      * @param propertyIRI Internationalized Resource Identifiers property to remove one value from
      * @param val value to remove
      * @throw PropertyNotFound if propertyIRI has not val as value
+     * @throw CannotUnreify if value is store as a reified statement and statement cannot be unreified
      */
     void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+
+    /**
+     * Writes a PropertyValue in reified form.
+     *
+     * If statement is already reified, returns already reified statement.
+     * After reification succeeds, the non-reified RDF statement is removed
+     *
+     * RDF represents a reified statement as four statements with particular RDF properties and objects: the statement (S, P, O), reified by resource R, is represented by:
+     *
+     * R rdf:type rdf:Statement
+     * R rdf:subject S
+     * R rdf:predicate P
+     * R rdf:object O
+     *
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param val value to reify
+     * @return Object representing the reified statement
+     */
+    Object reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+
+    /**
+     * Turns a reified statement into a simple statement.
+     *
+     * If statement is already in unreified form, does nothing
+     * If reified statement contains more than rdf:type, rdf:subject, rdf:predicate and rdf:object, convertion fails,
+     * and CannotUnreify exception is thrown
+     *
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param val value to unreify
+     * @param keep if set to  false, statement is not only unreified, but also completely erased
+     * @throw CannotUnreify is unreification is not possible
+     * @return true if there was a statement to unReify, false otherwise
+     */
+    bool unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep = true);
+
+    /**
+     * Test if val is stored as a RDF reified form, or simple statement (default)
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param val value to test
+     * @return Object representing the reified statement if available, otherwise nullptr
+     */
+    std::shared_ptr<Resource> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
 
     /**
      * Forces the underlying resource to the type associated with this object.
@@ -328,10 +393,10 @@ public:
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
         }
-        const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
         std::vector<T> objList;
-        objList.reserve(propList.size());
-        for (const Property& prop: propList) {
+        objList.reserve(propList->size());
+        for (const Property& prop: *propList) {
             if (prop.isResource()) {
                 objList.push_back(T(prop.asResource()));
             }
@@ -361,10 +426,10 @@ public:
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
         }
-        const std::list<Property>& propList = _r.getPropertyValues(propertyIRI);
+        const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
         std::vector<T> valueList;
-        valueList.reserve(propList.size());
-        for (const Property& prop: propList) {
+        valueList.reserve(propList->size());
+        for (const Property& prop: *propList) {
             valueList.push_back(prop.value().get<rdftype, T>());
         }
         return valueList;
@@ -411,6 +476,27 @@ private:
      * Shared constructor
      */
     void construct(const Uri& rdfTypeIRI);
+
+    /**
+     * Return all reified values for given property
+     */
+    void reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVector *pvv) const;
+
+    /**
+     * Returns the first found reifiedPropertyValue, if found
+     */
+    std::shared_ptr<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI) const;
+
+    /**
+     * Removes all reified statements
+     * @throw CannotUnreify if one statement cannot be unreified
+     */
+    void removeAllReifiedStatements(const Uri& propertyIRI);
+
+    /**
+     * @internal
+     */
+    NodeList reificationResourcesForCurrentObject() const;
 
     /**
      * Returns the associated factory, or throws if nullptr

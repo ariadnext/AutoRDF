@@ -87,6 +87,12 @@ AUTORDFEXCEPTION(DataConvertionFailure)
 AUTORDFEXCEPTION(CantSetLiteralTypeAndLang)
 
 /**
+ * Unable to unreify statement
+ */
+AUTORDFEXCEPTION(CannotUnreify)
+
+
+/**
  * Inside bug or misuse of our API
  */
 AUTORDFEXCEPTION(InternalError)
