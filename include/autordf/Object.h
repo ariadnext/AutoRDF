@@ -280,6 +280,11 @@ public:
     std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
     /**
+     * Returns all Objects in the factory
+     */
+    static std::set<Object> findAll();
+
+    /**
      * Comparison operator used to store objects in maps for instance
      */
     bool operator<(const Object& obj) const {

@@ -308,4 +308,13 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
     return os;
 }
 
+std::set<Object> Object::findAll() {
+    std::set<Object> objList;
+    const StatementList& statements = factory()->find();
+    for(const Statement& stmt : statements) {
+        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+    }
+    return objList;
+}
+
 }

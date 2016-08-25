@@ -166,3 +166,13 @@ TEST(_03_Object, findByKeyObject) {
 
     ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo2"), ObjectNotFound);
 }
+
+TEST(_03_Object, findAllObjects) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+
+    std::set<Object> objs = Object::findAll();
+    ASSERT_EQ(5, objs.size());
+}
