@@ -24,7 +24,7 @@ void Klass::generateDeclaration() const {
     ofs << "#include <iosfwd>" << std::endl;
     ofs << "#include <autordf/Object.h>" << std::endl;
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/I" << cppName << ".h>" << std::endl;
-    for ( auto const& ancestor: _decorated.ancestors() ) {
+    for ( auto const& ancestor: _decorated.getAllAncestors() ) {
         ofs << "#include <" << uri2Klass(ancestor->rdfname()).genCppNameSpaceInclusionPath() << "/I" <<
                 ancestor->prettyIRIName() << ".h>" << std::endl;
     }
@@ -35,7 +35,7 @@ void Klass::generateDeclaration() const {
 
     generateComment(ofs, 0);
     ofs << "class " << cppName << ": public autordf::Object";
-    for ( auto const& ancestor: _decorated.ancestors() ) {
+    for ( auto const& ancestor: _decorated.getAllAncestors() ) {
         ofs << ", public " << uri2Klass(ancestor->rdfname()).genCppNameSpaceFullyQualified() << "::I" <<
                 ancestor->prettyIRIName();
     }
