@@ -253,8 +253,9 @@ public:
      * This method can be called more than once, it effectively writes the type to the triple store only the first time it
      * is called.
      * This method is called by all setters of Object class
+     * @return current object
      */
-    void writeRdfType();
+    Object& writeRdfType();
 
     /**
      * Returns true if this object is also of the specified type IRI.

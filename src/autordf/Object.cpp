@@ -387,11 +387,12 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     return Object(factory()->createResourceFromNode(statements.begin()->subject));
 }
 
-void Object::writeRdfType() {
+Object& Object::writeRdfType() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
         setObject(RDF_TYPE, Object(_rdfTypeIRI));
     }
+    return *this;
 }
 
 Factory *Object::factory() {
