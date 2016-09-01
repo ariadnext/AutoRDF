@@ -22,10 +22,6 @@ Object::Object(const Uri &iri, const Uri& rdfTypeIRI) : _r(iri.empty() ? factory
     construct(rdfTypeIRI);
 }
 
-Object::Object(const Object& other, const Uri& rdfTypeIRI) : _r(other._r) {
-    construct(rdfTypeIRI);
-}
-
 Object::Object(const Object& other) : _r(other._r), _rdfTypeWritingRequired(other._rdfTypeWritingRequired), _rdfTypeIRI(other._rdfTypeIRI) {
 }
 

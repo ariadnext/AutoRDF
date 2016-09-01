@@ -119,7 +119,7 @@ void Klass::generateDefinition() const {
         ofs << cppName << "::"<< cppName << "(I" << cppName << "::Enum enumVal) : autordf::Object(enumIri(enumVal)) {}" << std::endl;
     }
     ofs << std::endl;
-    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other, I" << cppName << "::TYPEIRI) {" << std::endl;
+    ofs << cppName << "::" << cppName << "(const Object& other) : autordf::Object(other) {" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
     ofs << "std::vector<" << cppName << "> " << cppName << "::find() {" << std::endl;

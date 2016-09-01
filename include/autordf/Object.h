@@ -64,7 +64,6 @@ public:
      * Creates new object, to given iri.
      * @param iri object IRI. If empty, creates an anonymous (aka blank) object
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written
-     * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
      * not empty
      */
     Object(const Uri& iri = "", const Uri& rdfTypeIRI = "");
@@ -75,14 +74,6 @@ public:
      * This constructs a new C++ object that points to the same RDF data
      *
      * @param obj the object to use
-     * @param rdfTypeIRI If not empty, will write rdf type property when object is written
-     * @throw InvalidClass if the Object is not of type rdfTypeIRI or one of its subclasses may be thrown only if both rdfTypeIRI and rtti are
-     * not empty
-     */
-    Object(const Object& obj, const Uri& rdfTypeIRI);
-
-    /**
-     * Optimized Copy constructor. Doest not perform any kind of type checking
      */
     Object(const Object& obj);
 
