@@ -1,3 +1,196 @@
+autordf (1.0.0.0) wheezy; urgency=low
+
+  [ Sebastien Baguet ]
+  * Make doc recursive
+  * Install all include dir
+
+  [ Fabien Chevalier ]
+  * ontology API improvement
+
+  [ Sebastien Baguet ]
+  * Refactoring : move low level classes to internal namespace
+  * Move include to codegen
+
+  [ Fabien Chevalier ]
+  * Crashbug fix
+
+  [ Sebastien Baguet ]
+  * Add Uri generic class
+
+  [ Fabien Chevalier ]
+  * Fix commnents generation
+  * Fix previous commit
+
+  [ Sebastien Baguet ]
+  * Refactoring : ontology is now an object, no more static
+  * Fix header installation
+
+  [ Fabien Chevalier ]
+  * Fix verbose mode after SBA's refactoring
+  * Minor improvements: handle properties with non domain attached
+  * First bits of xmi converter
+  * More work on XMI converter
+  * A few doxygen fixes
+  * Add seeAlso, isDefined by to parsing. Handle enum stereotype in autordfxmi
+  * Fixup doc generation
+  * Minor fixes and improvements
+  * Add removePropertyValue to objects
+  * Fix data reader
+
+  [ Sebastien Baguet ]
+  * Export all rdf types
+
+  [ Fabien Chevalier ]
+  * Preliminary support for typed literals
+  * Fixed type serialization
+  * Refactoring + doxygen warnings suppression
+  * Add unit test
+  * Add basic support for annotations
+  * Bugfix
+  * Bugfix
+  * Bugfix
+  * Add addXXXX to code generator
+  * Add namespace saving feature
+  * Partial support for keys
+  * Some work on owl key handling
+  * Handle object types owl keys
+  * A few bugfixes and improvements
+  * Fixup setters: take into account class inheritance
+  * Bugfix
+  * List type setter Fix
+  * Support unionOf in rdfs#domain
+  * Add interesting scientifi article
+  * Minor improvement
+  * Introduce PropertyValueLists
+  * Add prefixed Iri support
+  * Be able to insert objects in maps
+  * Bugfix
+  * Bugfixes & improvements
+  * Mark constructors as explicit in code generation
+  * Support for comparison operators
+  * Minor improvement
+  * Implement simpler request mechanism
+  * Perftests tries
+  * Performance improvement
+  * Yet another set of improvements
+  * Replace lists with vectors
+  * x2 read speed improvement
+  * Add better object copy constructor
+  * FIx unit tests
+  * Fixup multiline comment
+  * Fixup doc
+  * Enable autobrief
+  * Fixup doc
+  * Work on autordf example
+  * More work on example
+  * Implement read/writing to/from FILE*
+  * Fix doc
+  * cloning support
+  * Support for removing properties
+  * Refactoring, support for PropertyValueVector dump to ostream
+  * Optimize code
+  * Refactor
+  * Rework Node internals
+  * Bugfixes
+  * Add license
+  * Add doc file
+  * Add README.md
+  * Update
+  * Doc update
+
+  [ Sebastien Baguet ]
+  * Add method to retrieve librdf supported format
+  * Add prettyName to URI
+  * Fix doc
+
+  [ Fabien Chevalier ]
+  * First tryout of travis ci integration
+  * Travis CI fix
+  * Travis CI fix
+  * Ship googletest with autordf
+  * Remove gcc in CI
+  * Add missing boost dependancies
+  * Travis CI: jump to newer environment
+  * Travis build fix
+  * Add comment
+
+  [ Sebastien Baguet ]
+  * Add baseUri accessor
+  * Return only ressource node when getting object, and litteral in case of dataProperties
+  * Fix broken tests
+  * Add getAllPredecessors
+
+  [ Fabien Chevalier ]
+  * Allow owl:oneOf based classes to be build from plain iri too
+  * Add build status indicator in README
+  * Clearer error message
+  * Fixup debian packaging
+  * Fixup debian packaging
+  * .deb fixes
+  * Enable unit tests
+  * Fixup .pc
+  * Bugfix installation dir for .pc file
+  * Fix debian packaging, -dev must depend of librdf0-dev
+  * Fix previous commit
+  * Make writeRdfType method public
+
+  [ Sebastien Baguet ]
+  * Fix comment
+  * Range return Uri
+  * findClass return shared_ptr
+
+  [ Fabien Chevalier ]
+  * Support operator= for Node
+  * Fix .pc
+  * Add placeholder ontology validation method
+
+  [ Leatitia Dimou ]
+  * first version validator
+
+  [ Baptiste Poirriez ]
+  * Automaticaly find Threads lib
+
+  [ Leatitia Dimou ]
+  * implement validator for the model
+  * Change Ontology argument to const
+
+  [ Fabien Chevalier ]
+  * Better parsing error reporting
+
+  [ Leatitia Dimou ]
+  * Refactoring Validator
+  * Fix validateObject
+  * Use google test fixture for Validator unit test
+
+  [ Fabien Chevalier ]
+  * Migrate geometry ontology to turtle
+  * Minor improvements
+
+  [ Leatitia Dimou ]
+  * Validator: check object's type in predecessor list
+  * Update error message
+  * Fixup bug and disable broken tests
+
+  [ Sebastien Baguet ]
+  * Parallel build
+
+  [ Fabien Chevalier ]
+  * Numeric xmi:id's for XMI export required for Modelio compatibility
+  * Proper identation generation in xmi
+  * Minor fix
+  * Fix associations and enums
+  * Update ontology with failing case scenario
+  * Bugfix property restrictions wrong header inclusion causing build to fail
+  * Minor improvement: provide stream operator for Enumerated types
+  * Bugfix previous commit
+
+  [ Sebastien Baguet ]
+  * Add doxygen to debian dependancies
+
+  [ root ]
+
+ -- root <root@jenkins-ocr2.rennes.ariadnext.com>  Mon, 29 Aug 2016 09:48:45 +0200
+
 autordf (0.0.1) wheezy; urgency=low
 
   * Initial release.
