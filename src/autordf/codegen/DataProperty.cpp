@@ -112,6 +112,11 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
                 indent(ofs, 1) << "return (ptrval ? std::shared_ptr<" << cppType << ">(new " << cppType <<
                 "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">())) : nullptr);" << std::endl;
                 ofs << "}" << std::endl;
+                ofs << std::endl;
+                ofs << cppType << " " << currentClassName << "::" << _decorated.prettyIRIName() << "(const " << cppType <<"& defaultval) const {" << std::endl;
+                indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
+                indent(ofs, 1) << "return (ptrval ? ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">() : defaultval);" << std::endl;
+                ofs << "}" << std::endl;
             }
         }
         if (_decorated.maxCardinality(onClass.decorated()) > 1) {
@@ -188,10 +193,10 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
 }
 
 void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& onClass) const {
+    std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
+
     generateComment(ofs, 1,
                     "@return the valueif it is set, or nullptr if it is not set.");
-
-    std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
@@ -199,6 +204,20 @@ void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& 
     } else {
         indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
         indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+    }
+
+    ofs << std::endl;
+    generateComment(ofs, 1,
+                    "@return the valueif it is set, or defaultval if it is not set.");
+
+    if (!rdfCppType.second.empty()) {
+        std::string cppType = rdfCppType.second;
+        indent(ofs, 1) << cppType << " " << _decorated.prettyIRIName() << "(const " << cppType << "& defaultval) const;" << std::endl;
+    } else {
+        indent(ofs, 1) << "autordf::PropertyValue " << _decorated.prettyIRIName() << "(const autordf::PropertyValue& defaultval) const {" << std::endl;
+        indent(ofs, 2) << "auto ptr = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
+        indent(ofs, 2) << "return (ptr ? *ptr : defaultval);" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
