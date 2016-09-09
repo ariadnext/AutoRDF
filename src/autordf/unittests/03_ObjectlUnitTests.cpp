@@ -43,15 +43,15 @@ TEST(_03_Object, Display) {
     printRecurse(first, 1);
 }
 
-TEST(_03_Object, PrettyIri) {
+TEST(_03_Object, QName) {
     Factory f;
     Object::setFactory(&f);
 
-    f.addNamespacePrefix("my", "http://my#");
+    f.addNamespacePrefix("my", "http://my/");
 
     Object o("http://my/thing");
 
-    ASSERT_EQ("my:thing", o.prefixedIri());
+    ASSERT_EQ("my:thing", o.QName());
 }
 
 TEST(_03_Object, Copy) {

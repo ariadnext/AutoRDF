@@ -9,6 +9,8 @@
 
 namespace autordf {
 
+class Model;
+
 /**
  * An Uri: will contain in the future URi manipulation methods
  */
@@ -38,6 +40,13 @@ public:
      */
     std::string prettyName(bool uppercaseFirst = false) const;
 
+    /**
+     * QName for this iri.
+     * Known prefixes are used from model
+     *
+     * @return QName
+     */
+    std::string QName(const Model *model = nullptr) const;
 };
 
 }

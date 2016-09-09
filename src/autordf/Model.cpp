@@ -7,7 +7,6 @@
 #include <sstream>
 #include <set>
 #include <bits/stl_list.h>
-#include <iostream>
 
 #include <raptor2.h>
 
@@ -53,6 +52,7 @@ void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std:
     if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
         throw InternalError(streamInfo + ": Failed to read model from stream");
     }
+    _baseUri = baseIRI;
     int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
     for ( unsigned int i = 0; i < prefixCount; ++i ) {
         const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
@@ -60,7 +60,7 @@ void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std:
         if ( prefix && uri ) {
             addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
         } else if ( !prefix && uri ) {
-            _baseUri = cleanNamespaceTrailingChars(reinterpret_cast<char*>(librdf_uri_as_string(uri)));
+            _baseUri = reinterpret_cast<char*>(librdf_uri_as_string(uri));
         }
     }
 }
@@ -175,9 +175,8 @@ void Model::remove(Statement *stmt) {
 }
 
 const std::string& Model::nsToPrefix(const std::string& ns) const {
-    std::string cleanedNs = cleanNamespaceTrailingChars(ns);
     for ( auto const& p : _namespacesPrefixes) {
-        if ( p.second == cleanedNs ) {
+        if ( p.second == ns ) {
             return p.first;
         }
     }
@@ -190,7 +189,7 @@ const std::string& Model::nsToPrefix(const std::string& ns) const {
 std::string Model::iriPrefix(const std::string& rdfiri) const {
     for ( const std::pair<std::string, std::string>& prefixMapItem : _namespacesPrefixes ) {
         const std::string& iri = prefixMapItem.second;
-        if ( rdfiri.substr(0, iri.length()) == iri ) {
+        if ( rdfiri.find(iri) == 0 ) {
             return prefixMapItem.first;
         }
     }
@@ -203,21 +202,12 @@ const std::string& Model::prefixToNs(const std::string& prefix) const {
 }
 
 void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns) {
-    std::string cleanedNs = cleanNamespaceTrailingChars(ns);
     auto it = _namespacesPrefixes.find(prefix);
     if ( it == _namespacesPrefixes.end() ) {
-        _namespacesPrefixes[prefix] = cleanedNs;
-    } else if ( it->second != cleanedNs ) {
-        throw InternalError("Unable to add prefix " + prefix + "-->" + cleanedNs + " mappping: already registered to " + it->second);
+        _namespacesPrefixes[prefix] = ns;
+    } else if ( it->second != ns ) {
+        throw InternalError("Unable to add prefix " + prefix + "-->" + ns + " mappping: already registered to " + it->second);
     }
-}
-
-std::string Model::cleanNamespaceTrailingChars(std::string ns) {
-    static const std::set<char> IGNORED_LAST_CHARS = {'#', ':', '/'};
-    if ( IGNORED_LAST_CHARS.count(ns.back()) ) {
-        ns.pop_back();
-    }
-    return ns;
 }
 
 }

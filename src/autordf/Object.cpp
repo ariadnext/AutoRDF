@@ -47,21 +47,8 @@ Uri Object::iri() const {
     }
 }
 
-std::string Object::prefixedIri() const {
-    std::pair<std::string, std::string> bestPrefix;
-
-    Uri i = iri();
-    for ( auto const& pair : factory()->namespacesPrefixes() ) {
-        if ( (i.find(pair.second) == 0) && (i.length() > pair.second.length() ) ) {
-            // Found !
-            bestPrefix = pair;
-        }
-    }
-    if ( !bestPrefix.second.empty() ) {
-        return bestPrefix.first + ":" + i.substr(bestPrefix.second.length() + 1);
-    } else {
-        return i;
-    }
+std::string Object::QName() const {
+    return iri().QName(_factory);
 }
 
 std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {

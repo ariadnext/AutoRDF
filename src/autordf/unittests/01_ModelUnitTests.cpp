@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include <boost/filesystem.hpp>
+#include <autordf/Uri.h>
 
 #include "autordf/Model.h"
 
@@ -22,7 +23,7 @@ TEST(_01_Model, SeenPrefixes) {
     for ( auto const& pair : ts.namespacesPrefixes() ) {
         std::cout << pair.first << ": " << pair.second << std::endl;
     }
-    ASSERT_EQ("http://xmlns.com/foaf/0.1", ts.prefixToNs("foaf") );
+    ASSERT_EQ("http://xmlns.com/foaf/0.1/", ts.prefixToNs("foaf") );
     ASSERT_EQ("foaf", ts.nsToPrefix("http://xmlns.com/foaf/0.1/") );
     ASSERT_EQ(3, ts.namespacesPrefixes().size());
 }
@@ -137,5 +138,13 @@ TEST(DISABLED_01_Model, All) {
     }
 }
 
+TEST(_01_Model, QName) {
+    Model ts;
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example2.ttl", "http://my/base/");
+
+    ASSERT_STREQ("ex:editor", Uri("http://example.org/stuff/1.0/editor").QName(&ts).c_str());
+    ASSERT_STREQ("truc", Uri("http://my/base/truc").QName(&ts).c_str());
+    ASSERT_STREQ("http://out/of/base/or/prefixes", Uri("http://out/of/base/or/prefixes").QName(&ts).c_str());
+}
 
 
