@@ -97,7 +97,7 @@ void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& 
     }
 
     for ( auto const& pfx : _namespacesPrefixes ) {
-        int ret = librdf_serializer_set_namespace(s.get(), Uri(pfx.second + "#").get(), pfx.first.c_str() );
+        int ret = librdf_serializer_set_namespace(s.get(), Uri(pfx.second).get(), pfx.first.c_str() );
         // 0 is Ok
         // 1 means namespace has already been registered, which can happen if we read a file with namespace and safe it afterwards: we ignore that one
         if ( ret > 1 ) {
