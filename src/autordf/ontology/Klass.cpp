@@ -37,6 +37,9 @@ std::set<std::shared_ptr<const Klass> > Klass::getAllPredecessors() const {
         for (auto ancestor = uriKlass.second->_directAncestors.begin(); ancestor != uriKlass.second->_directAncestors.end(); ++ancestor ) {
             if (rdfname() == *ancestor) {
                 predecessors.insert(uriKlass.second);
+                for ( auto predecessor : uriKlass.second->getAllPredecessors() ) {
+                    predecessors.insert(predecessor);
+                }
                 break;
             }
         }
