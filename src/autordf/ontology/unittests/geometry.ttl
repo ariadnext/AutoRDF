@@ -62,3 +62,7 @@ a geo:Point .
     geo:radius "2" ;
     geo:center <point/center> ;
     a geo:Circle .
+
+<schema>
+    geo:shape <rectangle>;
+a geo:Schema .
