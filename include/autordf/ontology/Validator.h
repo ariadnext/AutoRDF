@@ -15,7 +15,7 @@ namespace ontology {
  */
 class Validator {
 public:
-    Validator(const Ontology& ontology) : _ontology(ontology) {}
+    Validator(const std::shared_ptr<Ontology>& ontology) : _ontology(ontology) {}
     /**
      * Each error in given dataset is reported in an Error structure
      */
@@ -88,7 +88,7 @@ public:
     std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object);
 
 private:
-    Ontology _ontology;
+    std::shared_ptr<Ontology> _ontology;
 
     /**
      * @brief validateDataProperty

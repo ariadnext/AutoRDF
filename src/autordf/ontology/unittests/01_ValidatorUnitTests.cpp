@@ -16,18 +16,15 @@ class ValidatorTest : public ::testing::Test {
 public:
 
     autordf::Factory factory;
-    Validator* validator;
+    std::shared_ptr<Validator> validator;
+
     void SetUp() {
 
         Object::setFactory(&factory);
         factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.ttl");
         factory.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/geometry.owl");
-        Ontology _ontology(&factory);
-        validator = new Validator(_ontology);
-    }
-
-    void TearDown( ) {
-        delete validator;
+        std::shared_ptr<Ontology>_ontology =  std::shared_ptr<Ontology>(new Ontology(&factory));
+        validator =  std::shared_ptr<Validator>(new Validator(_ontology));
     }
 
     static void dumpErrors(const std::shared_ptr<std::vector<Validator::Error>>& errors) {
@@ -79,7 +76,7 @@ TEST_F(ValidatorTest, MaxCardinality) {
     ASSERT_EQ(3,  errors->front().type);
 }
 
-TEST_F(ValidatorTest, DISABLED_Type) {
+TEST_F(ValidatorTest, Type) {
     std::shared_ptr<std::vector<Validator::Error>>  errors = validator->validateObject(Object("http://example.org/geometry/objectType"));
     dumpErrors(errors);
 
@@ -90,7 +87,7 @@ TEST_F(ValidatorTest, DISABLED_Type) {
 
 }
 
-TEST_F(ValidatorTest,DISABLED_ModelValidator) {
+TEST_F(ValidatorTest, ModelValidator) {
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory);
     dumpErrors(errors);
 

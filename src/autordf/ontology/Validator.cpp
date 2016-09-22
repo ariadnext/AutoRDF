@@ -43,7 +43,7 @@ std::string Validator::Error::fullMessage() const {
 
 std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model& model) {
     std::vector<Validator::Error>  errorList;
-    for ( auto uriKlass : _ontology.classUri2Ptr()) {
+    for ( auto uriKlass : _ontology->classUri2Ptr()) {
         std::vector<Object> objects = Object::findByType(uriKlass.first);
         for (auto const& object: objects) {
             std::shared_ptr<std::vector<Validator::Error> > objErrors = validateObject(object);
@@ -130,11 +130,10 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
 
 std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const Object& object) {
     std::vector<Validator::Error>  errorList;
-    std::vector<Uri> types = object.getTypes();
-
+    std::vector<Uri> types = object.getTypes(_ontology->model()->baseUri());
     for (auto const& type: types) {
-        if (_ontology.containsClass(type)) {
-            std::shared_ptr<const Klass> uriKlass =  _ontology.findClass(type);
+        if (_ontology->containsClass(type)) {
+            std::shared_ptr<const Klass> uriKlass =  _ontology->findClass(type);
             validateDataProperty(object, uriKlass, &errorList);
             validateObjectProperty(object, uriKlass, &errorList);
         }
@@ -216,21 +215,19 @@ bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const au
 }
 
 bool Validator::isObjectTypeValid(const autordf::Object& object, const autordf::Uri& type) {
-    bool isAType = false;
     if (object.isA(type)) {
         return true;
     } else {
-        std::shared_ptr<const autordf::ontology::Klass> klass =  _ontology.findClass(type);
+        std::shared_ptr<const autordf::ontology::Klass> klass =  _ontology->findClass(type);
         if (klass != nullptr) {
             for (auto predecessor: klass->getAllPredecessors()) {
                 if (object.isA(predecessor->rdfname())) {
-                    isAType = true;
-                    break;
+                    return true;
                 }
             }
         }
     }
-    return isAType;
+    return false;
 }
 
 }
