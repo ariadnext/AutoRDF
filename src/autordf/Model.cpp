@@ -44,6 +44,17 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
     ::fclose(f);
 }
 
+void Model::loadFromMemory(const void* data, const std::string& format, const std::string& baseIRI) {
+    std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
+    if ( !p ) {
+        throw UnsupportedRdfFileFormat("File format not recognized");
+    }
+    if ( librdf_parser_parse_string_into_model(p->get(), static_cast<const unsigned char *>(data), (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
+        throw InternalError("Failed to read model from stream");
+    }
+    retrieveSeenNamespaces(p, baseIRI);
+}
+
 void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI, const std::string& streamInfo) {
     std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
     if ( !p ) {
@@ -52,11 +63,15 @@ void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std:
     if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
         throw InternalError(streamInfo + ": Failed to read model from stream");
     }
+    retrieveSeenNamespaces(p, baseIRI);
+}
+
+void Model::retrieveSeenNamespaces(std::shared_ptr<internal::Parser> parser, const std::string& baseIRI) {
     _baseUri = baseIRI;
-    int prefixCount = librdf_parser_get_namespaces_seen_count(p->get());
+    int prefixCount = librdf_parser_get_namespaces_seen_count(parser->get());
     for ( unsigned int i = 0; i < prefixCount; ++i ) {
-        const char * prefix = librdf_parser_get_namespaces_seen_prefix(p->get(), i);
-        librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(p->get(), i);
+        const char * prefix = librdf_parser_get_namespaces_seen_prefix(parser->get(), i);
+        librdf_uri * uri = librdf_parser_get_namespaces_seen_uri(parser->get(), i);
         if ( prefix && uri ) {
             addNamespacePrefix(prefix, reinterpret_cast<char*>(librdf_uri_as_string(uri)));
         } else if ( !prefix && uri ) {
