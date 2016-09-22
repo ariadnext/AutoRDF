@@ -52,23 +52,24 @@ public:
     /**
      * Loads rdf resource from a string
      * @param data: the memory buffer to read from
+     * @param format: fileformat to use. Name of a redland parser
      * @param baseIRI: prefix for prefix-less data
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw FileIOError is file does not exist
      * @throw InternalError
      */
-    void loadFromMemory(const void* data, const std::string& format, const std::string& baseIRI = ".");
+    void loadFromMemory(const void* data, const char *format, const std::string& baseIRI = ".");
 
     /**
      * Loads rdf resource from a local file
      * @param fileHandle: file handle where to load data from - open with fopen()
-     * @param format: extension of the file
+     * @param format: fileformat to use. Name of a redland parser
      * @param baseIRI: prefix for prefix-less data
      * @param streamInfo: Usually name of the file, used only to output more precise exceptions text in case of error
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError
      */
-    void loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI = ".", const std::string& streamInfo = "<unknown stream>");
+    void loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI = ".", const std::string& streamInfo = "<unknown stream>");
 
     /**
      * Save model to file.
@@ -92,8 +93,18 @@ public:
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    void saveToFile(FILE *fileHandle, const char *format = "", const std::string& baseIRI = "");
-    
+    void saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI = "");
+
+    /**
+     * Saves model into memory
+     *
+     * @param format fileformat to use. If empty use default RDF/XML format
+     * @param baseIRI if not empty, serializer will express all iris relatively to this one
+     * @throw UnsupportedRdfFileFormat if format is not recognized
+     * @throw InternalError if for some strange reason data serialization failed
+     */
+    std::shared_ptr<std::string> saveToMemory(const char *format = "", const std::string& baseIRI = "");
+
     /**
      * Retrieve supported output format for use with saveToFile
      */
@@ -190,6 +201,7 @@ private:
     friend class NodeList;
 
     void retrieveSeenNamespaces(std::shared_ptr<internal::Parser> parser, const std::string& baseIRI);
+    std::shared_ptr<librdf_serializer> prepareSerializer(const char *format) const;
 };
 
 }

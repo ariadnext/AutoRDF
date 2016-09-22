@@ -9,7 +9,6 @@
 namespace autordf {
 namespace internal {
 
-/* Default in memory storage */
 class Parser {
 public:
     Parser(const std::string& name);
@@ -17,8 +16,6 @@ public:
     Parser(const Parser&) = delete;
 
     ~Parser();
-
-    static std::shared_ptr<Parser> guessFromExtension(const std::string& format);
 
     librdf_parser* get() const { return _parser; }
 

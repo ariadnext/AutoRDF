@@ -19,14 +19,5 @@ Parser::~Parser() {
     _parser = 0;
 }
 
-std::shared_ptr<Parser> Parser::guessFromExtension(const std::string& format) {
-    const char* name = librdf_parser_guess_name2(World().get(), NULL, NULL, (const unsigned char *)(format.c_str()));
-    if (name) {
-        return std::make_shared<Parser>(name);
-    } else {
-        return 0;
-    }
-}
-
 }
 }

@@ -34,8 +34,12 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
         throw FileIOError(ss.str().c_str());
     }
 
+    const char *format = librdf_parser_guess_name2(_world->get(), NULL, NULL, reinterpret_cast<const unsigned char *>(path.c_str()));
+    if ( !format ) {
+        throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
+    }
     try {
-        loadFromFile(f, path, baseIRI, path);
+        loadFromFile(f, format, baseIRI, path);
     }
     catch(...) {
         ::fclose(f);
@@ -44,8 +48,8 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
     ::fclose(f);
 }
 
-void Model::loadFromMemory(const void* data, const std::string& format, const std::string& baseIRI) {
-    std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
+void Model::loadFromMemory(const void* data, const char *format, const std::string& baseIRI) {
+    std::shared_ptr<Parser> p = std::make_shared<Parser>(format);
     if ( !p ) {
         throw UnsupportedRdfFileFormat("File format not recognized");
     }
@@ -55,8 +59,8 @@ void Model::loadFromMemory(const void* data, const std::string& format, const st
     retrieveSeenNamespaces(p, baseIRI);
 }
 
-void Model::loadFromFile(FILE *fileHandle, const std::string& format, const std::string& baseIRI, const std::string& streamInfo) {
-    std::shared_ptr<Parser> p = Parser::guessFromExtension(format);
+void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI, const std::string& streamInfo) {
+    std::shared_ptr<Parser> p = std::make_shared<Parser>(format);
     if ( !p ) {
         throw UnsupportedRdfFileFormat(streamInfo + ": File format not recognized");
     }
@@ -105,7 +109,7 @@ void Model::saveToFile(const std::string& path, const std::string& baseIRI, cons
     ::fclose(f);
 }
 
-void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI) {
+std::shared_ptr<librdf_serializer> Model::prepareSerializer(const char *format) const {
     std::shared_ptr<librdf_serializer> s(librdf_new_serializer(_world->get(), format, 0, 0), librdf_free_serializer);
     if ( !s ) {
         throw InternalError("Failed to construct RDF serializer");
@@ -119,9 +123,26 @@ void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& 
             throw InternalError(std::string("Failed to set namespace prefix map for RDF serializer: ") + pfx.first.c_str() + "-->" + pfx.second);
         }
     }
+    return s;
+}
+
+void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI) {
+    std::shared_ptr<librdf_serializer> s = prepareSerializer(format);
 
     if ( librdf_serializer_serialize_model_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, _model->get()) ) {
         throw InternalError("Failed to export RDF model to file");
+    }
+}
+
+std::shared_ptr<std::string> Model::saveToMemory(const char *format, const std::string& baseIRI) {
+    std::shared_ptr<librdf_serializer> s = prepareSerializer(format);
+    unsigned char * serialized = librdf_serializer_serialize_model_to_string(s.get(), baseIRI.length() ? Uri(baseIRI).get() : nullptr, _model->get());
+    if ( serialized ) {
+        auto res = std::make_shared<std::string>(reinterpret_cast<char*>(serialized));
+        librdf_free_memory(serialized);
+        return res;
+    } else {
+        throw InternalError("Failed to export RDF model to memory");
     }
 }
 

@@ -147,4 +147,24 @@ TEST(_01_Model, QName) {
     ASSERT_STREQ("http://out/of/base/or/prefixes", Uri("http://out/of/base/or/prefixes").QName(&ts).c_str());
 }
 
+TEST(_01_Model, LoadSaveMem) {
+    Model ts;
+
+    Statement st;
+    st.subject.setIri("http://mydomain/me");
+    st.predicate.setIri("http://mydomain/town");
+    st.object.setLiteral("Fabien", "fr");
+    ts.add(&st);
+
+    std::shared_ptr<std::string> data = ts.saveToMemory("turtle");
+
+    Model n;
+    n.loadFromMemory(data->c_str(), "turtle");
+
+    Statement st2;
+    st2.subject.setIri("http://mydomain/me");
+    st2.predicate.setIri("http://mydomain/town");
+    st2.object.setLiteral("Fabien", "fr");
+    n.remove(&st2);
+}
 
