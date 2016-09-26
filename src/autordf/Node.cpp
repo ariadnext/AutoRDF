@@ -175,6 +175,9 @@ std::ostream& operator<<(std::ostream& os, const Node& n) {
         case NodeType::RESOURCE:
             os << "{\"" << n.iri() << "\"";
             break;
+        case NodeType::BLANK:
+            os << "{\"" << n.bNodeId() << "\"";
+            break;
         default:
             os << "{";
             break;

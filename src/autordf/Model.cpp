@@ -196,7 +196,7 @@ void Model::add(Statement *stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));
     if ( librdf_model_add_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
-        ss << "Unable to add '" << *stmt << "' statement";
+        ss << "Unable to add statement";
         throw InternalError(ss.str());
     }
 }
@@ -205,7 +205,7 @@ void Model::remove(Statement *stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));
     if ( librdf_model_remove_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
-        ss << "Unable to remove '" << *stmt << "' statement";
+        ss << "Unable to remove statement";
         throw InternalError(ss.str());
     }
 }
