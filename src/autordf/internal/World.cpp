@@ -1,6 +1,7 @@
 #include "autordf/internal/World.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <raptor.h>
 
