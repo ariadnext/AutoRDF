@@ -40,5 +40,8 @@ INSTALL(TARGETS autordf
 )
 
 ADD_SUBDIRECTORY(ontology)
+
+if(${BUILD_TOOLS} STREQUAL "1")
 ADD_SUBDIRECTORY(codegen)
 ADD_SUBDIRECTORY(xmi)
+endif()
