@@ -1,6 +1,7 @@
 #include "autordf/StatementList.h"
 
 #include <stdexcept>
+#include <iostream>
 
 #include "autordf/internal/Stream.h"
 #include "autordf/Model.h"

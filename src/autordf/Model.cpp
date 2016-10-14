@@ -6,7 +6,6 @@
 
 #include <sstream>
 #include <set>
-#include <bits/stl_list.h>
 
 #include <raptor2.h>
 

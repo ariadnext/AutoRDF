@@ -1,6 +1,7 @@
 #include "autordf/NodeList.h"
 
 #include <stdexcept>
+#include <iostream>
 
 #include "autordf/internal/Iterator.h"
 #include "autordf/Model.h"
