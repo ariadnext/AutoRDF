@@ -1,5 +1,6 @@
 find_package(Boost REQUIRED COMPONENTS date_time)
 include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 ADD_LIBRARY(
     autordf
