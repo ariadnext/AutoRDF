@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <stack>
 #include <iosfwd>
 #include <stdexcept>
 #include <map>
@@ -56,9 +57,20 @@ public:
     static const std::string RDF_OBJECT;
 
     /**
-     * All newly Objects will be created in this Model
+     * All newly Objects, and new values will be created in this Factory
      */
     static void setFactory(Factory *f);
+
+    /**
+     * All newly Objects, and new values will be created in this Factory.
+     * Call popFactory() to restore previously set factory
+     */
+    static void pushFactory(Factory *f);
+
+    /**
+     * All newly Objects, and new values will be created in this Model
+     */
+    static void popFactory();
 
     /**
      * Creates new object, to given iri.
@@ -448,9 +460,9 @@ private:
     Resource _r;
 
     /**
-     * The factory this object belongs to
+     * The factory this object belongs to. Factory used for this object is found at the top of the stack
      */
-    static Factory *_factory;
+    static std::stack<Factory *> _factories;
 
     /**
      * True if rdf type value has already be written

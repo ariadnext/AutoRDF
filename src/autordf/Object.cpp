@@ -5,7 +5,7 @@
 
 namespace autordf {
 
-Factory *Object::_factory = nullptr;
+std::stack<Factory *> Object::_factories;
 
 const std::string Object::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const std::string Object::RDF_TYPE = RDF_NS + "type";
@@ -15,7 +15,19 @@ const std::string Object::RDF_PREDICATE = RDF_NS + "predicate";
 const std::string Object::RDF_OBJECT = RDF_NS + "object";
 
 void Object::setFactory(Factory *f) {
-    _factory = f;
+    if ( _factories.empty() ) {
+        _factories.push(f);
+    } else {
+        _factories.top() = f;
+    }
+}
+
+void Object::pushFactory(Factory *f) {
+    _factories.push(f);
+}
+
+void Object::popFactory() {
+    _factories.pop();
 }
 
 Object::Object(const Uri &iri, const Uri& rdfTypeIRI) : _r(iri.empty() ? factory()->createBlankNodeResource() :factory()->createIRIResource(iri)) {
@@ -48,7 +60,7 @@ Uri Object::iri() const {
 }
 
 std::string Object::QName() const {
-    return iri().QName(_factory);
+    return iri().QName(factory());
 }
 
 std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {
@@ -379,10 +391,10 @@ Object& Object::writeRdfType() {
 }
 
 Factory *Object::factory() {
-    if ( !_factory ) {
+    if ( _factories.empty() ) {
         throw std::runtime_error("You must call autordf::Object::setFactory() before using any of your objects methods");
     }
-    return _factory;
+    return _factories.top();
 }
 
 
