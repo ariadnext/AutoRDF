@@ -25,6 +25,16 @@ public:
     std::set <std::shared_ptr<const Klass> > ancestors() const;
 
     /**
+     * Returns direct predecessors of this class
+     */
+    std::set <std::shared_ptr<Klass> > predecessors();
+
+    /**
+     * Returns direct predecessors of this class
+     */
+    std::set <std::shared_ptr<const Klass> > predecessors() const;
+
+    /**
      * Returns direct ancestors of this class
      */
     std::set <std::shared_ptr<Klass> > ancestors();

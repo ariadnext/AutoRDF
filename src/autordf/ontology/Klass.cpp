@@ -20,6 +20,32 @@ std::set <std::shared_ptr<Klass> > Klass::ancestors() {
     return s;
 }
 
+std::set <std::shared_ptr<const Klass> > Klass::predecessors() const {
+    std::set<std::shared_ptr<const Klass> > predecessors;
+    for ( auto uriKlass : _ontology->classUri2Ptr()) {
+        for (auto ancestor = uriKlass.second->_directAncestors.begin(); ancestor != uriKlass.second->_directAncestors.end(); ++ancestor ) {
+            if (rdfname() == *ancestor) {
+                predecessors.insert(uriKlass.second);
+                break;
+            }
+        }
+    }
+    return predecessors;
+}
+
+std::set <std::shared_ptr<Klass> > Klass::predecessors() {
+    std::set<std::shared_ptr<Klass> > predecessors;
+    for ( auto uriKlass : _ontology->classUri2Ptr()) {
+        for (auto ancestor = uriKlass.second->_directAncestors.begin(); ancestor != uriKlass.second->_directAncestors.end(); ++ancestor ) {
+            if (rdfname() == *ancestor) {
+                predecessors.insert(uriKlass.second);
+                break;
+            }
+        }
+    }
+    return predecessors;
+}
+
 std::set<std::shared_ptr<const Klass> > Klass::getAllAncestors() const {
     std::set<std::shared_ptr<const Klass> > all;
     for ( auto ancestor = _directAncestors.begin(); ancestor != _directAncestors.end(); ++ancestor ) {
@@ -32,19 +58,14 @@ std::set<std::shared_ptr<const Klass> > Klass::getAllAncestors() const {
 }
 
 std::set<std::shared_ptr<const Klass> > Klass::getAllPredecessors() const {
-    std::set<std::shared_ptr<const Klass> > predecessors;
-    for ( auto uriKlass : _ontology->classUri2Ptr()) {
-        for (auto ancestor = uriKlass.second->_directAncestors.begin(); ancestor != uriKlass.second->_directAncestors.end(); ++ancestor ) {
-            if (rdfname() == *ancestor) {
-                predecessors.insert(uriKlass.second);
-                for ( auto predecessor : uriKlass.second->getAllPredecessors() ) {
-                    predecessors.insert(predecessor);
-                }
-                break;
-            }
+    std::set<std::shared_ptr<const Klass> > all;
+    for ( auto predecessor : predecessors() ) {
+        all.insert(predecessor);
+        for ( std::shared_ptr<const Klass> more : predecessor->getAllPredecessors() ) {
+            all.insert(more);
         }
     }
-    return predecessors;
+    return all;
 }
 }
 }
