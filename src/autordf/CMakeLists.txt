@@ -19,9 +19,9 @@ ADD_LIBRARY(
     Object.cpp
     Exception.cpp
     Uri.cpp
+    Storage.cpp
     internal/World.cpp
     internal/ModelPrivate.cpp
-    internal/Storage.cpp
     internal/Parser.cpp
     internal/Uri.cpp
     internal/Stream.cpp

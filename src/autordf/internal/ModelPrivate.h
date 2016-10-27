@@ -6,9 +6,10 @@
 #include <memory>
 
 namespace autordf {
-namespace internal {
 
 class Storage;
+
+namespace internal {
 
 class ModelPrivate {
 public:

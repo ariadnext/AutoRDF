@@ -8,6 +8,7 @@
 
 #include <autordf/StatementList.h>
 #include <autordf/NodeList.h>
+#include <autordf/Storage.h>
 
 #include <cstdlib>
 
@@ -30,9 +31,14 @@ class StatementList;
 class Model {
 public:
     /**
-     * Builds a new Model instance
+     * Builds a new Model instance, using in-memory storage
      */
     Model();
+
+    /**
+     * Builds a new Model instance, using specified storage
+     */
+    Model(std::shared_ptr<Storage>);
 
     /**
      * Disallow copy construction

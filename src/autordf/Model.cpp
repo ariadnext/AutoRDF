@@ -9,9 +9,10 @@
 
 #include <raptor2.h>
 
+#include <iostream>
+
 #include "autordf/internal/World.h"
 #include "autordf/internal/ModelPrivate.h"
-#include "autordf/internal/Storage.h"
 #include "autordf/internal/Parser.h"
 #include "autordf/internal/Stream.h"
 #include "autordf/internal/Uri.h"
@@ -23,6 +24,9 @@ namespace autordf {
 using namespace internal;
 
 Model::Model() : _world(new World()), _model(new ModelPrivate(std::make_shared<Storage>())) {
+}
+
+Model::Model(std::shared_ptr<Storage> storage) : _world(new World()), _model(new ModelPrivate(storage)) {
 }
 
 void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
@@ -128,7 +132,9 @@ std::shared_ptr<librdf_serializer> Model::prepareSerializer(const char *format) 
 void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI) {
     std::shared_ptr<librdf_serializer> s = prepareSerializer(format);
 
-    if ( librdf_serializer_serialize_model_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, _model->get()) ) {
+    std::shared_ptr<librdf_stream> stream(librdf_model_as_stream(_model->get()), librdf_free_stream);
+
+    if ( librdf_serializer_serialize_stream_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, stream.get()) ) {
         throw InternalError("Failed to export RDF model to file");
     }
 }

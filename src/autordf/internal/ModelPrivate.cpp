@@ -1,7 +1,7 @@
 #include "autordf/internal/ModelPrivate.h"
 
 #include "autordf/internal/World.h"
-#include "autordf/internal/Storage.h"
+#include "autordf/Storage.h"
 #include "autordf/Exception.h"
 
 namespace autordf {

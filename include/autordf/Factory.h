@@ -15,6 +15,8 @@ namespace autordf {
  */
 class Factory : public Model {
 public:
+    using Model::Model;
+
     /**
      * Create blank (anonymous) resource
      */
