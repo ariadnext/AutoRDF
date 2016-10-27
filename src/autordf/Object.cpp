@@ -168,7 +168,7 @@ void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
 
 void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     writeRdfType();
-    if ( !reifiedPropertyValue(propertyIRI, val) ) {
+    if ( !reifiedPropertyValueAsResource(propertyIRI, val) ) {
         _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
     }
 }
@@ -185,7 +185,7 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
 
 Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     // Check for reified object
-    std::shared_ptr<Resource> alreadyReified = reifiedPropertyValue(propertyIRI, val);
+    std::shared_ptr<Resource> alreadyReified = reifiedPropertyValueAsResource(propertyIRI, val);
 
     if ( alreadyReified ) {
         return Object(*alreadyReified);
@@ -209,7 +209,7 @@ Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
 
 bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep) {
     // Check for reified object
-    std::shared_ptr<Resource> alreadyReified = reifiedPropertyValue(propertyIRI, val);
+    std::shared_ptr<Resource> alreadyReified = reifiedPropertyValueAsResource(propertyIRI, val);
     if ( alreadyReified ) {
         static const std::set<std::string> RDF_REIFICATION_STATEMENTS = {
             RDF_TYPE, RDF_SUBJECT, RDF_PREDICATE, RDF_OBJECT
@@ -254,7 +254,15 @@ NodeList Object::reificationResourcesForCurrentObject() const {
     return factory()->findSources(predicate, object);
 }
 
-std::shared_ptr<Resource> Object::reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const {
+std::shared_ptr<Object> Object::reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const {
+    std::shared_ptr<Resource> res = reifiedPropertyValueAsResource(propertyIRI, val);
+    if (res) {
+        return std::shared_ptr<Object>(new Object(*res));
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Resource> Object::reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const {
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
 
     // Iterate through statements and find ones matching predicate and object

@@ -249,7 +249,7 @@ public:
      * @param val value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Resource> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
+    std::shared_ptr<Object> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
 
     /**
      * Forces the underlying resource to the type associated with this object.
@@ -501,6 +501,14 @@ private:
      * @internal
      */
     NodeList reificationResourcesForCurrentObject() const;
+
+    /**
+     * Test if val is stored as a RDF reified form, or simple statement (default)
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param val value to test
+     * @return Object representing the reified statement if available, otherwise nullptr
+     */
+    std::shared_ptr<Resource> reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const;
 
     /**
      * Returns the associated factory, or throws if nullptr
