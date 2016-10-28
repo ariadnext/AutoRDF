@@ -83,11 +83,14 @@ public:
      * from provided file name
      * @param path filename to write file to
      * @param baseIRI if not empty, serializer will express all iris relatively to this one
+     * @param enforceRepeatable if not set (default), the ordering of nodes might not be reproducible from on save to another.
+     * This parameter should be set to true if file is to be saved in a source code version management system. It should only
+     * be used with small models, as all statements are loaded and then sorted in memory
      * @param format fileformat to use. If not given will autodetect from file path extension
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    void saveToFile(const std::string& path, const std::string& baseIRI = "", const char *format = 0);
+    void saveToFile(const std::string& path, const std::string& baseIRI = "", bool enforceRepeatable = false, const char *format = 0);
 
     /**
      * Save model to file.
@@ -96,10 +99,13 @@ public:
      * @param fileHandle: file handle where to write data to - open with fopen()
      * @param format fileformat to use. If empty use default RDF/XML format
      * @param baseIRI if not empty, serializer will express all iris relatively to this one
+     * @param enforceRepeatable if not set (default), the ordering of nodes might not be reproducible from on save to another
+     * This parameter should be set to true if file is to be saved in a source code version management system. It should only
+     * be used with small models, as all statements are loaded and then sorted in memory
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    void saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI = "");
+    void saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI = "", bool enforceRepeatable = false);
 
     /**
      * Saves model into memory

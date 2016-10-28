@@ -168,3 +168,31 @@ TEST(_01_Model, LoadSaveMem) {
     n.remove(&st2);
 }
 
+
+TEST(_01_Model, LoadSave) {
+    Model ts;
+
+    Statement st;
+    st.subject.setIri("http://mydomain/me");
+    st.predicate.setIri("http://mydomain/town");
+    st.object.setLiteral("Rennes", "fr");
+    ts.add(&st);
+
+    Statement st3;
+    st3.subject.setIri("http://mydomain/me");
+    st3.predicate.setIri("http://mydomain/Name");
+    st3.object.setLiteral("Fabien", "fr");
+    ts.add(&st3);
+
+    ts.saveToFile("/tmp/autordf_unittest.ttl", "http://mydomain/me", true);
+    ts.saveToFile("/tmp/autordf_unittest2.ttl", "http://mydomain/me", false);
+
+    Model n;
+    n.loadFromFile("/tmp/autordf_unittest.ttl", "http://mydomain/me");
+
+    Statement st2;
+    st2.subject.setIri("http://mydomain/me");
+    st2.predicate.setIri("http://mydomain/town");
+    st2.object.setLiteral("Rennes", "fr");
+    n.remove(&st2);
+}

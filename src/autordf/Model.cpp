@@ -3,13 +3,12 @@
 #include <errno.h>
 #include <string.h>
 #include <librdf.h>
-
-#include <sstream>
-#include <set>
-
 #include <raptor2.h>
 
+#include <sstream>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 #include "autordf/internal/World.h"
 #include "autordf/internal/ModelPrivate.h"
@@ -87,7 +86,7 @@ void Model::retrieveSeenNamespaces(std::shared_ptr<internal::Parser> parser, con
     }
 }
 
-void Model::saveToFile(const std::string& path, const std::string& baseIRI, const char *format) {
+void Model::saveToFile(const std::string& path, const std::string& baseIRI, bool enforceRepeatable, const char *format) {
     if ( !format ) {
         format = librdf_parser_guess_name2(_world->get(), NULL, NULL, reinterpret_cast<const unsigned char *>(path.c_str()));
     }
@@ -103,7 +102,7 @@ void Model::saveToFile(const std::string& path, const std::string& baseIRI, cons
     }
 
     try {
-        saveToFile(f, format, baseIRI);
+        saveToFile(f, format, baseIRI, enforceRepeatable);
     }
     catch(...) {
         ::fclose(f);
@@ -129,13 +128,99 @@ std::shared_ptr<librdf_serializer> Model::prepareSerializer(const char *format) 
     return s;
 }
 
-void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI) {
+class StatementVector : public std::vector<std::shared_ptr<librdf_statement> > {
+public:
+    void sort() {
+        return std::sort(begin(), end(),
+                         [](const std::shared_ptr<librdf_statement>& l, const std::shared_ptr<librdf_statement>& r) { return encodeStatement(l) < encodeStatement(r);}
+        );
+    }
+private:
+    static std::string encodeStatement(const std::shared_ptr<librdf_statement>& stmt) {
+        size_t sz = librdf_statement_encode_parts2(World().get(), stmt.get(), nullptr, nullptr, 0, LIBRDF_STATEMENT_ALL);
+        std::string encoded(sz, '\0');
+        librdf_statement_encode_parts2(World().get(), stmt.get(), nullptr, reinterpret_cast<unsigned char*>(const_cast<char*>(encoded.data())), sz, LIBRDF_STATEMENT_ALL);
+        return encoded;
+    }
+};
+
+extern "C" int stream_is_end_method(void *param);
+extern "C" int stream_next_method(void *param);
+extern "C" void *stream_get_method(void *param, int value);
+
+class StatementsStream {
+public:
+    StatementsStream(StatementVector* v) {
+        _statements = v;
+        _iter = v->begin();
+    }
+
+    std::shared_ptr<librdf_stream> newRdfStream() {
+        return std::shared_ptr<librdf_stream>(librdf_new_stream(World().get(), this,
+                                 &autordf::stream_is_end_method,
+                                 &autordf::stream_next_method,
+                                 &autordf::stream_get_method,
+                                 nullptr),
+                librdf_free_stream);
+    }
+
+    // Implementation details
+    int is_end_method() {
+        return _statements->end() == _iter;
+    }
+
+    int stream_next_method() {
+        ++_iter;
+        return _statements->end() == _iter;
+    }
+
+    void *stream_get_method(int value) {
+        return _iter->get();
+    }
+
+private:
+    StatementVector* _statements;
+    StatementVector::iterator _iter;
+};
+
+extern "C" int stream_is_end_method(void *param) {
+    return static_cast<StatementsStream*>(param)->is_end_method();
+}
+
+extern "C" int stream_next_method(void *param) {
+    return static_cast<StatementsStream*>(param)->stream_next_method();
+}
+
+extern "C" void *stream_get_method(void *param, int value) {
+    return static_cast<StatementsStream*>(param)->stream_get_method(value);
+}
+
+void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI, bool enforceRepeatable) {
     std::shared_ptr<librdf_serializer> s = prepareSerializer(format);
 
-    std::shared_ptr<librdf_stream> stream(librdf_model_as_stream(_model->get()), librdf_free_stream);
+    std::shared_ptr<librdf_stream> sourcestream(librdf_model_as_stream(_model->get()), librdf_free_stream);
 
-    if ( librdf_serializer_serialize_stream_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, stream.get()) ) {
-        throw InternalError("Failed to export RDF model to file");
+    if ( enforceRepeatable ) {
+        StatementVector statements;
+        int statementsCount = librdf_model_size(_model->get());
+        if ( statementsCount > 0 ) {
+            statements.reserve(statementsCount);
+        }
+        while (!librdf_stream_end(sourcestream.get())) {
+            librdf_statement *statement = librdf_stream_get_object(sourcestream.get());
+            statements.emplace_back(std::shared_ptr<librdf_statement>(librdf_new_statement_from_statement(statement), librdf_free_statement));
+            librdf_stream_next(sourcestream.get());
+        }
+        statements.sort();
+
+        StatementsStream ss(&statements);
+        if ( librdf_serializer_serialize_stream_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, ss.newRdfStream().get()) ) {
+            throw InternalError("Failed to export RDF model to file");
+        }
+    } else {
+        if ( librdf_serializer_serialize_stream_to_file_handle(s.get(), fileHandle, baseIRI.length() ? Uri(baseIRI).get() : nullptr, sourcestream.get()) ) {
+            throw InternalError("Failed to export RDF model to file");
+        }
     }
 }
 
