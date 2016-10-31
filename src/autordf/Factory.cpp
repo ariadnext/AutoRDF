@@ -1,6 +1,10 @@
 #include "autordf/Factory.h"
 
+#ifdef LIBRDF_IN_SUBDIRS
+#include <librdf/librdf.h>
+#else
 #include <librdf.h>
+#endif
 
 #include "autordf/internal/World.h"
 #include "autordf/Exception.h"

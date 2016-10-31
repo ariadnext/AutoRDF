@@ -3,7 +3,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#ifdef LIBRDF_IN_SUBDIRS
+#include <raptor2/raptor.h>
+#else
 #include <raptor.h>
+#endif
 
 #include "autordf/Exception.h"
 

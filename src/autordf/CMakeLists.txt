@@ -1,4 +1,10 @@
+IF(APPLE AND NOT NATIVE)
+set(Boost_INCLUDE_DIRS ${CMAKE_FRAMEWORK_EXTRA_PATH}/boost.framework)
+set(Boost_LIBRARIES boost)
+message(STATUS "FORCED Boost_INCLUDE_DIRS to ${Boost_INCLUDE_DIRS}")
+ELSE(APPLE AND NOT NATIVE)
 find_package(Boost REQUIRED COMPONENTS date_time)
+ENDIF(APPLE AND NOT NATIVE)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 

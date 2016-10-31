@@ -1,7 +1,11 @@
 #ifndef AUTORDF_MODELPRIVATE_H
 #define AUTORDF_MODELPRIVATE_H
 
+#ifdef LIBRDF_IN_SUBDIRS
+#include <librdf/librdf.h>
+#else
 #include <librdf.h>
+#endif
 
 #include <memory>
 

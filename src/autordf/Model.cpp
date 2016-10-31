@@ -2,8 +2,18 @@
 
 #include <errno.h>
 #include <string.h>
+
+#ifdef LIBRDF_IN_SUBDIRS
+#include <librdf/librdf.h>
+#else
 #include <librdf.h>
+#endif
+
+#ifdef LIBRDF_IN_SUBDIRS
+#include <raptor2/raptor2.h>
+#else
 #include <raptor2.h>
+#endif
 
 #include <sstream>
 #include <iostream>

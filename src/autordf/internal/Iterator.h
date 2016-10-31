@@ -1,7 +1,11 @@
 #ifndef AUTORDF_ITERATOR_H
 #define AUTORDF_ITERATOR_H
 
+#ifdef LIBRDF_IN_SUBDIRS
+#include <librdf/librdf.h>
+#else
 #include <librdf.h>
+#endif
 
 namespace autordf {
 namespace internal {
