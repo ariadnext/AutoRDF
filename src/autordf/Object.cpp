@@ -245,13 +245,7 @@ bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
 NodeList Object::reificationResourcesForCurrentObject() const {
     Node predicate;
     predicate.setIri(RDF_SUBJECT);
-    Node object;
-    if ( _r.type() == NodeType::BLANK ) {
-        object.setBNodeId(_r.name());
-    } else {
-        object.setIri(_r.name());
-    }
-    return factory()->findSources(predicate, object);
+    return factory()->findSources(predicate, currentNode());
 }
 
 std::shared_ptr<Object> Object::reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const {
@@ -473,6 +467,17 @@ std::set<Object> Object::findAll() {
     std::set<Object> objList;
     const StatementList& statements = factory()->find();
     for(const Statement& stmt : statements) {
+        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+    }
+    return objList;
+}
+
+std::set<Object> Object::findSources() const {
+    std::set<Object> objList;
+    Statement query;
+    query.object = currentNode();
+    const StatementList& statements = factory()->find(query);
+    for (const Statement& stmt: statements) {
         objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
     }
     return objList;

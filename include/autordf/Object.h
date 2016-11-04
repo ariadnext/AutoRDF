@@ -354,6 +354,12 @@ public:
     static std::set<Object> findAll();
 
     /**
+     * Find all objects pointing to the current object
+     * @return
+     */
+    std::set<Object> findSources() const;
+
+    /**
      * Comparison operator used to store objects in maps for instance
      */
     bool operator<(const Object& obj) const {
@@ -509,6 +515,19 @@ private:
      * @return Object representing the reified statement if available, otherwise nullptr
      */
     std::shared_ptr<Resource> reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const;
+
+    /**
+     * @return Node from current object
+     */
+    Node currentNode() const {
+        Node object;
+        if ( _r.type() == NodeType::BLANK ) {
+            object.setBNodeId(_r.name());
+        } else {
+            object.setIri(_r.name());
+        }
+        return object;
+    }
 
     /**
      * Returns the associated factory, or throws if nullptr
