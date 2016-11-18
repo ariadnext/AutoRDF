@@ -75,7 +75,14 @@ std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {
 }
 
 Object Object::getObject(const Uri &propertyIRI) const {
-    return Object(_r.getProperty(propertyIRI)->asResource());
+    std::shared_ptr<Object> obj = getOptionalObject(propertyIRI);
+    if ( obj ) {
+        return *obj;
+    } else {
+        std::stringstream ss;
+        ss << "Property " << propertyIRI << " not found in " << _r.name() << " resource." << std::endl;
+        throw PropertyNotFound(ss.str());
+    }
 }
 
 std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const {
@@ -83,7 +90,12 @@ std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const 
     if ( p ) {
         return std::shared_ptr<Object>(new Object(p->asResource()));
     } else {
-        return nullptr;
+        std::shared_ptr<Object> reified = reifiedObjectOptional(propertyIRI);
+        if ( reified ) {
+            return reified;
+        } else {
+            return nullptr;
+        }
     }
 }
 
@@ -92,6 +104,8 @@ std::vector<Object> Object::getObjectList(const Uri& propertyIRI) const {
 }
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
+    // First remove all reified statements
+    removeAllReifiedObjectPropertyStatements(propertyIRI);
     writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(obj._r);
@@ -101,9 +115,9 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
 
 void Object::addObject(const Uri& propertyIRI, const Object& obj) {
     writeRdfType();
-    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
-    p->setValue(obj._r);
-    _r.addProperty(*p);
+    if ( !reifiedObjectAsResource(propertyIRI, obj) ) {
+        _r.addProperty(factory()->createProperty(propertyIRI)->setValue(obj._r));
+    }
 }
 
 void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values) {
@@ -111,9 +125,13 @@ void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &va
 }
 
 void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
-    std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
-    p->setValue(obj._r);
-    _r.removeSingleProperty(*p);
+    // Check for reified object
+    if ( !unReifyObject(propertyIRI, obj, false) ) {
+        // No reified object to remove, use std removal
+        std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
+        p->setValue(obj._r);
+        _r.removeSingleProperty(*p);
+    }
 }
 
 PropertyValue Object::getPropertyValue(const Uri& propertyIRI) const {
@@ -158,7 +176,7 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     // First remove all reified statements
-    removeAllReifiedStatements(propertyIRI);
+    removeAllReifiedDataPropertyStatements(propertyIRI);
     writeRdfType();
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     p->setValue(val);
@@ -207,21 +225,48 @@ Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
     }
 }
 
-bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep) {
+
+Object Object::reifyObject(const Uri& propertyIRI, const Object& object) {
     // Check for reified object
-    std::shared_ptr<Resource> alreadyReified = reifiedPropertyValueAsResource(propertyIRI, val);
+    std::shared_ptr<Resource> alreadyReified = reifiedObjectAsResource(propertyIRI, object);
+
     if ( alreadyReified ) {
-        static const std::set<std::string> RDF_REIFICATION_STATEMENTS = {
-            RDF_TYPE, RDF_SUBJECT, RDF_PREDICATE, RDF_OBJECT
-        };
-        const std::shared_ptr<std::list<Property>>& propList = alreadyReified->getPropertyValues();
-        for ( const Property& prop : *propList ) {
-            if ( !RDF_REIFICATION_STATEMENTS.count(prop.iri()) ) {
-                std::stringstream ss;
-                ss << "Reified statement contains user defined property " << prop;
-                throw CannotUnreify(ss.str());
-            }
+        return Object(*alreadyReified);
+    } else {
+        Resource reified = factory()->createBlankNodeResource();
+        reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
+        reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
+        reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
+        reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(object._r));
+
+        //TODO: we would like some kind of transactional database to prevent inconsistencies in failure case scenarios
+        std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
+        p->setValue(object._r);
+        if ( _r.hasProperty(*p) ) {
+            _r.removeSingleProperty(*p);
         }
+
+        return Object(reified);
+    }
+}
+
+void Object::ensureUnreificationIsPossible(const std::shared_ptr<Resource>& alreadyReified) {
+    static const std::set<std::string> RDF_REIFICATION_STATEMENTS = {
+            RDF_TYPE, RDF_SUBJECT, RDF_PREDICATE, RDF_OBJECT
+    };
+    const std::shared_ptr<std::list<Property>>& propList = alreadyReified->getPropertyValues();
+    for ( const Property& prop : *propList ) {
+        if ( !RDF_REIFICATION_STATEMENTS.count(prop.iri()) ) {
+            std::stringstream ss;
+            ss << "Reified statement contains user defined property " << prop;
+            throw CannotUnreify(ss.str());
+        }
+    }
+}
+
+bool Object::unReify(std::shared_ptr<Resource> alreadyReified, bool keep) {
+    if ( alreadyReified ) {
+        ensureUnreificationIsPossible(alreadyReified);
         //TODO: we would like some kind of transactional database to prevent inconsistencies in failure case scenarios
         std::shared_ptr<Property> predicate = alreadyReified->getProperty(RDF_PREDICATE);
         std::shared_ptr<Property> object = alreadyReified->getProperty(RDF_OBJECT);
@@ -242,6 +287,14 @@ bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
     }
 }
 
+bool Object::unReifyObject(const Uri& propertyIRI, const Object& object, bool keep) {
+    return unReify(reifiedObjectAsResource(propertyIRI, object), keep);
+}
+
+bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep) {
+    return unReify(reifiedPropertyValueAsResource(propertyIRI, val), keep);
+}
+
 NodeList Object::reificationResourcesForCurrentObject() const {
     Node predicate;
     predicate.setIri(RDF_SUBJECT);
@@ -250,6 +303,14 @@ NodeList Object::reificationResourcesForCurrentObject() const {
 
 std::shared_ptr<Object> Object::reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const {
     std::shared_ptr<Resource> res = reifiedPropertyValueAsResource(propertyIRI, val);
+    if (res) {
+        return std::shared_ptr<Object>(new Object(*res));
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Object> Object::reifiedObject(const Uri& propertyIRI, const Object& object) const {
+    std::shared_ptr<Resource> res = reifiedObjectAsResource(propertyIRI, object);
     if (res) {
         return std::shared_ptr<Object>(new Object(*res));
     }
@@ -266,6 +327,23 @@ std::shared_ptr<Resource> Object::reifiedPropertyValueAsResource(const Uri& prop
         if ( predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> object = reifiedStatement.getProperty(RDF_OBJECT);
             if ( object->isLiteral() && (object->value() == val) ) {
+                return std::shared_ptr<Resource>(new Resource(reifiedStatement));
+            }
+        }
+    }
+    return nullptr;
+}
+
+std::shared_ptr<Resource> Object::reifiedObjectAsResource(const Uri& propertyIRI, const Object& val) const {
+    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+
+    // Iterate through statements and find ones matching predicate and object
+    for (const Node& thisObject : nodesReferingToThisObject ) {
+        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+        if ( predicate->asResource().name() == propertyIRI ) {
+            std::shared_ptr<Property> object = reifiedStatement.getProperty(RDF_OBJECT);
+            if ( object->isResource() && (object->asResource().name() == val._r.name()) ) {
                 return std::shared_ptr<Resource>(new Resource(reifiedStatement));
             }
         }
@@ -291,7 +369,32 @@ std::shared_ptr<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& p
     return nullptr;
 }
 
-void Object::removeAllReifiedStatements(const Uri& propertyIRI) {
+std::shared_ptr<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) const {
+    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+
+    // Iterate through statements and find ones matching predicate
+    std::vector<Object> allReifiedValues;
+    for (const Node& thisObject : nodesReferingToThisObject ) {
+        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+        if ( predicate && predicate->asResource().name() == propertyIRI ) {
+            std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
+            if ( prop->isResource() ) {
+                return std::shared_ptr<Object>(new Object(prop->asResource()));
+            }
+        }
+    }
+    return nullptr;
+}
+
+void Object::removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI) {
+    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
+    for ( const Property& p : *propList ) {
+        unReifyObject(p.iri(), p.asResource(), false);
+    }
+}
+
+void Object::removeAllReifiedDataPropertyStatements(const Uri& propertyIRI) {
     const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
     for ( const Property& p : *propList ) {
         unReifyPropertyValue(p.iri(), p.value(), false);
@@ -314,10 +417,9 @@ void Object::reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVecto
     }
 }
 
-
 void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values) {
     writeRdfType();
-    removeAllReifiedStatements(propertyIRI);
+    removeAllReifiedDataPropertyStatements(propertyIRI);
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
     for (const PropertyValue& val: values) {

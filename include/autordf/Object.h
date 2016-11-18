@@ -210,7 +210,7 @@ public:
     void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
-     * Writes a PropertyValue in reified form.
+     * Writes a data property in reified form.
      *
      * If statement is already reified, returns already reified statement.
      * After reification succeeds, the non-reified RDF statement is removed
@@ -244,12 +244,54 @@ public:
     bool unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep = true);
 
     /**
-     * Test if val is stored as a RDF reified form, or simple statement (default)
+     * Test if data property value is stored as a RDF reified form, or simple statement (default)
      * @param propertyIRI Internationalized Resource Identifiers of data property
      * @param val value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
     std::shared_ptr<Object> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
+
+    /**
+     * Writes an object property in reified form.
+     *
+     * If statement is already reified, returns already reified statement.
+     * After reification succeeds, the non-reified RDF statement is removed
+     *
+     * RDF represents a reified statement as four statements with particular RDF properties and objects: the statement (S, P, O), reified by resource R, is represented by:
+     *
+     * R rdf:type rdf:Statement
+     * R rdf:subject S
+     * R rdf:predicate P
+     * R rdf:object O
+     *
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param object value to reify
+     * @return Object representing the reified statement
+     */
+    Object reifyObject(const Uri& propertyIRI, const Object& object);
+
+    /**
+     * Turns a reified statement into a simple statement.
+     *
+     * If statement is already in unreified form, does nothing
+     * If reified statement contains more than rdf:type, rdf:subject, rdf:predicate and rdf:object, convertion fails,
+     * and CannotUnreify exception is thrown
+     *
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param object value to unreify
+     * @param keep if set to  false, statement is not only unreified, but also completely erased
+     * @throw CannotUnreify is unreification is not possible
+     * @return true if there was a statement to unReify, false otherwise
+     */
+    bool unReifyObject(const Uri& propertyIRI, const Object& object, bool keep = true);
+
+    /**
+     * Test if object property value is stored as a RDF reified form, or simple statement (default)
+     * @param propertyIRI Internationalized Resource Identifiers of data property
+     * @param object value to test
+     * @return Object representing the reified statement if available, otherwise nullptr
+     */
+    std::shared_ptr<Object> reifiedObject(const Uri& propertyIRI, const Object& object) const;
 
     /**
      * Forces the underlying resource to the type associated with this object.
@@ -411,6 +453,19 @@ public:
                 objList.push_back(T(prop.asResource()));
             }
         }
+        // Iterate through statements and find ones matching predicate
+        const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+        for (const Node& thisObject : nodesReferingToThisObject ) {
+            Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+            std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+            if ( predicate && predicate->asResource().name() == propertyIRI ) {
+                std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
+                if ( prop->isResource() ) {
+                    objList.push_back(T(prop->asResource()));
+                }
+            }
+        }
+
         return objList;
     }
 
@@ -420,6 +475,7 @@ public:
      */
     template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
         writeRdfType();
+        removeAllReifiedObjectPropertyStatements(propertyIRI);
         std::shared_ptr<Property> p =factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
         for (const Object& object : values) {
@@ -493,15 +549,26 @@ private:
     void reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVector *pvv) const;
 
     /**
-     * Returns the first found reifiedPropertyValue, if found
+     * Returns the first found reified PropertyValue, if found
      */
     std::shared_ptr<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI) const;
+
+    /**
+     * Returns the first found reified object, if found
+     */
+    std::shared_ptr<Object> reifiedObjectOptional(const Uri& propertyIRI) const;
 
     /**
      * Removes all reified statements
      * @throw CannotUnreify if one statement cannot be unreified
      */
-    void removeAllReifiedStatements(const Uri& propertyIRI);
+    void removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI);
+
+    /**
+     * Removes all reified statements
+     * @throw CannotUnreify if one statement cannot be unreified
+     */
+    void removeAllReifiedDataPropertyStatements(const Uri& propertyIRI);
 
     /**
      * @internal
@@ -515,6 +582,30 @@ private:
      * @return Object representing the reified statement if available, otherwise nullptr
      */
     std::shared_ptr<Resource> reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const;
+
+    /**
+     * Test if val is stored as a RDF reified form, or simple statement (default)
+     * @param propertyIRI Internationalized Resource Identifiers of object property
+     * @param val value to test
+     * @return Object representing the reified statement if available, otherwise nullptr
+     */
+    std::shared_ptr<Resource> reifiedObjectAsResource(const Uri& propertyIRI, const Object& val) const;
+
+    /**
+     * Checks if it is possible to unreify statement, i.e. does not contain any third party
+     * statement
+     * @param alreadyReified reified resource
+     * @throw CannotUnreify if reified statement stored in given ressource can be unreified
+     */
+    void ensureUnreificationIsPossible(const std::shared_ptr<Resource>& alreadyReified);
+
+    /**
+     * Unreify statement stored in Resource, and restore it as plain statement if keep is true
+     * @param reifiedStatement reified statement
+     * @param keep if true, we restore statement as
+     * @throw CannotUnreify if reified statement stored in given ressource can be unreified
+     */
+    bool unReify(std::shared_ptr<Resource> reifiedStatement, bool keep);
 
     /**
      * @return Node from current object

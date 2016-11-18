@@ -177,7 +177,7 @@ TEST(_03_Object, findAllObjects) {
     ASSERT_EQ(5, objs.size());
 }
 
-TEST(_03_Object, Reification) {
+TEST(_03_Object, DataPropertyReification) {
     Factory f;
     Object::setFactory(&f);
 
@@ -207,7 +207,7 @@ TEST(_03_Object, Reification) {
     obj.removePropertyValue("http://myprop1", "1");
 }
 
-TEST(_03_Object, Reification2) {
+TEST(_03_Object, DataPropertyReification2) {
     Factory f;
     Object::setFactory(&f);
 
@@ -220,7 +220,7 @@ TEST(_03_Object, Reification2) {
     EXPECT_EQ(4, f.find().size());
 }
 
-TEST(_03_Object, UnReification) {
+TEST(_03_Object, DataPropertyUnReification) {
     Factory f;
     Object::setFactory(&f);
 
@@ -238,6 +238,77 @@ TEST(_03_Object, UnReification) {
     //Now remove statement and test unreification again
     reified.removePropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
     ASSERT_NO_THROW(obj.unReifyPropertyValue("http://myprop1", "1"));
+
+    f.saveToFile("/tmp/test_UnReification3.ttl");
+}
+
+TEST(_03_Object, ObjectPropertyReification) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+
+    Object obj1("http://my/object1");
+    Object obj2("http://my/object2");
+
+
+    obj.setObject("http://myprop2", obj2);
+    // At this stage statement is NOT reified, check that
+    ASSERT_FALSE(obj.reifiedObject("http://myprop2", obj2));
+
+    obj.reifyObject("http://myprop1", obj1);
+
+    // At this stage statement is reified, check that
+    ASSERT_TRUE(obj.reifiedObject("http://myprop1", obj1).get());
+
+    f.saveToFile("/tmp/test_UnReification1.ttl");
+
+    // Test our read back support of reified statements
+    ASSERT_TRUE(obj.getOptionalObject("http://myprop1").get());
+
+    // Test our read back support of reified statements
+    ASSERT_EQ(obj1, obj.getObject("http://myprop1"));
+
+    // Test our read back support of reified statements
+    ASSERT_EQ(std::vector<Object>({obj1}), obj.getObjectList("http://myprop1"));
+
+    // Now remove our reified statement
+    obj.removeObject("http://myprop1",  obj1);
+}
+
+TEST(_03_Object, ObjectPropertyReification2) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+    Object obj3("http://my/object3");
+
+    // Check reification does remove our non-reified statement
+    obj.setObject("http://myprop3", obj3);
+    obj.reifyObject("http://myprop3", obj3);
+
+    EXPECT_EQ(4, f.find().size());
+}
+
+TEST(_03_Object, ObjectPropertyUnReification) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+    //Unreifying unexisting should not throw
+    ASSERT_NO_THROW(obj.unReifyObject("http://unexistingprop", Object("http://unexisting")));
+
+    Object obj1("http://my/object1");
+    Object reified = obj.reifyObject("http://myprop1", obj1);
+    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
+
+    f.saveToFile("/tmp/test_UnReification2.ttl");
+
+    ASSERT_THROW(obj.unReifyObject("http://myprop1", obj1), autordf::CannotUnreify);
+
+    //Now remove statement and test unreification again
+    reified.removePropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
+    ASSERT_NO_THROW(obj.unReifyObject("http://myprop1", obj1));
 
     f.saveToFile("/tmp/test_UnReification3.ttl");
 }
