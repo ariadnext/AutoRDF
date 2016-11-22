@@ -35,7 +35,12 @@ std::map<cvt::RdfTypeEnum, std::string> rdf2CppTypeMapping(
 );
 
 void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) const {
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName(false) << " data property." << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << "static const autordf::Uri " << _decorated.prettyIRIName() << "DataPropertyIri;" << std::endl;
     ofs << std::endl;
+
     if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
         if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
             generateGetterForOneMandatory(ofs, onClass);
@@ -95,13 +100,16 @@ void DataProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onClas
 }
 
 void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
+    std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
+
+    ofs << "const autordf::Uri " << currentClassName << "::" << _decorated.prettyIRIName() << "DataPropertyIri = \"" << _decorated.rdfname() << "\";" << std::endl;
+    ofs << std::endl;
 
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
 
-        std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
         if (_decorated.maxCardinality(onClass.decorated()) <= 1) {
             if (_decorated.minCardinality(onClass.decorated()) > 0) {

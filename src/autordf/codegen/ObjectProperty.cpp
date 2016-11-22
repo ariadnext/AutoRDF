@@ -11,6 +11,11 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
     auto propertyClass = effectiveClass(onClass);
 
     ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName(false) << " object property." << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << "static const autordf::Uri " << _decorated.prettyIRIName() << "ObjectPropertyIri;" << std::endl;
+    ofs << std::endl;
 
     if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
         if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
@@ -62,6 +67,9 @@ void ObjectProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onCl
 void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+
+    ofs << "const autordf::Uri " << currentClassName << "::" << _decorated.prettyIRIName() << "ObjectPropertyIri = \"" << _decorated.rdfname() << "\";" << std::endl;
+    ofs << std::endl;
 
     if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
         if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
