@@ -2,10 +2,15 @@
 #define AUTORDF_STORAGE_H
 
 #include <string>
+#include <memory>
 
 typedef struct librdf_storage_s librdf_storage;
 
 namespace autordf {
+
+namespace internal {
+class World;
+}
 
 /* Implements a storage engine for rdf database */
 class Storage {
@@ -34,6 +39,11 @@ public:
 
 private:
     librdf_storage* _storage;
+
+    /**
+     * A pointer to the librdf internal world structure
+     */
+    std::shared_ptr<internal::World> _world;
 };
 
 }
