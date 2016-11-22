@@ -28,3 +28,14 @@ target_link_libraries (
 add_custom_target(check
     COMMAND gtest-all
     DEPENDS gtest-all)
+
+add_executable(
+    perftest
+    perftest.cpp
+)
+
+target_link_libraries (
+    perftest
+    autordf
+    ${Boost_LIBRARIES}
+)
