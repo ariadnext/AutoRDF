@@ -402,6 +402,12 @@ public:
     std::set<Object> findSources() const;
 
     /**
+     * Find all objects current object is pointing out
+     * @return
+     */
+    std::set<Object> findTargets() const;
+
+    /**
      * Comparison operator used to store objects in maps for instance
      */
     bool operator<(const Object& obj) const {

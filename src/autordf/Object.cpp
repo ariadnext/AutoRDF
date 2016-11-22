@@ -585,4 +585,15 @@ std::set<Object> Object::findSources() const {
     return objList;
 }
 
+std::set<Object> Object::findTargets() const {
+    std::set<Object> objList;
+    Statement query;
+    query.subject = currentNode();
+    const StatementList& statements = factory()->find(query);
+    for (const Statement& stmt: statements) {
+        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+    }
+    return objList;
+}
+
 }
