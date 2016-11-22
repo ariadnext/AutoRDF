@@ -184,7 +184,7 @@ public:
         return _statements->end() == _iter;
     }
 
-    void *stream_get_method(int value) {
+    void *stream_get_method(int) {
         return _iter->get();
     }
 

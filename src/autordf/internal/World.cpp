@@ -37,7 +37,7 @@ World::~World() {
     }
 }
 
-int World::logCB(void* user_data, librdf_log_message* message) {
+int World::logCB(void*, librdf_log_message* message) {
     raptor_locator *locator = (raptor_locator*)(message->locator);
 
     /* Do not handle messages below warning*/

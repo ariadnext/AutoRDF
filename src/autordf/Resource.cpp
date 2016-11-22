@@ -217,7 +217,6 @@ Resource& Resource::removeProperties(const Uri &iri) {
     }
     StatementList foundTriples = _factory->find(request);
 
-    std::list<Property> resp;
     for (Statement& triple: foundTriples) {
         _factory->remove(&triple);
     }
