@@ -65,13 +65,23 @@ public:
 private:
     static iterator _END;
     static const_iterator _CEND;
-    // One of those three must be empty
+
+    enum class Mode {
+        ARCSIN,
+        ARCSOUT,
+        DEFAULT
+    };
+    Mode _mode;
+    // in default mode one of those three must be empty
+    // in arcs mode, both predicate and object are empty
     Node      _subject;
     Node      _predicate;
     Node      _object;
     const Model    *_m;
 
     std::shared_ptr<internal::Iterator> createNewIterator() const;
+
+    NodeList(const Node& s, Mode arcsMode, const Model *m);
 
     NodeList(const Node& s, const Node& p, const Node& o, const Model *m);
 

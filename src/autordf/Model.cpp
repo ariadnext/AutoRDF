@@ -292,6 +292,20 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
     return Node(librdf_model_get_target(_model->get(), source.get(), arc.get()), true);
 }
 
+/**
+ * Return the properties pointing to the given resource.
+ */
+NodeList Model::arcsIn(const Node& node) const {
+    return NodeList(node, NodeList::Mode::ARCSIN, this);
+}
+
+/**
+ * Return the properties pointing from the given resource.
+ */
+NodeList Model::arcsOut(const Node& node) const {
+    return NodeList(node, NodeList::Mode::ARCSOUT, this);
+}
+
 void Model::add(Statement *stmt) {
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toLibRdfStatement(stmt));
     if ( librdf_model_add_statement (_model->get(), librdfstmt.get()) ) {

@@ -106,18 +106,19 @@ const char* Node::lang() const {
 /**
  * Set node type to Resource, and set IRI as value
  */
-void Node::setIri(const std::string& iri) {
+Node& Node::setIri(const std::string& iri) {
     clear();
     _node = librdf_new_node_from_uri_string(internal::World().get(), reinterpret_cast<const unsigned char*>(iri.c_str()));
     if (!_node) {
         throw InternalError("Failed to construct node from URI");
     }
+    return *this;
 }
 
 /**
  * Set node type to Literal, and set literal as value
  */
-void Node::setLiteral(const std::string& literal, const std::string& lang, const std::string& dataTypeUri) {
+Node& Node::setLiteral(const std::string& literal, const std::string& lang, const std::string& dataTypeUri) {
     internal::World w;
     std::shared_ptr<librdf_uri> dataTypeUriPtr;
     if ( dataTypeUri.length() ) {
@@ -133,18 +134,20 @@ void Node::setLiteral(const std::string& literal, const std::string& lang, const
     if (!_node) {
         throw InternalError(std::string("Failed to construct node from literal: ") + literal);
     }
+    return *this;
 }
 
 /**
  * Set type type Blank Node, and set bnodeid as value
  */
-void Node::setBNodeId(const std::string& bnodeid) {
+Node& Node::setBNodeId(const std::string& bnodeid) {
     _node = librdf_new_node_from_blank_identifier(internal::World().get(),
                                                      reinterpret_cast<const unsigned char*>(bnodeid.c_str()));
     if (!_node) {
         throw InternalError(std::string("Failed to construct node from blank identifier: ") +
                                     bnodeid);
     }
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Node& n) {

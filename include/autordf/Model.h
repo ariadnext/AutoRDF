@@ -145,6 +145,16 @@ public:
     NodeList findTargets(const Node& source, const Node& arc) const;
 
     /**
+     * Return the properties pointing to the given resource.
+     */
+    NodeList arcsIn(const Node& node) const;
+
+    /**
+     * Return the properties pointing from the given resource.
+     */
+    NodeList arcsOut(const Node& node) const;
+
+    /**
      * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
      */
     Node findTarget(const Node& source, const Node& arc) const;

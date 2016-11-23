@@ -95,19 +95,19 @@ public:
     /**
      * Set node type to Resource, and set IRI as value
      */
-    void setIri(const std::string& iri);
+    Node& setIri(const std::string& iri);
 
     /**
      * Set node type to Literal, and set literal as value
      *
      * Empty lang or dataTypeUri strings are converted to
      */
-    void setLiteral(const std::string& literal, const std::string& lang = "", const std::string& dataTypeUri = "");
+    Node& setLiteral(const std::string& literal, const std::string& lang = "", const std::string& dataTypeUri = "");
 
     /**
      * Set type type Blank Node, and set bnodeid as value
      */
-    void setBNodeId(const std::string& bnodeid);
+    Node& setBNodeId(const std::string& bnodeid);
 
     /**
      * Assigment operator
