@@ -7,8 +7,7 @@
 using namespace autordf;
 
 int main(int, char **) {
-    Factory f(std::make_shared<Storage>("hashes", "db1",
-            "hash-type='bdb'"));
+    Factory f;
     Object::setFactory(&f);
 
     static unsigned int OBJECTS_COUNT = 3000;
