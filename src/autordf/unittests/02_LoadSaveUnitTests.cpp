@@ -11,7 +11,7 @@ using namespace autordf;
 
 TEST(_02_LoadSave, OneProperty) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_EQ("Jimmy Criket", r.getProperty("http://xmlns.com/foaf/0.1/name")->value());
@@ -23,7 +23,7 @@ TEST(_02_LoadSave, OneProperty) {
 
 TEST(_02_LoadSave, PropertyNotThere) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_THROW(r.getProperty("http://notthereuri"), PropertyNotFound);
@@ -37,7 +37,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
 
 TEST(_02_LoadSave, AllProperties) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_EQ(2, r.getPropertyValues()->size());
@@ -45,7 +45,7 @@ TEST(_02_LoadSave, AllProperties) {
 
 TEST(_02_LoadSave, loadPerson) {
     Factory f;
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://test");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://test");
     Statement req;
     req.object.setLiteral("Jimmy Wales");
     Resource person = f.createResourceFromNode(f.find(req).begin()->subject);

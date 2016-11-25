@@ -33,7 +33,7 @@ TEST(_03_Object, Display) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
@@ -58,7 +58,7 @@ TEST(_03_Object, Copy) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
@@ -74,11 +74,16 @@ TEST(_03_Object, Accessors) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
-    Object person = objs[2];
+    Object person;
+    for ( auto p : objs ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+            person = p;
+        }
+    }
 
     ASSERT_NO_THROW(person.getObject("http://xmlns.com/foaf/0.1/account"));
     ASSERT_EQ(nullptr, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
@@ -151,7 +156,7 @@ TEST(_03_Object, findByKeyProp) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/mbox", Object("mailto:jwales@bomis.com")));
 }
@@ -160,7 +165,7 @@ TEST(_03_Object, findByKeyObject) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo"));
 
@@ -171,7 +176,7 @@ TEST(_03_Object, findAllObjects) {
     Factory f;
     Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf", "http://xmlns.com/foaf/0.1/");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     std::set<Object> objs = Object::findAll();
     ASSERT_EQ(5, objs.size());

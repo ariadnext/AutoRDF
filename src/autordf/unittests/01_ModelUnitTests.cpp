@@ -8,6 +8,13 @@
 
 using namespace autordf;
 
+TEST(_01_Model, SupportedFormats) {
+    Model m;
+    for ( auto f: m.supportedFormat() ) {
+        std::cout << f << std::endl;
+    }
+}
+
 TEST(_01_Model, Iterators) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
@@ -19,7 +26,7 @@ TEST(_01_Model, Iterators) {
 
 TEST(_01_Model, SeenPrefixes) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
     for ( auto const& pair : ts.namespacesPrefixes() ) {
         std::cout << pair.first << ": " << pair.second << std::endl;
     }
@@ -30,11 +37,12 @@ TEST(_01_Model, SeenPrefixes) {
 
 TEST(_01_Model, SearchByPredicate) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
 
     Statement req;
     req.predicate.setIri("http://xmlns.com/foaf/0.1/name");
     const StatementList& stmtList = ts.find(req);
+    std::cout << stmtList << std::endl;
     ASSERT_EQ(3, stmtList.size());
 }
 
@@ -54,7 +62,7 @@ TEST(_01_Model, SearchSubject) {
 
 TEST(_01_Model, SearchBySubject) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
 
     Statement req;
     req.subject.setIri("http://jimmycricket.com/me");
@@ -81,14 +89,13 @@ TEST(_01_Model, SearchObject) {
 
 TEST(_01_Model, SearchByObject) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
 
     Statement req;
     req.object.setLiteral("Jimmy");
     const StatementList& stmtList = ts.find(req);
     ASSERT_EQ(1, stmtList.size());
 }
-
 
 TEST(_01_Model, AddSaveEraseStatement) {
     Model ts;
@@ -131,7 +138,7 @@ TEST(_01_Model, TypeLiterals) {
 
 TEST(DISABLED_01_Model, All) {
     Model ts;
-    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.rdf");
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
     const StatementList& stmtList = ts.find();
     for(const Statement& stmt: stmtList) {
         std::cout << stmt << std::endl;
