@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <sstream>
-#include <iostream>
 #include <set>
 
 #include <autordf/Resource.h>
@@ -111,7 +110,6 @@ std::shared_ptr<std::list<Property>> Resource::getPropertyValues(const Uri& iri)
     predicate.setIri(iri);
 
     NodeList foundTriples = _factory->findTargets(subject, predicate);
-
     auto resp = std::make_shared<std::list<Property>>();
     for (const Node& object: foundTriples) {
         std::shared_ptr<Property> p = _factory->createProperty(predicate.iri(), object.type());

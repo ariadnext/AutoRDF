@@ -1,13 +1,8 @@
 #ifndef AUTORDF_STREAM_H
 #define AUTORDF_STREAM_H
 
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
-
 #include <memory>
+#include <autordf/internal/cAPI.h>
 
 namespace autordf {
 class Statement;
@@ -16,7 +11,7 @@ namespace internal {
 
 class Stream {
 public:
-    Stream(librdf_stream* stream);
+    Stream(c_api_stream* stream);
 
     ~Stream();
 
@@ -24,15 +19,15 @@ public:
     std::shared_ptr<Statement> getObject();
 
     /** Returns false if stream finished */
-    bool next() { return _stream ? !librdf_stream_next(_stream) : false; }
+    bool next();
 
     /** Returns true if at end */
-    bool end() { return _stream ? librdf_stream_end(_stream) : true; }
+    bool end();
 
-    librdf_stream* get() const { return _stream; }
+    c_api_stream* get() const { return _stream; }
 
 private:
-    librdf_stream* _stream;
+    c_api_stream* _stream;
 };
 
 }

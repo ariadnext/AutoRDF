@@ -1,15 +1,11 @@
 #ifndef AUTORDF_STATEMENTCONVERTER_H
 #define AUTORDF_STATEMENTCONVERTER_H
 
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
-
 #include <memory>
 
-#include "autordf/Statement.h"
+#include <autordf/internal/cAPI.h>
+
+#include <autordf/Statement.h>
 
 namespace autordf {
 namespace internal {
@@ -19,9 +15,13 @@ public:
     /**
      * Once called ours is emptyed
      */
-    static std::shared_ptr<librdf_statement> toLibRdfStatement(Statement* ours);
+#if defined(USE_REDLAND)
+    static std::shared_ptr<c_api_statement> toCAPIStatement(Statement *ours);
+#elif defined(USE_SORD)
+    static void toCAPIStatement(const Statement *ours, SordQuad *cstmt);
+#endif
 
-    static std::shared_ptr<Statement> fromLibRdfStatement(librdf_statement* librdf);
+    static std::shared_ptr<Statement> fromCAPIStatement(c_api_statement* librdf);
 };
 
 }

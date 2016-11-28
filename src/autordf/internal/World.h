@@ -4,14 +4,11 @@
 #include <cstdio>
 #include <mutex>
 
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
+#include <autordf/internal/cAPI.h>
 
 namespace autordf {
 namespace internal {
+
 /**
  * This class holds a static singleton on librdf world object.
  * Singleton is created upon first time class instanciation, and
@@ -25,14 +22,19 @@ public:
 
     ~World();
 
-    librdf_world* get() const { return _world; }
+    c_api_world* get() const { return _world; }
 
 private:
     static std::mutex _mutex;
-    static librdf_world* _world;
+    static c_api_world* _world;
     static int _refcount;
 
+#if defined(USE_REDLAND)
     static int logCB(void* user_data, librdf_log_message* message);
+#endif
+#if defined(USE_SORD)
+    static SerdStatus sordErrorCB(void* handle, const SerdError* error);
+#endif
 };
 
 }

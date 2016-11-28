@@ -8,7 +8,9 @@
 
 #include <autordf/StatementList.h>
 #include <autordf/NodeList.h>
+#ifdef USE_REDLAND
 #include <autordf/Storage.h>
+#endif
 
 #include <cstdlib>
 
@@ -35,10 +37,12 @@ public:
      */
     Model();
 
+#ifdef USE_REDLAND
     /**
      * Builds a new Model instance, using specified storage
      */
     Model(std::shared_ptr<Storage>);
+#endif
 
     /**
      * Disallow copy construction
@@ -188,7 +192,12 @@ public:
     /**
      * Return the base Uri
      */
-    std::string baseUri() const { return _baseUri; };
+    const std::string& baseUri() const { return _baseUri; }
+
+    /**
+     * Return the base Uri
+     */
+    void setBaseUri(const std::string& baseUri) { _baseUri = baseUri; }
 
     /**
      * Returns the list of namespaces known in this model in a prefix --> IRI map
@@ -212,6 +221,8 @@ protected:
      */
     std::shared_ptr<internal::World> _world;
 
+    std::string genBlankNodeId();
+
 private:
     std::shared_ptr<internal::ModelPrivate> _model;
     // What is it exactly ?
@@ -221,9 +232,6 @@ private:
 
     friend class StatementList;
     friend class NodeList;
-
-    void retrieveSeenNamespaces(std::shared_ptr<internal::Parser> parser, const std::string& baseIRI);
-    std::shared_ptr<librdf_serializer> prepareSerializer(const char *format) const;
 };
 
 }

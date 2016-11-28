@@ -1,14 +1,10 @@
 #ifndef AUTORDF_PARSER_H
 #define AUTORDF_PARSER_H
 
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
-
 #include <string>
 #include <memory>
+
+#include <autordf/internal/cAPI.h>
 
 namespace autordf {
 namespace internal {

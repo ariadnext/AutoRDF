@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <memory>
+#include <vector>
 #include <iosfwd>
 
 #include <autordf/Statement.h>
@@ -15,6 +16,8 @@ class Statement;
 namespace internal {
 class Stream;
 }
+
+#if defined(USE_REDLAND)
 
 //! @cond Doxygen_Suppress
 class StatementIteratorBase {
@@ -49,6 +52,7 @@ typedef StatementListIterator_<const Statement> StatementListConstIterator;
 /**
  * Only supposed to be constructed by model class
  */
+
 class StatementList {
 public:
     typedef StatementListIterator iterator;
@@ -65,12 +69,18 @@ public:
 private:
     static iterator _END;
     static const_iterator _CEND;
+#elif defined(USE_SORD)
+
+class StatementList : public std::vector<Statement> {
+#endif
+
+private:
     Statement _query;
     const Model    *_m;
 
     std::shared_ptr<internal::Stream> createNewStream() const;
 
-    StatementList(const Statement& query, const Model *m) : _query(query), _m(m) {}
+    StatementList(const Statement& query, const Model *m);
 
     friend class Model;
 };

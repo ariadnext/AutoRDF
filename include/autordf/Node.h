@@ -4,13 +4,8 @@
 #include <string>
 #include <iosfwd>
 
+#include <autordf/cAPI.h>
 #include <autordf/NodeType.h>
-
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
 
 namespace autordf {
 
@@ -32,8 +27,9 @@ public:
 
     /**
      * Builds a node from librdf
+     * @param own if true, we will free c_api_node when this object is destroyed
      */
-    Node(librdf_node *node, bool own = true) : _node(node), _own(own) {}
+    Node(c_api_node *node, bool own = true) : _node(node), _own(own) {}
 
     /**
      * Copy constructor
@@ -129,17 +125,17 @@ public:
     /**
      * Internal
      */
-    librdf_node* get() const { return _node; }
+    c_api_node* get() const { return _node; }
 
     /**
      * Internal
      * Extracts the node pointer.
      * It it the caller reponsibbility to free it
      */
-    librdf_node* pull();
+    c_api_node* pull();
 
 private:
-    librdf_node *_node;
+    c_api_node *_node;
     // Do we need to free inside node before to destroy ourselves ?
     bool _own;
 

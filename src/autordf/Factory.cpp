@@ -1,10 +1,5 @@
+#include "autordf/internal/cAPI.h"
 #include "autordf/Factory.h"
-
-#ifdef LIBRDF_IN_SUBDIRS
-#include <librdf/librdf.h>
-#else
-#include <librdf.h>
-#endif
 
 #include "autordf/internal/World.h"
 #include "autordf/Exception.h"
@@ -14,15 +9,8 @@ namespace autordf {
 Resource Factory::createBlankNodeResource(const std::string &bnodeid) {
     std::string id = bnodeid;
     if ( id.empty() ) {
-        std::shared_ptr<librdf_node> lrdfnode(
-                librdf_new_node_from_blank_identifier(_world->get(), nullptr),
-                librdf_free_node);
-        if ( !lrdfnode ) {
-            throw InternalError("Unable to allocate blank node identifier");
-        }
-        id = reinterpret_cast<const char *>(librdf_node_get_blank_identifier(lrdfnode.get()));
+        id = genBlankNodeId();
     }
-
     Resource r(NodeType::BLANK, id, this);
     return r;
 }

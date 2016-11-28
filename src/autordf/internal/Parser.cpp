@@ -1,3 +1,4 @@
+#ifdef USE_REDLAND
 #include "autordf/internal/Parser.h"
 
 #include "autordf/internal/World.h"
@@ -21,3 +22,4 @@ Parser::~Parser() {
 
 }
 }
+#endif

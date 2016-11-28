@@ -1,13 +1,10 @@
+#include "autordf/internal/cAPI.h"
 #include "autordf/internal/World.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#ifdef LIBRDF_IN_SUBDIRS
-#include <raptor2/raptor.h>
-#else
-#include <raptor.h>
-#endif
+#include <serd/serd.h>
 
 #include "autordf/Exception.h"
 
@@ -15,9 +12,10 @@ namespace autordf {
 namespace internal {
 
 std::mutex World::_mutex;
-librdf_world* World::_world;
+c_api_world* World::_world;
 int World::_refcount;
 
+#if defined(USE_REDLAND)
 World::World() {
     std::lock_guard<std::mutex> locker(_mutex);
     if (!_world) {
@@ -62,12 +60,37 @@ int World::logCB(void*, librdf_log_message* message) {
     std::cerr << message->message << std::endl;
 
     if (message->level >= LIBRDF_LOG_FATAL) {
-        exit(1);
+        ::exit(1);
     }
 
     /* Handled */
     return 1;
 }
+#elif defined(USE_SORD)
+World::World() {
+    std::lock_guard<std::mutex> locker(_mutex);
+    if (!_world) {
+        _world = sord_world_new();
+        sord_world_set_error_sink(_world, sordErrorCB, nullptr);
+    }
+    ++_refcount;
+}
+
+World::~World() {
+    std::lock_guard<std::mutex> locker(_mutex);
+    if (--_refcount == 0) {
+        sord_world_free(_world);
+        _world = 0;
+    }
+}
+
+SerdStatus World::sordErrorCB(void*, const SerdError* error) {
+    fprintf(stderr, "Serd ERROR - ");
+    vfprintf(stderr, error->fmt, *const_cast<va_list *>(error->args));
+    fprintf(stderr, "\n");
+    ::exit(1);
+}
+#endif
 
 }
 }

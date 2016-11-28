@@ -1,6 +1,6 @@
+#ifdef USE_REDLAND
+#include <autordf/internal/cAPI.h>
 #include <autordf/Storage.h>
-
-#include <librdf.h>
 
 #include "autordf/internal/World.h"
 #include "autordf/Exception.h"
@@ -27,5 +27,6 @@ Storage::~Storage() {
     librdf_free_storage(_storage);
     _storage = 0;
 }
-
 }
+#endif
+

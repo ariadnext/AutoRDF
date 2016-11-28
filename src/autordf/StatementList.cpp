@@ -1,3 +1,4 @@
+#include "autordf/internal/cAPI.h"
 #include "autordf/StatementList.h"
 
 #include <stdexcept>
@@ -13,8 +14,10 @@ namespace autordf {
 
 using namespace internal;
 
+#if defined(USE_REDLAND)
+
 StatementIteratorBase::StatementIteratorBase(std::shared_ptr<Stream> stream) : _stream(stream)  {
-    if ( _stream )  {
+    if ( _stream && !_stream->end() ) {
         _current = _stream->getObject();
     }
 }
@@ -38,6 +41,8 @@ bool StatementIteratorBase::operatorEqualsHelper(const std::shared_ptr<Stream>& 
     }
 }
 
+StatementList::StatementList(const Statement& query, const Model *m) : _query(query), _m(m) {}
+
 StatementList::iterator StatementList::_END(0);
 StatementList::const_iterator StatementList::_CEND(0);
 
@@ -51,13 +56,32 @@ StatementList::const_iterator StatementList::begin() const {
 
 std::shared_ptr<Stream> StatementList::createNewStream() const {
     Statement query(_query);
-    std::shared_ptr<librdf_statement> search(StatementConverter::toLibRdfStatement(&query));
-    std::shared_ptr<Stream> stream(new Stream(librdf_model_find_statements(_m->_model->get(), search.get())));
-    if ( !stream ) {
+    std::shared_ptr<librdf_statement> search(StatementConverter::toCAPIStatement(&query));
+    c_api_stream *cstream = librdf_model_find_statements(_m->_model->get(), search.get());
+    std::shared_ptr<Stream> stream(new Stream(cstream));
+    if ( !cstream ) {
         throw InternalError("Redland librdf_model_find_statements failed");
     }
     return stream;
 }
+#elif defined(USE_SORD)
+
+StatementList::StatementList(const Statement& query, const Model *m) : _query(query), _m(m) {
+    auto stream = createNewStream();
+    if (!stream->end()) {
+        do {
+            emplace_back(*stream->getObject());
+        } while (stream->next());
+    }
+}
+
+std::shared_ptr<Stream> StatementList::createNewStream() const {
+    SordQuad quad;
+    StatementConverter::toCAPIStatement(&_query, &quad);
+    std::shared_ptr<Stream> stream(new Stream(sord_find(_m->_model->get(), quad)));
+    return stream;
+}
+#endif
 
 std::ostream& operator<<(std::ostream& os, const StatementList& s) {
     for ( auto const& stmt : s) {

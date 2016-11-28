@@ -73,7 +73,7 @@ TEST(_02_LoadSave, saveResource) {
     placeName->setValue("Place des pizzas");
     place.addProperty(*placeName);
 
-    Resource test = f.createIRIResource("shortName");
+    Resource test = f.createIRIResource("http://shortName");
     test.addProperty(*placeName);
 
     f.saveToFile("/tmp/test_saveResource.ttl", "http://my/own/");
@@ -99,6 +99,7 @@ TEST(_02_LoadSave, deleteProperties) {
     ASSERT_EQ(5, f.find().size());
 
     drawing.removeProperties("http://my/own/color");
+    f.saveToFile("/tmp/test_deleteProperties2.ttl", "http://my/own/");
     ASSERT_EQ(3, f.find().size());
 
     drawing.removeProperties("");

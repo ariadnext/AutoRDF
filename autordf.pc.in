@@ -1,6 +1,6 @@
 Name: autordf
 Description: A framework for automatic C++ proxy code generation from RDF Ontology
 Version: 1.0
-Requires.private: redland >= 1.0.15, raptor2 >= 2.0.8
+Requires.private: ${PKGCONFIG_REQUIRES_PRIVATE}
 Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lautordf
-Cflags: -I${CMAKE_INSTALL_PREFIX}/include
+Cflags: ${PKGCONFIG_EXTRA_CFLAGS} -I${CMAKE_INSTALL_PREFIX}/include

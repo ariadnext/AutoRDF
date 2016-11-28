@@ -70,7 +70,7 @@ TEST(_01_Model, SearchBySubject) {
     ASSERT_EQ(2, stmtList.size());
 }
 
-TEST(_01_Model, SearchObject) {
+TEST(_01_Model, findTargets) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
 
@@ -85,6 +85,17 @@ TEST(_01_Model, SearchObject) {
 
     predicate.setIri("http://pwet");
     ASSERT_EQ(0, ts.findTargets(source, predicate).size());
+}
+
+TEST(_01_Model, findTarget) {
+    Model ts;
+    ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
+    Node subject;
+    subject.setIri("http://jimmycricket.com/me");
+    Node predicate;
+    predicate.setIri("http://xmlns.com/foaf/0.1/name");
+    Node object = ts.findTarget(subject, predicate);
+    ASSERT_STREQ("Jimmy Criket", object.literal());
 }
 
 TEST(_01_Model, SearchByObject) {
@@ -109,7 +120,7 @@ TEST(_01_Model, AddSaveEraseStatement) {
     ts.saveToFile("/tmp/test1.ttl");
 
     Model read1;
-    read1.loadFromFile("/tmp/test1.ttl", "http://test");
+    read1.loadFromFile("/tmp/test1.ttl", "http://mydomain/me");
     const StatementList& stmtList = read1.find();
     ASSERT_EQ(1, stmtList.size());
 
@@ -196,6 +207,8 @@ TEST(_01_Model, LoadSave) {
 
     Model n;
     n.loadFromFile("/tmp/autordf_unittest.ttl", "http://mydomain/me");
+
+    ASSERT_EQ(2, n.find().size());
 
     Statement st2;
     st2.subject.setIri("http://mydomain/me");

@@ -1,3 +1,4 @@
+#include <autordf/internal/cAPI.h>
 #include <autordf/Node.h>
 
 #include <stdexcept>
@@ -17,7 +18,11 @@ void Node::assertType(const char* prop, NodeType t) const {
 
 Node::Node(const Node& n) : _own(true) {
     if ( n._node ) {
+#if defined(USE_REDLAND)
         _node = librdf_new_node_from_node(n._node);
+#elif defined(USE_SORD)
+        _node = sord_node_copy(n._node);
+#endif
     } else {
         _node = nullptr;
     }
@@ -26,7 +31,11 @@ Node::Node(const Node& n) : _own(true) {
 Node& Node::operator=(const Node& n) {
     clear();
     if ( n._node ) {
+#if defined(USE_REDLAND)
         _node = librdf_new_node_from_node(n._node);
+#elif defined(USE_SORD)
+        _node = sord_node_copy(n._node);
+#endif
     }
     return *this;
 }
@@ -43,15 +52,19 @@ Node::~Node() {
 void Node::clear() {
     if ( _node ) {
         if ( _own ) {
+#if defined(USE_REDLAND)
             librdf_free_node(_node);
+#elif defined(USE_SORD)
+            sord_node_free(internal::World().get(), _node);
+#endif
         }
         _node = nullptr;
     }
     _own = true;
 }
 
-librdf_node* Node::pull() {
-    librdf_node *n = _node;
+c_api_node* Node::pull() {
+    c_api_node *n = _node;
     _own = false;
     clear();
     return n;
@@ -61,6 +74,7 @@ NodeType Node::type() const {
     if ( !_node ) {
         return NodeType::EMPTY;
     } else {
+#if defined(USE_REDLAND)
         switch(librdf_node_get_type(_node)) {
             case LIBRDF_NODE_TYPE_RESOURCE:
                 return NodeType::RESOURCE;
@@ -71,36 +85,69 @@ NodeType Node::type() const {
             default:
                 return NodeType::EMPTY;
         }
+#elif defined(USE_SORD)
+        switch(sord_node_get_type(_node)) {
+            case SordNodeType::SORD_URI:
+                return NodeType::RESOURCE;
+            case SordNodeType::SORD_LITERAL:
+                return NodeType::LITERAL;
+            case SordNodeType::SORD_BLANK:
+                return NodeType::BLANK;
+            default:
+                return NodeType::EMPTY;
+        }
+#endif
     }
 }
 
 // Only valid if node type is resource;
 const char* Node::iri() const {
     assertType("iri", NodeType::RESOURCE);
+#if defined(USE_REDLAND)
     return reinterpret_cast<const char*>(librdf_uri_as_string(librdf_node_get_uri(_node)));
+#elif defined(USE_SORD)
+    return reinterpret_cast<const char*>(sord_node_get_string(_node));
+#endif
 }
 
 // Only valid if node type is literal
 const char* Node::literal() const {
     assertType("literal", NodeType::LITERAL);
+#if defined(USE_REDLAND)
     return reinterpret_cast<const char*>(librdf_node_get_literal_value(_node));
+#elif defined(USE_SORD)
+    return reinterpret_cast<const char*>(sord_node_get_string(_node));
+#endif
 }
 
 // Blank node id
 const char* Node::bNodeId() const {
     assertType("bNodeId", NodeType::BLANK);
+#if defined(USE_REDLAND)
     return reinterpret_cast<const char*>(librdf_node_get_blank_identifier(_node));
+#elif defined(USE_SORD)
+    return reinterpret_cast<const char*>(sord_node_get_string(_node));
+#endif
 }
 
 const char* Node::dataType() const {
     assertType("literal", NodeType::LITERAL);
+#if defined(USE_REDLAND)
     librdf_uri *dataTypeUri = librdf_node_get_literal_value_datatype_uri(_node);
     return reinterpret_cast<const char*>(dataTypeUri ? librdf_uri_as_string(dataTypeUri) : nullptr);
+#elif defined(USE_SORD)
+    SordNode *dataTypeUri = sord_node_get_datatype(_node);
+    return reinterpret_cast<const char*>(dataTypeUri ? sord_node_get_string(dataTypeUri) : nullptr);
+#endif
 }
 
 const char* Node::lang() const {
     assertType("literal", NodeType::LITERAL);
+#if defined(USE_REDLAND)
     return reinterpret_cast<const char*>(librdf_node_get_literal_value_language(_node));
+#elif defined(USE_SORD)
+    return sord_node_get_language(_node);
+#endif
 }
 
 /**
@@ -108,7 +155,11 @@ const char* Node::lang() const {
  */
 Node& Node::setIri(const std::string& iri) {
     clear();
+#if defined(USE_REDLAND)
     _node = librdf_new_node_from_uri_string(internal::World().get(), reinterpret_cast<const unsigned char*>(iri.c_str()));
+#elif defined(USE_SORD)
+    _node = sord_new_uri(internal::World().get(), reinterpret_cast<const unsigned char*>(iri.c_str()));
+#endif
     if (!_node) {
         throw InternalError("Failed to construct node from URI");
     }
@@ -120,6 +171,7 @@ Node& Node::setIri(const std::string& iri) {
  */
 Node& Node::setLiteral(const std::string& literal, const std::string& lang, const std::string& dataTypeUri) {
     internal::World w;
+#if defined(USE_REDLAND)
     std::shared_ptr<librdf_uri> dataTypeUriPtr;
     if ( dataTypeUri.length() ) {
         dataTypeUriPtr = std::shared_ptr<librdf_uri>(librdf_new_uri(w.get(), reinterpret_cast<const unsigned char*>(dataTypeUri.c_str())),
@@ -131,6 +183,13 @@ Node& Node::setLiteral(const std::string& literal, const std::string& lang, cons
     _node = librdf_new_node_from_typed_literal(w.get(),
                                                   reinterpret_cast<const unsigned char*>(literal.c_str()), (lang.length() ? lang.c_str() : nullptr),
                                                dataTypeUriPtr.get());
+#elif defined(USE_SORD)
+    SordNode *dataType = nullptr;
+    if ( dataTypeUri.length() ) {
+        dataType = sord_new_uri(w.get(), reinterpret_cast<const unsigned char*>(dataTypeUri.c_str()));
+    }
+    _node = sord_new_literal(w.get(), dataType, reinterpret_cast<const unsigned char*>(literal.c_str()), (lang.length() ? lang.c_str() : nullptr));
+#endif
     if (!_node) {
         throw InternalError(std::string("Failed to construct node from literal: ") + literal);
     }
@@ -138,11 +197,16 @@ Node& Node::setLiteral(const std::string& literal, const std::string& lang, cons
 }
 
 /**
- * Set type type Blank Node, and set bnodeid as value
+ * Set type Blank Node, and set bnodeid as value
  */
 Node& Node::setBNodeId(const std::string& bnodeid) {
+#if defined(USE_REDLAND)
     _node = librdf_new_node_from_blank_identifier(internal::World().get(),
                                                      reinterpret_cast<const unsigned char*>(bnodeid.c_str()));
+#elif defined(USE_SORD)
+    _node = sord_new_blank(internal::World().get(),
+                           reinterpret_cast<const unsigned char*>(bnodeid.c_str()));
+#endif
     if (!_node) {
         throw InternalError(std::string("Failed to construct node from blank identifier: ") +
                                     bnodeid);

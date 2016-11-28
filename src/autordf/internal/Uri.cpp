@@ -1,3 +1,4 @@
+#ifdef USE_REDLAND
 #include "autordf/internal/Uri.h"
 
 #include "autordf/internal/World.h"
@@ -20,3 +21,4 @@ Uri::~Uri() {
 
 }
 }
+#endif

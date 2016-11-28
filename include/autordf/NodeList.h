@@ -4,6 +4,7 @@
 #include <iterator>
 #include <memory>
 #include <iosfwd>
+#include <vector>
 
 #include <autordf/Node.h>
 
@@ -15,6 +16,8 @@ class Node;
 namespace internal {
 class Iterator;
 }
+
+#if defined(USE_REDLAND)
 
 //! @cond Doxygen_Suppress
 class NodeIteratorBase {
@@ -66,6 +69,10 @@ private:
     static iterator _END;
     static const_iterator _CEND;
 
+#elif defined(USE_SORD)
+class NodeList : public std::vector<Node> {
+private:
+#endif
     enum class Mode {
         ARCSIN,
         ARCSOUT,
@@ -85,9 +92,10 @@ private:
 
     NodeList(const Node& s, const Node& p, const Node& o, const Model *m);
 
+    void consistencyCheck();
+
     friend class Model;
 };
-//! @endcond
 
 std::ostream& operator<<(std::ostream& os, const NodeList& s);
 
