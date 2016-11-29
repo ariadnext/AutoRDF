@@ -1,0 +1,691 @@
+@prefix : <http://www.ariadnext.com/db> .
+@prefix mrd: <http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0> .
+
+<http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0> rdf:type owl:Ontology .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.ariadnext.com/dbfirstIssuingDate
+:firstIssuingDate rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbid
+:id rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbissuingCountry
+:issuingCountry rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dblastIssuingDate
+:lastIssuingDate rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbmrzChecker
+:mrzChecker rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbmrzInstance
+:mrzInstance rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbmrzParser
+:mrzParser rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbremark
+:remark rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbspecimen
+:specimen rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbspecimenLines
+:specimenLines rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/dbtrigram
+:trigram rdf:type owl:AnnotationProperty .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#remark
+mrd:remark rdf:type owl:AnnotationProperty ;
+           rdfs:comment """Stoque les remarques liées à un modèle de document.
+Par exemple: (UV KO, 48 pages au lieu de 32)"""@fr ;
+           rdfs:range xsd:string ;
+           rdfs:domain mrd:DocumentModel .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MachineReadableZone
+mrd:MachineReadableZone rdf:type owl:ObjectProperty .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#checkDigits
+mrd:checkDigits rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf mrd:MachineReadableZone ;
+                rdfs:domain mrd:MRZChecker ;
+                rdfs:range mrd:MRZCheckDigit ;
+                rdfs:label "Liste des sommes de contrôles supporté par un checker"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#dbpediaResource
+mrd:dbpediaResource rdf:type owl:ObjectProperty .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#document
+mrd:document rdf:type owl:ObjectProperty .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#fieldDataType
+mrd:fieldDataType rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf mrd:MachineReadableZone ;
+                  rdf:type owl:FunctionalProperty ;
+                  rdfs:domain mrd:MRZField ;
+                  rdfs:range mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#format
+mrd:format rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf mrd:document ;
+           rdf:type owl:FunctionalProperty ;
+           rdfs:domain mrd:DocumentModel ;
+           rdfs:range mrd:DocumentFormat ;
+           rdfs:label "Le format ISO du document, parmis ID0, ID1, ID2"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#issuingCountry
+mrd:issuingCountry rdf:type owl:ObjectProperty ,
+                            owl:FunctionalProperty ;
+                   rdfs:domain mrd:DocumentModel ;
+                   rdfs:range mrd:Country ;
+                   rdfs:label "Pays d'émisstion du document"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzChecker
+mrd:mrzChecker rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf mrd:MachineReadableZone ;
+               rdf:type owl:FunctionalProperty ;
+               rdfs:domain mrd:MRZInstance ;
+               rdfs:range mrd:MRZChecker ;
+               rdfs:label "Le vérificateur de checksum optionnel associé à cette instance de MRZ."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFields
+mrd:mrzFields rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf mrd:MachineReadableZone ;
+              rdfs:domain mrd:MRZParser ;
+              rdfs:range mrd:MRZField .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzFormat
+mrd:mrzFormat rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf mrd:MachineReadableZone ;
+              rdf:type owl:FunctionalProperty ;
+              rdfs:domain mrd:MRZInstance ;
+              rdfs:range mrd:MRZFormat ;
+              rdfs:label "Enumeration des différents combinaisons (Nombre de lignes x Nombre de caractères par lignes) connus"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzInstance
+mrd:mrzInstance rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf mrd:MachineReadableZone ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain mrd:DocumentModel ;
+                rdfs:range mrd:MRZInstance ;
+                rdfs:comment "Une instance identique peut être partagée entre plusieurs modèles de documents. C'est fréquemment le cas quand des évolutions graphiques apparaissent dans un nouveau modèle mais que le format de la MRZ reste inchangé par rapport au modèle précédent"@fr ;
+                rdfs:label "Toutes les informations utiles sur la structure de la MRZ du document (découpe, règles de vérification, etc...)"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#mrzParser
+mrd:mrzParser rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf mrd:MachineReadableZone ;
+              rdf:type owl:FunctionalProperty ;
+              rdfs:domain mrd:MRZInstance ;
+              rdfs:range mrd:MRZParser ;
+              rdfs:label "Le parseur de MRZ affecté à cette instance"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#range
+mrd:range rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf mrd:MachineReadableZone ;
+          rdfs:domain mrd:MRZCheckDigit ,
+                      mrd:MRZField ;
+          rdfs:range mrd:MRZRange ;
+          rdfs:label "Etendues sur la MRZ spécifiées par une début et une longueur"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#specimen
+mrd:specimen rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf mrd:document ;
+             rdfs:domain mrd:DocumentModel ;
+             rdfs:range mrd:Specimen ;
+             rdfs:label "La liste des spécimens connus pour ce document"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#subtype
+mrd:subtype rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf mrd:document ;
+            rdf:type owl:FunctionalProperty ;
+            rdfs:domain mrd:DocumentModel ;
+            rdfs:range mrd:DocumentSubType ;
+            rdfs:label "Sous type de document (Passeport Diplomatique, Passeport temporaire, ...)"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#type
+mrd:type rdf:type owl:ObjectProperty ;
+         rdfs:subPropertyOf mrd:document ;
+         rdf:type owl:FunctionalProperty ;
+         rdfs:domain mrd:DocumentModel ;
+         rdfs:range mrd:DocumentType ;
+         rdfs:label "Type principal du document (ID, Passeport, Visa, ...)"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#zone
+mrd:zone rdf:type owl:ObjectProperty ,
+                  owl:FunctionalProperty ;
+         rdfs:domain mrd:DocumentModel ;
+         rdfs:range mrd:Zone .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#firstIssuingDate
+mrd:firstIssuingDate rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     rdfs:domain mrd:DocumentModel ;
+                     rdfs:range xsd:dateTime ;
+                     rdfs:label "Date à laquelle les premiers exemplaires d'un modèle de documents ont été émis"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#id
+mrd:id rdf:type owl:DatatypeProperty ,
+                owl:FunctionalProperty ;
+       rdfs:domain mrd:DocumentModel ;
+       rdfs:range xsd:string ;
+       rdfs:label "Numéro d'identifiant interne AriadNEXT du modèle de document"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#lastIssuingDate
+mrd:lastIssuingDate rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                    rdfs:domain mrd:DocumentModel ;
+                    rdfs:range xsd:dateTime ;
+                    rdfs:label "Date à laquelle les derniers exemplaires d'un modèle de documents on été émis"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#length
+mrd:length rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           rdfs:domain mrd:MRZRange ;
+           rdfs:range xsd:unsignedShort ;
+           rdfs:label "Une longueur, en nombre de caractères."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#position
+mrd:position rdf:type owl:DatatypeProperty ,
+                      owl:FunctionalProperty ;
+             rdfs:range xsd:unsignedShort ;
+             rdfs:comment "Le premier caractère est positionné à 0. Sur une MRZ de N lignes et M colonnes, le premier caractère de la Nième ligne se trouve à la position N*M"@fr ;
+             rdfs:label "Une position dans la MRZ."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#regexp
+mrd:regexp rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           rdfs:domain mrd:MRZField ;
+           rdfs:range xsd:string ;
+           rdfs:label "Une expression régulière"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#specimenLines
+mrd:specimenLines rdf:type owl:DatatypeProperty ,
+                           owl:FunctionalProperty ;
+                  rdfs:domain mrd:ExactSpecimen ;
+                  rdfs:range xsd:string ;
+                  rdfs:label "Les n lignes du document spécimen, séparées par le caractère retour chariot"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#trigram
+mrd:trigram rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+            rdfs:domain mrd:Country ;
+            rdfs:range xsd:string ;
+            rdfs:label "Les trois lettres conformes à la norme ISOXXX qui définissent de manière unique un code pour ce pays"@fr .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Country
+mrd:Country rdf:type owl:Class ;
+            rdfs:subClassOf [ rdf:type owl:Restriction ;
+                              owl:onProperty mrd:dbpediaResource ;
+                              owl:someValuesFrom owl:Thing
+                            ] ,
+                            [ rdf:type owl:Restriction ;
+                              owl:onProperty mrd:trigram ;
+                              owl:someValuesFrom rdfs:Literal
+                            ] ;
+            owl:hasKey ( mrd:dbpediaResource
+                       ) ,
+                       ( mrd:trigram
+                       ) .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentFormat
+mrd:DocumentFormat rdf:type owl:Class ;
+                   owl:equivalentClass [ rdf:type owl:Class ;
+                                         owl:oneOf ( mrd:ID0
+                                                     mrd:ID1
+                                                     mrd:ID2
+                                                   )
+                                       ] .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentModel
+mrd:DocumentModel rdf:type owl:Class ;
+                  rdfs:subClassOf [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:issuingCountry ;
+                                    owl:cardinality "1"^^xsd:nonNegativeInteger
+                                  ] ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:type ;
+                                    owl:cardinality "1"^^xsd:nonNegativeInteger
+                                  ] ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:zone ;
+                                    owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                    owl:onClass mrd:FloatingZone
+                                  ] ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:id ;
+                                    owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                  ] ;
+                  rdfs:comment "Un modèle de document. Contient de nombreuses propriétés."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentSubType
+mrd:DocumentSubType rdf:type owl:Class ;
+                    owl:equivalentClass [ rdf:type owl:Class ;
+                                          owl:oneOf ( mrd:DiplomaticPassport
+                                                      mrd:TemporaryPassport
+                                                    )
+                                        ] .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DocumentType
+mrd:DocumentType rdf:type owl:Class ;
+                 owl:equivalentClass [ rdf:type owl:Class ;
+                                       owl:oneOf ( mrd:DrivingLicense
+                                                   mrd:IdentityCard
+                                                   mrd:Passport
+                                                   mrd:ResidencePermit
+                                                   mrd:Unknown
+                                                   mrd:VehicleRegistration
+                                                   mrd:Visa
+                                                 )
+                                     ] ;
+                 rdfs:comment "Type principal de document"^^xsd:string .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ExactSpecimen
+mrd:ExactSpecimen rdf:type owl:Class ;
+                  rdfs:subClassOf mrd:Specimen ;
+                  rdfs:comment "Un spécimen spécifié par une la totalité des lignes de MRZ du spécimen"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FloatingZone
+mrd:FloatingZone rdf:type owl:Class ;
+                 rdfs:subClassOf mrd:Zone .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZCheckDigit
+mrd:MRZCheckDigit rdf:type owl:Class ;
+                  rdfs:subClassOf mrd:MachineReadableZone ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:range ;
+                                    owl:minCardinality "1"^^xsd:nonNegativeInteger
+                                  ] ,
+                                  [ rdf:type owl:Restriction ;
+                                    owl:onProperty mrd:position ;
+                                    owl:cardinality "1"^^xsd:nonNegativeInteger
+                                  ] ;
+                  rdfs:comment "Représente un caractère de contrôle et la manière dont il est calculé. Cette classe correspond à l'algorithme de calcul standard."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZChecker
+mrd:MRZChecker rdf:type owl:Class ;
+               rdfs:subClassOf mrd:MachineReadableZone ;
+               rdfs:comment """Représente un vérifieur de MRZ, conforme ou non conforme à la norme ICAO 9303.
+Un vérifieur est chargé de recalculer les checksums sur les MRZ"""@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZField
+mrd:MRZField rdf:type owl:Class ;
+             rdfs:subClassOf mrd:MachineReadableZone ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty mrd:fieldDataType ;
+                               owl:cardinality "1"^^xsd:nonNegativeInteger
+                             ] ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty mrd:range ;
+                               owl:cardinality "1"^^xsd:nonNegativeInteger
+                             ] ;
+             rdfs:comment """Un champ sur une MRZ.
+Un champ a un type(pour guider le parsing), un début, une fin, optionellement une regexp"""@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFieldDataType
+mrd:MRZFieldDataType rdf:type owl:Class ;
+                     owl:equivalentClass [ rdf:type owl:Class ;
+                                           owl:oneOf ( mrd:Address
+                                                       mrd:BirthDate
+                                                       mrd:Country
+                                                       mrd:EmitCountry
+                                                       mrd:EmitDate
+                                                       mrd:ExpirationDate
+                                                       mrd:FirstNames
+                                                       mrd:FirstNamesAndLastNames
+                                                       mrd:Gender
+                                                       mrd:LastNames
+                                                       mrd:Number
+                                                       mrd:PersonalNumber
+                                                     )
+                                         ] ;
+                     rdfs:subClassOf mrd:MachineReadableZone ;
+                     rdfs:comment "Type de données stockées dans un champ. Utilisé par le paresuer pour choisir le bon post-processing"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZFormat
+mrd:MRZFormat rdf:type owl:Class ;
+              owl:equivalentClass [ rdf:type owl:Class ;
+                                    owl:oneOf ( mrd:2x34
+                                                mrd:2x36
+                                                mrd:2x44
+                                                mrd:3x30
+                                              )
+                                  ] ;
+              rdfs:subClassOf mrd:MachineReadableZone .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZInstance
+mrd:MRZInstance rdf:type owl:Class ;
+                rdfs:subClassOf mrd:MachineReadableZone ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty mrd:mrzFormat ;
+                                  owl:cardinality "1"^^xsd:nonNegativeInteger
+                                ] ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty mrd:mrzParser ;
+                                  owl:cardinality "1"^^xsd:nonNegativeInteger
+                                ] ;
+                rdfs:comment "Une instance de MRZ est l'association d'un parseur de MRZ avec un vérifeur de MRZ"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZParser
+mrd:MRZParser rdf:type owl:Class ;
+              rdfs:subClassOf mrd:MachineReadableZone ;
+              rdfs:comment """Représente un parseur de MRZ, conforme ou non conforme à la norme ICAO 9303.
+Un parseur est chargé de l\"extraction, de la découpe de l'information trouvée sur la MRZ
+Un parseur est constitué d'une liste de champs (MRZField)"""@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MRZRange
+mrd:MRZRange rdf:type owl:Class ;
+             rdfs:subClassOf mrd:MachineReadableZone ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty mrd:position ;
+                               owl:cardinality "1"^^xsd:nonNegativeInteger
+                             ] ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty mrd:length ;
+                               owl:maxCardinality "2"^^xsd:nonNegativeInteger
+                             ] ;
+             rdfs:comment """Une suite de caractères contigus dans la MRZ.
+Le début est compté en nombre de caractères depuis le début de la MRZ (0 étant le premier caractère de la MRZ)"""@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#MachineReadableZone
+mrd:MachineReadableZone rdf:type owl:Class .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#NonStandardCheckDigit
+mrd:NonStandardCheckDigit rdf:type owl:Class ;
+                          rdfs:subClassOf mrd:MRZCheckDigit ;
+                          rdfs:comment "Représente un check digit calculé par un algorithme autre que celui par défaut"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Specimen
+mrd:Specimen rdf:type owl:Class ;
+             rdfs:comment "Un specimen de document"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Zone
+mrd:Zone rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Address
+mrd:Address rdf:type owl:NamedIndividual ,
+                     mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#BirthDate
+mrd:BirthDate rdf:type owl:NamedIndividual ,
+                       mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Country
+mrd:Country rdf:type owl:NamedIndividual ,
+                     mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DiplomaticPassport
+mrd:DiplomaticPassport rdf:type owl:NamedIndividual ,
+                                mrd:DocumentSubType ;
+                       rdfs:label "Passeport Diplomatique"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#DrivingLicense
+mrd:DrivingLicense rdf:type owl:NamedIndividual ,
+                            mrd:DocumentType ;
+                   rdfs:comment "Permis de Conduire"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#EmitCountry
+mrd:EmitCountry rdf:type owl:NamedIndividual ,
+                         mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#EmitDate
+mrd:EmitDate rdf:type owl:NamedIndividual ,
+                      mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ExpirationDate
+mrd:ExpirationDate rdf:type owl:NamedIndividual ,
+                            mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FirstNames
+mrd:FirstNames rdf:type owl:NamedIndividual ,
+                        mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FirstNamesAndLastNames
+mrd:FirstNamesAndLastNames rdf:type owl:NamedIndividual ,
+                                    mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#France
+mrd:France rdf:type owl:NamedIndividual ,
+                    mrd:Country ;
+           :trigram "FRA"^^xsd:string .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchCNIName
+mrd:FrenchCNIName rdf:type owl:NamedIndividual ,
+                           mrd:MRZField .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZChecker
+mrd:FrenchMRZChecker rdf:type owl:NamedIndividual ,
+                              mrd:MRZChecker .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZInstance
+mrd:FrenchMRZInstance rdf:type owl:NamedIndividual ,
+                               mrd:MRZInstance ;
+                      :mrzChecker mrd:FrenchMRZChecker ;
+                      :mrzParser mrd:FrenchMRZParser .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#FrenchMRZParser
+mrd:FrenchMRZParser rdf:type owl:NamedIndividual ,
+                             mrd:MRZParser .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Gender
+mrd:Gender rdf:type owl:NamedIndividual ,
+                    mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID-FRA-0
+mrd:ID-FRA-0 rdf:type owl:NamedIndividual ,
+                      mrd:DocumentModel ;
+             :firstIssuingDate "2002-05-30T00:00:00"^^xsd:dateTime ;
+             :id "ID-FRA-0"^^xsd:string ;
+             :issuingCountry mrd:France ;
+             :lastIssuingDate "2022-01-01T00:00:00"^^xsd:dateTime ;
+             :mrzInstance mrd:FrenchMRZInstance ;
+             :remark "La bien connue pièce d'identité française" ;
+             :specimen mrd:ID-FRA-0_specimen .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID-FRA-0_specimen
+mrd:ID-FRA-0_specimen rdf:type owl:NamedIndividual ,
+                               mrd:ExactSpecimen ;
+                      :specimenLines """IFRABERTHIER<<<<<<<<<<<M6666
+<<<<<CORINNE<<<<<<<<<05050"""^^xsd:string .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID0
+mrd:ID0 rdf:type owl:NamedIndividual ,
+                 mrd:DocumentFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID1
+mrd:ID1 rdf:type owl:NamedIndividual ,
+                 mrd:DocumentFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ID2
+mrd:ID2 rdf:type owl:NamedIndividual ,
+                 mrd:DocumentFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#IdentityCard
+mrd:IdentityCard rdf:type owl:NamedIndividual ,
+                          mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#LastNames
+mrd:LastNames rdf:type owl:NamedIndividual ,
+                       mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Number
+mrd:Number rdf:type owl:NamedIndividual ,
+                    mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Passport
+mrd:Passport rdf:type owl:NamedIndividual ,
+                      mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#PersonalNumber
+mrd:PersonalNumber rdf:type owl:NamedIndividual ,
+                            mrd:MRZFieldDataType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#ResidencePermit
+mrd:ResidencePermit rdf:type owl:NamedIndividual ,
+                             mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#TemporaryPassport
+mrd:TemporaryPassport rdf:type owl:NamedIndividual ,
+                               mrd:DocumentSubType ;
+                      rdfs:comment "Passeport Temporaire"@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Unknown
+mrd:Unknown rdf:type owl:NamedIndividual ,
+                     mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#VehicleRegistration
+mrd:VehicleRegistration rdf:type owl:NamedIndividual ,
+                                 mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#Visa
+mrd:Visa rdf:type owl:NamedIndividual ,
+                  mrd:DocumentType .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#cniFirstNameRange
+mrd:cniFirstNameRange rdf:type owl:NamedIndividual ,
+                               mrd:MRZRange ;
+                      rdfs:comment "Un range est spécifié par un caractère de début et un caractère de fin."@fr .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x34
+mrd:2x34 rdf:type owl:NamedIndividual ,
+                  mrd:MRZFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x36
+mrd:2x36 rdf:type owl:NamedIndividual ,
+                  mrd:MRZFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#2x44
+mrd:2x44 rdf:type owl:NamedIndividual ,
+                  mrd:MRZFormat .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#3x30
+mrd:3x30 rdf:type owl:NamedIndividual ,
+                  mrd:MRZFormat .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+mrd:Country rdfs:isDefinedBy "http://www.dbpedia.org/resource/Country" ;
+            rdfs:label "Un pays. identifié principalement par son trigramme"@fr .
+
+
+###  Generated by the OWL API (version 4.2.6.20160910-2108) https://github.com/owlcs/owlapi

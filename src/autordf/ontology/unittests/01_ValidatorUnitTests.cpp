@@ -1,6 +1,10 @@
+
+
 //
 // Created by ldimou on 5/4/16.
 //
+
+#if defined(USE_REDLAND)
 
 #include <gtest/gtest.h>
 #include <boost/filesystem.hpp>
@@ -100,3 +104,5 @@ TEST_F(ValidatorTest, ModelValidator) {
     ASSERT_EQ("http://example.org/geometry/point/center",  errors->front().subject.iri());
     ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
 }
+
+#endif
