@@ -461,10 +461,12 @@ std::list<std::string> Model::supportedFormat() const {
 void Model::add(Statement *stmt) {
     SordQuad quad;
     StatementConverter::toCAPIStatement(stmt, &quad);
-    if ( !sord_add(_model->get(), quad) ) {
-        std::stringstream ss;
-        ss << "Unable to add statement";
-        throw InternalError(ss.str());
+    if ( !sord_contains(_model->get(), quad) ) {
+        if ( !sord_add(_model->get(), quad) ) {
+            std::stringstream ss;
+            ss << "Unable to add statement: " << *stmt;
+            throw InternalError(ss.str());
+        }
     }
 }
 
