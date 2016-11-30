@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <serd/serd.h>
 
 #include "autordf/internal/World.h"
 #include "autordf/internal/ModelPrivate.h"
