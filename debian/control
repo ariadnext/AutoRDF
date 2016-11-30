@@ -6,6 +6,7 @@ Build-Depends:
  debhelper (>= 9),
  doxygen,
  cmake,
+ pkg-config,
  libboost-filesystem-dev,
  libboost-date-time-dev,
  libsord-dev
