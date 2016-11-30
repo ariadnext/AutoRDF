@@ -7,7 +7,7 @@
 	dh $@ --buildsystem=cmake --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure --buildsystem=cmake -- -DBUILD_DOC=1
+	dh_auto_configure --buildsystem=cmake -- -DRDF_C_API=REDLAND -DBUILD_DOC=1
 
 override_dh_strip:
 	dh_strip --dbg-package=autordf-dbg
