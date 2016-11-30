@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <serd/serd.h>
 
 #include "autordf/Exception.h"
 
