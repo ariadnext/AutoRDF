@@ -1,0 +1,1 @@
+@prefix : <http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#> .

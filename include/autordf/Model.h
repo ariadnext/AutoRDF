@@ -57,7 +57,7 @@ public:
      * @throw FileIOError is file does not exist
      * @throw InternalError
      */
-    void loadFromFile(const std::string& path, const std::string& baseIRI = ".");
+    void loadFromFile(const std::string& path, const std::string& baseIRI = "");
 
     /**
      * Loads rdf resource from a string
@@ -68,7 +68,7 @@ public:
      * @throw FileIOError is file does not exist
      * @throw InternalError
      */
-    void loadFromMemory(const void* data, const char *format, const std::string& baseIRI = ".");
+    void loadFromMemory(const void* data, const char *format, const std::string& baseIRI = "");
 
     /**
      * Loads rdf resource from a local file
@@ -79,7 +79,7 @@ public:
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError
      */
-    void loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI = ".", const std::string& streamInfo = "<unknown stream>");
+    void loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI = "", const std::string& streamInfo = "<unknown stream>");
 
     /**
      * Save model to file.

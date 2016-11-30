@@ -15,6 +15,7 @@ TEST(_01_Model, SupportedFormats) {
     }
 }
 
+
 TEST(_01_Model, Iterators) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
@@ -23,6 +24,17 @@ TEST(_01_Model, Iterators) {
     const StatementList& allStatementsConst = ts.find();
     ASSERT_EQ(4, std::distance(allStatementsConst.begin(), allStatementsConst.end()));
 }
+
+TEST(_01_Model, BaseUri) {
+    Model ts1;
+    ts1.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/example1.ttl");
+    ASSERT_EQ("", ts1.baseUri());
+
+    Model ts2;
+    ts2.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/blankprefix.ttl");
+    ASSERT_EQ("http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#", ts2.baseUri());
+}
+
 
 TEST(_01_Model, SeenPrefixes) {
     Model ts;

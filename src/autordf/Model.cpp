@@ -89,7 +89,7 @@ void Model::loadFromMemory(const void* data, const char *format, const std::stri
     if ( !p ) {
         throw UnsupportedRdfFileFormat("File format not recognized");
     }
-    if ( librdf_parser_parse_string_into_model(p->get(), static_cast<const unsigned char *>(data), (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
+    if ( librdf_parser_parse_string_into_model(p->get(), static_cast<const unsigned char *>(data), (baseIRI.length() ? Uri(baseIRI).get() : Uri(".").get()), _model->get()) ) {
         throw InternalError("Failed to read model from stream");
     }
     _baseUri = baseIRI;
@@ -101,7 +101,7 @@ void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string
     if ( !p ) {
         throw UnsupportedRdfFileFormat(streamInfo + ": File format not recognized");
     }
-    if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : nullptr), _model->get()) ) {
+    if ( librdf_parser_parse_file_handle_into_model(p->get(), fileHandle, 0, (baseIRI.length() ? Uri(baseIRI).get() : Uri(".").get()), _model->get()) ) {
         throw InternalError(streamInfo + ": Failed to read model from stream");
     }
     _baseUri = baseIRI;
@@ -353,6 +353,8 @@ void extractBaseURI(Model *m, std::shared_ptr<SerdEnv> env, const std::string& b
         const char *nameStr = reinterpret_cast<const char*>(name->buf);
         if ( strlen(nameStr) ) {
             m->addNamespacePrefix(nameStr, reinterpret_cast<const char*>(url->buf));
+        } else {
+            m->setBaseUri(reinterpret_cast<const char*>(url->buf));
         }
         return SerdStatus::SERD_SUCCESS;
     }, m);
