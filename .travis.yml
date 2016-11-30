@@ -10,14 +10,19 @@ compiler:
   - gcc
   - clang
 
+env:
+  - RDF_C_API=REDLAND
+  - RDF_C_API=SORD
+
 addons:
   apt:
     packages:
     - cmake
     - librdf0-dev
+    - libsord-dev
     - libboost-filesystem-dev
     - libboost-date-time-dev
 
 # Run the Build script
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=../install && cmake --build . --target check && cmake --build . --target install
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DRDF_C_API=${RDF_C_API} -DCMAKE_INSTALL_PREFIX=../install && cmake --build . --target check && cmake --build . --target install
