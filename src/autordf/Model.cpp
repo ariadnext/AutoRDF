@@ -272,14 +272,6 @@ void Model::remove(Statement *stmt) {
     }
 }
 
-std::string Model::genBlankNodeId() {
-    unsigned char * genid = librdf_world_get_genid(_world->get());
-    std::string id = reinterpret_cast<const char *>(genid);
-    free(genid);
-    return id;
-}
-
-
 /**
  * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
  */
@@ -483,14 +475,6 @@ void Model::remove(Statement *stmt) {
     }
 }
 
-std::string Model::genBlankNodeId() {
-    static unsigned int i = 0;
-    std::stringstream ss;
-    ss << "_b";
-    ss << i++;
-    return ss.str();
-}
-
 /**
  * Return one arc (predicate) of an arc in an RDF graph given source (subject) and arc (predicate).
  */
@@ -499,6 +483,10 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
 }
 
 #endif
+
+std::string Model::genBlankNodeId() const {
+    return _world->genBlankNodeId();
+}
 
 StatementList Model::find(const Statement& req) const {
     return StatementList(req, this);

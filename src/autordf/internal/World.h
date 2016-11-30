@@ -24,15 +24,22 @@ public:
 
     c_api_world* get() const { return _world; }
 
+    /**
+     * Generates a new, unique, blank node id
+     * @return blank node id
+     */
+    std::string genBlankNodeId() const;
+
 private:
     static std::mutex _mutex;
     static c_api_world* _world;
     static int _refcount;
-
 #if defined(USE_REDLAND)
     static int logCB(void* user_data, librdf_log_message* message);
 #endif
 #if defined(USE_SORD)
+    static unsigned long _genIdBase;
+    static unsigned long _genIdCtr;
     static SerdStatus sordErrorCB(void* handle, const SerdError* error);
 #endif
 };

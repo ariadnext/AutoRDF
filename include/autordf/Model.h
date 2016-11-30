@@ -221,7 +221,7 @@ protected:
      */
     std::shared_ptr<internal::World> _world;
 
-    std::string genBlankNodeId();
+    std::string genBlankNodeId() const;
 
 private:
     std::shared_ptr<internal::ModelPrivate> _model;
