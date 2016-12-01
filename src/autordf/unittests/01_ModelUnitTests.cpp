@@ -228,3 +228,20 @@ TEST(_01_Model, LoadSave) {
     st2.object.setLiteral("Rennes", "fr");
     n.remove(&st2);
 }
+
+TEST(_01_Model, LoadSaveMultiBlankNodes) {
+    Model m;
+    m.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/bob.ttl");
+    m.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/john.ttl");
+
+    // We should have 2 distinct subjects
+    std::set<std::string> subjects;
+
+    for ( auto stmts : m.find() ) {
+        std::string id = stmts.subject.type() == NodeType::RESOURCE ? stmts.subject.iri() : stmts.subject.bNodeId();
+        subjects.insert(id);
+        std::cout << stmts << std::endl;
+    }
+
+    ASSERT_EQ(2, subjects.size());
+}
