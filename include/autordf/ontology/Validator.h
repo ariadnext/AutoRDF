@@ -22,7 +22,7 @@ public:
     class Error {
     public:
         Error() {}
-        Error(const Object& subj, const Uri& prop): subject(subj), property(prop) {}
+        Error(const Object& subj, const Object& prop): subject(subj), property(prop) {}
 
         #define ERROR_TYPE(X) \
             X(INVALIDDATATYPE,   "Rdf type of dataproperty is not allowed. subject, property are filled") \
@@ -43,7 +43,7 @@ public:
         /**
          * The property in the given object the error applies to
          */
-        Uri property;
+        Object property;
 
         /**
          * Message @subject and @property, @count, @val, @range are used as placeholder subject and property

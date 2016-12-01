@@ -18,7 +18,7 @@ std::string Validator::Error::fullMessage() const {
 
     std::size_t foundPlaceholder_1 = str.find(placeholder_1);
     if(foundPlaceholder_1 != std::string::npos) {
-        str.replace(foundPlaceholder_1, placeholder_1.length(), property);
+        str.replace(foundPlaceholder_1, placeholder_1.length(), property.QName());
     }
     std::size_t foundPlaceholder_2 = str.find(placeholder_2);
     if(foundPlaceholder_2 != std::string::npos) {
