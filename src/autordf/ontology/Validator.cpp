@@ -31,7 +31,7 @@ std::string Validator::Error::fullMessage() const {
     std::size_t foundPlaceholder_4 = str.find(placeholder_4);
     if(foundPlaceholder_4 != std::string::npos) {
         str.replace(foundPlaceholder_4, placeholder_4.length(),
-                    (subject.iri().empty())? "Blank Node" : subject.iri());
+                    nodeTextLocation(subject));
     }
     std::size_t foundPlaceholder_5 = str.find(placeholder_5);
     if(foundPlaceholder_5 != std::string::npos) {
@@ -119,7 +119,7 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
         for (auto const& subObj: objList) {
             if (!isObjectTypeValid(subObj, range)) {
                 error.subject = subObj.iri().empty() ? object : subObj;
-                error.message = "\'@subject\' property \'@property\' is of incompatible object type. Rdf type required is @range";
+                error.message = "\'@subject\' property \'@property\' is of incompatible object type. RDF type required is @range";
                 error.range = range;
                 error.type = error.INVALIDTYPE;
                 errorList->push_back(error);
@@ -228,6 +228,28 @@ bool Validator::isObjectTypeValid(const autordf::Object& object, const autordf::
         }
     }
     return false;
+}
+
+/**
+ * Compute helper string to help find location of given object
+ */
+std::string Validator::nodeTextLocation(const autordf::Object& obj, int maxRecurse) {
+    if ( maxRecurse > 0 ) {
+        if ( obj.iri().empty() ) {
+            std::set<autordf::Object> sources = obj.findSources();
+            for ( const autordf::Object& source : sources ) {
+                std::string loc = nodeTextLocation(source, maxRecurse - 1);
+                if ( !loc.empty() ) {
+                    return loc + "-->Blank node";
+                }
+            }
+            return "";
+        } else {
+            return obj.QName();
+        }
+    } else {
+        return "";
+    }
 }
 
 }

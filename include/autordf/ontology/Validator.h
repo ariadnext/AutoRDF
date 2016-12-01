@@ -123,6 +123,11 @@ private:
      * return true if the given object is of the given type or type's subclass, false otherwise
      */
     bool isObjectTypeValid(const autordf::Object& object, const autordf::Uri& type);
+
+    /**
+     * Compute helper string to get location string for a given object
+     */
+    static std::string nodeTextLocation(const autordf::Object& obj, int maxRecurse = 5);
 };
 
 }

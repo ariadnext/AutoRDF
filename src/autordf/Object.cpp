@@ -595,5 +595,4 @@ std::set<Object> Object::findTargets() const {
     }
     return objList;
 }
-
 }
