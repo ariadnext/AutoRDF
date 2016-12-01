@@ -215,6 +215,15 @@ public:
      */
     std::string iriPrefix(const std::string& rdfiri) const;
 
+    /**
+     * Prevents to generate conflicting bnode ids when reading identical files
+     * Makes only sense when used in SORD mode, as it is really some kind of workaround to SORD buggy behaviour.
+     * Can be savely deactivated before the last data file is loaded into a model, otherwise
+     * blank node confusion will occur.
+     * When activated, reading & writing the same turtle file will result in forever growing ids :-(
+     */
+    void enableBNodeConflictsPrevention(bool enabled) { _bNodeConflictsPrevention = enabled; }
+
 protected:
     /**
      * A pointer to the librdf internal world structure
@@ -227,6 +236,7 @@ private:
     std::shared_ptr<internal::ModelPrivate> _model;
     // What is it exactly ?
     std::string _baseUri;
+    bool _bNodeConflictsPrevention;
     // Prefixes seen during parsing prefix --> IRI
     std::map<std::string, std::string> _namespacesPrefixes;
 

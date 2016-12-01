@@ -109,10 +109,10 @@ SerdStatus World::sordErrorCB(void*, const SerdError* error) {
     ::exit(1);
 }
 
-std::string World::genBlankNodeId() const {
+std::string World::genUniqueId() const {
     unsigned long pid = (unsigned long)getpid();
     std::stringstream id;
-    id << 'r' << _genIdBase << 'r' << pid << 'r' << ++_genIdCtr;
+    id << 'B' << _genIdBase << 'b' << pid << 'b' << ++_genIdCtr;
     return id.str();
 }
 

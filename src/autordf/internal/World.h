@@ -25,10 +25,11 @@ public:
     c_api_world* get() const { return _world; }
 
     /**
-     * Generates a new, unique, blank node id
-     * @return blank node id
+     * Generates a new, unique, id
+     * Can be used as blank node id
+     * @return unqiue id
      */
-    std::string genBlankNodeId() const;
+    std::string genUniqueId() const;
 
 private:
     static std::mutex _mutex;

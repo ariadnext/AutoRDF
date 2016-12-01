@@ -240,8 +240,15 @@ TEST(_01_Model, LoadSaveMultiBlankNodes) {
     for ( auto stmts : m.find() ) {
         std::string id = stmts.subject.type() == NodeType::RESOURCE ? stmts.subject.iri() : stmts.subject.bNodeId();
         subjects.insert(id);
-        std::cout << stmts << std::endl;
     }
 
+    std::string serialized = *m.saveToMemory("turtle");
+    std::cout << serialized << std::endl;
+
     ASSERT_EQ(2, subjects.size());
+
+    Model reloaded;
+    reloaded.loadFromMemory(serialized.c_str(), "turtle");
+
+    std::cout << *reloaded.saveToMemory("turtle") << std::endl;
 }
