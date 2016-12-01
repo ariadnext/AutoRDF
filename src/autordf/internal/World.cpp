@@ -37,7 +37,7 @@ World::~World() {
     }
 }
 
-std::string World::genBlankNodeId() const {
+std::string World::genUniqueId() const {
     unsigned char * genid = librdf_world_get_genid(_world);
     std::string id = reinterpret_cast<const char *>(genid);
     free(genid);
