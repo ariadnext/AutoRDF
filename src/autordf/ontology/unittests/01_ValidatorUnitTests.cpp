@@ -43,8 +43,8 @@ TEST_F(ValidatorTest, ObjectValidator) {
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/myShape"));
     dumpErrors(errors);
 
-    ASSERT_EQ("http://example.org/geometry#center",  errors->back().property);
-    ASSERT_EQ("http://example.org/geometry#radius",  errors->front().property);
+    ASSERT_EQ("http://example.org/geometry#center",  errors->back().property.iri());
+    ASSERT_EQ("http://example.org/geometry#radius",  errors->front().property.iri());
 
     ASSERT_EQ(2, errors->size());
     ASSERT_EQ(2,  errors->front().type);
@@ -55,7 +55,7 @@ TEST_F(ValidatorTest, DataType) {
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(Object("http://example.org/geometry/point"));
     dumpErrors(errors);
 
-    ASSERT_EQ("http://example.org/geometry#x",  errors->front().property);
+    ASSERT_EQ("http://example.org/geometry#x",  errors->front().property.iri());
     ASSERT_EQ("xsd:double",  errors->front().range);
     ASSERT_EQ(0,  errors->front().type);
 }
@@ -65,7 +65,7 @@ TEST_F(ValidatorTest, MinCardinality) {
     dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
-    ASSERT_EQ("http://example.org/geometry#radius", errors->front().property);
+    ASSERT_EQ("http://example.org/geometry#radius", errors->front().property.iri());
     ASSERT_EQ(1, errors->front().val);
     ASSERT_EQ(2,  errors->front().type);
 }
@@ -75,7 +75,7 @@ TEST_F(ValidatorTest, MaxCardinality) {
     dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
-    ASSERT_EQ("http://example.org/geometry#topLeft", errors->front().property);
+    ASSERT_EQ("http://example.org/geometry#topLeft", errors->front().property.iri());
     ASSERT_EQ(2,  errors->front().count);
     ASSERT_EQ(3,  errors->front().type);
 }
@@ -85,7 +85,7 @@ TEST_F(ValidatorTest, Type) {
     dumpErrors(errors);
 
     ASSERT_EQ(1, errors->size());
-    ASSERT_EQ("http://example.org/geometry#center", errors->front().property);
+    ASSERT_EQ("http://example.org/geometry#center", errors->front().property.iri());
     ASSERT_EQ(1,  errors->front().type);
     ASSERT_EQ("http://example.org/geometry#Point",  errors->front().range);
 
@@ -96,7 +96,7 @@ TEST_F(ValidatorTest, ModelValidator) {
     dumpErrors(errors);
 
     EXPECT_EQ(9, errors->size());
-    ASSERT_EQ("http://example.org/geometry#textColor", errors->back().property);
+    ASSERT_EQ("http://example.org/geometry#textColor", errors->back().property.iri());
     ASSERT_EQ(0,  errors->back().count);
     ASSERT_EQ(2,  errors->back().type);
     ASSERT_EQ(1,  errors->front().type);
