@@ -5,6 +5,7 @@
 
 #include "autordf/Factory.h"
 #include "autordf/Object.h"
+#include "autordf/cvt/Cvt.h"
 
 using namespace autordf;
 
@@ -210,6 +211,9 @@ TEST(_03_Object, DataPropertyReification) {
 
     // Test our read back support of reified statements
     ASSERT_EQ(std::vector<PropertyValue>({"1"}), obj.getPropertyValueList("http://myprop1"));
+
+    // Test our read back support of reified statements
+    ASSERT_EQ(std::vector< long long int>({1}), (obj.getValueListImpl<cvt::RdfTypeEnum::xsd_integer, long long int>("http://myprop1", false)));
 
     // Now remove our reified statement
     obj.removePropertyValue("http://myprop1", "1");
