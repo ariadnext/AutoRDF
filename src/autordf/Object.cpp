@@ -229,7 +229,7 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
 
 Resource Object::createReificationResource(const Uri& propertyIRI, const PropertyValue& val) {
     Resource reified = factory()->createBlankNodeResource();
-    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
+    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(factory()->createIRIResource(RDF_STATEMENT)));
     reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
     reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
     reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(val));
@@ -238,7 +238,7 @@ Resource Object::createReificationResource(const Uri& propertyIRI, const Propert
 
 Resource Object::createReificationResource(const Uri& propertyIRI, const Resource& val) {
     Resource reified = factory()->createBlankNodeResource();
-    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
+    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(factory()->createIRIResource(RDF_STATEMENT)));
     reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
     reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
     reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(val));
