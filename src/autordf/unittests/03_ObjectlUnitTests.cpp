@@ -350,3 +350,34 @@ TEST(_03_Object, DataPropertyOrderingAdd) {
 
     ASSERT_THROW(obj.getPropertyValueList("http://prop1", true), autordf::CannotPreserveOrder);
 }
+
+
+TEST(_03_Object, ObjectPropertyOrderingVector) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+    Object obj("http://my/object");
+
+    std::vector<Object> objects;
+    objects.emplace_back(Object("http://object1"));
+    objects.emplace_back(Object("http://object2"));
+    obj.setObjectList("http://prop1", objects, true);
+
+    ASSERT_NO_THROW(obj.getObjectList("http://prop1", true));
+
+    std::cout << *f.saveToMemory("turtle") << std::endl;
+}
+
+TEST(_03_Object, ObjectPropertyOrderingAdd) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+    Object obj("http://my/object");
+
+    obj.setObject("http://prop1", Object("http://object1"));
+    obj.addObject("http://prop1", Object("http://object2"), true);
+
+    std::cout << *f.saveToMemory("turtle") << std::endl;
+
+    ASSERT_THROW(obj.getObjectList("http://prop1", true), autordf::CannotPreserveOrder);
+}

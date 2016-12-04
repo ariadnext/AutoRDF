@@ -129,8 +129,11 @@ public:
 
     /**
      * Returns the list of object. If no object found returns empty vector
+     * @param propertyIRI Internationalized Resource Identifiers property to get
+     * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
+     * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    std::vector<Object> getObjectList(const Uri& propertyIRI) const;
+    std::vector<Object> getObjectList(const Uri& propertyIRI, bool preserveOrdering = false) const;
 
     /**
      * Sets object to given property replacing existing value
@@ -182,7 +185,7 @@ public:
     /**
      * Returns the list of the values. If no value are found returns empty list
      * @param propertyIRI Internationalized Resource Identifiers property to query
-     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
+     * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
     PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering = false) const;
@@ -458,7 +461,7 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> std::vector<T> getObjectListImpl(const Uri& propertyIRI) const {
+    template<typename T> std::vector<T> getObjectListImpl(const Uri& propertyIRI, bool preserveOrdering) const {
         if ( propertyIRI.empty() ) {
             throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
         }
@@ -467,37 +470,63 @@ public:
         objList.reserve(propList->size());
         for (const Property& prop: *propList) {
             if (prop.isResource()) {
-                objList.push_back(T(prop.asResource()));
+                objList.emplace_back(T(prop.asResource()));
             }
         }
-        // Iterate through statements and find ones matching predicate
-        const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
-        for (const Node& thisObject : nodesReferingToThisObject ) {
-            Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
-            std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
-            if ( predicate && predicate->asResource().name() == propertyIRI ) {
-                std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
-                if ( prop->isResource() ) {
-                    objList.push_back(T(prop->asResource()));
+        if ( !preserveOrdering ) {
+            // Iterate through statements and find ones matching predicate
+            reifiedObjectIterate(propertyIRI, [&objList](const Object& o) {
+                objList.emplace_back(T(o));
+            });
+            return objList;
+        } else {
+            if ( objList.size() ) {
+                throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+            } else {
+                typedef std::pair<long long, Object> ObjectWithOrder;
+                std::vector<ObjectWithOrder> unordered;
+                reifiedObjectIterate(propertyIRI, [&](const Object& o) {
+                    std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, o)->getOptionalProperty(AUTORDF_ORDER);
+                    if ( !orderprop ) {
+                        throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+                    }
+                    unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), o));
+                });
+                std::sort(unordered.begin(), unordered.end(), [](const ObjectWithOrder& a, const ObjectWithOrder& b) {
+                    return a.first < b.first;
+                });
+                for ( const ObjectWithOrder& pvo : unordered ) {
+                    objList.emplace_back(pvo.second);
                 }
+                return objList;
             }
         }
-
-        return objList;
     }
 
     /**
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
+    template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values, bool preserveOrdering) {
         writeRdfType();
         removeAllReifiedObjectPropertyStatements(propertyIRI);
         std::shared_ptr<Property> p =factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
-        for (const Object& object : values) {
-            p->setValue(object._r);
-            _r.addProperty(*p);
+
+        if ( !preserveOrdering ) {
+            for (const Object& object : values) {
+                p->setValue(object._r);
+                _r.addProperty(*p);
+            }
+        } else {
+            long long i = 1;
+            for (const Object& object : values) {
+                Resource reified = createReificationResource(propertyIRI, object._r);
+                std::shared_ptr<Property> order = factory()->createProperty(AUTORDF_ORDER);
+                order->setValue(PropertyValue().set<cvt::RdfTypeEnum::xsd_integer>(i));
+                reified.addProperty(*order);
+                ++i;
+            }
         }
     }
 
@@ -574,6 +603,11 @@ private:
      * Return all reified values for given property
      */
     void reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<void (const PropertyValue&)> cb) const;
+
+    /**
+     * Return all reified values for given property
+     */
+    void reifiedObjectIterate(const Uri& propertyIRI, std::function<void (const Object& obj)> cb) const;
 
     /**
      * Returns the first found reified PropertyValue, if found

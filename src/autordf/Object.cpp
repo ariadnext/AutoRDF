@@ -102,8 +102,8 @@ std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const 
     }
 }
 
-std::vector<Object> Object::getObjectList(const Uri& propertyIRI) const {
-    return getObjectListImpl<Object>(propertyIRI);
+std::vector<Object> Object::getObjectList(const Uri& propertyIRI, bool preserveOrdering) const {
+    return getObjectListImpl<Object>(propertyIRI, preserveOrdering);
 }
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
@@ -119,12 +119,27 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
 void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering) {
     writeRdfType();
     if ( !reifiedObjectAsResource(propertyIRI, obj) ) {
-        _r.addProperty(factory()->createProperty(propertyIRI)->setValue(obj._r));
+        if (!preserveOrdering) {
+            _r.addProperty(factory()->createProperty(propertyIRI)->setValue(obj._r));
+        } else {
+            long long maxVal = 0;
+            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
+                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+                if ( orderprop ) {
+                    long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+                    maxVal = std::max(maxVal, order);
+                }
+            });
+            Resource reified = createReificationResource(propertyIRI, obj._r);
+            std::shared_ptr<Property> order = factory()->createProperty(AUTORDF_ORDER);
+            order->setValue(PropertyValue().set<cvt::RdfTypeEnum::xsd_integer>(maxVal + 1));
+            reified.addProperty(*order);
+        }
     }
 }
 
 void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values, bool preserveOrdering) {
-    setObjectListImpl(propertyIRI, values);
+    setObjectListImpl(propertyIRI, values, preserveOrdering);
 }
 
 void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
@@ -463,6 +478,23 @@ void Object::reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<v
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
             if ( prop->isLiteral() ) {
                 cb(prop->value());
+            }
+        }
+    }
+}
+
+
+void Object::reifiedObjectIterate(const Uri& propertyIRI, std::function<void (const Object& obj)> cb) const {
+    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+
+    // Iterate through statements and find ones matching predicate
+    for (const Node& thisObject : nodesReferingToThisObject ) {
+        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+        if ( predicate && predicate->asResource().name() == propertyIRI ) {
+            std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
+            if ( prop->isResource() ) {
+                cb(Object(prop->asResource()));
             }
         }
     }
