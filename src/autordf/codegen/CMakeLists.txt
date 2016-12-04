@@ -17,6 +17,5 @@ INSTALL(TARGETS autordfcodegen
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(${BUILD_TESTS} STREQUAL "1")
-#FIXME
-#ADD_SUBDIRECTORY(unittests)
+    ADD_SUBDIRECTORY(unittests)
 endif()
