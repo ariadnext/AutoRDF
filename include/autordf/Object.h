@@ -475,28 +475,28 @@ public:
         }
         if ( !preserveOrdering ) {
             // Iterate through statements and find ones matching predicate
-            reifiedObjectIterate(propertyIRI, [&objList](const Object& o) {
-                objList.emplace_back(T(o));
+            reifiedPropertyIterate(propertyIRI, [&objList](const Property& p) {
+                objList.emplace_back(T(p.asResource()));
             });
             return objList;
         } else {
             if ( objList.size() ) {
                 throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
             } else {
-                typedef std::pair<long long, Object> ObjectWithOrder;
+                typedef std::pair<long long, Resource> ObjectWithOrder;
                 std::vector<ObjectWithOrder> unordered;
-                reifiedObjectIterate(propertyIRI, [&](const Object& o) {
-                    std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, o)->getOptionalProperty(AUTORDF_ORDER);
+                reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
+                    std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, Object(p.asResource()))->getOptionalProperty(AUTORDF_ORDER);
                     if ( !orderprop ) {
                         throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
                     }
-                    unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), o));
+                    unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p.asResource()));
                 });
                 std::sort(unordered.begin(), unordered.end(), [](const ObjectWithOrder& a, const ObjectWithOrder& b) {
                     return a.first < b.first;
                 });
                 for ( const ObjectWithOrder& pvo : unordered ) {
-                    objList.emplace_back(pvo.second);
+                    objList.emplace_back(T(pvo.second));
                 }
                 return objList;
             }
@@ -602,12 +602,7 @@ private:
     /**
      * Return all reified values for given property
      */
-    void reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<void (const PropertyValue&)> cb) const;
-
-    /**
-     * Return all reified values for given property
-     */
-    void reifiedObjectIterate(const Uri& propertyIRI, std::function<void (const Object& obj)> cb) const;
+    void reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (const Property& prop)> cb) const;
 
     /**
      * Returns the first found reified PropertyValue, if found

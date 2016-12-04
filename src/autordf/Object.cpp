@@ -123,8 +123,8 @@ void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveO
             _r.addProperty(factory()->createProperty(propertyIRI)->setValue(obj._r));
         } else {
             long long maxVal = 0;
-            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
-                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+            reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
+                std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, p.asResource())->getOptionalProperty(AUTORDF_ORDER);
                 if ( orderprop ) {
                     long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
                     maxVal = std::max(maxVal, order);
@@ -189,25 +189,25 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI, bool pr
         }
     }
     if ( !preserveOrdering ) {
-        reifiedPropertyValueIterate(propertyIRI, [&valuesList](const PropertyValue& pv) { valuesList.push_back(pv); });
+        reifiedPropertyIterate(propertyIRI, [&valuesList](const Property& p) { valuesList.emplace_back(p.value()); });
         return valuesList;
     } else {
         if ( valuesList.size() ) {
             throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
         } else {
-            typedef std::pair<long long, PropertyValue> PropertyValueWirhOrder;
-            std::vector<PropertyValueWirhOrder> unordered;
-            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
-                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+            typedef std::pair<long long, PropertyValue> PropertyValueWithOrder;
+            std::vector<PropertyValueWithOrder> unordered;
+            reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
+                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, p.value())->getOptionalProperty(AUTORDF_ORDER);
                 if ( !orderprop ) {
                     throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
                 }
-                unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), pv));
+                unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p.value()));
             });
-            std::sort(unordered.begin(), unordered.end(), [](const PropertyValueWirhOrder& a, const PropertyValueWirhOrder& b) {
+            std::sort(unordered.begin(), unordered.end(), [](const PropertyValueWithOrder& a, const PropertyValueWithOrder& b) {
                 return a.first < b.first;
             });
-            for ( const PropertyValueWirhOrder& pvo : unordered ) {
+            for ( const PropertyValueWithOrder& pvo : unordered ) {
                 valuesList.emplace_back(pvo.second);
             }
             return valuesList;
@@ -232,8 +232,8 @@ void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, 
             _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
         } else {
             long long maxVal = 0;
-            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
-                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+            reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
+                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, p.value())->getOptionalProperty(AUTORDF_ORDER);
                 if ( orderprop ) {
                     long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
                     maxVal = std::max(maxVal, order);
@@ -467,7 +467,7 @@ void Object::removeAllReifiedDataPropertyStatements(const Uri& propertyIRI) {
     }
 }
 
-void Object::reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<void (const PropertyValue& pv)> cb) const {
+void Object::reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (const Property& p)> cb) const {
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
 
     // Iterate through statements and find ones matching predicate
@@ -476,26 +476,7 @@ void Object::reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<v
         std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
         if ( predicate && predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
-            if ( prop->isLiteral() ) {
-                cb(prop->value());
-            }
-        }
-    }
-}
-
-
-void Object::reifiedObjectIterate(const Uri& propertyIRI, std::function<void (const Object& obj)> cb) const {
-    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
-
-    // Iterate through statements and find ones matching predicate
-    for (const Node& thisObject : nodesReferingToThisObject ) {
-        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
-        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
-        if ( predicate && predicate->asResource().name() == propertyIRI ) {
-            std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
-            if ( prop->isResource() ) {
-                cb(Object(prop->asResource()));
-            }
+            cb(*prop);
         }
     }
 }
