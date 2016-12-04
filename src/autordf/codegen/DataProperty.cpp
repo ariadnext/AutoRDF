@@ -131,12 +131,12 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
             ofs << "std::vector<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\");" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\", false);" << std::endl;
             ofs << "}" << std::endl;
             ofs << std::endl;
             ofs << currentClassName << "& " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << ">& values) {" << std::endl;
             indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values);" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values, false);" << std::endl;
             indent(ofs, 1) << "return *this;" << std::endl;
             ofs << "}" << std::endl;
         }

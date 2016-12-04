@@ -87,7 +87,7 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
         ofs << "std::vector<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
                 _decorated.prettyIRIName() << "List() const {" << std::endl;
-        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\");" << std::endl;
+        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", false);" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
         generateDefinitionSetterForMany(ofs, onClass);
@@ -141,7 +141,7 @@ void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Kl
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
     ofs << currentClassName << "& " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "List( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values) {" << std::endl;
-    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values);" << std::endl;
+    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values, false);" << std::endl;
     indent(ofs, 1) <<     "return *this;" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
