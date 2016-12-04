@@ -91,6 +91,10 @@ AUTORDFEXCEPTION(CantSetLiteralTypeAndLang)
  */
 AUTORDFEXCEPTION(CannotUnreify)
 
+/**
+ * Unable to preserve ordering of statements
+ */
+AUTORDFEXCEPTION(CannotPreserveOrder)
 
 /**
  * Inside bug or misuse of our API

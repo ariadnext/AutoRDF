@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <map>
 #include <set>
+#include <functional>
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
@@ -133,6 +134,7 @@ public:
 
     /**
      * Sets object to given property replacing existing value
+     * @param propertyIRI Internationalized Resource Identifiers property to set value of
      */
     void setObject(const Uri& propertyIRI, const Object& obj);
 
@@ -140,13 +142,17 @@ public:
      * Adds object to given property
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param obj object to add to the propertyIRI property
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addObject(const Uri& propertyIRI, const Object& obj);
+    void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering = false);
 
     /**
      * Sets list of objects to given property
+     * @param propertyIRI Internationalized Resource Identifiers property to set value of
+     * @param values list of values
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values);
+    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values, bool preserveOrdering = false);
 
     /**
      * Remove the first value matching val for this object property
@@ -160,6 +166,7 @@ public:
      * Gets given property value
      * Property should be set.
      * If property is instanciated more than one, return one of the values, with no particular rule
+     * @param propertyIRI Internationalized Resource Identifiers property to get
      * @throw PropertyNotFound if property not set
      */
     PropertyValue getPropertyValue(const Uri& propertyIRI) const;
@@ -175,8 +182,10 @@ public:
     /**
      * Returns the list of the values. If no value are found returns empty list
      * @param propertyIRI Internationalized Resource Identifiers property to query
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
+     * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    PropertyValueVector getPropertyValueList(const Uri& propertyIRI) const;
+    PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering = false) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -190,15 +199,17 @@ public:
      * Erases all previous values for property, and write value list on place
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param values the list of values. All previous values are removed, and replaced with the given lists
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values);
+    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering = false);
 
     /**
      * Adds value to this property, preserving all previous values;
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param val value for property. This new value is added to the list of values for the Property
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering = false);
 
     /**
      * Remove the first value matching val for this property
@@ -550,9 +561,19 @@ private:
     void construct(const Uri& rdfTypeIRI);
 
     /**
+     * Creates a new resource that stores a value for this resource
+     */
+    Resource createReificationResource(const Uri& propertyIRI, const PropertyValue& val);
+
+    /**
+     * Creates a new resource that stores a value for this resource
+     */
+    Resource createReificationResource(const Uri& propertyIRI, const Resource& val);
+
+    /**
      * Return all reified values for given property
      */
-    void reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVector *pvv) const;
+    void reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<void (const PropertyValue&)> cb) const;
 
     /**
      * Returns the first found reified PropertyValue, if found
@@ -630,6 +651,15 @@ private:
      * Returns the associated factory, or throws if nullptr
      */
     static Factory *factory();
+
+    /**
+     * Full namespace for RDF, including #
+     */
+    static const std::string AUTORDF_NS;
+    /**
+     * IRI for AutoRDF index extension
+     */
+    static const std::string AUTORDF_ORDER;
 };
 
 /**

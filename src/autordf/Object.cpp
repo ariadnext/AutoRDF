@@ -14,6 +14,9 @@ const std::string Object::RDF_SUBJECT = RDF_NS + "subject";
 const std::string Object::RDF_PREDICATE = RDF_NS + "predicate";
 const std::string Object::RDF_OBJECT = RDF_NS + "object";
 
+const std::string Object::AUTORDF_NS = "http://github.com/ariadnext/AutoRDF#";
+const std::string Object::AUTORDF_ORDER = AUTORDF_NS + "order";
+
 void Object::setFactory(Factory *f) {
     if ( _factories.empty() ) {
         _factories.push(f);
@@ -113,14 +116,14 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
     _r.addProperty(*p);
 }
 
-void Object::addObject(const Uri& propertyIRI, const Object& obj) {
+void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering) {
     writeRdfType();
     if ( !reifiedObjectAsResource(propertyIRI, obj) ) {
         _r.addProperty(factory()->createProperty(propertyIRI)->setValue(obj._r));
     }
 }
 
-void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values) {
+void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values, bool preserveOrdering) {
     setObjectListImpl(propertyIRI, values);
 }
 
@@ -159,7 +162,7 @@ std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& prope
     }
 }
 
-PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
+PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const {
     if ( propertyIRI.empty() ) {
         throw InvalidIRI("Calling Object::getPropertyValueList() with empty IRI is forbidden");
     }
@@ -170,8 +173,31 @@ PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI) const {
             valuesList.push_back(prop.value());
         }
     }
-    reifiedPropertyValueList(propertyIRI, &valuesList);
-    return valuesList;
+    if ( !preserveOrdering ) {
+        reifiedPropertyValueIterate(propertyIRI, [&valuesList](const PropertyValue& pv) { valuesList.push_back(pv); });
+        return valuesList;
+    } else {
+        if ( valuesList.size() ) {
+            throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+        } else {
+            typedef std::pair<long long, PropertyValue> PropertyValueWirhOrder;
+            std::vector<PropertyValueWirhOrder> unordered;
+            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
+                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+                if ( !orderprop ) {
+                    throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+                }
+                unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), pv));
+            });
+            std::sort(unordered.begin(), unordered.end(), [](const PropertyValueWirhOrder& a, const PropertyValueWirhOrder& b) {
+                return a.first < b.first;
+            });
+            for ( const PropertyValueWirhOrder& pvo : unordered ) {
+                valuesList.emplace_back(pvo.second);
+            }
+            return valuesList;
+        }
+    }
 }
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
@@ -184,10 +210,25 @@ void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
     _r.addProperty(*p);
 }
 
-void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering) {
     writeRdfType();
-    if ( !reifiedPropertyValueAsResource(propertyIRI, val) ) {
-        _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
+    if (!reifiedPropertyValueAsResource(propertyIRI, val)) {
+        if (!preserveOrdering) {
+            _r.addProperty(factory()->createProperty(propertyIRI)->setValue(val));
+        } else {
+            long long maxVal = 0;
+            reifiedPropertyValueIterate(propertyIRI, [&](const PropertyValue& pv) {
+                std::shared_ptr<Property> orderprop = reifiedPropertyValueAsResource(propertyIRI, pv)->getOptionalProperty(AUTORDF_ORDER);
+                if ( orderprop ) {
+                    long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+                    maxVal = std::max(maxVal, order);
+                }
+            });
+            Resource reified = createReificationResource(propertyIRI, val);
+            std::shared_ptr<Property> order = factory()->createProperty(AUTORDF_ORDER);
+            order->setValue(PropertyValue().set<cvt::RdfTypeEnum::xsd_integer>(maxVal + 1));
+            reified.addProperty(*order);
+        }
     }
 }
 
@@ -201,6 +242,24 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
     }
 }
 
+Resource Object::createReificationResource(const Uri& propertyIRI, const PropertyValue& val) {
+    Resource reified = factory()->createBlankNodeResource();
+    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
+    reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
+    reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
+    reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(val));
+    return reified;
+}
+
+Resource Object::createReificationResource(const Uri& propertyIRI, const Resource& val) {
+    Resource reified = factory()->createBlankNodeResource();
+    reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
+    reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
+    reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
+    reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(val));
+    return reified;
+}
+
 Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
     // Check for reified object
     std::shared_ptr<Resource> alreadyReified = reifiedPropertyValueAsResource(propertyIRI, val);
@@ -208,11 +267,7 @@ Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
     if ( alreadyReified ) {
         return Object(*alreadyReified);
     } else {
-        Resource reified = factory()->createBlankNodeResource();
-        reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
-        reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
-        reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
-        reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(val));
+        Resource reified = createReificationResource(propertyIRI, val);
 
         //TODO: we would like some kind of transactional database to prevent inconsistencies in failure case scenarios
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
@@ -233,11 +288,7 @@ Object Object::reifyObject(const Uri& propertyIRI, const Object& object) {
     if ( alreadyReified ) {
         return Object(*alreadyReified);
     } else {
-        Resource reified = factory()->createBlankNodeResource();
-        reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(RDF_STATEMENT));
-        reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
-        reified.addProperty(factory()->createProperty(RDF_PREDICATE)->setValue(factory()->createIRIResource(propertyIRI)));
-        reified.addProperty(factory()->createProperty(RDF_OBJECT)->setValue(object._r));
+        Resource reified = createReificationResource(propertyIRI, object._r);
 
         //TODO: we would like some kind of transactional database to prevent inconsistencies in failure case scenarios
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
@@ -252,7 +303,7 @@ Object Object::reifyObject(const Uri& propertyIRI, const Object& object) {
 
 void Object::ensureUnreificationIsPossible(const std::shared_ptr<Resource>& alreadyReified) {
     static const std::set<std::string> RDF_REIFICATION_STATEMENTS = {
-            RDF_TYPE, RDF_SUBJECT, RDF_PREDICATE, RDF_OBJECT
+            RDF_TYPE, RDF_SUBJECT, RDF_PREDICATE, RDF_OBJECT, AUTORDF_ORDER
     };
     const std::shared_ptr<std::list<Property>>& propList = alreadyReified->getPropertyValues();
     for ( const Property& prop : *propList ) {
@@ -401,7 +452,7 @@ void Object::removeAllReifiedDataPropertyStatements(const Uri& propertyIRI) {
     }
 }
 
-void Object::reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVector *pvv) const {
+void Object::reifiedPropertyValueIterate(const Uri& propertyIRI, std::function<void (const PropertyValue& pv)> cb) const {
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
 
     // Iterate through statements and find ones matching predicate
@@ -411,20 +462,31 @@ void Object::reifiedPropertyValueList(const Uri& propertyIRI, PropertyValueVecto
         if ( predicate && predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
             if ( prop->isLiteral() ) {
-                pvv->push_back(prop->value());
+                cb(prop->value());
             }
         }
     }
 }
 
-void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values) {
+void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering) {
     writeRdfType();
     removeAllReifiedDataPropertyStatements(propertyIRI);
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
     _r.removeProperties(propertyIRI);
-    for (const PropertyValue& val: values) {
-        p->setValue(val);
-        _r.addProperty(*p);
+    if ( !preserveOrdering ) {
+        for (const PropertyValue& val: values) {
+            p->setValue(val);
+            _r.addProperty(*p);
+        }
+    } else {
+        long long i = 1;
+        for (const PropertyValue& val: values) {
+            Resource reified = createReificationResource(propertyIRI, val);
+            std::shared_ptr<Property> order = factory()->createProperty(AUTORDF_ORDER);
+            order->setValue(PropertyValue().set<cvt::RdfTypeEnum::xsd_integer>(i));
+            reified.addProperty(*order);
+            ++i;
+        }
     }
 }
 

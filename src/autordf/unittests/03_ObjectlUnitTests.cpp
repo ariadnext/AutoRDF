@@ -320,3 +320,33 @@ TEST(_03_Object, ObjectPropertyUnReification) {
 
     f.saveToFile("/tmp/test_UnReification3.ttl");
 }
+
+TEST(_03_Object, DataPropertyOrderingVector) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+    Object obj("http://my/object");
+
+    PropertyValueVector pvv;
+    pvv.emplace_back("stringval1");
+    pvv.emplace_back("stringval2");
+    obj.setPropertyValueList("http://prop1", pvv, true);
+
+    ASSERT_NO_THROW(obj.getPropertyValueList("http://prop1", true));
+
+    std::cout << *f.saveToMemory("turtle") << std::endl;
+}
+
+TEST(_03_Object, DataPropertyOrderingAdd) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+    Object obj("http://my/object");
+
+    obj.setPropertyValue("http://prop1", "stringval1");
+    obj.addPropertyValue("http://prop1", "stringval2", true);
+
+    std::cout << *f.saveToMemory("turtle") << std::endl;
+
+    ASSERT_THROW(obj.getPropertyValueList("http://prop1", true), autordf::CannotPreserveOrder);
+}
