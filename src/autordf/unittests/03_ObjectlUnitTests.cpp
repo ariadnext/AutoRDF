@@ -351,7 +351,6 @@ TEST(_03_Object, DataPropertyOrderingAdd) {
     ASSERT_THROW(obj.getPropertyValueList("http://prop1", true), autordf::CannotPreserveOrder);
 }
 
-
 TEST(_03_Object, ObjectPropertyOrderingVector) {
     Factory f;
     f.addNamespacePrefix("rdf", Object::RDF_NS);

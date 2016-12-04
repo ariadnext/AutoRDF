@@ -462,45 +462,11 @@ public:
      * @throw InvalidIRI if propertyIRI is empty
      */
     template<typename T> std::vector<T> getObjectListImpl(const Uri& propertyIRI, bool preserveOrdering) const {
-        if ( propertyIRI.empty() ) {
-            throw InvalidIRI("Calling getObjectListImpl() with empty IRI is forbidden");
-        }
-        const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
         std::vector<T> objList;
-        objList.reserve(propList->size());
-        for (const Property& prop: *propList) {
-            if (prop.isResource()) {
-                objList.emplace_back(T(prop.asResource()));
-            }
-        }
-        if ( !preserveOrdering ) {
-            // Iterate through statements and find ones matching predicate
-            reifiedPropertyIterate(propertyIRI, [&objList](const Property& p) {
-                objList.emplace_back(T(p.asResource()));
-            });
-            return objList;
-        } else {
-            if ( objList.size() ) {
-                throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
-            } else {
-                typedef std::pair<long long, Resource> ObjectWithOrder;
-                std::vector<ObjectWithOrder> unordered;
-                reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
-                    std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, Object(p.asResource()))->getOptionalProperty(AUTORDF_ORDER);
-                    if ( !orderprop ) {
-                        throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
-                    }
-                    unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p.asResource()));
-                });
-                std::sort(unordered.begin(), unordered.end(), [](const ObjectWithOrder& a, const ObjectWithOrder& b) {
-                    return a.first < b.first;
-                });
-                for ( const ObjectWithOrder& pvo : unordered ) {
-                    objList.emplace_back(T(pvo.second));
-                }
-                return objList;
-            }
-        }
+        propertyIterate(propertyIRI, preserveOrdering, [&objList](const Property& prop) {
+            objList.emplace_back(T(prop.asResource()));
+        });
+        return objList;
     }
 
     /**
@@ -534,30 +500,37 @@ public:
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> std::vector<T> getValueListImpl(const Uri& propertyIRI) const {
-        if ( propertyIRI.empty() ) {
-            throw InvalidIRI("Calling getValueListImpl() with empty IRI is forbidden");
-        }
-        const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
-        std::vector<T> valueList;
-        valueList.reserve(propList->size());
-        for (const Property& prop: *propList) {
-            valueList.push_back(prop.value().get<rdftype, T>());
-        }
-        return valueList;
+    template<cvt::RdfTypeEnum rdftype, typename T> std::vector<T> getValueListImpl(const Uri& propertyIRI, bool preserveOrdering) const {
+        std::vector<T> valuesList;
+        propertyIterate(propertyIRI, preserveOrdering, [&valuesList](const Property& prop) {
+            valuesList.emplace_back(prop.value().get<rdftype, T>());
+        });
+        return valuesList;
     }
 
     /**
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
-    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values) {
+    template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values, bool preserveOrdering) {
         writeRdfType();
+        removeAllReifiedDataPropertyStatements(propertyIRI);
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
         _r.removeProperties(propertyIRI);
-        for (auto const & val: values) {
-            p->setValue(PropertyValue().set<rdftype>(val));
-            _r.addProperty(*p);
+        if ( !preserveOrdering ) {
+            for (auto const& val: values) {
+                p->setValue(PropertyValue().set<rdftype>(val));
+                _r.addProperty(*p);
+            }
+        } else {
+            long long i = 1;
+            for (auto const& val: values) {
+                Resource reified = createReificationResource(propertyIRI, PropertyValue().set<rdftype>(val));
+                std::shared_ptr<Property> order = factory()->createProperty(AUTORDF_ORDER);
+                order->setValue(PropertyValue().set<cvt::RdfTypeEnum::xsd_integer>(i));
+                reified.addProperty(*order);
+                ++i;
+            }
         }
     }
 
@@ -588,6 +561,11 @@ private:
      * Shared constructor
      */
     void construct(const Uri& rdfTypeIRI);
+
+    /**
+     * Iterate over all values of a given property
+     */
+    void propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std::function<void (const Property& prop)> cb) const;
 
     /**
      * Creates a new resource that stores a value for this resource
@@ -632,12 +610,21 @@ private:
     NodeList reificationResourcesForCurrentObject() const;
 
     /**
+     * Test if p is stored as a RDF reified form, or simple statement (default)
+     * @param p property to test
+     * @return Resource representing the reified statement if available, otherwise nullptr
+     */
+    std::shared_ptr<Resource> reifiedPropertyAsResource(const Property& p) const;
+
+    /**
      * Test if val is stored as a RDF reified form, or simple statement (default)
      * @param propertyIRI Internationalized Resource Identifiers of data property
      * @param val value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Resource> reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const;
+    std::shared_ptr<Resource> reifiedPropertyValueAsResource(const Uri& propertyIRI, const PropertyValue& val) const {
+        return reifiedPropertyAsResource(factory()->createProperty(propertyIRI)->setValue(val));
+    }
 
     /**
      * Test if val is stored as a RDF reified form, or simple statement (default)
@@ -645,7 +632,9 @@ private:
      * @param val value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Resource> reifiedObjectAsResource(const Uri& propertyIRI, const Object& val) const;
+    std::shared_ptr<Resource> reifiedObjectAsResource(const Uri& propertyIRI, const Object& val) const {
+        return reifiedPropertyAsResource(factory()->createProperty(propertyIRI)->setValue(val._r));
+    }
 
     /**
      * Checks if it is possible to unreify statement, i.e. does not contain any third party
