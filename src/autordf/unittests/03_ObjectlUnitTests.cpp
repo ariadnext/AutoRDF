@@ -88,15 +88,15 @@ TEST(_03_Object, Accessors) {
 
     ASSERT_NO_THROW(person.getObject("http://xmlns.com/foaf/0.1/account"));
     ASSERT_EQ(nullptr, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
-    ASSERT_EQ(0, person.getObjectList("http://xmlns.com/foaf/0.1/unexisting").size());
-    ASSERT_EQ(2, person.getObjectList("http://xmlns.com/foaf/0.1/knows").size());
+    ASSERT_EQ(0, person.getObjectList("http://xmlns.com/foaf/0.1/unexisting", false).size());
+    ASSERT_EQ(2, person.getObjectList("http://xmlns.com/foaf/0.1/knows", false).size());
 
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
-    ASSERT_EQ(std::vector<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name"));
+    ASSERT_EQ(std::vector<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name", false));
     std::vector<Object> ref({Object("http://xmlns.com/foaf/0.1/OnlineChatAccount"), Object("http://xmlns.com/foaf/0.1/OnlineAccount")});
     std::sort(ref.begin(), ref.end());
-    auto value = account.getObjectList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+    auto value = account.getObjectList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", false);
     std::sort(value.begin(), value.end());
     ASSERT_EQ(ref, value);
 
@@ -138,7 +138,7 @@ TEST(_03_Object, removeSingleProperty) {
 
     Object obj("http://myuri/myobject", "http://myuri/type1");
 
-    obj.addPropertyValue("http://myuri/prop", "val1");
+    obj.addPropertyValue("http://myuri/prop", "val1", false);
     ASSERT_EQ(2, f.find().size());
 
     obj.removePropertyValue("http://myuri/prop", "val1");
@@ -147,7 +147,7 @@ TEST(_03_Object, removeSingleProperty) {
     long long int toto = 1;
     PropertyValue val;
     val.set<cvt::RdfTypeEnum::xsd_integer>(toto);
-    obj.addPropertyValue("http://myuri/prop", val);
+    obj.addPropertyValue("http://myuri/prop", val, false);
     ASSERT_EQ(2, f.find().size());
 
     obj.removePropertyValue("http://myuri/prop", val);
@@ -210,7 +210,7 @@ TEST(_03_Object, DataPropertyReification) {
     ASSERT_EQ("1", obj.getPropertyValue("http://myprop1"));
 
     // Test our read back support of reified statements
-    ASSERT_EQ(std::vector<PropertyValue>({"1"}), obj.getPropertyValueList("http://myprop1"));
+    ASSERT_EQ(std::vector<PropertyValue>({"1"}), obj.getPropertyValueList("http://myprop1", false));
 
     // Test our read back support of reified statements
     ASSERT_EQ(std::vector< long long int>({1}), (obj.getValueListImpl<cvt::RdfTypeEnum::xsd_integer, long long int>("http://myprop1", false)));
@@ -241,7 +241,7 @@ TEST(_03_Object, DataPropertyUnReification) {
     ASSERT_NO_THROW(obj.unReifyPropertyValue("http://unexistingprop", "unsexistingvalue"));
 
     Object reified = obj.reifyPropertyValue("http://myprop1", "1");
-    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
+    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue", false);
 
     f.saveToFile("/tmp/test_UnReification2.ttl");
 
@@ -282,7 +282,7 @@ TEST(_03_Object, ObjectPropertyReification) {
     ASSERT_EQ(obj1, obj.getObject("http://myprop1"));
 
     // Test our read back support of reified statements
-    ASSERT_EQ(std::vector<Object>({obj1}), obj.getObjectList("http://myprop1"));
+    ASSERT_EQ(std::vector<Object>({obj1}), obj.getObjectList("http://myprop1", false));
 
     // Now remove our reified statement
     obj.removeObject("http://myprop1",  obj1);
@@ -312,7 +312,7 @@ TEST(_03_Object, ObjectPropertyUnReification) {
 
     Object obj1("http://my/object1");
     Object reified = obj.reifyObject("http://myprop1", obj1);
-    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
+    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue", false);
 
     f.saveToFile("/tmp/test_UnReification2.ttl");
 
@@ -383,4 +383,17 @@ TEST(_03_Object, ObjectPropertyOrderingAdd) {
     std::cout << *f.saveToMemory("turtle") << std::endl;
 
     ASSERT_THROW(obj.getObjectList("http://prop1", true), autordf::CannotPreserveOrder);
+}
+
+TEST(_03_Object, ObjectType) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    Object obj("http://my/object", "http://myobjecttype");
+    obj.writeRdfType();
+
+    ASSERT_TRUE(obj.isA("http://myobjecttype"));
+
+    ASSERT_EQ("http://myobjecttype", obj.getTypes().front());
 }

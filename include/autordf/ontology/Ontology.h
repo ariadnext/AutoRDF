@@ -103,6 +103,11 @@ public:
      */
     static const std::string OWL_NS;
 
+    /**
+     * AUTORDF namespace prefix
+     */
+    static const std::string AUTORDF_NS;
+
 private:
     /**
      * Reads ontology from given Factory

@@ -133,7 +133,7 @@ public:
      * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    std::vector<Object> getObjectList(const Uri& propertyIRI, bool preserveOrdering = false) const;
+    std::vector<Object> getObjectList(const Uri& propertyIRI, bool preserveOrdering) const;
 
     /**
      * Sets object to given property replacing existing value
@@ -147,7 +147,7 @@ public:
      * @param obj object to add to the propertyIRI property
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering = false);
+    void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering);
 
     /**
      * Sets list of objects to given property
@@ -155,7 +155,7 @@ public:
      * @param values list of values
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values, bool preserveOrdering = false);
+    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values, bool preserveOrdering);
 
     /**
      * Remove the first value matching val for this object property
@@ -188,7 +188,7 @@ public:
      * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering = false) const;
+    PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -204,7 +204,7 @@ public:
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering = false);
+    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering);
 
     /**
      * Adds value to this property, preserving all previous values;
@@ -212,7 +212,7 @@ public:
      * @param val value for property. This new value is added to the list of values for the Property
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering = false);
+    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering);
 
     /**
      * Remove the first value matching val for this property

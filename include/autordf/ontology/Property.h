@@ -20,7 +20,7 @@ public:
     /**
      * Constructor
      */
-    Property(const Ontology* ontology) : RdfsEntity(ontology), _minCardinality(0), _maxCardinality(0xFFFFFFFF) {}
+    Property(const Ontology* ontology) : RdfsEntity(ontology), _minCardinality(0), _maxCardinality(0xFFFFFFFF), _ordered(false) {}
 
     /**
      * Lists of classes this property applies to
@@ -46,6 +46,11 @@ public:
      */
     unsigned int maxCardinality(const Klass& kls) const;
 
+    /**
+     * When stored, this property items order must be preserved
+     */
+    unsigned int ordered() const { return _ordered; }
+
 private:
     /**
      * Lists of classes this property applies to
@@ -66,6 +71,11 @@ private:
      * Maximum number of times this property must be present when it is found on an object
      */
     unsigned int _maxCardinality;
+
+    /**
+     * When stored, this property items order must be preserved
+     */
+    unsigned int _ordered;
 
     friend class Ontology;
 };

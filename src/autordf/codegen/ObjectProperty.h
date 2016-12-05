@@ -44,6 +44,7 @@ private:
 
     void generateRemoverDefinition(std::ostream& ofs, const Klass& onClass) const;
 
+    std::string orderedBoolValue() const;
 };
 }
 }

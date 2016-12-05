@@ -63,7 +63,7 @@ void Validator::validateDataProperty(const Object& object, const std::shared_ptr
         unsigned int maxCardinality = dataProperty->maxCardinality(*currentCLass);
         unsigned int minCardinality = dataProperty->minCardinality(*currentCLass);
         Uri range = dataProperty->range(currentCLass.get());
-        std::vector<PropertyValue> propList = object.getPropertyValueList(dataProperty->rdfname());
+        std::vector<PropertyValue> propList = object.getPropertyValueList(dataProperty->rdfname(), false);
         Validator::Error error(object, dataProperty->rdfname());
         error.count = propList.size();
         if (propList.size() > maxCardinality) {
@@ -101,7 +101,7 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
         unsigned int maxCardinality = objectProperty->maxCardinality(*currentClass);
         unsigned int minCardinality = objectProperty->minCardinality(*currentClass);
         autordf::Uri range = objectProperty->range(currentClass.get());
-        std::vector<Object> objList = object.getObjectList(objectProperty->rdfname());
+        std::vector<Object> objList = object.getObjectList(objectProperty->rdfname(), false);
         Validator::Error error(object, objectProperty->rdfname());
         error.count = objList.size();
         if(objList.size() > maxCardinality) {

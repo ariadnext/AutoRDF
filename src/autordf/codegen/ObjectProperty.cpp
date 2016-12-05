@@ -87,7 +87,7 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
         ofs << "std::vector<" << propertyClass.genCppNameWithNamespace() << "> " << currentClassName << "::" <<
                 _decorated.prettyIRIName() << "List() const {" << std::endl;
-        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", false);" << std::endl;
+        indent(ofs, 1) << "return object().getObjectListImpl<" << propertyClass.genCppNameWithNamespace() << ">(\"" <<  _decorated.rdfname() << "\", " << orderedBoolValue() << ");" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
         generateDefinitionSetterForMany(ofs, onClass);
@@ -141,12 +141,12 @@ void ObjectProperty::generateDefinitionSetterForMany(std::ostream& ofs, const Kl
     auto propertyClass = effectiveClass(onClass);
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
     ofs << currentClassName << "& " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "List( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values) {" << std::endl;
-    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values, false);" << std::endl;
+    indent(ofs, 1) <<     "object().setObjectListImpl<" << propertyClass.genCppNameWithNamespace(false) << ">(\"" <<  _decorated.rdfname() << "\", values, " << orderedBoolValue() << ");" << std::endl;
     indent(ofs, 1) <<     "return *this;" << std::endl;
     ofs << "}" << std::endl;
     ofs << std::endl;
     ofs << currentClassName << "& " << currentClassName << "::add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value) {" << std::endl;
-    indent(ofs, 1) <<     "object().addObject(\"" << _decorated.rdfname() << "\", value.object());" << std::endl;
+    indent(ofs, 1) <<     "object().addObject(\"" << _decorated.rdfname() << "\", value.object(), " << orderedBoolValue() << ");" << std::endl;
     indent(ofs, 1) <<     "return *this;" << std::endl;
     ofs << "}" << std::endl;
 }
@@ -181,6 +181,10 @@ void ObjectProperty::generateRemoverDefinition(std::ostream& ofs, const Klass& o
     indent(ofs, 1) << "object().removeObject(\"" << _decorated.rdfname() << "\", value.object());" << std::endl;
     indent(ofs, 1) << "return *this;" << std::endl;
     ofs  << "}" << std::endl;
+}
+
+std::string ObjectProperty::orderedBoolValue() const {
+    return _decorated.ordered() ? "true" : "false";
 }
 
 }

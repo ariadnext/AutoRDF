@@ -131,12 +131,12 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
             ofs << "std::vector<" << cppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() <<
             "List() const {" << std::endl;
             indent(ofs, 1) << "return object().getValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\", false);" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ", " << cppType << ">(\"" << _decorated.rdfname() << "\", " << orderedBoolValue() << ");" << std::endl;
             ofs << "}" << std::endl;
             ofs << std::endl;
             ofs << currentClassName << "& " << currentClassName << "::set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << ">& values) {" << std::endl;
             indent(ofs, 1) <<     "object().setValueListImpl<autordf::cvt::RdfTypeEnum::" <<
-            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values, false);" << std::endl;
+            cvt::rdfTypeEnumString(rdfType) << ">(\"" << _decorated.rdfname() << "\", values, " << orderedBoolValue() << ");" << std::endl;
             indent(ofs, 1) << "return *this;" << std::endl;
             ofs << "}" << std::endl;
         }
@@ -240,7 +240,7 @@ void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass
         indent(ofs, 1) << "std::vector<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
     } else {
         indent(ofs, 1) << "autordf::PropertyValueVector " << _decorated.prettyIRIName() << "List() const {" << std::endl;
-        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\");" << std::endl;
+        indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\", " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
@@ -257,7 +257,7 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
         indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
     } else {
         indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueVector& values) {" << std::endl;
-        indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values);" << std::endl;
+        indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values, " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) <<     "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
@@ -270,12 +270,12 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
         indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
         indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() <<
         "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
-        ">(value));" << std::endl;
+        ">(value), " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
         indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
-        indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
+        indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() << "\", value, " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
@@ -305,6 +305,10 @@ void DataProperty::generateRemover(std::ostream& ofs, const Klass& onClass) cons
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
+}
+
+std::string DataProperty::orderedBoolValue() const {
+    return _decorated.ordered() ? "true" : "false";
 }
 
 }

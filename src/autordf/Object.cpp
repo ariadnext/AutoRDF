@@ -68,10 +68,11 @@ std::string Object::QName() const {
 
 std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {
     std::vector<Uri> obj;
-    auto types = getObjectList(RDF_TYPE);
-    for (const autordf::Object& type: types) {
-        if (namespaceFilter.empty() || type.iri().find(namespaceFilter) == 0) {
-            obj.push_back(type.iri());
+    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(RDF_TYPE);
+    for (const Property& prop: *propList) {
+        autordf::Uri type = prop.asResource().name();
+        if (namespaceFilter.empty() || type.find(namespaceFilter) == 0) {
+            obj.push_back(type);
         }
     }
     return obj;
@@ -509,9 +510,10 @@ void Object::propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std:
 }
 
 bool Object::isA(const Uri& typeIRI) const {
-    auto const& typesList = getObjectList(RDF_TYPE);
-    for ( const Object& type: typesList) {
-        if ( type.iri() == typeIRI ) {
+    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(RDF_TYPE);
+    for (const Property& prop: *propList) {
+        autordf::Uri type = prop.asResource().name();
+        if ( type == typeIRI ) {
             return true;
         }
     }
@@ -623,7 +625,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
                 newLine(os, indentLevel);
                 os << '}';
             } else {
-                const PropertyValueVector& values = getPropertyValueList(propit->iri());
+                const PropertyValueVector& values = getPropertyValueList(propit->iri(), false);
                 if ( values.size() > 1 ) {
                     os << '[';
                     newLine(os, indentLevel + 1);

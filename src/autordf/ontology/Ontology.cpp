@@ -11,6 +11,7 @@ namespace ontology {
 const std::string Ontology::RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const std::string Ontology::RDFS_NS = "http://www.w3.org/2000/01/rdf-schema#";
 const std::string Ontology::OWL_NS  = "http://www.w3.org/2002/07/owl#";
+const std::string Ontology::AUTORDF_NS  = "http://github.com/ariadnext/AutoRDF#";
 
 Ontology::Ontology(const Factory* f, bool verbose) : _verbose(verbose), _f(f) {
     populateSchemaClasses(f);
@@ -171,7 +172,7 @@ void Ontology::extractClassCardinality(const Object& o, Klass *kls, const char *
 }
 
 void Ontology::extractClass(const Object& o, Klass *kls) {
-    const std::vector<Object>& subClasses = o.getObjectList(RDFS_NS + "subClassOf");
+    const std::vector<Object>& subClasses = o.getObjectList(RDFS_NS + "subClassOf", false);
     for ( const Object& subclass : subClasses ) {
         if ( !subclass.iri().empty() ) {
             // This is a named ancestor, that will be processes seperately, handle that through
@@ -227,7 +228,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     }
 
     // Handle keys
-    std::vector<Object> keys = o.getObjectList(OWL_NS + "hasKey");
+    std::vector<Object> keys = o.getObjectList(OWL_NS + "hasKey", false);
     for ( const Object& key : keys ) {
         std::shared_ptr<Object> rest(new Object(key));
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
@@ -237,14 +238,14 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     }
 
     // FIXME can loop endlessly
-    const std::vector<Object>& equivalentClasses = o.getObjectList(OWL_NS + "equivalentClass");
+    const std::vector<Object>& equivalentClasses = o.getObjectList(OWL_NS + "equivalentClass", false);
     for ( const Object& equivalentClass: equivalentClasses ) {
         extractClass(equivalentClass, kls);
     }
 }
 
 void Ontology::extractProperty(const Object& o, Property *prop) {
-    std::vector<Object> domainList = o.getObjectList(RDFS_NS + "domain");
+    std::vector<Object> domainList = o.getObjectList(RDFS_NS + "domain", false);
     if ( domainList.size() == 1 ) {
         const Object& frontDomain = domainList.front();
 
@@ -264,7 +265,7 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
         std::cerr << "rdfs#domain has more than one item for " << o.iri() << ", skipping!" << std::endl;
     }
 
-    std::vector<Object> rangeList = o.getObjectList(RDFS_NS + "range");
+    std::vector<Object> rangeList = o.getObjectList(RDFS_NS + "range", false);
     if ( rangeList.size() == 1 ) {
         prop->_range = rangeList.front().iri();
     } else if ( rangeList.size() > 1 ) {
@@ -276,6 +277,8 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
         prop->_minCardinality = 0;
         prop->_maxCardinality = 1;
     }
+
+    prop->_ordered = o.getOptionalPropertyValue(AUTORDF_NS + "ordered") ? true : false;
 }
 
 void Ontology::extractClass(const Object& rdfsClass) {
