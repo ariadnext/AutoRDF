@@ -369,6 +369,21 @@ TEST(_03_Object, ObjectPropertyOrderingVector) {
     ASSERT_NO_THROW(obj.getObjectList("http://prop1", true));
 
     std::cout << *f.saveToMemory("turtle") << std::endl;
+
+    std::vector<Object> read = obj.getObjectList("http://prop1", true);
+
+    std::swap(read.front(), read.back());
+
+    obj.setObjectList("http://prop1", read, true);
+
+    std::cout << *f.saveToMemory("turtle") << std::endl;
+
+    std::vector<Object> read2 = obj.getObjectList("http://prop1", true);
+
+    ASSERT_EQ(2, read2.size());
+
+    ASSERT_EQ(objects[0], read2[1]);
+    ASSERT_EQ(objects[1], read2[0]);
 }
 
 TEST(_03_Object, ObjectPropertyOrderingAdd) {

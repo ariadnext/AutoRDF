@@ -420,17 +420,15 @@ std::shared_ptr<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) co
 }
 
 void Object::removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI) {
-    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
-    for ( const Property& p : *propList ) {
+    reifiedPropertyIterate(propertyIRI, [this](const Property& p) {
         unReifyObject(p.iri(), p.asResource(), false);
-    }
+    });
 }
 
 void Object::removeAllReifiedDataPropertyStatements(const Uri& propertyIRI) {
-    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(propertyIRI);
-    for ( const Property& p : *propList ) {
+    reifiedPropertyIterate(propertyIRI, [this](const Property& p) {
         unReifyPropertyValue(p.iri(), p.value(), false);
-    }
+    });
 }
 
 void Object::reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (const Property& p)> cb) const {
