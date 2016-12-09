@@ -376,6 +376,13 @@ public:
     static std::vector<Object> findByType(const Uri& typeIRI = "");
 
     /**
+     * Returns all Objects matching any of the specified type IRI
+     *
+     * @param typeIRI set of Internationalized Resource Identifiers of the type to be retrieved
+     */
+    static std::set<Object> findByType(const std::set<Uri>& typeIRI);
+
+    /**
      * Returns the only Object with property key set to value
      *
      * @param propertyIRI Internationalized Resource Identifier for the property

@@ -538,6 +538,21 @@ std::vector<Object> Object::findByType(const Uri& iri) {
     return findHelper<Object>(iri);
 }
 
+std::set<Object> Object::findByType(const std::set<Uri>& typeIRI) {
+    std::set<Object> objList;
+
+    for ( const Uri& type : typeIRI ) {
+        Statement query;
+        query.predicate.setIri(RDF_NS + "type");
+        query.object.setIri(type);
+        const StatementList& statements = factory()->find(query);
+        for(const Statement& stmt : statements) {
+            objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+        }
+    }
+    return objList;
+}
+
 Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     Statement query;
     query.predicate.setIri(propertyIRI);
