@@ -412,3 +412,47 @@ TEST(_03_Object, ObjectType) {
 
     ASSERT_EQ("http://myobjecttype", obj.getTypes().front());
 }
+
+TEST(_03_Object, FindSources) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
+
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+
+    Object jimmy;
+    Object angela;
+    for ( auto p : objs ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+            jimmy = p;
+        } else if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Angela Beesley" ) {
+            angela = p;
+        }
+    }
+
+    std::set<Object> sources = angela.findSources();
+    EXPECT_TRUE(sources.find(angela) == sources.end());
+    EXPECT_TRUE(sources.find(jimmy) != sources.end());
+}
+
+TEST(_03_Object, FindTargets) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
+
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+
+    Object person;
+    for ( auto p : objs ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+            person = p;
+        }
+    }
+
+    std::set<Object> targets = person.findTargets();
+    EXPECT_TRUE(targets.find(person) == targets.end());
+    Object known = person.getObject("http://xmlns.com/foaf/0.1/knows");
+    EXPECT_TRUE(targets.find(known) != targets.end());
+}

@@ -686,7 +686,9 @@ std::set<Object> Object::findTargets() const {
     query.subject = currentNode();
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
-        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+        if ( stmt.object.type() == NodeType::RESOURCE || stmt.object.type() == NodeType::BLANK) {
+            objList.insert(Object(factory()->createResourceFromNode(stmt.object)));
+        }
     }
     return objList;
 }
