@@ -1,3 +1,126 @@
+autordf (1.1.0) wheezy; urgency=low
+
+  [ Leatitia Dimou ]
+  * Add Copy constructor, remove quote for blank node on error message
+
+  [ Fabien Chevalier ]
+  * Remove all runtime type checking. Too slow, and deprecated in favor of database validation
+
+  [ Leatitia Dimou ]
+  * Validator:Improve error message and remove useless copy constructor
+
+  [ Fabien Chevalier ]
+  * Bugfix 71febce commit: some useless code left
+
+  [ Leatitia Dimou ]
+  * Add method to find all objects in factory
+
+  [ Fabien Chevalier ]
+  * Reification support for data Properties
+
+  [ Sebastien Baguet ]
+  * Add doxygen to debian dependancies
+
+  [ Fabien Chevalier ]
+  * Class hierarchy generation bugfix. We were not be correct in case of cascaded inheritance relations
+  * Object::writeRdfType now returns current object
+  * Remove unused, and incorrect constructor when used with as<>() operator in code generator
+  * Generate additional getters for optional case
+  * Introduce QName method on Uri and Object objects, and fix broken xml namespace management
+  * Bugfix previous commit side effect
+
+  [ Leatitia Dimou ]
+  * update Validator to use shared_ptr instead
+  * Fix getAllPredecessors() to include indirect predecessors
+  * Update unittest to test inderect predecessors
+
+  [ Fabien Chevalier ]
+  * Implement loading from memory
+  * Rework format handling
+  * Bug fix error message
+  * Better node display & Do not display node if insertion or deletion fails, as it is now empty after tentative action
+
+  [ Eric Le Lay ]
+  * add boost include dir
+  * add cstdlib for exit()
+  * clang toolchain include adjustments
+  * cmake -DBUILD_TOOLS=0 to disable building codegen
+  * add Boost_LIBRARY_DIRS to link directories
+
+  [ Fabien Chevalier ]
+  * Add push and pop facility for Object factories
+
+  [ Sebastien Baguet ]
+  * Add predecessors command
+  * Improve interface -> reifiedPropertyValue return Object instead of resources
+
+  [ Fabien Chevalier ]
+  * Add API support to all redland storage engines
+  * Implement stable save to file
+
+  [ Eric Le Lay ]
+  * iOS build compatibility
+
+  [ Sebastien Baguet ]
+  * Add findSources for an object
+
+  [ Fabien Chevalier ]
+  * Initial support for Object property reification
+
+  [ Sebastien Baguet ]
+  * Add findTargets
+
+  [ Fabien Chevalier ]
+  * Move from c++0x to c++11 as language compatibility level. Add unused parameter and variable warning
+  * Fixup non default storage support that would segfault
+  * Add performance test
+  * Add constants for data and object properties IRI
+  * Perftest in Memory only
+  * Implement arcsIn, arcsOut
+  * Migrate unit tests to ttl
+  * Initial port to SORD
+  * Temporary workaround: disable some tests due to SORD support
+  * Model::add bugfix
+  * Fixup base uri for sord
+  * Fixup debian/rules
+  * Build bugfix
+
+  [ Baptiste Poirriez ]
+  * Build bugfix
+
+  [ Fabien Chevalier ]
+  * Refactor blank nodes naming handling
+  * Migrate default debian packaging to sord
+  * Tryout at multi framework travis build
+  * Add missing pkg-config build dep
+  * Better variables naming
+  * Add failing unit test case
+  * Prevent blank node ids collision
+  * Be more verbose with blank nodes error display
+  * De-brokenize redland build
+  * Property validator is also an object
+  * Fix unit test
+  * Support for ordering in Data Properties
+  * Support for ordering in object properties
+  * Code cleanup
+  * Code cleanup
+  * Enable doc building
+  * Code generator: fix build
+  * Re-convert foaf ontology to turtle, re-enable automatic code generation
+  * Add unit test for reification in code generator context
+  * Bugfix reification: we would create bogus reifyed statements
+  * Update geometry with ordered vertices
+  * Full supported for ordered AutoRDF annotation
+  * Bugfix setObjectList and setPropertyValueList: would not remove reified statements
+  * Add findByType with uri set
+
+  [ Eric Le Lay ]
+  * fix Object::findTargets()
+
+  [ root ]
+
+ -- root <root@jenkins-ocr2.rennes.ariadnext.com>  Tue, 07 Feb 2017 17:22:31 +0100
+
 autordf (1.0.0.0) wheezy; urgency=low
 
   [ Sebastien Baguet ]
