@@ -11,6 +11,8 @@ class Model;
 
 namespace codegen {
 
+class Klass;
+
 class RdfsEntity {
     ontology::RdfsEntity _decorated;
 public:
@@ -38,6 +40,7 @@ public:
 
     void generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment = "", const RdfsEntity *alternate = 0) const;
 
+    void generatePropertyComment(std::ostream& ofs, const Klass& onClass, const std::string& methodName, unsigned int numIndent, const std::string& additionalComment = "", const RdfsEntity *alternate = 0) const;
 private:
     std::string genCppNameSpaceInternal(const char *sep) const;
 };

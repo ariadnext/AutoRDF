@@ -19,20 +19,23 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
 
     if ( _decorated.maxCardinality(onClass.decorated()) <= 1 ) {
         if ( _decorated.minCardinality(onClass.decorated()) > 0 ) {
-            generateComment(ofs, 1,
+            std::string methodName = _decorated.prettyIRIName();
+            generatePropertyComment(ofs, onClass, methodName,  1,
                 "@return the mandatory instance.\n"
                 "@throw PropertyNotFound if object reference is not set", &propertyClass);
-            indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << _decorated.prettyIRIName()<< "() const;" << std::endl;
+            indent(ofs, 1) << propertyClass.genCppNameWithNamespace() << " " << methodName << "() const;" << std::endl;
         } else {
-            generateComment(ofs, 1,
+            std::string methodName = _decorated.prettyIRIName() + "Optional";
+            generatePropertyComment(ofs, onClass, methodName,  1,
                             "@return the object instance if it is set, or nullptr if it is not set.", &propertyClass);
-            indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
+            indent(ofs, 1) << "std::shared_ptr<" << propertyClass.genCppNameWithNamespace()  << "> " << methodName << "() const;" << std::endl;
         }
     }
     if ( _decorated.maxCardinality(onClass.decorated()) > 1 ) {
-        generateComment(ofs, 1,
+        std::string methodName = _decorated.prettyIRIName() + "List";
+        generatePropertyComment(ofs, onClass, methodName,  1,
                         "@return the list typed objects.  List can be empty if not values are set in database", &propertyClass);
-        indent(ofs, 1) << "std::vector<" << propertyClass.genCppNameWithNamespace()  << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::vector<" << propertyClass.genCppNameWithNamespace()  << "> " << methodName << "() const;" << std::endl;
         ofs << std::endl;
         generateDeclarationSetterForMany(ofs, onClass);
     }
@@ -104,12 +107,14 @@ void ObjectProperty::generateDefinition(std::ostream& ofs, const Klass& onClass)
 void ObjectProperty::generateDeclarationSetterForOne(std::ostream& ofs, const Klass& onClass) const {
     auto propertyClass = effectiveClass(onClass);
 
+    std::string methodName = "set" + _decorated.prettyIRIName(true);
+
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
-    generateComment(ofs, 1,
+    generatePropertyComment(ofs, onClass, methodName,  1,
                     "Sets the mandatory value for this property.\n"
                             "@param value value to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
+    indent(ofs, 1) << currentClassName << "& " << methodName << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
 }
 
 void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const Klass& onClass) const {
@@ -117,15 +122,18 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
 
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
 
-    generateComment(ofs, 1,
+    std::string methodName = "set" + _decorated.prettyIRIName(true) + "List";
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Sets the values for this property.\n"
                             "@param values values to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "List( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values);" << std::endl;
+    indent(ofs, 1) << currentClassName << "& " << methodName << "( const std::vector<" << propertyClass.genCppNameWithNamespace(false) << ">& values);" << std::endl;
     ofs << std::endl;
-    generateComment(ofs, 1,
+
+    methodName = "add" + _decorated.prettyIRIName(true);
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Adds a value for this property.\n"
                             "@param value value to set for this property, removing all other values", &propertyClass);
-    indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
+    indent(ofs, 1) << currentClassName << "& " << methodName << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
 }
 
 void ObjectProperty::generateDefinitionSetterForOne(std::ostream& ofs, const Klass& onClass) const {
@@ -164,12 +172,13 @@ void ObjectProperty::generateRemoverDeclaration(std::ostream& ofs, const Klass& 
     auto propertyClass = effectiveClass(onClass);
 
     std::string currentClassName = "I" + onClass.decorated().prettyIRIName();
+    std::string methodName = "remove" + _decorated.prettyIRIName(true);
 
-    generateComment(ofs, 1,
+    generatePropertyComment(ofs, onClass, methodName,  1,
                     "Remove a value for this property.\n"
                             "@param obj value to remove for this property.\n"
                             "@throw PropertyNotFound if propertyIRI has not obj as value", &propertyClass);
-    indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace(true) << "& obj);" << std::endl;
+    indent(ofs, 1) << currentClassName << "& " << methodName << "( const " << propertyClass.genCppNameWithNamespace(true) << "& obj);" << std::endl;
 }
 
 void ObjectProperty::generateRemoverDefinition(std::ostream& ofs, const Klass& onClass) const {

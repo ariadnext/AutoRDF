@@ -5,6 +5,7 @@
 
 #include <autordf/ontology/Ontology.h>
 #include <autordf/Model.h>
+#include <autordf/codegen/Klass.h>
 #include "Utils.h"
 
 #include <boost/tokenizer.hpp>
@@ -69,6 +70,7 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
                 }
             }
         }
+
         if ( !used->_decorated.seeAlso().empty() ) {
             indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
         }
@@ -85,6 +87,11 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
 
         indent(ofs, numIndent) << " */" << std::endl;
     }
+}
+
+void RdfsEntity::generatePropertyComment(std::ostream& ofs, const Klass& onClass, const std::string& methodName, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {
+    std::string addendum = std::string("This method ") + onClass.genCppNameWithNamespace() + "::" + methodName + " uses " + _decorated.rdfname() + " rdfs/owl property";
+    generateComment(ofs, numIndent, additionalComment + "\n" + addendum, alternate);
 }
 
 }

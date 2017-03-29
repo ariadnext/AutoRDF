@@ -155,9 +155,9 @@ std::pair<cvt::RdfTypeEnum, std::string> DataProperty::getRdfCppTypes(const Klas
     return std::make_pair(cvt::RdfTypeEnum::xsd_string , "");
 }
 
-
 void DataProperty::generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const {
-    generateComment(ofs, 1,
+    std::string methodName = _decorated.prettyIRIName();
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "@return the mandatory value for this property.\n"
                             "@throw PropertyNotFound if value is not set in database");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
@@ -165,18 +165,19 @@ void DataProperty::generateGetterForOneMandatory(std::ostream& ofs, const Klass&
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << cppType << " " << _decorated.prettyIRIName() << "() const {" << std::endl;
+        indent(ofs, 1) << cppType << " " << methodName << "() const {" << std::endl;
         indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname() << "\").get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << cppType<< ">();" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << "autordf::PropertyValue " << _decorated.prettyIRIName() << "() const {" << std::endl;
+        indent(ofs, 1) << "autordf::PropertyValue " << methodName << "() const {" << std::endl;
         indent(ofs, 2) << "return object().getPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
 
 void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass) const {
-    generateComment(ofs, 1,
+    std::string methodName = "set" + _decorated.prettyIRIName(true);
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Sets the mandatory value for this property.\n"
                             "@param value value to set for this property, removing all other values");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
@@ -186,7 +187,7 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const " << cppType << "& value) {" << std::endl;
         indent(ofs, 2) << "object().setPropertyValue(\"" << _decorated.rdfname() <<
             "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
             ">(value));" << std::endl;
@@ -203,20 +204,22 @@ void DataProperty::generateSetterForOne(std::ostream& ofs, const Klass& onClass)
 void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& onClass) const {
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
-    generateComment(ofs, 1,
+    std::string methodName = _decorated.prettyIRIName() + "Optional";
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "@return the valueif it is set, or nullptr if it is not set.");
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << _decorated.prettyIRIName() << "Optional() const;" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<" << cppType << "> " << methodName << "() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
+        indent(ofs, 1) << "std::shared_ptr<autordf::PropertyValue> " << methodName << "() const {" << std::endl;
         indent(ofs, 2) << "return object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 
     ofs << std::endl;
-    generateComment(ofs, 1,
+    methodName = _decorated.prettyIRIName();
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "@return the valueif it is set, or defaultval if it is not set.");
 
     if (!rdfCppType.second.empty()) {
@@ -231,22 +234,24 @@ void DataProperty::generateGetterForOneOptional(std::ostream& ofs, const Klass& 
 }
 
 void DataProperty::generateGetterForMany(std::ostream& ofs, const Klass& onClass) const {
-    generateComment(ofs, 1,
+    std::string methodName = _decorated.prettyIRIName() + "List";
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "@return the list of values.  List can be empty if not values are set in database");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << "std::vector<" << cppType << "> " << _decorated.prettyIRIName() << "List() const;" << std::endl;
+        indent(ofs, 1) << "std::vector<" << cppType << "> " << methodName << "() const;" << std::endl;
     } else {
-        indent(ofs, 1) << "autordf::PropertyValueVector " << _decorated.prettyIRIName() << "List() const {" << std::endl;
+        indent(ofs, 1) << "autordf::PropertyValueVector " << methodName << "() const {" << std::endl;
         indent(ofs, 2) <<     "return object().getPropertyValueList(\"" << _decorated.rdfname() << "\", " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
 }
 
 void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass) const {
-    generateComment(ofs, 1,
+    std::string methodName = "set" + _decorated.prettyIRIName(true);
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Sets property to list of values \n@param values the list of values");
     std::pair<cvt::RdfTypeEnum, std::string> rdfCppType = getRdfCppTypes(onClass);
 
@@ -254,27 +259,29 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
 
     if (!rdfCppType.second.empty()) {
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const std::vector<" << cppType << "> " << "& values);" << std::endl;
     } else {
-        indent(ofs, 1) << currentClassName << "& set" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValueVector& values) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const autordf::PropertyValueVector& values) {" << std::endl;
         indent(ofs, 2) <<     "object().setPropertyValueList(\"" << _decorated.rdfname() << "\", values, " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) <<     "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     }
     ofs << std::endl;
-    generateComment(ofs, 1,
+
+    methodName = "add" + _decorated.prettyIRIName(true);
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Adds a value to a property \n@param value the value to add");
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const " << cppType << "& value) {" << std::endl;
         indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() <<
         "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
         ">(value), " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << currentClassName << "& add" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const autordf::PropertyValue& value) {" << std::endl;
         indent(ofs, 2) << "object().addPropertyValue(\"" << _decorated.rdfname() << "\", value, " << orderedBoolValue() << ");" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
@@ -282,7 +289,8 @@ void DataProperty::generateSetterForMany(std::ostream& ofs, const Klass& onClass
 }
 
 void DataProperty::generateRemover(std::ostream& ofs, const Klass& onClass) const {
-    generateComment(ofs, 1,
+    std::string methodName = "remove" + _decorated.prettyIRIName(true);
+    generatePropertyComment(ofs, onClass, methodName, 1,
                     "Remove a value for this property.\n"
                             "@param value to remove for this property.\n"
                             "@throw PropertyNotFound if propertyIRI has not obj as value\n");
@@ -293,14 +301,14 @@ void DataProperty::generateRemover(std::ostream& ofs, const Klass& onClass) cons
     if (!rdfCppType.second.empty()) {
         cvt::RdfTypeEnum rdfType = rdfCppType.first;
         std::string cppType = rdfCppType.second;
-        indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "(const " << cppType << "& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const " << cppType << "& value) {" << std::endl;
         indent(ofs, 2) << "object().removePropertyValue(\"" << _decorated.rdfname() <<
         "\", autordf::PropertyValue().set<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) <<
         ">(value));" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
     } else {
-        indent(ofs, 1) << currentClassName << "& remove" << _decorated.prettyIRIName(true) << "(const autordf::PropertyValue& value) {" << std::endl;
+        indent(ofs, 1) << currentClassName << "& " << methodName << "(const autordf::PropertyValue& value) {" << std::endl;
         indent(ofs, 2) << "object().removePropertyValue(\"" << _decorated.rdfname() << "\", value);" << std::endl;
         indent(ofs, 2) << "return *this;" << std::endl;
         indent(ofs, 1) << "}" << std::endl;
