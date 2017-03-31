@@ -74,7 +74,7 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "}" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * @brief Returns the list of all objects of this kind in the store" << std::endl;
+    indent(ofs, 1) << " * @brief This method " << genCppNameSpaceFullyQualified() << "::" << cppName << "::find returns all resources of type " << _decorated.rdfname() << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static std::vector<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
