@@ -53,7 +53,7 @@ void ObjectProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onCl
     std::string currentClassName = onClass.decorated().prettyIRIName();
 
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * @brief Returns the only instance of " + currentClassName + " with property " + _decorated.prettyIRIName() +  " set to given object." << std::endl;
+    indent(ofs, 1) << " * @brief This method " << genCppNameSpaceFullyQualified() << "::" << currentClassName << "::findBy" << _decorated.prettyIRIName(true) << " returns the only instance of " + onClass.decorated().rdfname() + " with property " + _decorated.rdfname() +  " set to given object." << std::endl;
     indent(ofs, 1) << " * " << std::endl;
     indent(ofs, 1) << " * @param key value that uniquely identifies the expected object" << std::endl;
     indent(ofs, 1) << " * " << std::endl;
