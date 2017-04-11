@@ -56,37 +56,40 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
             used = alternate;
         }
     }
-    if ( !used->_decorated.label().empty() || !used->_decorated.comment().empty() ) {
+    bool outputDoxygen = !used->_decorated.label().empty() || !used->_decorated.comment().empty();
+    if (outputDoxygen) {
         indent(ofs, numIndent) << "/**" << std::endl;
-        if ( !used->_decorated.label().empty() ) {
-            indent(ofs, numIndent) << " * @brief " << used->_decorated.label() << std::endl;
-            indent(ofs, numIndent) << " * " << std::endl;
-        }
-        if ( !used->_decorated.comment().empty() ) {
-            boost::tokenizer<boost::char_separator<char> > lines(used->_decorated.comment(), NEWLINE);
-            for (const std::string& line : lines) {
-                if ( !line.empty() ) {
-                    indent(ofs, numIndent) << " * " << line << std::endl;
-                }
-            }
-        }
-
-        if ( !used->_decorated.seeAlso().empty() ) {
-            indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
-        }
-        if ( !used->_decorated.isDefinedBy().empty() ) {
-            indent(ofs, numIndent) << " * @see " << used->_decorated.isDefinedBy() << std::endl;
-        }
-
-        boost::tokenizer<boost::char_separator<char> > lines(additionalComment, NEWLINE);
+    } else {
+        indent(ofs, numIndent) << "/*" << std::endl;
+    }
+    if ( !used->_decorated.label().empty() ) {
+        indent(ofs, numIndent) << " * @brief " << used->_decorated.label() << std::endl;
+        indent(ofs, numIndent) << " * " << std::endl;
+    }
+    if ( !used->_decorated.comment().empty() ) {
+        boost::tokenizer<boost::char_separator<char> > lines(used->_decorated.comment(), NEWLINE);
         for (const std::string& line : lines) {
             if ( !line.empty() ) {
                 indent(ofs, numIndent) << " * " << line << std::endl;
             }
         }
-
-        indent(ofs, numIndent) << " */" << std::endl;
     }
+
+    if ( !used->_decorated.seeAlso().empty() ) {
+        indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
+    }
+    if ( !used->_decorated.isDefinedBy().empty() ) {
+        indent(ofs, numIndent) << " * @see " << used->_decorated.isDefinedBy() << std::endl;
+    }
+
+    boost::tokenizer<boost::char_separator<char> > lines(additionalComment, NEWLINE);
+    for (const std::string& line : lines) {
+        if ( !line.empty() ) {
+            indent(ofs, numIndent) << " * " << line << std::endl;
+        }
+    }
+
+    indent(ofs, numIndent) << " */" << std::endl;
 }
 
 void RdfsEntity::generatePropertyComment(std::ostream& ofs, const Klass& onClass, const std::string& methodName, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {
