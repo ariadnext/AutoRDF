@@ -1,3 +1,15 @@
+autordf (1.2.0) wheezy; urgency=medium
+
+  [ Fabien Chevalier ]
+  * Add detailed comment on which rdf property is used on what method call
+  * Give more precision on find method behaviour
+
+  [ Eric Le Lay ]
+  * full IRIs in findBy method documentation
+  * Always output property comment
+
+ -- Eric Le Lay <eric.lelay@ariadnext.com>  Mon, 15 May 2017 10:42:00 +0200
+
 autordf (1.1.0) wheezy; urgency=low
 
   [ Leatitia Dimou ]
