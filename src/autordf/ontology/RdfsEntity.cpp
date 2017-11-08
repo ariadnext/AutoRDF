@@ -6,7 +6,7 @@ namespace ontology {
 Model *RdfsEntity::_m = 0;
 
 std::string RdfsEntity::prettyIRIName(bool uppercaseFirst) const {
-    std::string cppname = _rdfname.prettyName(uppercaseFirst);
+    std::string cppname = _rdfname.prettyName(uppercaseFirst ? Uri::PrettyFormat::UPPERCASEFIRST : Uri::PrettyFormat::UNMODIFIED);
     if ( !::isalpha(cppname[0]) ) {
         cppname = "_" + cppname;
     }
