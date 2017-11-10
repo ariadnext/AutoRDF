@@ -1,5 +1,3 @@
-#include <getopt.h>
-
 #include <iostream>
 #include <fstream>
 #include <set>
@@ -7,6 +5,10 @@
 #include <memory>
 
 #include <boost/algorithm/string.hpp>
+
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
 
 #include <autordf/Factory.h>
 #include <autordf/Object.h>
@@ -185,48 +187,55 @@ void run(Factory *f, const std::string& name) {
 int main(int argc, char **argv) {
     autordf::Factory f;
 
-    std::stringstream usage;
-    usage << "Usage: " << argv[0] << " [-v] [-n namespacemap] [-o outfile] owlfile1 [owlfile2...]\n";
-    usage << "\t" << "Processes an OWL file, and generates UML XMI file from it in current directory\n";
-    usage << "\t" << "namespacemap:\t Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.\n";
-    usage << "\t" << "outdir:\t Folder where to generate files in. If it does not exit it will be created. Defaults to current directory." << ".\n";
-    usage << "\t" << "-v:\t Turn verbose output on." << ".\n";
-    int opt;
-    while ((opt = ::getopt(argc, argv, "vhn:o:")) != -1) {
-        switch (opt) {
-            case 'n': {
-                {
-                    std::stringstream ss(optarg);
-                    std::string prefix;
-                    std::getline(ss, prefix, ':');
-                    std::string ns;
-                    ss >> ns;
-                    if ( verbose ) {
-                        std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
-                    }
-                    f.addNamespacePrefix(prefix, ns);
-                }
-                break;
+    namespace po = boost::program_options;
+
+    po::options_description desc("Usage: autordfxmi [-v] [-n namespacemap] [-o outfile] owlfile1 [owlfile2...]\n"
+                                 "Processes an OWL file, and generates UML XMI file from it in current directory");
+
+    desc.add_options()
+            ("help,h", "Describe arguments")
+            ("verbose,v", "Turn verbose output on.")
+            ("all-in-one,a", "Generate one cpp file that includes all the other called AllInOne.cpp")
+            ("namespacemap,n", po::value< std::vector<std::string> >(), "Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.")
+            ("outfile,o", po::value< std::string >(), "File to write to.")
+            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)");
+
+    po::positional_options_description p;
+    p.add("owlfile", -1);
+
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).
+            options(desc).positional(p).run(), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return 1;
+    }
+
+    verbose = vm.count("verbose") > 0;
+
+    if(vm.count("namespacemap")) {
+        for(auto ns: vm["namespacemap"].as< std::vector<std::string> >()) {
+            std::stringstream ss(ns);
+            std::string prefix;
+            std::getline(ss, prefix, ':');
+            std::string ns;
+            ss >> ns;
+            if (verbose) {
+                std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
             }
-            case 'o':
-            {
-                //FIXME handle errors
-                ofs.open(optarg);
-                out = &ofs;
-                break;
-            }
-            case 'v':
-                verbose = true;
-                break;
-            case 'h':
-            default: /* '?' */
-                std::cerr << usage.str();
-                std::cerr.flush();
-                return 1;
+            f.addNamespacePrefix(prefix, ns);
         }
     }
 
-    if (optind >= argc) {
+    if(vm.count("outfile")) {
+        //FIXME handle errors
+        ofs.open(vm["outfile"].as<std::string>());
+        out = &ofs;
+    }
+
+    if (!(vm.count("owlfile"))) {
         std::cerr << "Expected argument after options" << std::endl;
         return 1;
     }
@@ -237,18 +246,24 @@ int main(int argc, char **argv) {
     //FIXME: Read that from command line
     std::string baseURI = "http://";
 
-    std::string firstFile;
-    while ( optind < argc ) {
-        if ( verbose ) {
-            std::cout << "Loading " << argv[optind] << " into model." << std::endl;
-        }
-        if ( firstFile.empty() ) {
-            firstFile = argv[optind];
-        }
-        f.loadFromFile(argv[optind], baseURI);
-        optind++;
-    }
+    try {
 
-    run(&f, firstFile);
-    return 0;
+        std::string firstFile;
+        for ( std::string owlfile: vm["owlfile"].as< std::vector<std::string> >() ) {
+            if ( verbose ) {
+                std::cout << "Loading " << owlfile << " into model." << std::endl;
+            }
+            if ( firstFile.empty() ) {
+                firstFile = owlfile;
+            }
+            f.loadFromFile(owlfile, baseURI);
+        }
+    
+        run(&f, firstFile);
+        return 0;
+
+    } catch(const std::exception& e) {
+        std::cerr << "E: " << e.what() << std::endl;
+        return -1;
+    }
 }

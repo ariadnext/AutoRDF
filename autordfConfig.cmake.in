@@ -1,0 +1,22 @@
+set(AUTORDF_FOUND TRUE)
+set(AUTORDF_VERSION @SOLIBVERSION@)
+
+set(_supported_components ONTOLOGY)
+
+foreach(_comp ${AUTORDF_FIND_COMPONENTS})
+  if (NOT ";${_supported_components};" MATCHES _comp)
+    set(AUTORDF_FOUND False)
+    set(AUTORDF_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
+  endif()
+#  include("${CMAKE_CURRENT_LIST_DIR}/ClimbingStats${_comp}Targets.cmake")
+endforeach()
+set(AUTORDF_LIBRARIES autordf)
+set(AUTORDF_STATIC_LIBRARIES autordf)
+set(AUTORDF_ONTOLOGY_LIBRARIES autordf-ontology)
+set(AUTORDF_ONTOLOGY_STATIC_LIBRARIES autordf-ontology)
+
+@PACKAGE_INIT@
+
+set_and_check(AUTORDF_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(AUTORDF_LIBRARY_DIRS "@PACKAGE_LIB_INSTALL_DIR@")
+check_required_components(autordf)

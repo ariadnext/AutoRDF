@@ -207,7 +207,7 @@ bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const au
                 property.get<cvt::RdfTypeEnum::xsd_byte, char>();
                 break;
         }
-    } catch (const DataConvertionFailure& e) {
+    } catch (const DataConvertionFailure&) {
         valid = false;
     }
 

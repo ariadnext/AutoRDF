@@ -5,6 +5,8 @@
 #include <map>
 #include <memory>
 
+#include <autordf/ontology/autordf-ontology_export.h>
+
 #include "autordf/ontology/Klass.h"
 #include "autordf/ontology/DataProperty.h"
 #include "autordf/ontology/ObjectProperty.h"
@@ -26,7 +28,7 @@ class Property;
 /**
  * Maps an OWL or RDFS Ontology to set of more readily accessible C++ objects
  */
-class Ontology {
+class AUTORDF_ONTOLOGY_EXPORT Ontology {
 public:
     /**
      * Default constructor

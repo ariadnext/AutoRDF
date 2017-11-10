@@ -2,9 +2,29 @@ IF(APPLE AND NOT NATIVE)
 set(Boost_INCLUDE_DIRS ${CMAKE_FRAMEWORK_EXTRA_PATH}/boost.framework)
 set(Boost_LIBRARIES boost)
 message(STATUS "FORCED Boost_INCLUDE_DIRS to ${Boost_INCLUDE_DIRS}")
+ELSEIF(WINRT)
+find_package(Boost REQUIRED COMPONENTS date_time program_options)
 ELSE(APPLE AND NOT NATIVE)
-find_package(Boost REQUIRED COMPONENTS date_time)
+find_package(Boost REQUIRED COMPONENTS date_time program_options thread)
 ENDIF(APPLE AND NOT NATIVE)
+IF(WIN32)
+    MESSAGE("BOOST: ${BOOST_INCLUDE_DIRS} Boost: ${Boost_INCLUDE_DIRS}, ${Boost_LIBRARY_DIRS}, ${Boost_LIBRARIES}")
+    IF("${LIBRARY_TYPE}" STREQUAL "SHARED")
+	LIST(APPEND Boost_LIBRARIES Boost::dynamic_linking)
+	LIST(APPEND Boost_DATE_TIME_LIBRARY Boost::dynamic_linking)
+	LIST(APPEND Boost_PROGRAM_OPTIONS_LIBRARY Boost::dynamic_linking)
+	IF(NOT WINRT)
+	LIST(APPEND Boost_THREAD_LIBRARY Boost::dynamic_linking)
+	ENDIF()
+    ELSE()
+	LIST(APPEND Boost_LIBRARIES Boost::disable_autolinking)
+	LIST(APPEND Boost_DATE_TIME_LIBRARY Boost::disable_autolinking)
+	LIST(APPEND Boost_PROGRAM_OPTIONS_LIBRARY Boost::disable_autolinking)
+	IF(NOT WINRT)
+	LIST(APPEND Boost_THREAD_LIBRARY Boost::disable_autolinking)
+	ENDIF()
+    ENDIF()
+ENDIF()
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
@@ -34,12 +54,21 @@ ADD_LIBRARY(
     internal/StatementConverter.cpp
     cvt/RdfTypeEnum.cpp
 )
+
+include(GenerateExportHeader)
+generate_export_header(autordf)
+INSTALL(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/autordf_export.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/autordf)
+
 TARGET_LINK_LIBRARIES(
     autordf
     ${RDF_C_API_LIBRARIES}
-    boost_date_time
+    ${Boost_DATE_TIME_LIBRARY}
 )
 SET_TARGET_PROPERTIES(autordf PROPERTIES VERSION ${SOLIBVERSION})
+IF(WINRT)
+    SET_TARGET_PROPERTIES(autordf PROPERTIES VS_WINRT_COMPONENT TRUE)
+ENDIF()
 
 INSTALL(TARGETS autordf
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
