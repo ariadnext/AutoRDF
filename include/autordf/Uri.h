@@ -35,10 +35,19 @@ public:
     std::string localPart() const;
 
     /**
+     * Possible formats for prettyName
+     */
+    enum class PrettyFormat {
+        UNMODIFIED,
+        LOWERCASEFIRST,
+        UPPERCASEFIRST
+    };
+
+    /**
      * Display friendly name: takes last part of IRI and make it something short and understandable for
      * human begin.
      */
-    std::string prettyName(bool uppercaseFirst = false) const;
+    std::string prettyName(PrettyFormat format = PrettyFormat::UNMODIFIED) const;
 
     /**
      * QName for this iri.

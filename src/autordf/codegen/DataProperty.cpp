@@ -36,7 +36,7 @@ std::map<cvt::RdfTypeEnum, std::string> rdf2CppTypeMapping(
 
 void DataProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass) const {
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName(false) << " data property." << std::endl;
+    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName() << " data property." << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static const autordf::Uri " << _decorated.prettyIRIName() << "DataPropertyIri;" << std::endl;
     ofs << std::endl;

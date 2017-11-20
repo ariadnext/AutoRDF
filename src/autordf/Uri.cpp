@@ -15,10 +15,17 @@ std::string Uri::localPart() const {
     }
 }
 
-std::string Uri::prettyName(bool uppercaseFirst) const {
+std::string Uri::prettyName(PrettyFormat format) const {
     std::string pretty = substr(find_last_of("#/") + 1);
-    if ( uppercaseFirst ) {
-        pretty[0] = ::toupper(pretty[0]);
+    switch(format) {
+        case PrettyFormat::UNMODIFIED:
+            break;
+        case PrettyFormat::LOWERCASEFIRST:
+            pretty[0] = ::tolower(pretty[0]);
+            break;
+        case PrettyFormat::UPPERCASEFIRST:
+            pretty[0] = ::toupper(pretty[0]);
+            break;
     }
     return pretty;
 }

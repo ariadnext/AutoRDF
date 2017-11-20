@@ -12,7 +12,7 @@ void ObjectProperty::generateDeclaration(std::ostream& ofs, const Klass& onClass
 
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
-    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName(false) << " object property." << std::endl;
+    indent(ofs, 1) << " * Full iri for " <<  _decorated.rdfname().prettyName() << " object property." << std::endl;
     indent(ofs, 1) << " */" << std::endl;
     indent(ofs, 1) << "static const autordf::Uri " << _decorated.prettyIRIName() << "ObjectPropertyIri;" << std::endl;
     ofs << std::endl;
