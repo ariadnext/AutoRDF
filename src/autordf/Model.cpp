@@ -255,6 +255,9 @@ std::list<std::string> Model::supportedFormat() const {
 }
 
 void Model::add(Statement *stmt) {
+    if ( _readOnly ) {
+        throw ReadOnlyError("Model::add called on read only model");
+    }
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toCAPIStatement(stmt));
     if ( librdf_model_add_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
@@ -264,6 +267,9 @@ void Model::add(Statement *stmt) {
 }
 
 void Model::remove(Statement *stmt) {
+    if ( _readOnly ) {
+        throw ReadOnlyError("Model::remove called on read only model");
+    }
     std::shared_ptr<librdf_statement> librdfstmt(StatementConverter::toCAPIStatement(stmt));
     if ( librdf_model_remove_statement (_model->get(), librdfstmt.get()) ) {
         std::stringstream ss;
@@ -281,7 +287,7 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
 
 #elif defined(USE_SORD)
 
-Model::Model() : _world(new World()), _model(new ModelPrivate()), _bNodeConflictsPrevention(true) {
+Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false), _bNodeConflictsPrevention(true) {
 }
 
 const char * guessFormat(const std::string& path) {
@@ -460,6 +466,9 @@ std::list<std::string> Model::supportedFormat() const {
 }
 
 void Model::add(Statement *stmt) {
+    if ( _readOnly ) {
+        throw ReadOnlyError("Model::add called on read only model");
+    }
     SordQuad quad;
     StatementConverter::toCAPIStatement(stmt, &quad);
     if ( !sord_contains(_model->get(), quad) ) {
@@ -472,6 +481,9 @@ void Model::add(Statement *stmt) {
 }
 
 void Model::remove(Statement *stmt) {
+    if ( _readOnly ) {
+        throw ReadOnlyError("Model::remove called on read only model");
+    }
     SordQuad quad;
     StatementConverter::toCAPIStatement(stmt, &quad);
     if ( sord_contains(_model->get(), quad) ) {
