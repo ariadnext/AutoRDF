@@ -61,12 +61,12 @@ AUTORDF_EXPORT extern std::map<std::string, RdfTypeEnum> rdfMapType;
 /**
  * Returns string rep of enum e.g. "xsd_decimal"
  */
-std::string rdfTypeEnumString(RdfTypeEnum enumVal);
+AUTORDF_EXPORT std::string rdfTypeEnumString(RdfTypeEnum enumVal);
 
 /**
  * Returns string rep of enum e.g. "xsd:decimal"
  */
-std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal);
+AUTORDF_EXPORT std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal);
 
 std::ostream& operator<<(std::ostream& os, RdfTypeEnum enumVal);
 

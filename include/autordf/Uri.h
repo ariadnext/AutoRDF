@@ -6,6 +6,7 @@
 #define AUTORDF_URI_H
 
 #include <string>
+#include <autordf/autordf_export.h>
 
 namespace autordf {
 
@@ -32,7 +33,7 @@ public:
      * e.g. http://my/complex/path/to/dog --> dog
      * e.g. my:attribute --> attribute
      */
-    std::string localPart() const;
+    AUTORDF_EXPORT std::string localPart() const;
 
     /**
      * Possible formats for prettyName
@@ -47,7 +48,7 @@ public:
      * Display friendly name: takes last part of IRI and make it something short and understandable for
      * human begin.
      */
-    std::string prettyName(PrettyFormat format = PrettyFormat::UNMODIFIED) const;
+    AUTORDF_EXPORT std::string prettyName(PrettyFormat format = PrettyFormat::UNMODIFIED) const;
 
     /**
      * QName for this iri.
@@ -55,7 +56,7 @@ public:
      *
      * @return QName
      */
-    std::string QName(const Model *model = nullptr) const;
+    AUTORDF_EXPORT std::string QName(const Model *model = nullptr) const;
 };
 
 }

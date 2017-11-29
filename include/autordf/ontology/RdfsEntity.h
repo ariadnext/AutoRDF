@@ -5,6 +5,7 @@
 #include <iosfwd>
 
 #include "autordf/Uri.h"
+#include <autordf/ontology/autordf-ontology_export.h>
 
 namespace autordf {
 
@@ -55,7 +56,7 @@ public:
      * Display friendly name: takes last part of IRI and make it something short and understandable for
      * human begin. It is also a valid C++ symbol name
      */
-    std::string prettyIRIName(bool upperCaseFirst = false) const;
+    AUTORDF_ONTOLOGY_EXPORT std::string prettyIRIName(bool upperCaseFirst = false) const;
 
     /**
      * Returns the ontology this Entity belongs to

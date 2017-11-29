@@ -81,8 +81,8 @@ ADD_CUSTOM_COMMAND(
         "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Resource.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Class.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/Thing.cpp"
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -o foaftest "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.ttl"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen"
+    COMMAND "autordfcodegen" -o foaftest "${CMAKE_CURRENT_SOURCE_DIR}/foaf_20140114.ttl"
+    DEPENDS "autordfcodegen"
 )
 
 ADD_EXECUTABLE(
@@ -99,6 +99,6 @@ TARGET_LINK_LIBRARIES(
 ADD_CUSTOM_COMMAND(
     OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/AllInOne.cpp
-    COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" -a "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/../autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
+    COMMAND "autordfcodegen" -a "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
+    DEPENDS "autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
 )

@@ -6,6 +6,7 @@
 #include <autordf/ontology/Ontology.h>
 #include <autordf/Model.h>
 #include <autordf/Object.h>
+#include <autordf/ontology/autordf-ontology_export.h>
 
 namespace autordf {
 namespace ontology {
@@ -79,13 +80,13 @@ public:
      * Checks all model resources are compatible with ontology
      * FIXME @param model is not used in this case. autordf::Object has the model
      */
-    std::shared_ptr<std::vector<Error>> validateModel(const Model& model);
+    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Error>> validateModel(const Model& model);
 
     /**
      * Checks this object is compatible with ontology,
      * that means all its properties are compatible with the ontology
      */
-    std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object);
+    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object);
 
 private:
     std::shared_ptr<Ontology> _ontology;

@@ -4,6 +4,8 @@
 #include <exception>
 #include <string>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 /**
@@ -14,14 +16,14 @@ public:
     /**
      * Constructor with a given error string
      */
-    Exception( const std::string& description );
+    AUTORDF_EXPORT Exception( const std::string& description );
 
-    virtual ~Exception() throw();
+    AUTORDF_EXPORT virtual ~Exception() throw();
 
     /**
      * Returns error information.
      */
-    virtual const char* what() const throw();
+    AUTORDF_EXPORT virtual const char* what() const throw();
 
 private:
     std::string _description;

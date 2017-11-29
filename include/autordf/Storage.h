@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 
+#include <autordf/autordf_export.h>
+
 typedef struct librdf_storage_s librdf_storage;
 
 namespace autordf {
@@ -18,7 +20,7 @@ public:
     /**
      * Create a in-memory hash storage.
      **/
-    Storage();
+    AUTORDF_EXPORT Storage();
 
     /**
      * Create a custom storage
@@ -29,9 +31,9 @@ public:
      * @param name an identifier for the storage
      * @param optionsString options to initialise storage
      */
-    Storage(const std::string& storageName, const std::string& name, const std::string& optionsString) ;
+    AUTORDF_EXPORT Storage(const std::string& storageName, const std::string& name, const std::string& optionsString) ;
 
-    Storage(const Storage&) = delete;
+    AUTORDF_EXPORT Storage(const Storage&) = delete;
 
     ~Storage();
 

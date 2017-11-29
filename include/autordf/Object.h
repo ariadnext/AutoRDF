@@ -17,6 +17,8 @@
 #include <autordf/Exception.h>
 #include <autordf/Uri.h>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 class Factory;
@@ -60,18 +62,18 @@ public:
     /**
      * All newly Objects, and new values will be created in this Factory
      */
-    static void setFactory(Factory *f);
+    AUTORDF_EXPORT static void setFactory(Factory *f);
 
     /**
      * All newly Objects, and new values will be created in this Factory.
      * Call popFactory() to restore previously set factory
      */
-    static void pushFactory(Factory *f);
+    AUTORDF_EXPORT static void pushFactory(Factory *f);
 
     /**
      * All newly Objects, and new values will be created in this Model
      */
-    static void popFactory();
+    AUTORDF_EXPORT static void popFactory();
 
     /**
      * Creates new object, to given iri.
@@ -79,7 +81,7 @@ public:
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written
      * not empty
      */
-    Object(const Uri& iri = "", const Uri& rdfTypeIRI = "");
+    AUTORDF_EXPORT Object(const Uri& iri = "", const Uri& rdfTypeIRI = "");
 
     /**
      * Build us using the same underlying resource as the other object
@@ -88,12 +90,12 @@ public:
      *
      * @param obj the object to use
      */
-    Object(const Object& obj);
+    AUTORDF_EXPORT Object(const Object& obj);
 
     /**
      * Return object iri, or empty if it is a blank node
      */
-    Uri iri() const;
+    AUTORDF_EXPORT Uri iri() const;
 
     /**
      * Return object Qualified Name, or empty if it is a blank node
@@ -103,14 +105,14 @@ public:
      * BEWARE: prefixed IRIs should only be used for display purpose, all AutoRDF internals
      * rely on full IRIs.
      */
-    std::string QName() const;
+    AUTORDF_EXPORT std::string QName() const;
 
     /**
      * Return types of current object.
      * If namespaceFilter is set, only types in this namespace will be returned
      * @param namespaceFilter A simple namespace
      */
-    std::vector<Uri> getTypes(const std::string& namespaceFilter = "") const;
+    AUTORDF_EXPORT std::vector<Uri> getTypes(const std::string& namespaceFilter = "") const;
 
     /**
      * Gets given property as Object
@@ -118,14 +120,14 @@ public:
      * If property is instanciated more than one, return one of the values, with no particular rule
      * @throw PropertyNotFound if property not set
      */
-    Object getObject(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT Object getObject(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
      * If property is instanciated more than one, return one of the values, with no particular rule
      * @returns pointer if property exists, null otherwise
      */
-    std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
 
     /**
      * Returns the list of object. If no object found returns empty vector
@@ -133,13 +135,13 @@ public:
      * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    std::vector<Object> getObjectList(const Uri& propertyIRI, bool preserveOrdering) const;
+    AUTORDF_EXPORT std::vector<Object> getObjectList(const Uri& propertyIRI, bool preserveOrdering) const;
 
     /**
      * Sets object to given property replacing existing value
      * @param propertyIRI Internationalized Resource Identifiers property to set value of
      */
-    void setObject(const Uri& propertyIRI, const Object& obj);
+    AUTORDF_EXPORT void setObject(const Uri& propertyIRI, const Object& obj);
 
     /**
      * Adds object to given property
@@ -147,7 +149,7 @@ public:
      * @param obj object to add to the propertyIRI property
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering);
+    AUTORDF_EXPORT void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering);
 
     /**
      * Sets list of objects to given property
@@ -155,7 +157,7 @@ public:
      * @param values list of values
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values, bool preserveOrdering);
+    AUTORDF_EXPORT void setObjectList(const Uri& propertyIRI, const std::vector<Object>& values, bool preserveOrdering);
 
     /**
      * Remove the first value matching val for this object property
@@ -163,7 +165,7 @@ public:
      * @param obj object to remove from property value
      * @throw PropertyNotFound if propertyIRI has not obj as value
      */
-    void removeObject(const Uri& propertyIRI, const Object& obj);
+    AUTORDF_EXPORT void removeObject(const Uri& propertyIRI, const Object& obj);
 
     /**
      * Gets given property value
@@ -172,7 +174,7 @@ public:
      * @param propertyIRI Internationalized Resource Identifiers property to get
      * @throw PropertyNotFound if property not set
      */
-    PropertyValue getPropertyValue(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT PropertyValue getPropertyValue(const Uri& propertyIRI) const;
 
     /**
      * Returns given property as Object.
@@ -180,7 +182,7 @@ public:
      * @param propertyIRI Internationalized Resource Identifiers property to query
      * @returns pointer if property exists, null otherwise
      */
-    std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI) const;
 
     /**
      * Returns the list of the values. If no value are found returns empty list
@@ -188,7 +190,7 @@ public:
      * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const;
+    AUTORDF_EXPORT PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -196,7 +198,7 @@ public:
      * @param val unique value for property
      * @throw CannotUnreify if this property already has a reified a value with additional data
      */
-    void setPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+    AUTORDF_EXPORT void setPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Erases all previous values for property, and write value list on place
@@ -204,7 +206,7 @@ public:
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering);
+    AUTORDF_EXPORT void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering);
 
     /**
      * Adds value to this property, preserving all previous values;
@@ -212,7 +214,7 @@ public:
      * @param val value for property. This new value is added to the list of values for the Property
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering);
+    AUTORDF_EXPORT void addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering);
 
     /**
      * Remove the first value matching val for this property
@@ -221,7 +223,7 @@ public:
      * @throw PropertyNotFound if propertyIRI has not val as value
      * @throw CannotUnreify if value is store as a reified statement and statement cannot be unreified
      */
-    void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+    AUTORDF_EXPORT void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Writes a data property in reified form.
@@ -240,7 +242,7 @@ public:
      * @param val value to reify
      * @return Object representing the reified statement
      */
-    Object reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+    AUTORDF_EXPORT Object reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Turns a reified statement into a simple statement.
@@ -255,7 +257,7 @@ public:
      * @throw CannotUnreify is unreification is not possible
      * @return true if there was a statement to unReify, false otherwise
      */
-    bool unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep = true);
+    AUTORDF_EXPORT bool unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep = true);
 
     /**
      * Test if data property value is stored as a RDF reified form, or simple statement (default)
@@ -263,7 +265,7 @@ public:
      * @param val value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Object> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
+    AUTORDF_EXPORT std::shared_ptr<Object> reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const;
 
     /**
      * Writes an object property in reified form.
@@ -282,7 +284,7 @@ public:
      * @param object value to reify
      * @return Object representing the reified statement
      */
-    Object reifyObject(const Uri& propertyIRI, const Object& object);
+    AUTORDF_EXPORT Object reifyObject(const Uri& propertyIRI, const Object& object);
 
     /**
      * Turns a reified statement into a simple statement.
@@ -297,7 +299,7 @@ public:
      * @throw CannotUnreify is unreification is not possible
      * @return true if there was a statement to unReify, false otherwise
      */
-    bool unReifyObject(const Uri& propertyIRI, const Object& object, bool keep = true);
+    AUTORDF_EXPORT bool unReifyObject(const Uri& propertyIRI, const Object& object, bool keep = true);
 
     /**
      * Test if object property value is stored as a RDF reified form, or simple statement (default)
@@ -305,7 +307,7 @@ public:
      * @param object value to test
      * @return Object representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Object> reifiedObject(const Uri& propertyIRI, const Object& object) const;
+    AUTORDF_EXPORT std::shared_ptr<Object> reifiedObject(const Uri& propertyIRI, const Object& object) const;
 
     /**
      * Forces the underlying resource to the type associated with this object.
@@ -314,14 +316,14 @@ public:
      * This method is called by all setters of Object class
      * @return current object
      */
-    Object& writeRdfType();
+    AUTORDF_EXPORT Object& writeRdfType();
 
     /**
      * Returns true if this object is also of the specified type IRI.
      * @return true If object type attribute contains typeIRI
      * @return false If type attribute does not contains typeIRI
      */
-    bool isA(const Uri& typeIRI) const;
+    AUTORDF_EXPORT bool isA(const Uri& typeIRI) const;
 
     /**
      * Returns true if this object is also of the type of the template argument object.
@@ -358,7 +360,7 @@ public:
      * This only deletes properties and links to other objects,
      * It does not delete the objects we point to
      */
-    void remove();
+    AUTORDF_EXPORT void remove();
 
     /**
      * Copies this object, to given iri.
@@ -366,21 +368,21 @@ public:
      * Object is copied by duplicating all it properties values.
      * @param iri if empty, creates an anonymous (aka blank) object.
      */
-    Object clone(const Uri& iri = "") const;
+    AUTORDF_EXPORT Object clone(const Uri& iri = "") const;
 
     /**
      * Returns all Objects matching type specified as IRI
      *
      * @param typeIRI Internationalized Resource Identifiers of the type to be retrieved
      */
-    static std::vector<Object> findByType(const Uri& typeIRI = "");
+    AUTORDF_EXPORT static std::vector<Object> findByType(const Uri& typeIRI = "");
 
     /**
      * Returns all Objects matching any of the specified type IRI
      *
      * @param typeIRI set of Internationalized Resource Identifiers of the type to be retrieved
      */
-    static std::set<Object> findByType(const std::set<Uri>& typeIRI);
+    AUTORDF_EXPORT static std::set<Object> findByType(const std::set<Uri>& typeIRI);
 
     /**
      * Returns the only Object with property key set to value
@@ -391,7 +393,7 @@ public:
      * @throw DuplicateObject if more than one object have the same property value
      * @throw ObjectNotFound if no object has given property with value
      */
-    static Object findByKey(const Uri& propertyIRI, const PropertyValue& value);
+    AUTORDF_EXPORT static Object findByKey(const Uri& propertyIRI, const PropertyValue& value);
 
     /**
      * Returns the only Object with property key set to value
@@ -402,31 +404,31 @@ public:
      * @throw DuplicateObject if more than one object have the same property value
      * @throw ObjectNotFound if no object has given property with value
      */
-    static Object findByKey(const Uri& propertyIRI, const Object& object);
+    AUTORDF_EXPORT static Object findByKey(const Uri& propertyIRI, const Object& object);
 
     /**
      * Dumps objects content to stream
      * @param recurse: if > 0, go down resource hierarchy by recurse level
      * @param indentLevel: How much layer of tabs to insert
      */
-    std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
+    AUTORDF_EXPORT std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
     /**
      * Returns all Objects in the factory
      */
-    static std::set<Object> findAll();
+    AUTORDF_EXPORT static std::set<Object> findAll();
 
     /**
      * Find all objects pointing to the current object
      * @return
      */
-    std::set<Object> findSources() const;
+    AUTORDF_EXPORT std::set<Object> findSources() const;
 
     /**
      * Find all objects current object is pointing out
      * @return
      */
-    std::set<Object> findTargets() const;
+    AUTORDF_EXPORT std::set<Object> findTargets() const;
 
     /**
      * Comparison operator used to store objects in maps for instance

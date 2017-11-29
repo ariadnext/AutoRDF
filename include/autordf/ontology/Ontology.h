@@ -28,14 +28,14 @@ class Property;
 /**
  * Maps an OWL or RDFS Ontology to set of more readily accessible C++ objects
  */
-class AUTORDF_ONTOLOGY_EXPORT Ontology {
+class Ontology {
 public:
     /**
      * Default constructor
      * @param f where to read this ontology from
      * @param verbose if true prints debug output to standard output
      */
-    Ontology(const Factory *f, bool verbose = false);
+    AUTORDF_ONTOLOGY_EXPORT Ontology(const Factory *f, bool verbose = false);
 
     /**
      * Finds class using IRI
@@ -88,27 +88,27 @@ public:
     /**
      * The model this ontology has been loaded from
      */
-    const Model* model() const;
+    AUTORDF_ONTOLOGY_EXPORT const Model*  model() const;
 
     /**
      * RDF namespace prefix
      */
-    static const std::string RDF_NS;
+    AUTORDF_ONTOLOGY_EXPORT static const std::string RDF_NS;
 
     /**
      * RDFS namespace prefix
      */
-    static const std::string RDFS_NS;
+    AUTORDF_ONTOLOGY_EXPORT static const std::string RDFS_NS;
 
     /**
      * OWL namespace prefix
      */
-    static const std::string OWL_NS;
+    AUTORDF_ONTOLOGY_EXPORT static const std::string OWL_NS;
 
     /**
      * AUTORDF namespace prefix
      */
-    static const std::string AUTORDF_NS;
+    AUTORDF_ONTOLOGY_EXPORT static const std::string AUTORDF_NS;
 
 private:
     /**

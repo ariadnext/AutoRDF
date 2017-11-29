@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <autordf/Node.h>
+#include <autordf/autordf_export.h>
 
 namespace autordf {
 
@@ -57,10 +58,10 @@ public:
     typedef NodeListIterator iterator;
     typedef NodeListConstIterator const_iterator;
 
-    iterator begin();
+    AUTORDF_EXPORT iterator begin();
     iterator end() { return _END; }
 
-    const_iterator begin() const;
+    AUTORDF_EXPORT const_iterator begin() const;
     const_iterator end() const { return _CEND; }
 
     size_t size() const { return std::distance(begin(), end()); }

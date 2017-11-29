@@ -6,6 +6,7 @@
 
 #include <autordf/cAPI.h>
 #include <autordf/NodeType.h>
+#include <autordf/autordf_export.h>
 
 namespace autordf {
 
@@ -18,7 +19,7 @@ public:
     /**
      * This node type
      */
-    NodeType type() const;
+    AUTORDF_EXPORT NodeType type() const;
 
     /**
      * Builds an empty node
@@ -34,17 +35,17 @@ public:
     /**
      * Copy constructor
      */
-    Node(const Node& n);
+    AUTORDF_EXPORT Node(const Node& n);
 
     /**
      * Copy constructor
      */
-    Node(Node&& n);
+    AUTORDF_EXPORT Node(Node&& n);
 
     /**
      * Destructor
      */
-    ~Node();
+    AUTORDF_EXPORT ~Node();
 
     /**
      * @return Internationalized Resource Identifier
@@ -52,7 +53,7 @@ public:
      * Only valid if node type is Resource
      * @throw InvalidNodeType if not of type Resource
      */
-    const char* iri() const;
+    AUTORDF_EXPORT const char* iri() const;
 
     /**
      * @return literal value
@@ -60,7 +61,7 @@ public:
      * Only valid if node type is Literal
      * @throw InvalidNodeType if not of type Literal
      */
-    const char* literal() const;
+     AUTORDF_EXPORT const char* literal() const;
 
     /**
      * @return blank node identifier
@@ -68,7 +69,7 @@ public:
      * Only valid if node type is blank
      * @throw InvalidNodeType if not of type Literal
      */
-    const char* bNodeId() const;
+     AUTORDF_EXPORT const char* bNodeId() const;
 
     /**
      * @return the literal data type if it is set, blank string otherwise
@@ -76,7 +77,7 @@ public:
      * Only valid if node type is Literal
      * @throw InvalidNodeType if not of type Literal
      */
-    const char* dataType() const;
+     AUTORDF_EXPORT const char* dataType() const;
 
     /**
      * @return the literal lang if it is set, blank string otherwise
@@ -86,29 +87,29 @@ public:
      * Only valid if node type is Literal
      * @throw InvalidNodeType if not of type Literal
      */
-    const char* lang() const;
+    AUTORDF_EXPORT const char* lang() const;
 
     /**
      * Set node type to Resource, and set IRI as value
      */
-    Node& setIri(const std::string& iri);
+    AUTORDF_EXPORT Node& setIri(const std::string& iri);
 
     /**
      * Set node type to Literal, and set literal as value
      *
      * Empty lang or dataTypeUri strings are converted to
      */
-    Node& setLiteral(const std::string& literal, const std::string& lang = "", const std::string& dataTypeUri = "");
+    AUTORDF_EXPORT Node& setLiteral(const std::string& literal, const std::string& lang = "", const std::string& dataTypeUri = "");
 
     /**
      * Set type type Blank Node, and set bnodeid as value
      */
-    Node& setBNodeId(const std::string& bnodeid);
+    AUTORDF_EXPORT Node& setBNodeId(const std::string& bnodeid);
 
     /**
      * Assigment operator
      */
-    Node& operator=(const Node& n);
+    AUTORDF_EXPORT Node& operator=(const Node& n);
 
     /**
      * @return true if node is of empty type
@@ -120,7 +121,7 @@ public:
      *
      * Sets node type to Empty, and clears content
      */
-    void clear();
+    AUTORDF_EXPORT void clear();
 
     /**
      * Internal
@@ -132,7 +133,7 @@ public:
      * Extracts the node pointer.
      * It it the caller reponsibbility to free it
      */
-    c_api_node* pull();
+    AUTORDF_EXPORT c_api_node* pull();
 
 private:
     c_api_node *_node;

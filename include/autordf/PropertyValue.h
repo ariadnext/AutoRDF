@@ -5,6 +5,8 @@
 
 #include <autordf/cvt/Cvt.h>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 /**
@@ -47,31 +49,31 @@ public:
      * @return the literal data type if it is set, blank string otherwise
      * Does makes sense only in case this property holds a literal
      */
-    const std::string& dataTypeIri() const;
+    AUTORDF_EXPORT const std::string& dataTypeIri() const;
 
     /**
      * @return the literal lang if it is set, blank string otherwise
      * Does makes sense only in case this property holds a literal
      */
-    const std::string& lang() const;
+    AUTORDF_EXPORT const std::string& lang() const;
 
     /**
      * Set Literal data type
      * Does makes sense only in case this property holds a literal
      */
-    void setDataTypeIri(const std::string& dataTypeIri);
+    AUTORDF_EXPORT void setDataTypeIri(const std::string& dataTypeIri);
 
     /**
      * Set literal language.
      * @see http://www.ietf.org/rfc/rfc4646.txt
      * Does makes sense only in case this property holds a literal
      */
-    void setLang(const std::string& lang);
+    AUTORDF_EXPORT void setLang(const std::string& lang);
 
     /**
      * Print content to stream for debugging purpose
      */
-    std::ostream& printStream(std::ostream& os);
+    AUTORDF_EXPORT std::ostream& printStream(std::ostream& os);
 
     /**
      * Writes the Value, transtyping it from C++ to rdf type
