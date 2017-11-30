@@ -128,6 +128,12 @@ public:
     AUTORDF_EXPORT std::list<std::string> supportedFormat() const;
 
     /**
+     * Makes this model read only
+     * @param value
+     */
+    void setReadOnly(bool value) { _readOnly = value; }
+
+    /**
      * Search for statements in model
      *
      * If no filter is given, gives back all elements from model
@@ -235,6 +241,7 @@ protected:
 
 private:
     std::shared_ptr<internal::ModelPrivate> _model;
+    bool _readOnly;
     // What is it exactly ?
     std::string _baseUri;
     bool _bNodeConflictsPrevention;

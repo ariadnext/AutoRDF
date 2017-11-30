@@ -102,6 +102,11 @@ AUTORDFEXCEPTION(CannotPreserveOrder)
  * Inside bug or misuse of our API
  */
 AUTORDFEXCEPTION(InternalError)
+
+/**
+ * Function called on read only model requested to change dataset
+ */
+AUTORDFEXCEPTION(ReadOnlyError)
 }
 
 #endif //AUTORDF_EXCEPTION_H

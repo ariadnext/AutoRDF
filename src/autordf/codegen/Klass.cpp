@@ -245,7 +245,7 @@ void Klass::generateInterfaceDeclaration() const {
         ofs << "protected:" << std::endl;
         startInternal(ofs, 1);
         indent(ofs, 1) << cppName << "() {}" << std::endl;
-        indent(ofs, 1) << cppName << "( const " << cppName << "& other) {}" << std::endl;
+        indent(ofs, 1) << cppName << "( const " << cppName << "&) {}" << std::endl;
         indent(ofs, 1) << "static std::string enumIri(Enum en);" << std::endl;
         stopInternal(ofs, 1);
     }
@@ -302,11 +302,13 @@ void Klass::generateInterfaceDefinition() const {
 
     if ( _decorated.oneOfValues().size() ) {
         ofs << "const " << _decorated.prettyIRIName() << "::EnumArrayType I" << _decorated.prettyIRIName() << "::ENUMARRAY = {" << std::endl;
+        ofs << "{";
         for ( const ontology::RdfsEntity& v : _decorated.oneOfValues() ) {
             RdfsEntity enumVal(v);
             indent(ofs, 1) << "std::make_tuple(I" << _decorated.prettyIRIName() << "::" << enumVal.decorated().prettyIRIName() << ", \"" << v.rdfname() << "\", \"" <<
                     enumVal.decorated().prettyIRIName() << "\")," << std::endl;
         }
+        ofs << "}" << std::endl;
         ofs << "};" << std::endl;
         ofs << std::endl;
 
