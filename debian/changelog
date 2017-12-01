@@ -1,3 +1,14 @@
+autordf (1.2.1) wheezy; urgency=medium
+
+  [ Fabien Chevalier ]
+  * Make prettyName a little more clever, choose between uppercaseFirst, lowercaseFirst, or no change
+  * Fix warnings in generated code
+  * Add readOnly flag to model
+
+  [ root ]
+
+ -- root <root@irma-dev2.rennes.ariadnext.com>  Fri, 01 Dec 2017 16:03:37 +0100
+
 autordf (1.2.0) wheezy; urgency=medium
 
   [ Fabien Chevalier ]
