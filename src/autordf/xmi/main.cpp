@@ -216,8 +216,8 @@ int main(int argc, char **argv) {
     verbose = vm.count("verbose") > 0;
 
     if(vm.count("namespacemap")) {
-        for(auto ns: vm["namespacemap"].as< std::vector<std::string> >()) {
-            std::stringstream ss(ns);
+        for(auto prefix_namespace: vm["namespacemap"].as< std::vector<std::string> >()) {
+            std::stringstream ss(prefix_namespace);
             std::string prefix;
             std::getline(ss, prefix, ':');
             std::string ns;
