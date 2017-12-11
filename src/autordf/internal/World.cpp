@@ -9,7 +9,7 @@
 #include <boost/date_time.hpp>
 //#include <boost/config.hpp>
 #ifndef WINRT
-#include <boost/process.hpp>
+#include <unistd.h>
 #endif
 
 // include Windows.h after boost because otherwise I get
@@ -125,11 +125,12 @@ SerdStatus World::sordErrorCB(void*, const SerdError* error) {
 }
 
 std::string World::genUniqueId() const {
+// boost/process/environment.hpp generates too many errors on WINRT and isn't available until boost 1.64
+// so use POSIX / Windows methods instead of boost::this_process::get_id()
 #ifdef WINRT
-    // boost/process/environment.hpp generates too many errors on WINRT
     unsigned long pid = GetCurrentProcessId();
 #else
-    unsigned long pid = boost::this_process::get_id();
+    pid_t pid = getpid();
 #endif
     std::stringstream id;
     id << 'B' << _genIdBase << 'b' << pid << 'b' << ++_genIdCtr;
