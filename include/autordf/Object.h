@@ -36,28 +36,28 @@ public:
     /**
      * Full namespace for RDF, including #
      */
-    static const std::string RDF_NS;
+    AUTORDF_EXPORT static const std::string RDF_NS;
 
     /**
      * Well known RDF identifier
      */
-    static const std::string RDF_TYPE;
+    AUTORDF_EXPORT static const std::string RDF_TYPE;
     /**
      * Well known RDF identifier
      */
-    static const std::string RDF_STATEMENT;
+    AUTORDF_EXPORT static const std::string RDF_STATEMENT;
     /**
      * Well known RDF identifier
      */
-    static const std::string RDF_SUBJECT;
+    AUTORDF_EXPORT static const std::string RDF_SUBJECT;
     /**
      * Well known RDF identifier
      */
-    static const std::string RDF_PREDICATE;
+    AUTORDF_EXPORT static const std::string RDF_PREDICATE;
     /**
      * Well known RDF identifier
      */
-    static const std::string RDF_OBJECT;
+    AUTORDF_EXPORT static const std::string RDF_OBJECT;
 
     /**
      * All newly Objects, and new values will be created in this Factory
