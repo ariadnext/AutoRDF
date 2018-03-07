@@ -77,7 +77,7 @@ void DataProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onClas
     indent(ofs, 1) << " */" << std::endl;
 
     indent(ofs, 1) << "static " << currentClassName << " findBy" << _decorated.prettyIRIName(true) << "( const autordf::PropertyValue& key ) {" << std::endl;
-    indent(ofs, 2) <<     "return findByKey(\"" << _decorated.rdfname() << "\", key).as<" << currentClassName << ">();" << std::endl;
+    indent(ofs, 2) <<     "return Object::findByKey(\"" << _decorated.rdfname() << "\", key).as<" << currentClassName << ">();" << std::endl;
     indent(ofs, 1) << "}" << std::endl;
     indent(ofs, 1) << std::endl;
 
