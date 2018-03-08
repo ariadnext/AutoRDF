@@ -34,6 +34,9 @@ template<typename T> T locale_agnostic_cast(const std::string& value) {
     iss.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     T val;
     iss >> val;
+    if ( !iss.eof() ) {
+        throw DataConvertionFailure("During convertion of " + value + ": extra chars found");
+    }
     return val;
 }
 

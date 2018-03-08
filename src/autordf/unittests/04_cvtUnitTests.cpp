@@ -41,6 +41,9 @@ TEST(_04_cvt, xsd_to_cpp) {
     ASSERT_EQ(true, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val("1 ")));
     ASSERT_EQ(false, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val(" 0")));
     ASSERT_EQ(210, (toCpp<long long, RdfTypeEnum::xsd_integer>::val("\t210\n")));
+
+    // Check invalid data float stored where int expected
+    ASSERT_THROW((toCpp<short, RdfTypeEnum::xsd_short>::val("44.03")), autordf::DataConvertionFailure);
 }
 
 TEST(_04_cvt, cpp_to_xsd) {
