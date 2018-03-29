@@ -22,6 +22,7 @@ addons:
     - libsord-dev
     - libboost-filesystem-dev
     - libboost-date-time-dev
+    - libboost-program-options-dev
 
 # Run the Build script
 script:
