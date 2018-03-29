@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <sstream>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/date_time.hpp>
 
 #include <autordf/cvt/RdfTypeEnum.h>
@@ -29,11 +28,23 @@ inline std::string trim(const std::string &s)
     return std::string(it, rit.base());
 }
 
+template<typename T> T locale_agnostic_cast(const std::string& value) {
+    std::istringstream iss(trim(value));
+    iss.imbue(std::locale::classic());
+    iss.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    T val;
+    iss >> val;
+    if ( !iss.eof() ) {
+        throw DataConvertionFailure("During convertion of " + value + ": extra chars found");
+    }
+    return val;
+}
+
 template<typename CppType, RdfTypeEnum rdfType> class toCpp;
 
 template<typename CppType> CppType toCppGeneric(const std::string& rawValue) {
     try {
-        return boost::lexical_cast<CppType>(trim(rawValue));
+        return locale_agnostic_cast<CppType>(rawValue);
     }
     catch (const std::exception& e) {
         throw DataConvertionFailure("During convertion of " + rawValue + ": " + e.what());
@@ -146,7 +157,7 @@ GENERIC_TOCPP(unsigned short, xsd_unsignedShort)
 template<> class toCpp<char, RdfTypeEnum::xsd_byte> {
 public:
     static char val(const std::string& rawValue) {
-        return boost::lexical_cast<short>(trim(rawValue));
+        return locale_agnostic_cast<short>(rawValue);
     }
 };
 
@@ -154,7 +165,7 @@ public:
 template<> class toCpp<unsigned char, RdfTypeEnum::xsd_unsignedByte> {
 public:
     static unsigned char val(const std::string& rawValue) {
-        return boost::lexical_cast<unsigned short>(trim(rawValue));
+        return locale_agnostic_cast<unsigned short>(rawValue);
     }
 };
 

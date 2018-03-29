@@ -40,10 +40,14 @@ World::World() {
 }
 
 World::~World() {
-    std::lock_guard<std::mutex> locker(_mutex);
-    if (--_refcount == 0) {
-        librdf_free_world(_world);
-        _world = 0;
+    try {
+        std::lock_guard<std::mutex> locker(_mutex);
+        if (--_refcount == 0) {
+            librdf_free_world(_world);
+            _world = 0;
+        }
+    } catch(const std::system_error& e) {
+        std::cerr << "World::~World() unable to acquire lock" << std::endl;
     }
 }
 
@@ -110,10 +114,14 @@ World::World() {
 }
 
 World::~World() {
-    std::lock_guard<std::mutex> locker(_mutex);
-    if (--_refcount == 0) {
-        sord_world_free(_world);
-        _world = 0;
+    try {
+        std::lock_guard<std::mutex> locker(_mutex);
+        if (--_refcount == 0) {
+            sord_world_free(_world);
+            _world = 0;
+        }
+    } catch(const std::system_error& e) {
+        std::cerr << "World::~World() unable to acquire lock" << std::endl;
     }
 }
 

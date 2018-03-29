@@ -62,7 +62,7 @@ void ObjectProperty::generateKeyDeclaration(std::ostream& ofs, const Klass& onCl
     indent(ofs, 1) << " */" << std::endl;
 
     indent(ofs, 1) << "static " << currentClassName << " findBy" << _decorated.prettyIRIName(true) << "( const " << propertyClass.genCppNameWithNamespace() << "& key ) {" << std::endl;
-    indent(ofs, 2) <<     "return findByKey(\"" << _decorated.rdfname() << "\", reinterpret_cast<const ::autordf::Object&>(key)).as<" << currentClassName << ">();" << std::endl;
+    indent(ofs, 2) <<     "return Object::findByKey(\"" << _decorated.rdfname() << "\", reinterpret_cast<const ::autordf::Object&>(key)).as<" << currentClassName << ">();" << std::endl;
     indent(ofs, 1) << "}" << std::endl;
     indent(ofs, 1) << std::endl;
 }
