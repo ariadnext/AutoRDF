@@ -6,6 +6,7 @@ ADD_EXECUTABLE(
 TARGET_LINK_LIBRARIES (
         autordfxmi
     autordf-ontology
+    ${Boost_LIBRARIES}
 )
 
 INSTALL(TARGETS autordfxmi

@@ -1,7 +1,7 @@
 #include "RdfsEntity.h"
 
-#include <stdexcept>
 #include <ostream>
+#include <stdexcept>
 
 #include <autordf/ontology/Ontology.h>
 #include <autordf/Model.h>
@@ -67,7 +67,10 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
         indent(ofs, numIndent) << " * " << std::endl;
     }
     if ( !used->_decorated.comment().empty() ) {
-        boost::tokenizer<boost::char_separator<char> > lines(used->_decorated.comment(), NEWLINE);
+        // windows lib needs a local reference for iterator to work
+        // was getting "cannot dereference string iterator because the iterator ..."
+        const std::string& comment = used->_decorated.comment();
+        boost::tokenizer<boost::char_separator<char> > lines(comment, NEWLINE);
         for (const std::string& line : lines) {
             if ( !line.empty() ) {
                 indent(ofs, numIndent) << " * " << line << std::endl;

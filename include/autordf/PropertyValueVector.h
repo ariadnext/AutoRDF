@@ -7,6 +7,8 @@
 
 #include <autordf/PropertyValue.h>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 /**
@@ -20,7 +22,7 @@ public:
      * Returns the Value from the whose language is idendified by lang
      * If not found, returns nullptr
      */
-    std::shared_ptr<PropertyValue> langOptional(const std::string& lang) const;
+    AUTORDF_EXPORT std::shared_ptr<PropertyValue> langOptional(const std::string& lang) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const PropertyValueVector& v);

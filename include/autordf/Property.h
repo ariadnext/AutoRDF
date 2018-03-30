@@ -6,6 +6,8 @@
 #include <autordf/NodeType.h>
 #include <autordf/PropertyValue.h>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 class Factory;
@@ -51,18 +53,18 @@ public:
     /**
      * Sets value to value. If setLiteralType is set, Property is type is set to literal value
      */
-    Property& setValue(const PropertyValue& value, bool setLiteralType = true);
+    AUTORDF_EXPORT Property& setValue(const PropertyValue& value, bool setLiteralType = true);
 
     /**
      * Sets the value to given resource IRI or resource bnodeid
      */
-    Property& setValue(const Resource& res);
+    AUTORDF_EXPORT Property& setValue(const Resource& res);
 
     /**
      * Convert to Resource
      * @throw InvalidNodeType if Node is not Resource or Blank node
      */
-    Resource asResource() const;
+    AUTORDF_EXPORT Resource asResource() const;
 
 private:
     NodeType _type;

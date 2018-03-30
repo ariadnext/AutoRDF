@@ -6,6 +6,7 @@
 #include <map>
 
 #include "RdfsEntity.h"
+#include <autordf/ontology/autordf-ontology_export.h>
 
 namespace autordf {
 namespace ontology {
@@ -32,19 +33,19 @@ public:
      * @param kls the class this property will be instantiated in. If nullptr qualified cardinality restrictions
      * will be ignored
      */
-    Uri range(const Klass* kls = nullptr) const;
+    AUTORDF_ONTOLOGY_EXPORT Uri range(const Klass* kls = nullptr) const;
 
     /**
      * Returns the minimum number of times this property must be found in objects of given class
      * @param kls the class this property will be instanciated in
      */
-    unsigned int minCardinality(const Klass& kls) const;
+    AUTORDF_ONTOLOGY_EXPORT unsigned int minCardinality(const Klass& kls) const;
 
     /**
      * Returns the maximum number of times this property must be found in objects of given class
      * @param kls the class this property will be instanciated in
      */
-    unsigned int maxCardinality(const Klass& kls) const;
+    AUTORDF_ONTOLOGY_EXPORT unsigned int maxCardinality(const Klass& kls) const;
 
     /**
      * When stored, this property items order must be preserved

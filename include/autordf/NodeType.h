@@ -1,5 +1,6 @@
 #ifndef AUTORDF_NODETYPE_H
 #define AUTORDF_NODETYPE_H
+#include <autordf/autordf_export.h>
 
 namespace autordf {
 
@@ -27,7 +28,7 @@ enum class NodeType {
  * @param Node to convert as string
  * @return string representation for node t
  */
-const char * nodeTypeString(NodeType t);
+AUTORDF_EXPORT const char * nodeTypeString(NodeType t);
 
 }
 

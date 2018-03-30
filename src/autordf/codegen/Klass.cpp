@@ -3,6 +3,8 @@
 #include "autordf/ontology/Ontology.h"
 
 #include <fstream>
+#include <iostream>
+#include <iterator>
 
 #include "Utils.h"
 

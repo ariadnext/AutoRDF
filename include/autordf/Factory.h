@@ -7,6 +7,7 @@
 #include <autordf/Model.h>
 #include <autordf/Property.h>
 #include <autordf/Resource.h>
+#include <autordf/autordf_export.h>
 
 namespace autordf {
 
@@ -20,23 +21,23 @@ public:
     /**
      * Create blank (anonymous) resource
      */
-    Resource createBlankNodeResource(const std::string &bnodeid = "");
+    Resource AUTORDF_EXPORT createBlankNodeResource(const std::string &bnodeid = "");
 
     /**
      * Created named resource (with IRI)
      */
-    Resource createIRIResource(const std::string& iri);
+    Resource AUTORDF_EXPORT createIRIResource(const std::string& iri);
 
     /**
      * Converts a statement to resource
      */
-    Resource createResourceFromNode(const Node& node);
+    Resource AUTORDF_EXPORT createResourceFromNode(const Node& node);
 
     /**
      * Creates a property of type type
      * If not type is given, defaults to EMPTY
      */
-    std::shared_ptr<Property> createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
+    std::shared_ptr<Property> AUTORDF_EXPORT createProperty(const std::string& iri, NodeType type = NodeType::EMPTY);
 };
 
 }

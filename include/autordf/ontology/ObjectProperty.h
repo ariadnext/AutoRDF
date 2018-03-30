@@ -7,6 +7,7 @@
 #include <iosfwd>
 
 #include "Property.h"
+#include <autordf/ontology/autordf-ontology_export.h>
 
 namespace autordf {
 namespace ontology {
@@ -22,7 +23,7 @@ public:
      * @param kls class this objectproperty is supposed to be instanciated in.
      * If nullptr, qualified cardinality restrictions will be ignored
      */
-    std::shared_ptr<Klass> findClass(const Klass* kls = nullptr) const;
+    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<Klass> findClass(const Klass* kls = nullptr) const;
 };
 }
 }

@@ -11,6 +11,7 @@ ADD_EXECUTABLE(
 TARGET_LINK_LIBRARIES (
     autordfcodegen
     autordf-ontology
+    ${Boost_LIBRARIES}
 )
 
 INSTALL(TARGETS autordfcodegen

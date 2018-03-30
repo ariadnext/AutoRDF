@@ -3,10 +3,20 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <sys/time.h>
-#include <unistd.h>
 #include <sstream>
 #include <iostream>
+
+#include <boost/date_time.hpp>
+//#include <boost/config.hpp>
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
+// include Windows.h after boost because otherwise I get
+// fatal error C1189: #error:  WinSock.h already included
+#ifdef WIN32
+#include <Windows.h>
+#endif
 
 #include "autordf/Exception.h"
 
@@ -86,14 +96,19 @@ unsigned long World::_genIdBase;
 unsigned long World::_genIdCtr;
 
 World::World() {
+    using namespace boost::gregorian;
+    using namespace boost::local_time;
+    using namespace boost::posix_time;
+
     std::lock_guard<std::mutex> locker(_mutex);
     if (!_world) {
         _world = sord_world_new();
         sord_world_set_error_sink(_world, sordErrorCB, nullptr);
-        struct timeval tv;
-        if (!gettimeofday(&tv, nullptr)) {
-            _genIdBase = (unsigned long)tv.tv_sec;
-        }
+        ptime now = second_clock::local_time();
+        ptime time_t_epoch(date(1970,1,1));
+        time_duration diff = now - time_t_epoch;
+
+        _genIdBase = diff.total_seconds();
     }
     ++_refcount;
 }
@@ -118,7 +133,13 @@ SerdStatus World::sordErrorCB(void*, const SerdError* error) {
 }
 
 std::string World::genUniqueId() const {
-    unsigned long pid = (unsigned long)getpid();
+// boost/process/environment.hpp generates too many errors on WINRT and isn't available until boost 1.64
+// so use POSIX / Windows methods instead of boost::this_process::get_id()
+#ifdef WIN32
+    unsigned long pid = GetCurrentProcessId();
+#else
+    pid_t pid = getpid();
+#endif
     std::stringstream id;
     id << 'B' << _genIdBase << 'b' << pid << 'b' << ++_genIdCtr;
     return id.str();

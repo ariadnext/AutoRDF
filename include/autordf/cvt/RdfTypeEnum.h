@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 namespace cvt {
 
@@ -54,17 +56,17 @@ enum class RdfTypeEnum {
 /**
  * Type IRI ( e.g. "http://www.w3.org/2001/XMLSchema#decimal ) to enum (e.g RdfTypeEnum::xsd_decimal)
  */
-extern std::map<std::string, RdfTypeEnum> rdfMapType;
+AUTORDF_EXPORT extern std::map<std::string, RdfTypeEnum> rdfMapType;
 
 /**
  * Returns string rep of enum e.g. "xsd_decimal"
  */
-std::string rdfTypeEnumString(RdfTypeEnum enumVal);
+AUTORDF_EXPORT std::string rdfTypeEnumString(RdfTypeEnum enumVal);
 
 /**
  * Returns string rep of enum e.g. "xsd:decimal"
  */
-std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal);
+AUTORDF_EXPORT std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal);
 
 std::ostream& operator<<(std::ostream& os, RdfTypeEnum enumVal);
 

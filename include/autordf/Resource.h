@@ -8,6 +8,8 @@
 #include <autordf/Property.h>
 #include <autordf/Uri.h>
 
+#include <autordf/autordf_export.h>
+
 namespace autordf {
 
 class Node;
@@ -39,57 +41,57 @@ public:
     /**
      * @returns true if property is found, with given value
      */
-    bool hasProperty(const Property& p) const;
+    AUTORDF_EXPORT bool hasProperty(const Property& p) const;
 
     /**
      * Returns exactly one property.
      * @throws PropertyNotFound If no available
      * @throws DuplicateException If more than one is available
      */
-    std::shared_ptr<Property> getProperty(const Uri& iri) const;
+    AUTORDF_EXPORT std::shared_ptr<Property> getProperty(const Uri& iri) const;
 
     /**
      * Returns exactly one property, ia available.
      * @throws DuplicateProperty If more than 1 instance of the property is found
      */
-    std::shared_ptr<Property> getOptionalProperty(const Uri& iri) const;
+    AUTORDF_EXPORT std::shared_ptr<Property> getOptionalProperty(const Uri& iri) const;
 
     /**
      * Lists all values for property matching iri name
      * If iri is empty, matches ALL properties with ALL their values
      */
-    std::shared_ptr<std::list<Property>> getPropertyValues(const Uri& iri) const;
+    AUTORDF_EXPORT std::shared_ptr<std::list<Property>> getPropertyValues(const Uri& iri) const;
 
     /**
      * Lists all values for all properties
      */
-    std::shared_ptr<std::list<Property>> getPropertyValues() const;
+    AUTORDF_EXPORT std::shared_ptr<std::list<Property>> getPropertyValues() const;
 
     /**
      * Adds a property to the resource. Property should not be empty
      * @returns a reference to current object
      */
-    Resource& addProperty(const Property& p);
+    AUTORDF_EXPORT Resource& addProperty(const Property& p);
 
     /** Remove all properties matching iri in the list, then
      * Add properties one by one
      * @returns a reference to current object
      */
-    Resource& setProperties(const std::shared_ptr<std::list<Property>>& list);
+    AUTORDF_EXPORT Resource& setProperties(const std::shared_ptr<std::list<Property>>& list);
 
     /**
      * Removes a single value for a property
      * @throw PropertyNotFound if property is not found
      * @returns a reference to current object
      */
-    Resource& removeSingleProperty(const Property& p);
+    AUTORDF_EXPORT Resource& removeSingleProperty(const Property& p);
 
     /**
      * Remove all  properties matching iri
      * If iri is empty, remove *All* object properties
      * @returns a reference to current object
      */
-    Resource& removeProperties(const Uri &iri);
+    AUTORDF_EXPORT Resource& removeProperties(const Uri &iri);
 
     /**
      * Removes a ressource, i.e. delete all its attributes

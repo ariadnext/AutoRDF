@@ -10,6 +10,8 @@
 #include "DataProperty.h"
 #include "ObjectProperty.h"
 
+#include <autordf/ontology/autordf-ontology_export.h>
+
 namespace autordf {
 namespace ontology {
 
@@ -22,22 +24,22 @@ public:
     /**
      * Returns direct ancestors of this class
      */
-    std::set <std::shared_ptr<const Klass> > ancestors() const;
+    AUTORDF_ONTOLOGY_EXPORT std::set <std::shared_ptr<const Klass> > ancestors() const;
 
     /**
      * Returns direct predecessors of this class
      */
-    std::set <std::shared_ptr<Klass> > predecessors();
+    AUTORDF_ONTOLOGY_EXPORT std::set <std::shared_ptr<Klass> > predecessors();
 
     /**
      * Returns direct predecessors of this class
      */
-    std::set <std::shared_ptr<const Klass> > predecessors() const;
+    AUTORDF_ONTOLOGY_EXPORT std::set <std::shared_ptr<const Klass> > predecessors() const;
 
     /**
      * Returns direct ancestors of this class
      */
-    std::set <std::shared_ptr<Klass> > ancestors();
+    AUTORDF_ONTOLOGY_EXPORT std::set <std::shared_ptr<Klass> > ancestors();
 
     /**
      * If this class is defined using OWL oneOf construct, returns the list of Entities
@@ -68,12 +70,12 @@ public:
     /**
      * Returns all (direct and indirect) ancestors for this class
      */
-    std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
+    AUTORDF_ONTOLOGY_EXPORT std::set <std::shared_ptr<const Klass>> getAllAncestors() const;
 
     /**
      * Returns all (direct and indirect) predecessors for this class
      */
-    std::set<std::shared_ptr<const Klass> > getAllPredecessors() const;
+    AUTORDF_ONTOLOGY_EXPORT std::set<std::shared_ptr<const Klass> > getAllPredecessors() const;
 
     /*
      * ===================================================================

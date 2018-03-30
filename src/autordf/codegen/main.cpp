@@ -1,11 +1,13 @@
-#include <getopt.h>
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <set>
 #include <map>
 #include <memory>
+
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
 
 #include <autordf/Factory.h>
 #include <autordf/Object.h>
@@ -77,66 +79,79 @@ void run(Factory *f) {
 int main(int argc, char **argv) {
     autordf::Factory f;
 
-    std::stringstream usage;
-    usage << "Usage: " << argv[0] << " [-v] [-a] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n";
-    usage << "\t" << "Processes an OWL file, and generates C++ classes from it in current directory\n";
-    usage << "\t" << "namespacemap:\t Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.\n";
-    usage << "\t" << "outdir:\t Folder where to generate files in. If it does not exit it will be created. Defaults to current directory." << ".\n";
-    usage << "\t" << "-v:\t Turn verbose output on." << ".\n";
-    usage << "\t" << "-a:\t Generate one cpp file that includes all the other called AllInOne.cpp" << ".\n";
-    int opt;
-    while ((opt = ::getopt(argc, argv, "avhn:o:")) != -1) {
-        switch (opt) {
-            case 'n': {
-                {
-                    std::stringstream ss(optarg);
-                    std::string prefix;
-                    std::getline(ss, prefix, ':');
-                    std::string ns;
-                    ss >> ns;
-                    if ( autordf::codegen::verbose ) {
-                        std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
-                    }
-                    f.addNamespacePrefix(prefix, ns);
-                }
-                break;
+    namespace po = boost::program_options;
+
+    po::options_description desc("Usage: autordfcodegen [-v] [-a] [-n namespacemap] [-o outdir] owlfile1 [owlfile2...]\n"
+                                 "\tProcesses an OWL file, and generates C++ classes from it in current directory\n");
+
+    desc.add_options()
+            ("help,h", "Describe arguments")
+            ("verbose,v", "Turn verbose output on.")
+            ("all-in-one,a", "Generate one cpp file that includes all the other called AllInOne.cpp")
+            ("namespacemap,n", po::value< std::vector<std::string> >(), "Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.")
+            ("outdir,o", po::value< std::string >(), "Folder where to generate files in. If it does not exit it will be created. Defaults to current directory.")
+            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)");
+
+    po::positional_options_description p;
+    p.add("owlfile", -1);
+
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).
+            options(desc).positional(p).run(), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << "\n";
+        return 1;
+    }
+
+    autordf::codegen::verbose = vm.count("verbose") > 0;
+
+    if(vm.count("namespacemap")) {
+        for(auto prefix_namespace: vm["namespacemap"].as< std::vector<std::string> >()) {
+            std::stringstream ss(prefix_namespace);
+            std::string prefix;
+            std::getline(ss, prefix, ':');
+            std::string ns;
+            ss >> ns;
+            if ( autordf::codegen::verbose ) {
+                std::cout << "Adding  " << prefix << "-->" << ns << " map." << std::endl;
             }
-            case 'o':
-                autordf::codegen::RdfsEntity::outdir = optarg;
-                break;
-            case 'v':
-                autordf::codegen::verbose = true;
-                break;
-            case 'a':
-                autordf::codegen::generateAllInOne = true;
-                break;
-            case 'h':
-            default: /* '?' */
-                std::cerr << usage.str();
-                std::cerr.flush();
-                return 1;
+            f.addNamespacePrefix(prefix, ns);
         }
     }
 
+    if(vm.count("outdir")) {
+        autordf::codegen::RdfsEntity::outdir = vm["outdir"].as<std::string>();
+    }
 
-    if (optind >= argc) {
+    autordf::codegen::generateAllInOne = vm.count("all-in-one") > 0;;
+
+    if (!(vm.count("owlfile"))) {
         std::cerr << "Expected argument after options" << std::endl;
         return 1;
     }
 
-    autordf::codegen::createDirectory(autordf::codegen::RdfsEntity::outdir);
+    try {
 
-    // Hardcode some prefixes
-    f.addNamespacePrefix("owl", autordf::ontology::Ontology::OWL_NS);
-    f.addNamespacePrefix("rdfs", autordf::ontology::Ontology::RDFS_NS);
-
-    while ( optind < argc ) {
-        if ( autordf::codegen::verbose ) {
-            std::cout << "Loading " << argv[optind] << " into model." << std::endl;
+        autordf::codegen::createDirectory(autordf::codegen::RdfsEntity::outdir);
+    
+        // Hardcode some prefixes
+        f.addNamespacePrefix("owl", autordf::ontology::Ontology::OWL_NS);
+        f.addNamespacePrefix("rdfs", autordf::ontology::Ontology::RDFS_NS);
+    
+        for ( std::string owlfile: vm["owlfile"].as< std::vector<std::string> >() ) {
+            if ( autordf::codegen::verbose ) {
+                std::cout << "Loading " << owlfile << " into model." << std::endl;
+            }
+            f.loadFromFile(owlfile);
         }
-        f.loadFromFile(argv[optind]);
-        optind++;
+    
+        autordf::codegen::run(&f);
+
+    } catch(const std::exception& e) {
+        std::cerr << "E: " << e.what() << std::endl;
+        return -1;
     }
-    autordf::codegen::run(&f);
     return 0;
 }

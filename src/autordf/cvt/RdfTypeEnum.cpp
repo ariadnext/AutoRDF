@@ -14,7 +14,7 @@ std::string rdfTypeEnumString(RdfTypeEnum enumVal) {
     return RAWVALS[static_cast<int>(enumVal)];
 }
 
-std::map<std::string, RdfTypeEnum> rdfMapType(
+AUTORDF_EXPORT std::map<std::string, RdfTypeEnum> rdfMapType(
         {
 #define X(type, uri) std::pair<const std::string, RdfTypeEnum>("http://www.w3.org/2001/XMLSchema#" uri, RdfTypeEnum::type),
         CVT_TYPES_DEF(X)
