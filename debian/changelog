@@ -1,3 +1,35 @@
+autordf (1.2.2) wheezy; urgency=medium
+
+  [ Eric Le Lay ]
+  * WIN32 and WINRT ports
+
+  [ Baptiste Poirriez ]
+  * Add EXPORT directive when necessary. Deactivate unitests on windows
+
+  [ Eric Le Lay ]
+  * don't use boost::process to getpid
+  * cleanup boost dependencies + consistent whitespaces
+  * fix redefined variable
+  * minor CMakelists cleanup
+  * don't use getpid on WIN32
+  * export Object constants for windows
+  * Also install DLLs
+  * also install autordf-ontology.dll
+
+  [ Fabien Chevalier ]
+  * Fix bogus reading of floating point number when non default locale was used
+  * Fix code generator for a case when a key is called "key" :-(
+  * Fix regression in the way we handle corrupted data
+
+  [ Eric Le Lay ]
+  * catch elusive mutex lock error on program exit
+  * add missing debian dep on libboost-program-options-dev
+  * also add libboost-program-options-dev to travis
+
+  [ root ]
+
+ -- root <root@irma-dev2.rennes.ariadnext.com>  Fri, 04 May 2018 09:31:27 +0200
+
 autordf (1.2.1) wheezy; urgency=medium
 
   [ Fabien Chevalier ]
