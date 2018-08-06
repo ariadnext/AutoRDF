@@ -73,7 +73,7 @@ public:
         /**
          * Message,with placeholders replaced with their actual values
          */
-        std::string fullMessage() const;
+        AUTORDF_ONTOLOGY_EXPORT std::string fullMessage() const;
     };
 
     /**

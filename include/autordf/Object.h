@@ -564,7 +564,7 @@ private:
      */
     std::string _rdfTypeIRI;
 
-    Object(Resource r, const Uri& rdfTypeIRI = "");
+    AUTORDF_EXPORT Object(Resource r, const Uri& rdfTypeIRI = "");
 
     /**
      * Shared constructor
@@ -574,17 +574,17 @@ private:
     /**
      * Iterate over all values of a given property
      */
-    void propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std::function<void (const Property& prop)> cb) const;
+    AUTORDF_EXPORT void propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std::function<void (const Property& prop)> cb) const;
 
     /**
      * Creates a new resource that stores a value for this resource
      */
-    Resource createReificationResource(const Uri& propertyIRI, const PropertyValue& val);
+    AUTORDF_EXPORT Resource createReificationResource(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
      * Creates a new resource that stores a value for this resource
      */
-    Resource createReificationResource(const Uri& propertyIRI, const Resource& val);
+    AUTORDF_EXPORT Resource createReificationResource(const Uri& propertyIRI, const Resource& val);
 
     /**
      * Return all reified values for given property
@@ -605,13 +605,13 @@ private:
      * Removes all reified statements
      * @throw CannotUnreify if one statement cannot be unreified
      */
-    void removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI);
+    AUTORDF_EXPORT void removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI);
 
     /**
      * Removes all reified statements
      * @throw CannotUnreify if one statement cannot be unreified
      */
-    void removeAllReifiedDataPropertyStatements(const Uri& propertyIRI);
+    AUTORDF_EXPORT void removeAllReifiedDataPropertyStatements(const Uri& propertyIRI);
 
     /**
      * @internal
@@ -623,7 +623,7 @@ private:
      * @param p property to test
      * @return Resource representing the reified statement if available, otherwise nullptr
      */
-    std::shared_ptr<Resource> reifiedPropertyAsResource(const Property& p) const;
+    AUTORDF_EXPORT std::shared_ptr<Resource> reifiedPropertyAsResource(const Property& p) const;
 
     /**
      * Test if val is stored as a RDF reified form, or simple statement (default)
@@ -677,7 +677,7 @@ private:
     /**
      * Returns the associated factory, or throws if nullptr
      */
-    static Factory *factory();
+    AUTORDF_EXPORT static Factory *factory();
 
     /**
      * Full namespace for RDF, including #
@@ -686,7 +686,7 @@ private:
     /**
      * IRI for AutoRDF index extension
      */
-    static const std::string AUTORDF_ORDER;
+    AUTORDF_EXPORT static const std::string AUTORDF_ORDER;
 };
 
 /**
