@@ -341,7 +341,7 @@ void Klass::generateInterfaceDefinition() const {
         ofs << "}" << std::endl;
         ofs << std::endl;
     }
-
+    ofs << "// This type " << genCppNameSpaceFullyQualified() << "::" << cppName << " has IRI " << _decorated.rdfname() << std::endl;
     ofs << "const char * " << cppName << "::TYPEIRI = \"" << _decorated.rdfname() << "\";" << std::endl;
     ofs << std::endl;
 
