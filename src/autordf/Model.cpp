@@ -372,6 +372,11 @@ void Model::loadFromMemory(const void* data, const char *format, const std::stri
     extractBaseURI(this, env, baseIRI);
 }
 
+static int sordBlankId(SerdReader* reader, char* buf, size_t buf_size) {
+    return snprintf(
+            buf, buf_size, "%s", World::genUniqueId().c_str());
+}
+
 void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI, const std::string& streamInfo) {
     SerdNode base = serd_node_from_string(SERD_URI, reinterpret_cast<const uint8_t*>(baseIRI.c_str()));
     std::shared_ptr<SerdEnv> env = std::shared_ptr<SerdEnv>(serd_env_new(&base), &serd_env_free);
@@ -379,6 +384,7 @@ void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string
     SerdSyntax syntax = getFormat(format, streamInfo);
 
     std::shared_ptr<SerdReader> reader = std::shared_ptr<SerdReader>(sord_new_reader(_model->get(), env.get(), syntax, NULL), &serd_reader_free);
+    serd_reader_set_blank_node_gen(reader.get(), &sordBlankId, 50);
     if ( _bNodeConflictsPrevention ) {
         serd_reader_add_blank_prefix(reader.get(), reinterpret_cast<const uint8_t*>(_world->genUniqueId().c_str()));
     }
@@ -486,8 +492,10 @@ void Model::remove(Statement *stmt) {
     }
     SordQuad quad;
     StatementConverter::toCAPIStatement(stmt, &quad);
-    if ( sord_contains(_model->get(), quad) ) {
-        sord_remove(_model->get(), quad);
+    SordIter* iter = sord_find(_model->get(), quad);
+    if ( iter ) {
+        sord_erase(_model->get(), iter);
+        sord_iter_free(iter);
     } else {
         std::stringstream ss;
         ss << "Unexisting statement";

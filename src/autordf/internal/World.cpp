@@ -132,7 +132,7 @@ SerdStatus World::sordErrorCB(void*, const SerdError* error) {
     ::exit(1);
 }
 
-std::string World::genUniqueId() const {
+std::string World::genUniqueId() {
 // boost/process/environment.hpp generates too many errors on WINRT and isn't available until boost 1.64
 // so use POSIX / Windows methods instead of boost::this_process::get_id()
 #ifdef WIN32

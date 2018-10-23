@@ -29,7 +29,7 @@ public:
      * Can be used as blank node id
      * @return unqiue id
      */
-    std::string genUniqueId() const;
+    static std::string genUniqueId();
 
 private:
     static std::mutex _mutex;
