@@ -55,10 +55,10 @@ std::shared_ptr<librdf_serializer> prepareSerializer(const char *format, const s
     return s;
 }
 
-Model::Model() : _world(new World()), _model(new ModelPrivate(std::make_shared<Storage>())), _bNodeConflictsPrevention(true) {
+Model::Model() : _world(new World()), _model(new ModelPrivate(std::make_shared<Storage>())){
 }
 
-Model::Model(std::shared_ptr<Storage> storage) : _world(new World()), _model(new ModelPrivate(storage)), _bNodeConflictsPrevention(true) {
+Model::Model(std::shared_ptr<Storage> storage) : _world(new World()), _model(new ModelPrivate(storage)) {
 }
 
 void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
@@ -287,7 +287,7 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
 
 #elif defined(USE_SORD)
 
-Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false), _bNodeConflictsPrevention(true) {
+Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false) {
 }
 
 const char * guessFormat(const std::string& path) {
@@ -357,6 +357,12 @@ void extractBaseURI(Model *m, std::shared_ptr<SerdEnv> env, const std::string& b
     }, m);
 }
 
+
+static int sordBlankId(SerdReader* reader, char* buf, size_t buf_size) {
+    return snprintf(
+            buf, buf_size, "%s", World::genUniqueId().c_str());
+}
+
 void Model::loadFromMemory(const void* data, const char *format, const std::string& baseIRI) {
     SerdNode base = serd_node_from_string(SERD_URI, reinterpret_cast<const uint8_t*>(baseIRI.c_str()));
     std::shared_ptr<SerdEnv> env = std::shared_ptr<SerdEnv>(serd_env_new(&base), &serd_env_free);
@@ -364,17 +370,10 @@ void Model::loadFromMemory(const void* data, const char *format, const std::stri
     SerdSyntax syntax = getFormat(format, "");
 
     std::shared_ptr<SerdReader> reader = std::shared_ptr<SerdReader>(sord_new_reader(_model->get(), env.get(), syntax, NULL), &serd_reader_free);
-    if ( _bNodeConflictsPrevention ) {
-        serd_reader_add_blank_prefix(reader.get(), reinterpret_cast<const uint8_t*>(_world->genUniqueId().c_str()));
-    }
+    serd_reader_set_blank_node_gen(reader.get(), &sordBlankId, 50);
     serd_reader_read_string(reader.get(), reinterpret_cast<const uint8_t*>(data));
 
     extractBaseURI(this, env, baseIRI);
-}
-
-static int sordBlankId(SerdReader* reader, char* buf, size_t buf_size) {
-    return snprintf(
-            buf, buf_size, "%s", World::genUniqueId().c_str());
 }
 
 void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string& baseIRI, const std::string& streamInfo) {
@@ -385,9 +384,6 @@ void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string
 
     std::shared_ptr<SerdReader> reader = std::shared_ptr<SerdReader>(sord_new_reader(_model->get(), env.get(), syntax, NULL), &serd_reader_free);
     serd_reader_set_blank_node_gen(reader.get(), &sordBlankId, 50);
-    if ( _bNodeConflictsPrevention ) {
-        serd_reader_add_blank_prefix(reader.get(), reinterpret_cast<const uint8_t*>(_world->genUniqueId().c_str()));
-    }
     serd_reader_read_file_handle(reader.get(), fileHandle, reinterpret_cast<const uint8_t *>(streamInfo.c_str()));
 
     extractBaseURI(this, env, baseIRI);
