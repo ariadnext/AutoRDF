@@ -358,7 +358,7 @@ void extractBaseURI(Model *m, std::shared_ptr<SerdEnv> env, const std::string& b
 }
 
 
-static int sordBlankId(SerdReader* reader, char* buf, size_t buf_size) {
+static int sordBlankId(SerdReader*, char* buf, size_t buf_size) {
     return snprintf(
             buf, buf_size, "%s", World::genUniqueId().c_str());
 }
