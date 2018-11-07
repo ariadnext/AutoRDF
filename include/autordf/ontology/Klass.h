@@ -63,7 +63,7 @@ public:
     const std::set <std::shared_ptr<DataProperty>>& dataKeys() const { return _dataKeys; }
 
     /**
-     * List of ojject keys for current class
+     * List of object keys for current class
      */
     const std::set <std::shared_ptr<ObjectProperty>>& objectKeys() const { return _objectKeys; }
 

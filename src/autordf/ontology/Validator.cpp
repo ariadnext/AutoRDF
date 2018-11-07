@@ -131,12 +131,21 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
 std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const Object& object) {
     std::vector<Validator::Error>  errorList;
     std::vector<Uri> types = object.getTypes(_ontology->model()->baseUri());
-    for (auto const& type: types) {
+    std::set<Klass> allKlass;
+    for (const Uri& type: types) {
         if (_ontology->containsClass(type)) {
             std::shared_ptr<const Klass> uriKlass =  _ontology->findClass(type);
-            validateDataProperty(object, uriKlass, &errorList);
-            validateObjectProperty(object, uriKlass, &errorList);
+            allKlass.insert(*uriKlass);
+            for(auto const& ancestor: uriKlass->getAllAncestors()) {
+                allKlass.insert(*ancestor);
+            }
         }
+    }
+    for(const Klass& kl : allKlass ) {
+        auto klPtr = std::make_shared<const Klass>(kl);
+        validateDataProperty(object, klPtr, &errorList);
+        validateObjectProperty(object, klPtr, &errorList);
+
     }
     return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
