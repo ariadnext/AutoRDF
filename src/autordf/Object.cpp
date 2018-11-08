@@ -486,14 +486,14 @@ void Object::propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std:
         });
     } else {
         if ( count ) {
-            throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+            throw CannotPreserveOrder("Unable to read back statements order as there is at least one unreified statement without ordering info");
         } else {
             typedef std::pair<long long, Property> PropertyWithOrder;
             std::vector<PropertyWithOrder> unordered;
             reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
                 std::shared_ptr<Property> orderprop = reifiedPropertyAsResource(p)->getOptionalProperty(AUTORDF_ORDER);
                 if ( !orderprop ) {
-                    throw CannotPreserveOrder("Unable to read back statements order as there is at least one statement without ordering info");
+                    throw CannotPreserveOrder("Unable to read back statements order as there is at least one reified statement missing ordering info");
                 }
                 unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p));
             });
