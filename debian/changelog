@@ -1,3 +1,23 @@
+autordf (1.2.3) wheezy; urgency=medium
+
+  [ Eric Le Lay ]
+  * add missing dll exports for windows
+  * iOS build support: look for serd to have SERD_LIBRARIES defined
+  * add comment to have type to IRI mapping
+
+  [ Baptiste Poirriez ]
+  * Set genUniqueId as blank node id generator for serd
+  * Remove bNodeConflictPrevention attribute since it is not needed anymore
+  * Fix compilation warning
+  * Fix validation of objects : ancestor types where not used
+
+  [ Fabien Chevalier ]
+  * Fix some error messages
+
+  [ root ]
+
+ -- root <root@irma-dev2.rennes.ariadnext.com>  Thu, 17 Jan 2019 18:04:25 +0100
+
 autordf (1.2.2) wheezy; urgency=medium
 
   [ Eric Le Lay ]
