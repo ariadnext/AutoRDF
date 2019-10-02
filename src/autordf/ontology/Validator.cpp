@@ -119,7 +119,23 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
         for (auto const& subObj: objList) {
             if (!isObjectTypeValid(subObj, range)) {
                 error.subject = subObj.iri().empty() ? object : subObj;
-                error.message = "\'@subject\' property \'@property\' is of incompatible object type. RDF type required is @range";
+                std::stringstream ss;
+                PropertyValueVector types = subObj.getPropertyValueList(Object::RDF_TYPE, false);
+                if (types.size()) {
+                    ss << "\'@subject\' property \'@property\' is of incompatible object type.";
+                    ss << " RDF expected type is @range while provided type is {";
+                    for ( auto it = types.begin(); it != types.end(); ++it ) {
+                        ss << *it;
+                        if ( it != types.end() ) {
+                            ss << ", ";
+                        } else {
+                            ss << "}";
+                        }
+                    }
+                } else {
+                    ss << "\'@subject\' property \'@property\' has no type, while RDF expected type is @range";
+                }
+                error.message = ss.str();
                 error.range = range;
                 error.type = error.INVALIDTYPE;
                 errorList->push_back(error);
