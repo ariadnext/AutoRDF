@@ -30,7 +30,7 @@ std::string Uri::prettyName(PrettyFormat format) const {
     return pretty;
 }
 
-std::string Uri::prefix() const {
+std::string Uri::prefixPart() const {
     return substr(0, find_last_of("#/"));
 }
 
