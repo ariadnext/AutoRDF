@@ -30,6 +30,10 @@ std::string Uri::prettyName(PrettyFormat format) const {
     return pretty;
 }
 
+std::string Uri::prefixPart() const {
+    return substr(0, find_last_of("#/"));
+}
+
 std::string Uri::QName(const Model *model) const {
     if (model) {
         std::string bestValue;

@@ -36,6 +36,12 @@ public:
     AUTORDF_EXPORT std::string localPart() const;
 
     /**
+     * Returns the prefix part of this uri.
+     * e.g. http://my/complex/path/to/dog --> http://my/complex/path/to
+     */
+    AUTORDF_EXPORT std::string prefixPart() const;
+
+    /**
      * Possible formats for prettyName
      */
     enum class PrettyFormat {
