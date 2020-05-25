@@ -23,13 +23,14 @@ ModelPrivate::~ModelPrivate() {
 #elif defined(USE_SORD)
 ModelPrivate::ModelPrivate() {
     /* Default storage type, which is memory */
+
+#if defined(NATIVE)
+    _model = sord_new(World().get(), 0xFF, false);
+#else
     /*
       will build SPO(default) and OPS only index
     */
-#ifdef SMARTPHONE
     _model = sord_new(World().get(), 0x4, false);
-#else
-  _model = sord_new(World().get(), 0xFF, false);
 #endif
     if (!_model) {
         throw InternalError("Failed to create RDF model");
