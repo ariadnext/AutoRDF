@@ -9,7 +9,7 @@ static unsigned int sord_init_flag = 0xFF;
 namespace autordf {
 
   void set_sord_init_flag(unsigned int f) {
-    sord_flag = f;
+    sord_init_flag = f;
   }
   
 namespace internal {
