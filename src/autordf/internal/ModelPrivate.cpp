@@ -4,9 +4,16 @@
 #include "autordf/Storage.h"
 #include "autordf/Exception.h"
 
-namespace autordf {
-namespace internal {
+static unsigned int sord_init_flag = 0xFF;
 
+namespace autordf {
+
+  void set_sord_init_flag(unsigned int f) {
+    sord_flag = f;
+  }
+  
+namespace internal {
+  
 #if defined(USE_REDLAND)
 ModelPrivate::ModelPrivate(std::shared_ptr<Storage> storage) : _storage(storage) {
     /* Default storage type, which is memory */
@@ -24,14 +31,7 @@ ModelPrivate::~ModelPrivate() {
 ModelPrivate::ModelPrivate() {
     /* Default storage type, which is memory */
 
-#if defined(NATIVE)
-    _model = sord_new(World().get(), 0xFF, false);
-#else
-    /*
-      will build SPO(default) and OPS only index
-    */
-    _model = sord_new(World().get(), 0x4, false);
-#endif
+    _model = sord_new(World().get(), sord_init_flag, false);
     if (!_model) {
         throw InternalError("Failed to create RDF model");
     }
