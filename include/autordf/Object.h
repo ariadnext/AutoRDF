@@ -543,15 +543,6 @@ public:
         }
     }
 
-    /**
-     * Make a deep copy of an object. We stop on objects that do have an IRI because they are ressources, which we
-     * do not want to make deep copies of, only shallow ones
-     * @param doNotClone a list of Uris. If an object has a property with that URI, we do not want to clone it
-     * @param newIri the iri under which we want to place the new object. By default, empty
-     * @return the cloned Object
-     */
-    Object cloneRecursiveStopAtIRI(const std::vector<Uri>& doNotClone, const Uri& newIri = "") const;
-
 private:
     /**
      * The resource this object is based on
@@ -683,21 +674,6 @@ private:
         return object;
     }
 
-    /**
-     * An internal helper to copy properties from the current object to another
-     * This ignores reification specific properties (subject, predicate, object, type) because they must be handled in
-     * a more specific manner
-     * @param doNotClone If the object has one of these properties, do not do the copy
-     * @param to Object to which the properties are to be copied
-     */
-    void copyPropertiesInternal(const std::vector<Uri>& doNotClone, Object& to) const;
-
-    /**
-     * An internal helper, copies the reified properties of an object
-     * @param doNotClone If the object has one of these properties, do not copy
-     * @param to object to copy the reifications to
-     */
-    void copyReifiedProperties(const std::vector<Uri>& doNotClone, Object& to) const;
     /**
      * Returns the associated factory, or throws if nullptr
      */
