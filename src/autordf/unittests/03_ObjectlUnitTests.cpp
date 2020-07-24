@@ -456,3 +456,36 @@ TEST(_03_Object, FindTargets) {
     Object known = person.getObject("http://xmlns.com/foaf/0.1/knows");
     EXPECT_TRUE(targets.find(known) != targets.end());
 }
+
+TEST(_03_Object, cloneRecursiveStopAtResources) {
+    Factory f;
+    Object::setFactory(&f);
+
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
+
+    std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+
+    Object person;
+    for ( auto p : objs ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+            person = p;
+        }
+    }
+    Object clone = person.cloneRecursiveStopAtResources("http://jimmycricket.com/me2");
+    Object known = person.getObject("http://xmlns.com/foaf/0.1/knows");
+    Object known2 = clone.getObject("http://xmlns.com/foaf/0.1/knows");
+    EXPECT_EQ(known, known2);
+    objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
+    long count = std::count_if(objs.begin(), objs.end(), [](Object o){ return o.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales";});
+    EXPECT_EQ(count, 2);
+}
+
+TEST(_03_Object, cloneReification) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+    obj.reifyPropertyValue("http://myprop1", "1");
+    Object clone = obj.cloneRecursiveStopAtResources("http://my/object2");
+    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+}

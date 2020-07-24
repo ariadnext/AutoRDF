@@ -407,6 +407,14 @@ public:
     AUTORDF_EXPORT static Object findByKey(const Uri& propertyIRI, const Object& object);
 
     /**
+     * Returns all subjects with property set to value
+     *
+     * @param propertyIRI predicate IRI
+     * @param value value to look for
+     */
+     AUTORDF_EXPORT static std::set<Object> findByValue(const Uri& propertyIRI, const PropertyValue& value);
+
+    /**
      * Dumps objects content to stream
      * @param recurse: if > 0, go down resource hierarchy by recurse level
      * @param indentLevel: How much layer of tabs to insert
@@ -429,6 +437,12 @@ public:
      * @return
      */
     AUTORDF_EXPORT std::set<Object> findTargets() const;
+
+    /**
+     * Returns all reified Object properties for current object
+     * @return
+     */
+    std::set<Object> findReified() const;
 
     /**
      * Comparison operator used to store objects in maps for instance
@@ -542,6 +556,19 @@ public:
             }
         }
     }
+
+    /**
+     * Make a deep copy of an object. We stop on objects that do have an IRI because they are ressources, which we
+     * do not want to make deep copies of, only shallow ones
+     * @param newIri the iri under which we want to place the new object. By default, empty
+     * @param doNotClone a function that takes in argument :
+     *  - currentRessource, the current object's ressource
+     *  - sourcePredicateIri, the iri ofthe predicate that lead to it from its parent (if applicable)
+     *  - parentRessource, the ressource of its parent (if applicable)
+     *  , and returns if we shouldn't clone this object
+     * @return the cloned Object
+     */
+    Object cloneRecursiveStopAtResources(const Uri& newIri = "", bool(*doNotClone)(const Resource& currentRessource, const std::string& sourcePredicateIri, const Resource * parentRessource) = nullptr) const;
 
 private:
     /**
@@ -674,6 +701,41 @@ private:
         return object;
     }
 
+    /**
+     * An internal helper to copy properties from the current object to another
+     * This ignores reification specific properties (subject, predicate, object, type) because they must be handled in
+     * a more specific manner
+     * @param doNotClone a function that takes in argument :
+     *  - currentRessource, the current object's ressource
+     *  - sourcePredicateIri, the iri ofthe predicate that lead to it from its parent (if applicable)
+     *  - parentRessource, the ressource of its parent (if applicable)
+     *  , and returns if we shouldn't clone this object
+     * @param to Object to which the properties are to be copied
+     * @param first is this the first object in the cloning?
+     * This is used to check that the first object is okay to clone - others will be checked before the clone is called
+     */
+    void copyPropertiesInternal( bool(*doNotClone)(const Resource& currentRessource, const std::string& sourcePredicateIri, const Resource * parentRessource), Object& to, bool first = false) const;
+
+    /**
+     * An internal helper, copies the reified properties of an object
+     * @param doNotClone a function that takes in argument :
+     *  - currentRessource, the current object's ressource
+     *  - sourcePredicateIri, the iri ofthe predicate that lead to it from its parent (if applicable)
+     *  - parentRessource, the ressource of its parent (if applicable)
+     *  , and returns if we shouldn't clone this object
+     * @param to object to copy the reifications to
+     */
+    void copyReifiedProperties( bool(*doNotClone)(const Resource& currentRessource, const std::string& sourcePredicateIri, const Resource * parentRessource), Object& to) const;
+
+    /**
+     * Internal helper to do recursive cloning, allows us to skip
+     * @param newIri see wrapper cloneRecursiveStopAtResources
+     * @param doNotClone see wrapper cloneRecursiveStopAtResources
+     * @param first is this the first object in the cloning?
+     * This is used to check that the first object is okay to clone - others will be checked before the clone is called
+     * @return
+     */
+    Object cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Resource&, const std::string&, const Resource *), bool first = false) const;
     /**
      * Returns the associated factory, or throws if nullptr
      */

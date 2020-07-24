@@ -581,6 +581,18 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     return Object(factory()->createResourceFromNode(statements.begin()->subject));
 }
 
+std::set<Object> Object::findByValue(const Uri& propertyIRI, const PropertyValue& value) {
+    std::set<Object> objList;
+    Statement query;
+    query.predicate.setIri(propertyIRI);
+    query.object.setLiteral(value, value.lang(), value.dataTypeIri());
+    const StatementList& statements = factory()->find(query);
+    for (const Statement& stmt: statements) {
+        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+    }
+    return objList;
+}
+
 Object& Object::writeRdfType() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
@@ -675,7 +687,20 @@ std::set<Object> Object::findSources() const {
     query.object = currentNode();
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
-        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+        Object object(factory()->createResourceFromNode(stmt.subject));
+        bool isNew = objList.insert(object).second;
+        // Follow reified statement
+        if (isNew && object.isA(RDF_STATEMENT)) {
+            Node predicate;
+            predicate.setIri(RDF_SUBJECT);
+            Node node = factory()->findTarget(stmt.subject, predicate);
+            if (!node.empty()) {
+                auto reifiedObject = Object(factory()->createResourceFromNode(node));
+                if (reifiedObject != *this) {
+                    objList.insert(reifiedObject);
+                }
+            }
+        }
     }
     return objList;
 }
@@ -691,5 +716,88 @@ std::set<Object> Object::findTargets() const {
         }
     }
     return objList;
+}
+
+std::set<Object> Object::findReified() const {
+    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+
+    // Iterate through statements and find ones matching predicate
+    std::set<Object> allReifiedValues;
+    for (const Node& thisObject : nodesReferingToThisObject ) {
+        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+        if ( predicate ) {
+            std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
+            if ( prop->isResource() ) {
+                allReifiedValues.insert(Object(prop->asResource()));
+            }
+        }
+    }
+    return allReifiedValues;
+}
+
+//TODO : add a version that also clone ressources
+Object Object::cloneRecursiveStopAtResources(const Uri& newIri, bool(*doNotClone)(const Resource&, const std::string&, const Resource *)) const {
+    return cloneRecursiveStopAtResourcesInternal(newIri, doNotClone, true);
+}
+
+Object Object::cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Resource&, const std::string&, const Resource *), bool first) const {
+    Object res(newIri, this->_rdfTypeIRI);
+    copyPropertiesInternal(doNotClone, res, first);
+    copyReifiedProperties(doNotClone, res);
+    return res;
+}
+
+void Object::copyReifiedProperties(bool(*doNotClone)(const Resource&, const std::string&, const Resource *), Object& to) const {
+    NodeList reifiedNodes = reificationResourcesForCurrentObject();
+    for (const Node & node : reifiedNodes) {
+        Resource reifiedStatement(factory()->createResourceFromNode(node));
+        if (doNotClone && doNotClone(reifiedStatement, reifiedStatement.getProperty(RDF_PREDICATE)->iri(), &_r)) {
+            continue;
+        }
+        std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
+        std::shared_ptr<Property> object = reifiedStatement.getProperty(RDF_OBJECT);
+        Object reifiedObject;
+        switch (object->type()) {
+            case NodeType::LITERAL:
+                reifiedObject = to.reifyPropertyValue(predicate->value(), object->value());
+                break;
+            case NodeType::RESOURCE:
+                reifiedObject = to.reifyObject(predicate->value(), Object(object->asResource()));
+                break;
+            case NodeType::BLANK:
+                reifiedObject = to.reifyObject(predicate->value(),
+                                               Object(object->asResource()).cloneRecursiveStopAtResourcesInternal("",
+                                                                                                          doNotClone));
+                break;
+            default:
+                throw InternalError("cloneRecursiveStopAtIri : reified object has invalid type");
+        }
+        Object(reifiedStatement).copyPropertiesInternal(doNotClone, reifiedObject);
+    }
+}
+
+void Object::copyPropertiesInternal(bool(*doNotClone)(const Resource&, const std::string&, const Resource *), Object& to, bool first) const {
+    if (first && doNotClone && doNotClone(_r, "", nullptr)) {
+        return;
+    }
+    std::shared_ptr<std::list<Property>> properties = _r.getPropertyValues();
+    // All of these are handled specially - do not copy
+    static const std::vector<std::string> forbiddenProperties({RDF_OBJECT, RDF_SUBJECT, RDF_PREDICATE});
+    for (const Property& property : *properties) {
+        if (std::find(forbiddenProperties.begin(), forbiddenProperties.end(), property.iri()) != forbiddenProperties.end()) {
+            continue;
+        }
+        if (property.isLiteral()) {
+            to.addPropertyValue(property.iri(), property.value(), false);
+        } else if (property.type() == NodeType::BLANK) {
+            if (!doNotClone || !doNotClone(property.asResource(), property.iri(), &_r)) {
+                to.addObject(property.iri(), Object(property.asResource()).cloneRecursiveStopAtResourcesInternal("", doNotClone), false);
+            }
+        } else {
+            // Make only shallow copy of ressources
+            to.addObject(property.iri(), property.asResource(), false);
+        }
+    }
 }
 }
