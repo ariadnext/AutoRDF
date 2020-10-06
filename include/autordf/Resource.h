@@ -52,9 +52,10 @@ public:
 
     /**
      * Returns exactly one property, ia available.
+     * @param f : if provided, work on this factory object.
      * @throws DuplicateProperty If more than 1 instance of the property is found
      */
-    AUTORDF_EXPORT std::shared_ptr<Property> getOptionalProperty(const Uri& iri) const;
+    AUTORDF_EXPORT std::shared_ptr<Property> getOptionalProperty(const Uri& iri, Factory *f = nullptr) const;
 
     /**
      * Lists all values for property matching iri name

@@ -49,8 +49,13 @@ bool Resource::hasProperty(const Property& p) const {
  * Returns exactly one property, ia available.
  * @throws If not found, returns null
  */
-std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
+std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri, Factory *f) const {
     Node subject, predicate;
+
+    if(nullptr == f) {
+        f = _factory;
+    }
+
     if ( type() == NodeType::RESOURCE ) {
         subject.setIri(name());
     } else {
@@ -62,12 +67,12 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri) const {
     }
     predicate.setIri(iri);
 
-    Node object = _factory->findTarget(subject, predicate);
+    Node object = f->findTarget(subject, predicate);
     if ( object.empty() ) {
         return nullptr;
     }
 
-    std::shared_ptr<Property> p(_factory->createProperty(predicate.iri(), object.type()));
+    std::shared_ptr<Property> p(f->createProperty(predicate.iri(), object.type()));
     if (object.type() == NodeType::LITERAL) {
         p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
     } else if (object.type() == NodeType::RESOURCE) {

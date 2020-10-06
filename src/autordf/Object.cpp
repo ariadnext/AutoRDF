@@ -33,7 +33,8 @@ void Object::popFactory() {
     _factories.pop();
 }
 
-Object::Object(const Uri &iri, const Uri& rdfTypeIRI) : _r(iri.empty() ? factory()->createBlankNodeResource() :factory()->createIRIResource(iri)) {
+Object::Object(const Uri &iri, const Uri& rdfTypeIRI, Factory* f)
+    : _r(iri.empty() ? (f ? f : factory())->createBlankNodeResource() : (f ? f : factory())->createIRIResource(iri)) {
     construct(rdfTypeIRI);
 }
 
@@ -153,8 +154,8 @@ void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
     }
 }
 
-PropertyValue Object::getPropertyValue(const Uri& propertyIRI) const {
-    std::shared_ptr<PropertyValue> pv = getOptionalPropertyValue(propertyIRI);
+PropertyValue Object::getPropertyValue(const Uri& propertyIRI, Factory *f ) const {
+    std::shared_ptr<PropertyValue> pv = getOptionalPropertyValue(propertyIRI, f);
     if ( pv ) {
         return *pv;
     } else {
@@ -164,12 +165,17 @@ PropertyValue Object::getPropertyValue(const Uri& propertyIRI) const {
     }
 }
 
-std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& propertyIRI) const {
-    std::shared_ptr<Property> p(_r.getOptionalProperty(propertyIRI));
+std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& propertyIRI, autordf::Factory *f ) const {
+
+    if (nullptr == f) {
+        f = factory();
+    }
+
+    std::shared_ptr<Property> p(_r.getOptionalProperty(propertyIRI, f));
     if ( p ) {
         return std::make_shared<PropertyValue>(p->value());
     } else {
-        std::shared_ptr<PropertyValue> reified = reifiedPropertyValueOptional(propertyIRI);
+        std::shared_ptr<PropertyValue> reified = reifiedPropertyValueOptional(propertyIRI,f);
         if ( reified ) {
             return reified;
         } else {
@@ -332,10 +338,15 @@ bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
     return unReify(reifiedPropertyValueAsResource(propertyIRI, val), keep);
 }
 
-NodeList Object::reificationResourcesForCurrentObject() const {
+NodeList Object::reificationResourcesForCurrentObject(Factory *f ) const {
     Node predicate;
+
+    if(nullptr == f) {
+        f = factory();
+    }
+
     predicate.setIri(RDF_SUBJECT);
-    return factory()->findSources(predicate, currentNode());
+    return f->findSources(predicate, currentNode());
 }
 
 std::shared_ptr<Object> Object::reifiedPropertyValue(const Uri& propertyIRI, const PropertyValue& val) const {
@@ -383,13 +394,17 @@ std::shared_ptr<Resource> Object::reifiedPropertyAsResource(const Property& p) c
     return nullptr;
 }
 
-std::shared_ptr<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& propertyIRI) const {
-    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+std::shared_ptr<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f ) const {
+    const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject(f);
+
+    if(nullptr == f) {
+        f = factory();
+    }
 
     // Iterate through statements and find ones matching predicate
     std::vector<Object> allReifiedValues;
     for (const Node& thisObject : nodesReferingToThisObject ) {
-        Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+        Resource reifiedStatement(f->createResourceFromNode(thisObject));
         std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
         if ( predicate && predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
@@ -672,11 +687,16 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
     return os;
 }
 
-std::set<Object> Object::findAll() {
+std::set<Object> Object::findAll(Factory* f) {
+
+    if(nullptr == f) {
+        f = factory();
+    }
+
     std::set<Object> objList;
-    const StatementList& statements = factory()->find();
+    const StatementList& statements = f->find();
     for(const Statement& stmt : statements) {
-        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+        objList.insert(Object(f->createResourceFromNode(stmt.subject)));
     }
     return objList;
 }
