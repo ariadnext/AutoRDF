@@ -80,8 +80,9 @@ public:
      * @param iri object IRI. If empty, creates an anonymous (aka blank) object
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written
      * not empty
+     * @param f : if provided, work on this factory object.
      */
-    AUTORDF_EXPORT Object(const Uri& iri = "", const Uri& rdfTypeIRI = "");
+    AUTORDF_EXPORT Object(const Uri& iri = "", const Uri& rdfTypeIRI = "", Factory* f = nullptr);
 
     /**
      * Build us using the same underlying resource as the other object
@@ -172,17 +173,19 @@ public:
      * Property should be set.
      * If property is instanciated more than one, return one of the values, with no particular rule
      * @param propertyIRI Internationalized Resource Identifiers property to get
+     * @param f : if provided, work on this factory object.
      * @throw PropertyNotFound if property not set
      */
-    AUTORDF_EXPORT PropertyValue getPropertyValue(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT PropertyValue getPropertyValue(const Uri& propertyIRI, Factory *f = nullptr) const;
 
     /**
      * Returns given property as Object.
      * If property is instanciated more than one, return one of the values, with no particular rule
      * @param propertyIRI Internationalized Resource Identifiers property to query
+     * @param f : if provided, work on this factory object.
      * @returns pointer if property exists, null otherwise
      */
-    AUTORDF_EXPORT std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI, Factory *f = nullptr) const;
 
     /**
      * Returns the list of the values. If no value are found returns empty list
@@ -422,9 +425,11 @@ public:
     AUTORDF_EXPORT std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
 
     /**
+     * @param f : if provided, work on this factory object.
      * Returns all Objects in the factory
      */
-    AUTORDF_EXPORT static std::set<Object> findAll();
+    AUTORDF_EXPORT static std::set<Object> findAll(Factory* f = nullptr);
+
 
     /**
      * Find all objects pointing to the current object
@@ -468,14 +473,17 @@ public:
     /**
      * Offered to interfaces
      */
-    template<typename T> static std::vector<T> findHelper(const Uri& iri) {
+    template<typename T> static std::vector<T> findHelper(const Uri& iri, Factory* f = nullptr) {
+        if(nullptr == f) {
+            f = factory();
+        }
         Statement query;
         query.predicate.setIri(RDF_NS + "type");
         query.object.setIri(iri);
-        const StatementList& statements = factory()->find(query);
+        const StatementList& statements = f->find(query);
         std::vector<T> objList;
         for(const Statement& stmt : statements) {
-            objList.push_back(T(factory()->createResourceFromNode(stmt.subject)));
+            objList.push_back(T(f->createResourceFromNode(stmt.subject)));
         }
         return objList;
     }
@@ -621,7 +629,7 @@ private:
     /**
      * Returns the first found reified PropertyValue, if found
      */
-    std::shared_ptr<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI) const;
+    std::shared_ptr<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f = nullptr) const;
 
     /**
      * Returns the first found reified object, if found
@@ -643,7 +651,7 @@ private:
     /**
      * @internal
      */
-    NodeList reificationResourcesForCurrentObject() const;
+    NodeList reificationResourcesForCurrentObject(autordf::Factory *f = nullptr) const;
 
     /**
      * Test if p is stored as a RDF reified form, or simple statement (default)
