@@ -542,11 +542,14 @@ void Object::remove() {
 
 Object Object::clone(const Uri& iri) const {
     const std::shared_ptr<std::list<Property>>& props = _r.getPropertyValues();
+    Object res;
     if ( !iri.empty() ) {
-        return Object(factory()->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
+        res = Object(factory()->createIRIResource(iri).setProperties(props), _rdfTypeIRI);
     } else {
-        return Object(factory()->createBlankNodeResource("").setProperties(props), _rdfTypeIRI);
+        res = Object(factory()->createBlankNodeResource("").setProperties(props), _rdfTypeIRI);
     }
+    copyReifiedProperties(nullptr, res);
+    return res;
 }
 
 std::vector<Object> Object::findByType(const Uri& iri) {
