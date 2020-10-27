@@ -489,3 +489,13 @@ TEST(_03_Object, cloneReification) {
     Object clone = obj.cloneRecursiveStopAtResources("http://my/object2");
     ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
 }
+
+TEST(_03_Object, cloneReificationViaStandardClone) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+    obj.reifyPropertyValue("http://myprop1", "1");
+    Object clone = obj.clone("http://my/object2");
+    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+}
