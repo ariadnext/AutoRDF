@@ -418,6 +418,14 @@ public:
      AUTORDF_EXPORT static std::set<Object> findByValue(const Uri& propertyIRI, const PropertyValue& value);
 
     /**
+     * Returns all subjects with property propertyIri set to iriValue
+     *
+     * @param propertyIRI predicate IRI
+     * @param value uri to look for
+     */
+     AUTORDF_EXPORT static std::set<Object> findByValue(const Uri& propertyIRI, const Uri& iriValue);
+
+    /**
      * Dumps objects content to stream
      * @param recurse: if > 0, go down resource hierarchy by recurse level
      * @param indentLevel: How much layer of tabs to insert

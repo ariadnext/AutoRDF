@@ -611,6 +611,18 @@ std::set<Object> Object::findByValue(const Uri& propertyIRI, const PropertyValue
     return objList;
 }
 
+std::set<Object> Object::findByValue(const Uri& propertyIRI, const Uri& iriValue) {
+    std::set<Object> objList;
+    Statement query;
+    query.predicate.setIri(propertyIRI);
+    query.object.setIri(iriValue);
+    const StatementList& statements = factory()->find(query);
+    for (const Statement& stmt: statements) {
+        objList.insert(Object(factory()->createResourceFromNode(stmt.subject)));
+    }
+    return objList;
+}
+
 Object& Object::writeRdfType() {
     if ( _rdfTypeWritingRequired ) {
         _rdfTypeWritingRequired = false;
