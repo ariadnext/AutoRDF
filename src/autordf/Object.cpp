@@ -722,6 +722,12 @@ std::set<Object> Object::findSources() const {
     query.object = currentNode();
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
+
+        Uri predicateUri(stmt.predicate.iri());
+        if(predicateUri.prefixPart()+"#"==RDF_NS){
+            continue;
+        }
+
         Object object(factory()->createResourceFromNode(stmt.subject));
         bool isNew = objList.insert(object).second;
         // Follow reified statement
