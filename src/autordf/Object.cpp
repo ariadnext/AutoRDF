@@ -723,9 +723,11 @@ std::set<Object> Object::findSources() const {
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
 
-        Uri predicateUri(stmt.predicate.iri());
-        if(predicateUri.prefixPart()+"#"==RDF_NS){
-            continue;
+        if(stmt.predicate.type() == NodeType::RESOURCE) {
+            Uri predicateUri(stmt.predicate.iri());
+            if (predicateUri.prefixPart() + "#" == RDF_NS) {
+                continue;
+            }
         }
 
         Object object(factory()->createResourceFromNode(stmt.subject));
