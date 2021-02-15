@@ -106,8 +106,14 @@ bool operator==(const autordf::PropertyValue& __lhs,
 bool operator==(const autordf::PropertyValue& __lhs,
            const std::string& __rhs);
 
+bool operator==(const std::string& __lhs,
+           const autordf::PropertyValue& __rhs);
+
 bool operator==(const autordf::PropertyValue& __lhs,
            const char* __rhs);
+
+bool operator==(const char* __lhs,
+           const autordf::PropertyValue& __rhs);
 
 
 #endif //AUTORDF_PROPERTYVALUE_H
