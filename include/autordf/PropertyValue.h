@@ -97,6 +97,17 @@ private:
     std::string _dataTypeIri;
 };
 
-}
+} //namespace autordf
+
+
+bool operator==(const autordf::PropertyValue& __lhs,
+           const autordf::PropertyValue& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+           const std::string& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+           const char* __rhs);
+
 
 #endif //AUTORDF_PROPERTYVALUE_H

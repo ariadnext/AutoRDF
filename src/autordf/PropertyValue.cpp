@@ -28,4 +28,28 @@ std::ostream& PropertyValue::printStream(std::ostream& os) {
     }
     return os;
 }
+
+} //namespace autordf
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const autordf::PropertyValue& __rhs)
+{
+    return static_cast<std::string>(__lhs) == static_cast<std::string>(__rhs) &&
+           __lhs.lang() == __rhs.lang();
+}
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const std::string& __rhs)
+{
+    return static_cast<std::string>(__lhs) == __rhs;
+}
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const char* __rhs)
+{
+    return __rhs &&
+           0 == strcmp(__lhs.c_str(), __rhs);
 }
