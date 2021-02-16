@@ -36,7 +36,8 @@ operator==(const autordf::PropertyValue& __lhs,
            const autordf::PropertyValue& __rhs)
 {
     return static_cast<std::string>(__lhs) == static_cast<std::string>(__rhs) &&
-           __lhs.lang() == __rhs.lang();
+           __lhs.lang() == __rhs.lang() &&
+           __lhs.dataTypeIri() == __rhs.dataTypeIri();
 }
 
 bool
