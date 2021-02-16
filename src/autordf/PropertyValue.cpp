@@ -48,9 +48,25 @@ operator==(const autordf::PropertyValue& __lhs,
 }
 
 bool
+operator==(const std::string& __lhs,
+           const autordf::PropertyValue& __rhs)
+{
+    return __lhs == static_cast<std::string>(__rhs);
+}
+
+bool
 operator==(const autordf::PropertyValue& __lhs,
            const char* __rhs)
 {
     return __rhs &&
            0 == strcmp(__lhs.c_str(), __rhs);
 }
+
+bool
+operator==(const char* __lhs,
+           const autordf::PropertyValue& __rhs)
+{
+    return __lhs &&
+           0 == strcmp(__lhs, __rhs.c_str());
+}
+
