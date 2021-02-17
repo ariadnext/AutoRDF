@@ -115,5 +115,29 @@ bool operator==(const autordf::PropertyValue& __lhs,
 bool operator==(const char* __lhs,
            const autordf::PropertyValue& __rhs);
 
+bool operator==(const autordf::PropertyValue& __lhs,
+                const std::int16_t& __rhs);
+
+bool operator==(const std::int16_t& __lhs,
+                const autordf::PropertyValue& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+                const std::uint16_t& __rhs);
+
+bool operator==(const std::uint16_t& __lhs,
+                const autordf::PropertyValue& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+                const std::int32_t& __rhs);
+
+bool operator==(const std::int32_t& __lhs,
+                const autordf::PropertyValue& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+                const std::uint32_t& __rhs);
+
+bool operator==(const std::uint32_t& __lhs,
+                const autordf::PropertyValue& __rhs);
+
 
 #endif //AUTORDF_PROPERTYVALUE_H

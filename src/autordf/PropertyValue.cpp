@@ -44,14 +44,16 @@ bool
 operator==(const autordf::PropertyValue& __lhs,
            const std::string& __rhs)
 {
-    return static_cast<std::string>(__lhs) == __rhs;
+    return static_cast<std::string>(__lhs) == __rhs &&
+            __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#string";
 }
 
 bool
 operator==(const std::string& __lhs,
            const autordf::PropertyValue& __rhs)
 {
-    return __lhs == static_cast<std::string>(__rhs);
+    return __lhs == static_cast<std::string>(__rhs) &&
+            __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#string";
 }
 
 bool
@@ -59,7 +61,8 @@ operator==(const autordf::PropertyValue& __lhs,
            const char* __rhs)
 {
     return __rhs &&
-           0 == strcmp(__lhs.c_str(), __rhs);
+        0 == strcmp(__lhs.c_str(), __rhs) &&
+        __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#string";
 }
 
 bool
@@ -67,6 +70,70 @@ operator==(const char* __lhs,
            const autordf::PropertyValue& __rhs)
 {
     return __lhs &&
-           0 == strcmp(__lhs, __rhs.c_str());
+        0 == strcmp(__lhs, __rhs.c_str()) &&
+        __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#string";
 }
 
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const std::int16_t& __rhs){
+    return std::stoi(__lhs) == __rhs &&
+        ( __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#short" ||
+        __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer" );
+}
+
+bool
+operator==(const std::int16_t& __lhs,
+           const autordf::PropertyValue& __rhs){
+    return __lhs == std::stoi(__rhs)  &&
+        (__rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#short" ||
+        __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer");
+}
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const std::uint16_t& __rhs){
+    return std::stoul(__lhs) == __rhs &&
+        ( __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#unsignedshort" ||
+        __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer" );
+}
+
+bool
+operator==(const std::uint16_t& __lhs,
+           const autordf::PropertyValue& __rhs){
+    return __lhs == std::stoul(__rhs) &&
+         (__rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#unsignedshort" ||
+         __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer");
+}
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const std::int32_t& __rhs){
+    return std::stoi(__lhs) == __rhs &&
+        ( __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#int" ||
+        __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer" );
+}
+
+bool
+operator==(const std::int32_t& __lhs,
+           const autordf::PropertyValue& __rhs){
+    return __lhs == std::stoi(__rhs)  &&
+        (__rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#int" ||
+        __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer");
+}
+
+bool
+operator==(const autordf::PropertyValue& __lhs,
+           const std::uint32_t& __rhs){
+    return std::stoul(__lhs) == __rhs &&
+        ( __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#unsignedint" ||
+        __lhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer" );
+}
+
+bool
+operator==(const std::uint32_t& __lhs,
+           const autordf::PropertyValue& __rhs){
+    return __lhs == std::stoul(__rhs) &&
+        (__rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#unsignedint" ||
+        __rhs.dataTypeIri() == "http://www.w3.org/2001/XMLSchema#integer");
+}
