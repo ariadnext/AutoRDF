@@ -533,7 +533,38 @@ bool Object::isA(const Uri& typeIRI) const {
     return false;
 }
 
-void Object::remove() {
+void Object::remove(bool bRecursive /*= false*/) {
+
+    if(bRecursive){
+        if (isA(RDF_STATEMENT)) {
+            std::shared_ptr<Property> object = _r.getProperty(RDF_OBJECT);
+            if(NodeType::BLANK == object->type()){
+                Object(object->asResource()).remove(bRecursive);
+            }
+        } else {
+            const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
+            for (const Node& thisObject : nodesReferingToThisObject ) {
+                Resource reifiedStatement(factory()->createResourceFromNode(thisObject));
+                std::shared_ptr<Property> rdfObj = reifiedStatement.getProperty(RDF_OBJECT);
+                if ( rdfObj->type() == NodeType::BLANK) {
+                    Object(rdfObj->asResource()).remove(bRecursive);
+                }
+                Object(reifiedStatement).remove();
+            }
+            Statement query;
+            query.subject = currentNode();
+            const StatementList &statements = factory()->find(query);
+            for (const Statement &stmt: statements) {
+                if (stmt.object.type() == NodeType::BLANK) {
+                    Object subobj(factory()->createResourceFromNode(stmt.object));
+                    if (subobj.findSources().size() == 1) {
+                        subobj.remove(bRecursive);
+                    }
+                }
+            }
+        }
+    }
+
     _r.removeProperties("");
     if ( !_rdfTypeIRI.empty() ) {
         _rdfTypeWritingRequired = true;
