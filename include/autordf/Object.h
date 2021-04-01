@@ -360,10 +360,11 @@ public:
     /**
      * As the name suggests, removes all data
      * Associated with this object.
-     * This only deletes properties and links to other objects,
-     * It does not delete the objects we point to
+     * If called with bRecursive param as false this only deletes properties and links to other objects,
+     * If called with bRecursive param as true will deletes properties and also remove the bnodes
+     * referenced by this object (if not referenced by other objects).
      */
-    AUTORDF_EXPORT void remove();
+    AUTORDF_EXPORT void remove(bool bRecursive = false);
 
     /**
      * Copies this object, to given iri.
