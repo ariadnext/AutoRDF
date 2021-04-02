@@ -76,9 +76,9 @@ std::shared_ptr<Property> Resource::getOptionalProperty(const Uri& iri, Factory 
     if (object.type() == NodeType::LITERAL) {
         p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
     } else if (object.type() == NodeType::RESOURCE) {
-        p->setValue(object.iri(), false);
+        p->setValue(PropertyValue(object.iri(), datatype::DATATYPE_STRING), false);
     } else if (object.type() == NodeType::BLANK) {
-        p->setValue(object.bNodeId(), false);
+        p->setValue(PropertyValue(object.bNodeId(), datatype::DATATYPE_STRING), false);
     }
     return p;
 }
@@ -121,9 +121,9 @@ std::shared_ptr<std::list<Property>> Resource::getPropertyValues(const Uri& iri)
         if ( object.type() == NodeType::LITERAL) {
             p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
         } else if ( object.type() == NodeType::RESOURCE) {
-            p->setValue(object.iri(), false);
+            p->setValue(PropertyValue(object.iri(), datatype::DATATYPE_STRING), false);
         } else if ( object.type() == NodeType::BLANK) {
-            p->setValue(object.bNodeId(), false);
+            p->setValue(PropertyValue(object.bNodeId(), datatype::DATATYPE_STRING), false);
         }
         resp->push_back(*p);
     }
@@ -151,9 +151,9 @@ std::shared_ptr<std::list<Property>> Resource::getPropertyValues() const {
         if ( object.type() == NodeType::LITERAL) {
             p->setValue(PropertyValue(object.literal(), object.lang(), object.dataType()), false);
         } else if ( object.type() == NodeType::RESOURCE) {
-            p->setValue(object.iri(), false);
+            p->setValue(PropertyValue(object.iri(), datatype::DATATYPE_STRING), false);
         } else if ( object.type() == NodeType::BLANK) {
-            p->setValue(object.bNodeId(), false);
+            p->setValue(PropertyValue(object.bNodeId(), datatype::DATATYPE_STRING), false);
         }
         resp->push_back(*p);
     }

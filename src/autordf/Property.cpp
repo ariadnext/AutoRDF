@@ -24,7 +24,7 @@ Resource Property::asResource() const {
 
 Property& Property::setValue(const Resource &res) {
     setType(res.type());
-    _value = res.name();
+    _value = PropertyValue(res.name(), datatype::DATATYPE_STRING);
     return *this;
 }
 

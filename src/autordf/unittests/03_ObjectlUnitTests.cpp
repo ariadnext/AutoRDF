@@ -93,7 +93,7 @@ TEST(_03_Object, Accessors) {
 
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
-    ASSERT_EQ(std::vector<PropertyValue>({"Jimmy Wales"}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name", false));
+    ASSERT_EQ(std::vector<PropertyValue>({PropertyValue("Jimmy Wales", autordf::datatype::DATATYPE_STRING)}), person.getPropertyValueList("http://xmlns.com/foaf/0.1/name", false));
     std::vector<Object> ref({Object("http://xmlns.com/foaf/0.1/OnlineChatAccount"), Object("http://xmlns.com/foaf/0.1/OnlineAccount")});
     std::sort(ref.begin(), ref.end());
     auto value = account.getObjectList("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", false);
@@ -115,7 +115,7 @@ TEST(_03_Object, DelayedTypeWriting) {
 
     // No statement written that far
     ASSERT_EQ(0, f.find().size());
-    obj.setPropertyValue("http://myuri/myprop", "value");
+    obj.setPropertyValue("http://myuri/myprop", PropertyValue("value", autordf::datatype::DATATYPE_STRING));
     // two statements written
     ASSERT_EQ(2, f.find().size());
     ASSERT_EQ("http://myuri/type1", obj.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
@@ -138,10 +138,10 @@ TEST(_03_Object, removeSingleProperty) {
 
     Object obj("http://myuri/myobject", "http://myuri/type1");
 
-    obj.addPropertyValue("http://myuri/prop", "val1", false);
+    obj.addPropertyValue("http://myuri/prop", PropertyValue("val1","http://www.ariadnext.com/datatype#test"), false);
     ASSERT_EQ(2, f.find().size());
 
-    obj.removePropertyValue("http://myuri/prop", "val1");
+    obj.removePropertyValue("http://myuri/prop", PropertyValue("val1","http://www.ariadnext.com/datatype#test"));
     ASSERT_EQ(1, f.find().size());
 
     long long int toto = 1;
@@ -153,7 +153,7 @@ TEST(_03_Object, removeSingleProperty) {
     obj.removePropertyValue("http://myuri/prop", val);
     ASSERT_EQ(1, f.find().size());
 
-    ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
+    ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", PropertyValue("val1","http://www.ariadnext.com/datatype#test"))), PropertyNotFound);
 }
 
 TEST(_03_Object, findByKeyProp) {
@@ -170,10 +170,9 @@ TEST(_03_Object, findByKeyObject) {
     Object::setFactory(&f);
 
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
+    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo", "")));
 
-    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo"));
-
-    ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", "Jimbo2"), ObjectNotFound);
+    ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo2","http://www.ariadnext.com/datatype#test")), ObjectNotFound);
 }
 
 TEST(_03_Object, findAllObjects) {
@@ -192,14 +191,14 @@ TEST(_03_Object, DataPropertyReification) {
 
     Object obj("http://my/object");
 
-    obj.setPropertyValue("http://myprop2", "2");
+    obj.setPropertyValue("http://myprop2", PropertyValue("2",datatype::DATATYPE_INTEGER));
     // At this stage statement is NOT reified, check that
-    ASSERT_FALSE(obj.reifiedPropertyValue("http://myprop2", "2"));
+    ASSERT_FALSE(obj.reifiedPropertyValue("http://myprop2", PropertyValue("2",datatype::DATATYPE_INTEGER)));
 
-    obj.reifyPropertyValue("http://myprop1", "1");
+    obj.reifyPropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER));
 
     // At this stage statement is reified, check that
-    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER)).get());
 
     f.saveToFile("/tmp/test_UnReification1.ttl");
 
@@ -210,13 +209,13 @@ TEST(_03_Object, DataPropertyReification) {
     ASSERT_EQ("1", obj.getPropertyValue("http://myprop1"));
 
     // Test our read back support of reified statements
-    ASSERT_EQ(std::vector<PropertyValue>({"1"}), obj.getPropertyValueList("http://myprop1", false));
+    ASSERT_EQ(std::vector<PropertyValue>({PropertyValue("1",datatype::DATATYPE_INTEGER)}), obj.getPropertyValueList("http://myprop1", false));
 
     // Test our read back support of reified statements
     ASSERT_EQ(std::vector< long long int>({1}), (obj.getValueListImpl<cvt::RdfTypeEnum::xsd_integer, long long int>("http://myprop1", false)));
 
     // Now remove our reified statement
-    obj.removePropertyValue("http://myprop1", "1");
+    obj.removePropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER));
 }
 
 TEST(_03_Object, DataPropertyReification2) {
@@ -226,8 +225,8 @@ TEST(_03_Object, DataPropertyReification2) {
     Object obj("http://my/object");
 
     // Check reification does remove our non-reified statement
-    obj.setPropertyValue("http://myprop3", "3");
-    obj.reifyPropertyValue("http://myprop3", "3");
+    obj.setPropertyValue("http://myprop3", PropertyValue("3",datatype::DATATYPE_INTEGER));
+    obj.reifyPropertyValue("http://myprop3", PropertyValue("3",datatype::DATATYPE_INTEGER));
 
     EXPECT_EQ(4, f.find().size());
 }
@@ -238,18 +237,18 @@ TEST(_03_Object, DataPropertyUnReification) {
 
     Object obj("http://my/object");
     //Unreifying unexisting should not throw
-    ASSERT_NO_THROW(obj.unReifyPropertyValue("http://unexistingprop", "unsexistingvalue"));
+    ASSERT_NO_THROW(obj.unReifyPropertyValue("http://unexistingprop", PropertyValue("unsexistingvalue","http://www.w3.org/2001/XMLSchema#none")));
 
-    Object reified = obj.reifyPropertyValue("http://myprop1", "1");
-    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue", false);
+    Object reified = obj.reifyPropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER));
+    reified.addPropertyValue("http://thirdpartyprop", PropertyValue("thirdpartypropvalue","http://www.w3.org/2001/XMLSchema#none"), false);
 
     f.saveToFile("/tmp/test_UnReification2.ttl");
 
-    ASSERT_THROW(obj.unReifyPropertyValue("http://myprop1", "1"), autordf::CannotUnreify);
+    ASSERT_THROW(obj.unReifyPropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER)), autordf::CannotUnreify);
 
     //Now remove statement and test unreification again
-    reified.removePropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
-    ASSERT_NO_THROW(obj.unReifyPropertyValue("http://myprop1", "1"));
+    reified.removePropertyValue("http://thirdpartyprop", PropertyValue("thirdpartypropvalue","http://www.w3.org/2001/XMLSchema#none"));
+    ASSERT_NO_THROW(obj.unReifyPropertyValue("http://myprop1", PropertyValue("1",datatype::DATATYPE_INTEGER)));
 
     f.saveToFile("/tmp/test_UnReification3.ttl");
 }
@@ -312,14 +311,14 @@ TEST(_03_Object, ObjectPropertyUnReification) {
 
     Object obj1("http://my/object1");
     Object reified = obj.reifyObject("http://myprop1", obj1);
-    reified.addPropertyValue("http://thirdpartyprop", "thirdpartypropvalue", false);
+    reified.addPropertyValue("http://thirdpartyprop", PropertyValue("thirdpartypropvalue", "http://www.ariadnext.com/datatype#none"), false);
 
     f.saveToFile("/tmp/test_UnReification2.ttl");
 
     ASSERT_THROW(obj.unReifyObject("http://myprop1", obj1), autordf::CannotUnreify);
 
     //Now remove statement and test unreification again
-    reified.removePropertyValue("http://thirdpartyprop", "thirdpartypropvalue");
+    reified.removePropertyValue("http://thirdpartyprop", PropertyValue("thirdpartypropvalue", "http://www.ariadnext.com/datatype#none"));
     ASSERT_NO_THROW(obj.unReifyObject("http://myprop1", obj1));
 
     f.saveToFile("/tmp/test_UnReification3.ttl");
@@ -332,8 +331,8 @@ TEST(_03_Object, DataPropertyOrderingVector) {
     Object obj("http://my/object");
 
     PropertyValueVector pvv;
-    pvv.emplace_back("stringval1");
-    pvv.emplace_back("stringval2");
+    pvv.emplace_back(PropertyValue("stringval1", datatype::DATATYPE_STRING));
+    pvv.emplace_back(PropertyValue("stringval2", datatype::DATATYPE_STRING));
     obj.setPropertyValueList("http://prop1", pvv, true);
 
     ASSERT_NO_THROW(obj.getPropertyValueList("http://prop1", true));
@@ -347,8 +346,8 @@ TEST(_03_Object, DataPropertyOrderingAdd) {
     Object::setFactory(&f);
     Object obj("http://my/object");
 
-    obj.setPropertyValue("http://prop1", "stringval1");
-    obj.addPropertyValue("http://prop1", "stringval2", true);
+    obj.setPropertyValue("http://prop1", PropertyValue("stringval1", datatype::DATATYPE_STRING));
+    obj.addPropertyValue("http://prop1", PropertyValue("stringval2", datatype::DATATYPE_STRING), true);
 
     std::cout << *f.saveToMemory("turtle") << std::endl;
 
@@ -485,9 +484,9 @@ TEST(_03_Object, cloneReification) {
     Object::setFactory(&f);
 
     Object obj("http://my/object");
-    obj.reifyPropertyValue("http://myprop1", "1");
+    obj.reifyPropertyValue("http://myprop1", PropertyValue("1", datatype::DATATYPE_INTEGER));
     Object clone = obj.cloneRecursiveStopAtResources("http://my/object2");
-    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", PropertyValue(1)).get());
 }
 
 TEST(_03_Object, cloneReificationViaStandardClone) {
@@ -495,7 +494,25 @@ TEST(_03_Object, cloneReificationViaStandardClone) {
     Object::setFactory(&f);
 
     Object obj("http://my/object");
-    obj.reifyPropertyValue("http://myprop1", "1");
+    obj.reifyPropertyValue("http://myprop1", PropertyValue("1", datatype::DATATYPE_INTEGER));
     Object clone = obj.clone("http://my/object2");
-    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", PropertyValue(1)).get());
+}
+
+TEST(_03_Object, DataPropertyComparison) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://my/object");
+
+    obj.setPropertyValue("http://myprop1", PropertyValue("1", datatype::DATATYPE_INTEGER));
+    obj.setPropertyValue("http://myprop2", PropertyValue("2", datatype::DATATYPE_INTEGER));
+    ASSERT_EQ(2, f.find().size());
+
+    obj.removePropertyValue("http://myprop1", PropertyValue(1));
+    ASSERT_EQ(1, f.find().size());
+
+    ASSERT_THROW(obj.removePropertyValue("http://myprop2", PropertyValue("1",datatype::DATATYPE_STRING)), PropertyNotFound);
+    ASSERT_EQ(1, f.find().size());
+
 }

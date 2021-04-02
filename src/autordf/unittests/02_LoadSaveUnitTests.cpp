@@ -17,7 +17,7 @@ TEST(_02_LoadSave, OneProperty) {
     ASSERT_EQ("Jimmy Criket", r.getProperty("http://xmlns.com/foaf/0.1/name")->value());
     ASSERT_EQ("Jimmy Criket", r.getOptionalProperty("http://xmlns.com/foaf/0.1/name")->value());
     std::shared_ptr<Property> p = f.createProperty("http://xmlns.com/foaf/0.1/name");
-    p->setValue("Jimmy Criket");
+    p->setValue(PropertyValue("Jimmy Criket", ""));
     ASSERT_TRUE(r.hasProperty(*p));
 }
 
@@ -31,7 +31,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
     ASSERT_EQ(nullptr, r.getOptionalProperty("http://notthereuri"));
 
     std::shared_ptr<Property> p = f.createProperty("http://notthereuri");
-    p->setValue("1");
+    p->setValue(PropertyValue(1));
     ASSERT_FALSE(r.hasProperty(*p));
 }
 
@@ -70,7 +70,7 @@ TEST(_02_LoadSave, saveResource) {
     person.addProperty(*myPlaceProp);
 
     std::shared_ptr<Property> placeName = f.createProperty("http://my/own/placename");
-    placeName->setValue("Place des pizzas");
+    placeName->setValue(PropertyValue("Place des pizzas","http://www.ariadnext.com/datatype#test"));
     place.addProperty(*placeName);
 
     Resource test = f.createIRIResource("http://shortName");
@@ -84,18 +84,18 @@ TEST(_02_LoadSave, deleteProperties) {
 
     Resource drawing = f.createIRIResource("http://my/own/drawing");
 
-    drawing.addProperty(f.createProperty("http://my/own/color")->setValue("red"));
-    drawing.addProperty(f.createProperty("http://my/own/color")->setValue("green"));
-    drawing.addProperty(f.createProperty("http://my/own/color")->setValue("blue"));
-    drawing.addProperty(f.createProperty("http://my/own/shape")->setValue("circle"));
-    drawing.addProperty(f.createProperty("http://my/own/shape")->setValue("rectangle"));
-    drawing.addProperty(f.createProperty("http://my/own/backround")->setValue("dots"));
+    drawing.addProperty(f.createProperty("http://my/own/color")->setValue(PropertyValue("red","http://www.ariadnext.com/datatype#color")));
+    drawing.addProperty(f.createProperty("http://my/own/color")->setValue(PropertyValue("green","http://www.ariadnext.com/datatype#color")));
+    drawing.addProperty(f.createProperty("http://my/own/color")->setValue(PropertyValue("blue","http://www.ariadnext.com/datatype#color")));
+    drawing.addProperty(f.createProperty("http://my/own/shape")->setValue(PropertyValue("circle","http://www.ariadnext.com/datatype#shape")));
+    drawing.addProperty(f.createProperty("http://my/own/shape")->setValue(PropertyValue("rectangle","http://www.ariadnext.com/datatype#shape")));
+    drawing.addProperty(f.createProperty("http://my/own/backround")->setValue(PropertyValue("dots","http://www.ariadnext.com/datatype#backround")));
 
     EXPECT_EQ(6, f.find().size());
 
     f.saveToFile("/tmp/test_deleteProperties.ttl", "http://my/own/");
 
-    drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue("blue"));
+    drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue(PropertyValue("blue","http://www.ariadnext.com/datatype#color")));
     ASSERT_EQ(5, f.find().size());
 
     drawing.removeProperties("http://my/own/color");
@@ -105,5 +105,43 @@ TEST(_02_LoadSave, deleteProperties) {
     drawing.removeProperties("");
     ASSERT_EQ(0, f.find().size());
 
-    ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue("nonexistent")), PropertyNotFound);
+    ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue(PropertyValue("nonexistent","http://www.ariadnext.com/datatype#color"))), PropertyNotFound);
+}
+
+
+TEST(_02_LoadSave, TestPropertyOfTypeExist) {
+    Factory f;
+
+    Resource drawing = f.createIRIResource("http://my/own/drawing");
+
+    Property p1 = f.createProperty("http://my/own/color")->setValue(PropertyValue("red","http://www.ariadnext.com/datatype#color"));
+    Property p2 = f.createProperty("http://my/own/color")->setValue(PropertyValue("red", datatype::DATATYPE_STRING));
+    drawing.addProperty(p1);
+    ASSERT_TRUE(drawing.hasProperty(p1));
+    ASSERT_FALSE(drawing.hasProperty(p2));
+
+}
+
+TEST(_02_LoadSave, compareProperties) {
+
+    PropertyValue red1("red","http://www.ariadnext.com/datatype#color");
+    PropertyValue red2("red","http://www.ariadnext.com/datatype#color");
+    PropertyValue red3("red","");
+
+    ASSERT_TRUE(red1 == red2);
+    ASSERT_TRUE(red1 != red3);
+
+    PropertyValue test1("test", autordf::datatype::DATATYPE_STRING, "en");
+    PropertyValue test2("test", autordf::datatype::DATATYPE_STRING, "en");
+    PropertyValue test3("test", autordf::datatype::DATATYPE_STRING, "fr");
+    PropertyValue test4("test", autordf::datatype::DATATYPE_STRING);
+
+    ASSERT_TRUE(test1 == test2);
+    ASSERT_TRUE(test1 != test3);
+    ASSERT_TRUE(test1 != test4);
+    ASSERT_TRUE(test3 != test4);
+
+    PropertyValue a("1", datatype::DATATYPE_INTEGER);
+    PropertyValue b(1);
+    ASSERT_TRUE(a == b);
 }

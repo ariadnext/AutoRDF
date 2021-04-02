@@ -9,6 +9,13 @@
 
 namespace autordf {
 
+namespace datatype {
+    const std::string DATATYPE_INTEGER = "http://www.w3.org/2001/XMLSchema#integer";
+    const std::string DATATYPE_STRING = "http://www.w3.org/2001/XMLSchema#string";
+    const std::string DATATYPE_BOOLEAN = "http://www.w3.org/2001/XMLSchema#boolean";
+    const std::string DATATYPE_FLOAT = "http://www.w3.org/2001/XMLSchema#float";
+    const std::string DATATYPE_DOUBLE = "http://www.w3.org/2001/XMLSchema#double";
+} //namespace datatype
 /**
  * Stores a Value (aka Literal) of a Web Semantic Resource
  */
@@ -23,17 +30,10 @@ public:
      * Builds from a string literal
      *
      * @param rawValue Literal value
-     */
-    PropertyValue(const char *rawValue) : std::string(rawValue) {}
-
-    /**
-     * Builds from a string literal
-     *
-     * @param rawValue Literal value
      * @param lang optional xml:lang for this literal property
      * @param dataTypeIri optional literal data type
      */
-    PropertyValue(const std::string& rawValue, const std::string& lang = "", const std::string& dataTypeIri = "")
+    PropertyValue(const std::string& rawValue, const std::string& dataTypeIri, const std::string& lang = "")
             : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
 
     /**
@@ -45,6 +45,24 @@ public:
      */
     PropertyValue(const std::string& rawValue, const char* lang, const char* dataTypeIri)
             : std::string(rawValue), _lang(lang ? lang : ""), _dataTypeIri(dataTypeIri ? dataTypeIri : "") {}
+
+
+    explicit PropertyValue(int integerValue)
+            : std::string(std::to_string(integerValue))
+            , _dataTypeIri(datatype::DATATYPE_INTEGER){}
+
+    explicit PropertyValue(bool bValue)
+            : std::string(bValue?"true":"false")
+            , _dataTypeIri(datatype::DATATYPE_BOOLEAN) {}
+
+    explicit PropertyValue(float fValue)
+            : std::string(std::to_string(fValue))
+            , _dataTypeIri(datatype::DATATYPE_FLOAT) {}
+
+    explicit PropertyValue(double dValue)
+            : std::string(std::to_string(dValue))
+            , _dataTypeIri(datatype::DATATYPE_DOUBLE){}
+
     /**
      * @return the literal data type if it is set, blank string otherwise
      * Does makes sense only in case this property holds a literal
@@ -98,5 +116,11 @@ private:
 };
 
 }
+
+bool operator==(const autordf::PropertyValue& __lhs,
+                const autordf::PropertyValue& __rhs);
+
+bool operator!=(const autordf::PropertyValue& __lhs,
+                const autordf::PropertyValue& __rhs);
 
 #endif //AUTORDF_PROPERTYVALUE_H

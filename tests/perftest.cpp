@@ -21,7 +21,7 @@ int main(int, char **) {
             p << "http://property" << j;
             std::stringstream v;
             v << "http://value" << j;
-            o.setPropertyValue(p.str(), v.str());
+            o.setPropertyValue(p.str(), PropertyValue(v.str(),""));
         }
     }
 
