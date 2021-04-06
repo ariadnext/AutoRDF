@@ -137,9 +137,6 @@ const char* Node::dataType() const {
     return reinterpret_cast<const char*>(dataTypeUri ? librdf_uri_as_string(dataTypeUri) : nullptr);
 #elif defined(USE_SORD)
     SordNode *dataTypeUri = sord_node_get_datatype(_node);
-    if(dataTypeUri){
-        printf("\nXXXXXXXXXXXXXXXXXXXXXXXX %s", sord_node_get_string(dataTypeUri));
-    }
     return reinterpret_cast<const char*>(dataTypeUri ? sord_node_get_string(dataTypeUri) : nullptr);
 #endif
 }
