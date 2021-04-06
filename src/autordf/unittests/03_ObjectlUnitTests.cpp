@@ -516,3 +516,34 @@ TEST(_03_Object, DataPropertyComparison) {
     ASSERT_EQ(1, f.find().size());
 
 }
+
+TEST(_03_Object, removeObjectRecursive) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://testns/myobject", "http://testns/type1");
+
+    obj.addPropertyValue("http://property", "val1", false);
+    ASSERT_EQ(2, f.find().size());
+
+    obj.addPropertyValue("http://property", "val2", false);
+    ASSERT_EQ(3, f.find().size());
+
+    Object subobject("http://testns/subobj");
+    subobject.addPropertyValue("http://property", "val3", false);
+    obj.addObject("http://subobject", Object("http://testns/subobject"), false);
+    ASSERT_EQ(5, f.find().size());
+
+    Object subobject2("http://subobj/bnode");
+    Object bnode = obj.reifyObject("http://testns/bnode", subobject2);
+    bnode.addPropertyValue("http://property", "val4", false);
+    bnode.addObject("http://subobject", Object("http://bnode/subobject"), false);
+    obj.addObject("http://testns/obj", bnode, false);
+    ASSERT_EQ(12, f.find().size());
+
+    obj.remove(true);
+
+    ASSERT_EQ(1, f.find().size());  // http://testns/subobj
+
+}
+
