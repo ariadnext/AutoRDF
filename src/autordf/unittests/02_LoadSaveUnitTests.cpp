@@ -17,7 +17,7 @@ TEST(_02_LoadSave, OneProperty) {
     ASSERT_EQ("Jimmy Criket", r.getProperty("http://xmlns.com/foaf/0.1/name")->value());
     ASSERT_EQ("Jimmy Criket", r.getOptionalProperty("http://xmlns.com/foaf/0.1/name")->value());
     std::shared_ptr<Property> p = f.createProperty("http://xmlns.com/foaf/0.1/name");
-    p->setValue(PropertyValue("Jimmy Criket", ""));
+    p->setValue(PropertyValue("Jimmy Criket", datatype::DATATYPE_STRING));
     ASSERT_TRUE(r.hasProperty(*p));
 }
 
@@ -131,9 +131,9 @@ TEST(_02_LoadSave, compareProperties) {
     ASSERT_TRUE(red1 == red2);
     ASSERT_TRUE(red1 != red3);
 
-    PropertyValue test1("test", autordf::datatype::DATATYPE_STRING, "en");
-    PropertyValue test2("test", autordf::datatype::DATATYPE_STRING, "en");
-    PropertyValue test3("test", autordf::datatype::DATATYPE_STRING, "fr");
+    PropertyValue test1("test", autordf::datatype::DATATYPE_LANGSTRING, "en");
+    PropertyValue test2("test", autordf::datatype::DATATYPE_LANGSTRING, "en");
+    PropertyValue test3("test", autordf::datatype::DATATYPE_LANGSTRING, "fr");
     PropertyValue test4("test", autordf::datatype::DATATYPE_STRING);
 
     ASSERT_TRUE(test1 == test2);

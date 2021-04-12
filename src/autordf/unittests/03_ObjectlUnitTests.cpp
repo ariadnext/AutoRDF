@@ -80,7 +80,7 @@ TEST(_03_Object, Accessors) {
 
     Object person;
     for ( auto p : objs ) {
-        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Jimmy Wales", datatype::DATATYPE_STRING) ) {
             person = p;
         }
     }
@@ -169,9 +169,9 @@ TEST(_03_Object, findByKeyObject) {
     Object::setFactory(&f);
 
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
-    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo", "")));
+    ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo", datatype::DATATYPE_STRING)));
 
-    ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo2","http://www.ariadnext.com/datatype#test")), ObjectNotFound);
+    ASSERT_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/nick", PropertyValue("Jimbo2", datatype::DATATYPE_STRING)), ObjectNotFound);
 }
 
 TEST(_03_Object, findAllObjects) {
@@ -422,9 +422,9 @@ TEST(_03_Object, FindSources) {
     Object jimmy;
     Object angela;
     for ( auto p : objs ) {
-        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Jimmy Wales", autordf::datatype::DATATYPE_STRING) ) {
             jimmy = p;
-        } else if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Angela Beesley" ) {
+        } else if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Angela Beesley", autordf::datatype::DATATYPE_STRING) ) {
             angela = p;
         }
     }
@@ -444,7 +444,7 @@ TEST(_03_Object, FindTargets) {
 
     Object person;
     for ( auto p : objs ) {
-        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Jimmy Wales", autordf::datatype::DATATYPE_STRING) ) {
             person = p;
         }
     }
@@ -465,7 +465,7 @@ TEST(_03_Object, cloneRecursiveStopAtResources) {
 
     Object person;
     for ( auto p : objs ) {
-        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
+        if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Jimmy Wales", autordf::datatype::DATATYPE_STRING) ) {
             person = p;
         }
     }
@@ -474,7 +474,7 @@ TEST(_03_Object, cloneRecursiveStopAtResources) {
     Object known2 = clone.getObject("http://xmlns.com/foaf/0.1/knows");
     EXPECT_EQ(known, known2);
     objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
-    long count = std::count_if(objs.begin(), objs.end(), [](Object o){ return o.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales";});
+    long count = std::count_if(objs.begin(), objs.end(), [](Object o){ return o.getPropertyValue("http://xmlns.com/foaf/0.1/name") == PropertyValue("Jimmy Wales", autordf::datatype::DATATYPE_STRING);});
     EXPECT_EQ(count, 2);
 }
 

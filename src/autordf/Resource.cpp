@@ -198,12 +198,34 @@ Resource& Resource::removeSingleProperty(const Property &p) {
     }
     rmreq.predicate.setIri(p.iri());
     propertyAsNode(p, &rmreq.object);
+
     try {
         _factory->remove(&rmreq);
     }
     catch (const InternalError &) {
-        throw PropertyNotFound("Unable to remove Property " + p.iri() + ", value " + p.value());
+
+        if(p.value().dataTypeIri() == autordf::datatype::DATATYPE_STRING) {
+
+            Property p0(p);
+            PropertyValue p0v = p.value();
+            p0v.setDataTypeIri("");
+            p0.setValue(p0v);
+            propertyAsNode(p0, &rmreq.object);
+
+            try {
+                _factory->remove(&rmreq);
+            }
+            catch (const InternalError &) {
+                throw PropertyNotFound("Unable to remove Property " + p.iri() + ", value " + p.value());
+            }
+        } else {
+            throw PropertyNotFound("Unable to remove Property " + p.iri() + ", value " + p.value());
+        }
+
     }
+
+    propertyAsNode(p, &rmreq.object);
+
     return *this;
 }
 

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <ostream>
 #include <memory>
+#include <autordf/PropertyValue.h>
 
 #include "autordf/Exception.h"
 #include "autordf/internal/World.h"
@@ -137,7 +138,13 @@ const char* Node::dataType() const {
     return reinterpret_cast<const char*>(dataTypeUri ? librdf_uri_as_string(dataTypeUri) : nullptr);
 #elif defined(USE_SORD)
     SordNode *dataTypeUri = sord_node_get_datatype(_node);
-    return reinterpret_cast<const char*>(dataTypeUri ? sord_node_get_string(dataTypeUri) : nullptr);
+    if(dataTypeUri) {
+        return reinterpret_cast<const char *>(dataTypeUri ? sord_node_get_string(dataTypeUri) : nullptr);
+    } else if (lang()){
+        return datatype::DATATYPE_LANGSTRING.c_str();
+    } else {
+        return datatype::DATATYPE_STRING.c_str();
+    }
 #endif
 }
 

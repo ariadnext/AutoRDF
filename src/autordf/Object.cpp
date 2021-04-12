@@ -606,7 +606,13 @@ Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     Statement query;
     query.predicate.setIri(propertyIRI);
     query.object.setLiteral(value, value.lang(), value.dataTypeIri());
-    const StatementList& statements = factory()->find(query);
+    StatementList statements = factory()->find(query);
+
+    if ( statements.size() == 0 ) {
+        query.object.setLiteral(value, value.lang());
+        statements = factory()->find(query);
+    }
+
     if ( statements.size() == 0 ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + value + " found");
     }

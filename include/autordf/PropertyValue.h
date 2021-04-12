@@ -12,6 +12,7 @@ namespace autordf {
 namespace datatype {
     const std::string DATATYPE_INTEGER = "http://www.w3.org/2001/XMLSchema#integer";
     const std::string DATATYPE_STRING = "http://www.w3.org/2001/XMLSchema#string";
+    const std::string DATATYPE_LANGSTRING = "http://www.w3.org/2001/XMLSchema#langString";
     const std::string DATATYPE_BOOLEAN = "http://www.w3.org/2001/XMLSchema#boolean";
     const std::string DATATYPE_FLOAT = "http://www.w3.org/2001/XMLSchema#float";
     const std::string DATATYPE_DOUBLE = "http://www.w3.org/2001/XMLSchema#double";
@@ -24,7 +25,8 @@ public:
     /**
      * Builds empty value
      */
-    PropertyValue() {}
+    PropertyValue()
+     : _dataTypeIri(datatype::DATATYPE_STRING) {}
 
     /**
      * Builds from a string literal
@@ -34,7 +36,12 @@ public:
      * @param dataTypeIri optional literal data type
      */
     PropertyValue(const std::string& rawValue, const std::string& dataTypeIri, const std::string& lang = "")
-            : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri) {}
+            : std::string(rawValue), _lang(lang), _dataTypeIri(dataTypeIri.empty() ? datatype::DATATYPE_STRING : dataTypeIri) {
+
+        if(!_lang.empty() && datatype::DATATYPE_LANGSTRING != _dataTypeIri) {
+            throw std::runtime_error("language tag est positionné avec datatype: " + _dataTypeIri);
+        }
+    }
 
     /**
      * Builds from a string literal
@@ -44,7 +51,12 @@ public:
      * @param dataTypeIri optional literal data type
      */
     PropertyValue(const std::string& rawValue, const char* lang, const char* dataTypeIri)
-            : std::string(rawValue), _lang(lang ? lang : ""), _dataTypeIri(dataTypeIri ? dataTypeIri : "") {}
+            : std::string(rawValue), _lang(lang ? lang : ""), _dataTypeIri((dataTypeIri && dataTypeIri[0]) ? dataTypeIri : datatype::DATATYPE_STRING) {
+
+        if(!_lang.empty() && datatype::DATATYPE_LANGSTRING != _dataTypeIri) {
+            throw std::runtime_error("language tag est positionné avec datatype: " + _dataTypeIri);
+        }
+    }
 
 
     explicit PropertyValue(int integerValue)
@@ -122,5 +134,18 @@ bool operator==(const autordf::PropertyValue& __lhs,
 
 bool operator!=(const autordf::PropertyValue& __lhs,
                 const autordf::PropertyValue& __rhs);
+
+bool operator==(const autordf::PropertyValue& __lhs,
+           const std::string& __rhs);
+
+bool operator!=(const autordf::PropertyValue& __lhs,
+                const std::string& __rhs);
+
+bool operator==(const std::string& __lhs,
+           const autordf::PropertyValue& __rhs);
+
+bool operator!=(const std::string& __lhs,
+                const autordf::PropertyValue& __rhs);
+
 
 #endif //AUTORDF_PROPERTYVALUE_H
