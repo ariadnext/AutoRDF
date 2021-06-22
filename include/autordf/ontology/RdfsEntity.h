@@ -7,6 +7,8 @@
 #include "autordf/Uri.h"
 #include <autordf/ontology/autordf-ontology_export.h>
 
+#include <autordf/PropertyValue.h>
+
 namespace autordf {
 
 class Model;
@@ -35,22 +37,22 @@ public:
     /**
      * Label
      */
-    std::string label() const { return _label; }
+    std::vector<PropertyValue> label() const { return _label; }
 
     /**
      * Entity comment
      */
-    std::string comment() const { return _comment; }
+    std::vector<PropertyValue> comment() const { return _comment; }
 
     /**
      * Pointer to addidinal data, see http://www.w3.org/TR/rdf-schema
      */
-    std::string seeAlso() const { return _seeAlso; }
+    std::vector<PropertyValue> seeAlso() const { return _seeAlso; }
 
     /**
      * Resource defining this entity, see http://www.w3.org/TR/rdf-schema
      */
-    std::string isDefinedBy() const { return _isDefinedBy; }
+    std::vector<PropertyValue> isDefinedBy() const { return _isDefinedBy; }
 
     /**
      * Display friendly name: takes last part of IRI and make it something short and understandable for
@@ -79,13 +81,13 @@ private:
     // Object iri
     Uri _rdfname;
     // rdfs comment
-    std::string _comment;
+    std::vector<PropertyValue> _comment;
     // rdfs label
-    std::string _label;
+    std::vector<PropertyValue> _label;
     // rdfs seeAlso
-    std::string _seeAlso;
+    std::vector<PropertyValue> _seeAlso;
     // rdfs isDefinedBy
-    std::string _isDefinedBy;
+    std::vector<PropertyValue> _isDefinedBy;
 
     // Easy write access for attributes instead of compilacted constructor
     friend class Ontology;

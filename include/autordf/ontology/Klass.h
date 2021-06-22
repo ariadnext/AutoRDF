@@ -7,6 +7,7 @@
 #include <string>
 
 #include "RdfsEntity.h"
+#include "AnnotationProperty.h"
 #include "DataProperty.h"
 #include "ObjectProperty.h"
 
@@ -48,6 +49,11 @@ public:
     const std::set <RdfsEntity>& oneOfValues() const { return _oneOfValues; }
 
     /**
+     * List of annotation properties for current class
+     */
+    const std::set <std::shared_ptr<AnnotationProperty>>& annotationProperties() const { return _annotationProperties ; }
+
+    /**
      * List of data properties for current class
      */
     const std::set <std::shared_ptr<DataProperty>>& dataProperties() const { return _dataProperties; }
@@ -58,7 +64,12 @@ public:
     const std::set <std::shared_ptr<ObjectProperty>>& objectProperties() const { return _objectProperties; }
 
     /**
-     * List of data properties for current class
+     * List of annotation keys for current class
+     */
+    const std::set <std::shared_ptr<AnnotationProperty>>& annotationKeys() const { return _annotationKeys; }
+
+    /**
+     * List of data keys for current class
      */
     const std::set <std::shared_ptr<DataProperty>>& dataKeys() const { return _dataKeys; }
 
@@ -101,8 +112,10 @@ public:
 
 private:
     std::set <std::string> _directAncestors;
+    std::set <std::shared_ptr<AnnotationProperty>> _annotationProperties;
     std::set <std::shared_ptr<DataProperty>> _dataProperties;
     std::set <std::shared_ptr<ObjectProperty>> _objectProperties;
+    std::set <std::shared_ptr<AnnotationProperty>> _annotationKeys;
     std::set <std::shared_ptr<DataProperty>> _dataKeys;
     std::set <std::shared_ptr<ObjectProperty>> _objectKeys;
 

@@ -12,7 +12,7 @@
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
-#include <autordf/PropertyValueVector.h>
+#include <autordf/I18StringVector.h>
 #include <autordf/Resource.h>
 #include <autordf/Exception.h>
 #include <autordf/Uri.h>
@@ -193,7 +193,7 @@ public:
      * @param preserveOrdering if true, order of values stored in RDF model will be used to restore original saving order
      * @throw CannotPreserveOrder if preserveOrdering is set and ordering data is not found in model
      */
-    AUTORDF_EXPORT PropertyValueVector getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const;
+    AUTORDF_EXPORT std::vector<PropertyValue> getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const;
 
     /**
      * Erases all previous values for property, and write unique value on place
@@ -209,7 +209,7 @@ public:
      * @param values the list of values. All previous values are removed, and replaced with the given lists
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
-    AUTORDF_EXPORT void setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering);
+    AUTORDF_EXPORT void setPropertyValueList(const Uri& propertyIRI, const std::vector<PropertyValue>& values, bool preserveOrdering);
 
     /**
      * Adds value to this property, preserving all previous values;

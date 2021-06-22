@@ -12,7 +12,7 @@ int main() {
     autordf::Factory f;
     autordf::Object::setFactory(&f);
 
-    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/../../unittests/foafExample.rdf");
+    f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/../../unittests/foafExample.ttl");
 
     // We can do that
     std::vector<autordf::Object> list = autordf::Object::findByType("http://xmlns.com/foaf/0.1/Person");
