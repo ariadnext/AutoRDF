@@ -3,7 +3,6 @@
 #include <ostream>
 #include <stdexcept>
 
-#include <autordf/I18StringVector.h>
 #include <autordf/ontology/Ontology.h>
 #include <autordf/Model.h>
 #include <autordf/codegen/Klass.h>
@@ -15,7 +14,6 @@ namespace autordf {
 namespace codegen {
 
 std::string RdfsEntity::outdir = ".";
-std::vector<std::string> RdfsEntity::preferredLang = {"en", "fr"};
 
 std::string RdfsEntity::genCppNameSpaceInternal(const char *sep) const {
     std::string prefix = _decorated.ontology()->model()->iriPrefix(_decorated.rdfname());
@@ -50,18 +48,6 @@ std::string RdfsEntity::genCppNameWithNamespace(bool interfaceMode) const {
     return genCppNameSpaceFullyQualified() + "::" + (interfaceMode ? "I" : "") + _decorated.prettyIRIName();
 }
 
-std::string langPreferenceString(const std::vector<PropertyValue>& values, const std::vector<std::string>& preferredLang) {
-    if (values.empty()) {
-        return "";
-    }
-    try {
-        autordf::I18StringVector langString(values);
-        return langString.langPreferenceString(preferredLang);
-    } catch (DataConvertionFailure&) {
-        return values.front();
-    }
-}
-
 void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, const std::string& additionalComment, const RdfsEntity *alternate) const {
     static const boost::char_separator<char> NEWLINE("\r\n");
     const RdfsEntity *used = this;
@@ -77,13 +63,13 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
         indent(ofs, numIndent) << "/*" << std::endl;
     }
     if ( !used->_decorated.label().empty() ) {
-        indent(ofs, numIndent) << " * @brief " << langPreferenceString(used->_decorated.label(), preferredLang) << std::endl;
+        indent(ofs, numIndent) << " * @brief " << used->_decorated.label() << std::endl;
         indent(ofs, numIndent) << " * " << std::endl;
     }
     if ( !used->_decorated.comment().empty() ) {
         // windows lib needs a local reference for iterator to work
         // was getting "cannot dereference string iterator because the iterator ..."
-        const std::string& comment = langPreferenceString(used->_decorated.comment(), preferredLang);
+        const std::string& comment = used->_decorated.comment();
         boost::tokenizer<boost::char_separator<char> > lines(comment, NEWLINE);
         for (const std::string& line : lines) {
             if ( !line.empty() ) {
@@ -93,10 +79,10 @@ void RdfsEntity::generateComment(std::ostream& ofs, unsigned int numIndent, cons
     }
 
     if ( !used->_decorated.seeAlso().empty() ) {
-        indent(ofs, numIndent) << " * @see " << langPreferenceString(used->_decorated.seeAlso(), preferredLang) << std::endl;
+        indent(ofs, numIndent) << " * @see " << used->_decorated.seeAlso() << std::endl;
     }
     if ( !used->_decorated.isDefinedBy().empty() ) {
-        indent(ofs, numIndent) << " * @see " << langPreferenceString(used->_decorated.isDefinedBy(), preferredLang) << std::endl;
+        indent(ofs, numIndent) << " * @see " << used->_decorated.isDefinedBy() << std::endl;
     }
 
     boost::tokenizer<boost::char_separator<char> > lines(additionalComment, NEWLINE);

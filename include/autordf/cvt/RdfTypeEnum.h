@@ -11,31 +11,30 @@ namespace autordf {
 namespace cvt {
 
 /*
- * Xmacro containing RdftypeEnum <-> Rdf uri type :
- * {label, short name, namespace}
+ * Xmacro containing RdftypeEnum <-> Rdf uri type, you should add : "http://www.w3.org/2001/XMLSchema#" before
+ * FIXME : add "http://www.w3.org/2001/XMLSchema#" prefix in the structure
  */
 #define CVT_TYPES_DEF(X) \
-    X(xsd_string,                   "string",              "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_boolean,                  "boolean",             "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_decimal,                  "decimal",             "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_float,                    "float",               "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_double,                   "double",              "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_dateTime,                 "dateTime",            "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_integer,                  "integer",             "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_dateTimeStamp,            "dateTimeStamp",       "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_nonNegativeInteger,       "nonNegativeInteger",  "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_positiveInteger,          "positiveInteger",     "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_nonPositiveInteger,       "nonPositiveInteger",  "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_negativeInteger,          "negativeInteger",     "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_long,                     "long",                "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_unsignedLong,             "unsignedLong",        "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_int,                      "int",                 "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_unsignedInt,              "unsignedInt",         "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_short,                    "short",               "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_unsignedShort,            "unsignedShort",       "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_byte,                     "byte",                "http://www.w3.org/2001/XMLSchema#") \
-    X(xsd_unsignedByte,             "unsignedByte",        "http://www.w3.org/2001/XMLSchema#") \
-    X(rdf_langString,               "langString",          "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    X(xsd_string,                   "string") \
+    X(xsd_boolean,                  "boolean") \
+    X(xsd_decimal,                  "decimal") \
+    X(xsd_float,                    "float") \
+    X(xsd_double,                   "double") \
+    X(xsd_dateTime,                 "dateTime") \
+    X(xsd_integer,                  "integer") \
+    X(xsd_dateTimeStamp,            "dateTimeStamp") \
+    X(xsd_nonNegativeInteger,       "nonNegativeInteger") \
+    X(xsd_positiveInteger,          "positiveInteger") \
+    X(xsd_nonPositiveInteger,       "nonPositiveInteger") \
+    X(xsd_negativeInteger,          "negativeInteger") \
+    X(xsd_long,                     "long") \
+    X(xsd_unsignedLong,             "unsignedLong") \
+    X(xsd_int,                      "int") \
+    X(xsd_unsignedInt,              "unsignedInt") \
+    X(xsd_short,                    "short") \
+    X(xsd_unsignedShort,            "unsignedShort") \
+    X(xsd_byte,                     "byte") \
+    X(xsd_unsignedByte,             "unsignedByte")
 
 // Integer types are a pain. Mapping from/to C++ <--> XML Schema is done using info from
 // - http://en.cppreference.com/w/cpp/language/types
@@ -49,7 +48,7 @@ namespace cvt {
 // that the data he puts in his C++ variables will fit in the corresponding XSD types
 
 enum class RdfTypeEnum {
-#define X(a, b, c) a,
+#define X(a, b) a,
    CVT_TYPES_DEF(X)
 #undef X
 };
@@ -68,8 +67,6 @@ AUTORDF_EXPORT std::string rdfTypeEnumString(RdfTypeEnum enumVal);
  * Returns string rep of enum e.g. "xsd:decimal"
  */
 AUTORDF_EXPORT std::string rdfTypeEnumXMLString(RdfTypeEnum enumVal);
-
-std::string rdfTypeIri(RdfTypeEnum enumVal);
 
 std::ostream& operator<<(std::ostream& os, RdfTypeEnum enumVal);
 

@@ -9,8 +9,6 @@
 
 namespace autordf {
 
-class I18String;
-
 /**
  * Stores a Value (aka Literal) of a Web Semantic Resource
  */
@@ -47,14 +45,6 @@ public:
      */
     PropertyValue(const std::string& rawValue, const char* lang, const char* dataTypeIri)
             : std::string(rawValue), _lang(lang ? lang : ""), _dataTypeIri(dataTypeIri ? dataTypeIri : "") {}
-
-    /**
-    * Builds from an internationalized string
-    *
-    * @param value internationalized string value
-    */
-    PropertyValue(const autordf::I18String& value);
-
     /**
      * @return the literal data type if it is set, blank string otherwise
      * Does makes sense only in case this property holds a literal
@@ -102,35 +92,10 @@ public:
         return cvt::toCpp<T, rdfType>::val(*this);
     };
 
-    /**
-     * Comparison operator
-     */
-    bool operator==(const PropertyValue& val) const;
-    bool operator!=(const PropertyValue& val) const;
-    bool operator==(const std::string& s) const;
-    bool operator!=(const std::string& s) const;
-    bool operator==(const char* s) const;
-    bool operator!=(const char* s) const;
-
 private:
     std::string _lang;
     std::string _dataTypeIri;
-
-    /**
-     * Gets the data type of the Property Value
-     * @return
-     */
-    std::string explicitDataType() const;
 };
-
-/**
- * Template specialization for I18String
- */
-template<> inline PropertyValue& PropertyValue::set<cvt::RdfTypeEnum::rdf_langString, I18String>(const I18String& val) {
-    assign(cvt::toRdf<autordf::I18String, cvt::RdfTypeEnum::rdf_langString>::val(val));
-    _lang = val.lang();
-    return *this;
-}
 
 }
 

@@ -3,7 +3,6 @@
 #include <boost/filesystem.hpp>
 
 #include "autordf/cvt/Cvt.h"
-#include "autordf/PropertyValue.h"
 
 using namespace autordf::cvt;
 
@@ -45,10 +44,6 @@ TEST(_04_cvt, xsd_to_cpp) {
 
     // Check invalid data float stored where int expected
     ASSERT_THROW((toCpp<short, RdfTypeEnum::xsd_short>::val("44.03")), autordf::DataConvertionFailure);
-
-    // Check internationalized string and that lang matters in comparison
-    ASSERT_EQ(autordf::I18String("date of birth", "en"), (toCpp<autordf::I18String, RdfTypeEnum::rdf_langString>::val(autordf::PropertyValue("date of birth", "en"))));
-    ASSERT_NE(autordf::I18String("date of birth", "fr"), (toCpp<autordf::I18String, RdfTypeEnum::rdf_langString>::val(autordf::PropertyValue("date of birth", "en"))));
 }
 
 TEST(_04_cvt, cpp_to_xsd) {

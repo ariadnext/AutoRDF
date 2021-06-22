@@ -92,26 +92,13 @@ private:
     std::shared_ptr<Ontology> _ontology;
 
     /**
-     * @brief validatePropertyValue
-     * @param object autordf::Object to validate
-     * @param currentCLass Rdf Class to get all data property from
-     * @param property
-     * @param errorList list of errors
-     * Fill the given error list with OWL errors found on the object Dataproperty or Annotationproperty
-     */
-    void validatePropertyValue(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
-                               const std::shared_ptr<Property>& property, std::vector<Validator::Error>* errorList);
-
-    void validateAnnotationProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>* errorList);
-
-    /**
-     * @brief validateDataProperties
+     * @brief validateDataProperty
      * @param object autordf::Object to validate
      * @param currentCLass Rdf Class to get all data property from
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object Dataproperty
      */
-    void validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>* errorList);
+    void validateDataProperty(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>*);
 
     /**
      * @brief validateObjectProperty
@@ -120,7 +107,7 @@ private:
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object's objectProperties
      */
-    void validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>&, std::vector<Validator::Error>* errorList);
+    void validateObjectProperty(const Object& object, const std::shared_ptr<const Klass>&, std::vector<Validator::Error>*);
 
     /**
      * @brief isDataTypeValid
