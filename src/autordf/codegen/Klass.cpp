@@ -81,6 +81,10 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "static std::vector<" << cppName << "> find();" << std::endl;
     ofs << std::endl;
 
+    for ( const std::shared_ptr<ontology::AnnotationProperty>& key : _decorated.annotationKeys()) {
+        DataProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
+    }
+
     for ( const std::shared_ptr<ontology::DataProperty>& key : _decorated.dataKeys()) {
         DataProperty(*key.get()).generateKeyDeclaration(ofs, _decorated);
     }
@@ -208,6 +212,15 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "static std::string enumString(Enum en);" << std::endl;
         ofs << std::endl;
         indent(ofs, 1) << "/** " << std::endl;
+        indent(ofs, 1) << " * @brief Converts an enum as a string to an enum " << std::endl;
+        indent(ofs, 1) << " * " << std::endl;
+        indent(ofs, 1) << " * @param enumString enum as string" << std::endl;
+        indent(ofs, 1) << " * @return enum value" << std::endl;
+        indent(ofs, 1) << " * @throw InvalidEnum if the string we try to convert is not one of the instances defined by owl:oneOf" << std::endl;
+        indent(ofs, 1) << " */ " << std::endl;
+        indent(ofs, 1) << "static Enum enumFromString(const std::string& enumString);" << std::endl;
+        ofs << std::endl;
+        indent(ofs, 1) << "/** " << std::endl;
         indent(ofs, 1) << " * @brief Converts current enum value to a pretty string " << std::endl;
         indent(ofs, 1) << " * " << std::endl;
         indent(ofs, 1) << " * @return current enum value converted as string" << std::endl;
@@ -215,6 +228,10 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << "std::string enumString() const { return enumString(asEnum()); }" << std::endl;
     }
     ofs << std::endl;
+    for ( const std::shared_ptr<ontology::AnnotationProperty>& prop : _decorated.annotationProperties()) {
+        DataProperty(*prop.get()).generateDeclaration(ofs, _decorated);
+    }
+
     for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties()) {
         DataProperty(*prop.get()).generateDeclaration(ofs, _decorated);
     }
@@ -340,11 +357,23 @@ void Klass::generateInterfaceDefinition() const {
         indent(ofs, 1) << "return std::get<2>(enumVal2Entry(enumVal));" << std::endl;
         ofs << "}" << std::endl;
         ofs << std::endl;
+
+        ofs << "I" << _decorated.prettyIRIName() << "::Enum I" << _decorated.prettyIRIName() << "::enumFromString(const std::string& enumString) {" << std::endl;
+        indent(ofs, 1) << "for ( auto const& enumItem: ENUMARRAY) {" << std::endl;
+        indent(ofs, 2) << "if ( enumString == std::get<2>(enumItem) ) return std::get<0>(enumItem);" << std::endl;
+        indent(ofs, 1) << "}" << std::endl;
+        indent(ofs, 1) << "throw autordf::InvalidEnum(enumString + \" is not a valid individual for owl:oneOf type " <<
+                       _decorated.prettyIRIName() << "\");" << std::endl;
+        ofs << "}" << std::endl;
+        ofs << std::endl;
     }
     ofs << "// This type " << genCppNameSpaceFullyQualified() << "::" << cppName << " has IRI " << _decorated.rdfname() << std::endl;
     ofs << "const char * " << cppName << "::TYPEIRI = \"" << _decorated.rdfname() << "\";" << std::endl;
     ofs << std::endl;
 
+    for ( const std::shared_ptr<ontology::AnnotationProperty>& prop : _decorated.annotationProperties()) {
+        DataProperty(*prop.get()).generateDefinition(ofs, _decorated);
+    }
     for ( const std::shared_ptr<ontology::DataProperty>& prop : _decorated.dataProperties()) {
         DataProperty(*prop.get()).generateDefinition(ofs, _decorated);
     }

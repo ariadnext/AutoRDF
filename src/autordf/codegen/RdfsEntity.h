@@ -23,6 +23,9 @@ public:
     // Where code generation will happen
     static std::string outdir;
 
+    // Lang preference in order for documentation generation
+    static std::vector<std::string> preferredLang;
+
     // [outfolder::]namespace::[I]classname
     std::string genCppNameWithNamespace(bool interfaceMode = false) const;
 

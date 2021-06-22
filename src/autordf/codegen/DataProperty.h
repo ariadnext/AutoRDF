@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 
+#include <autordf/ontology/AnnotationProperty.h>
 #include <autordf/ontology/DataProperty.h>
 #include <autordf/cvt/RdfTypeEnum.h>
 #include "RdfsEntity.h"
@@ -14,11 +15,13 @@ namespace autordf {
 namespace codegen {
 
 class Klass;
+struct CppType;
 
 class DataProperty : public RdfsEntity {
-    const ontology::DataProperty& _decorated;
+    const ontology::Property& _decorated;
 public:
     DataProperty(const ontology::DataProperty& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
+    DataProperty(const ontology::AnnotationProperty& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
 
     void generateDeclaration(std::ostream& ofs, const Klass& onClass) const;
 
@@ -27,7 +30,7 @@ public:
     void generateKeyDeclaration(std::ostream& ofs, const Klass& onClass) const;
 
 private:
-    std::pair<cvt::RdfTypeEnum, std::string> getRdfCppTypes(const Klass& onClass) const;
+    std::pair<cvt::RdfTypeEnum, CppType> getRdfCppTypes(const Klass& onClass) const;
 
     void generateGetterForOneMandatory(std::ostream& ofs, const Klass& onClass) const;
 
