@@ -10,6 +10,7 @@
 #include "autordf/ontology/Klass.h"
 #include "autordf/ontology/DataProperty.h"
 #include "autordf/ontology/ObjectProperty.h"
+#include "autordf/ontology/AnnotationProperty.h"
 
 namespace autordf {
 
@@ -122,6 +123,11 @@ private:
     void addClass(const std::shared_ptr<Klass>& obj) { _classUri2Ptr[obj->rdfname()] = obj; }
 
     /**
+     * Adds but do not overwrite the object in static map
+     */
+    void addAnnotationProperty(const std::shared_ptr<AnnotationProperty>& obj);
+
+    /**
      * Adds or overwrites the object in static map
      */
     void addObjectProperty(const std::shared_ptr<ObjectProperty>& obj) { _objectPropertyUri2Ptr[obj->rdfname()] = obj; }
@@ -139,6 +145,7 @@ private:
     const Factory *_f;
 
     std::map<std::string, std::shared_ptr<Klass>> _classUri2Ptr;
+    std::map<std::string, std::shared_ptr<AnnotationProperty> > _annotationPropertyUri2Ptr;
     std::map<std::string, std::shared_ptr<ObjectProperty> > _objectPropertyUri2Ptr;
     std::map<std::string, std::shared_ptr<DataProperty> > _dataPropertyUri2Ptr;
 
@@ -155,6 +162,11 @@ private:
 
     void extractClasses(const std::string& classTypeIRI);
 
+    /**
+     * Get information from loaded ontology on annotation property and hard code what is missing
+     * @param iri
+     * @param label
+     */
     void addHardcodedAnnotationProperty(const std::string& iri, const std::string& label);
 };
 }

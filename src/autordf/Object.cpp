@@ -184,8 +184,8 @@ std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& prope
     }
 }
 
-PropertyValueVector Object::getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const {
-    PropertyValueVector valuesList;
+std::vector<PropertyValue> Object::getPropertyValueList(const Uri& propertyIRI, bool preserveOrdering) const {
+    std::vector<PropertyValue> valuesList;
     propertyIterate(propertyIRI, preserveOrdering, [&valuesList](const Property& prop) {
         valuesList.emplace_back(prop.value());
     });
@@ -462,7 +462,7 @@ void Object::reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (
     }
 }
 
-void Object::setPropertyValueList(const Uri& propertyIRI, const PropertyValueVector& values, bool preserveOrdering) {
+void Object::setPropertyValueList(const Uri& propertyIRI, const std::vector<PropertyValue>& values, bool preserveOrdering) {
     writeRdfType();
     removeAllReifiedDataPropertyStatements(propertyIRI);
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
@@ -711,7 +711,7 @@ std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel
                 newLine(os, indentLevel);
                 os << '}';
             } else {
-                const PropertyValueVector& values = getPropertyValueList(propit->iri(), false);
+                const std::vector<PropertyValue>& values = getPropertyValueList(propit->iri(), false);
                 if ( values.size() > 1 ) {
                     os << '[';
                     newLine(os, indentLevel + 1);
