@@ -56,46 +56,59 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Mo
     return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
 
-void Validator::validateDataProperty(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
-                                     std::vector<Validator::Error>* errorList) {
+void Validator::validatePropertyValue(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
+                                      const std::shared_ptr<Property>& property, std::vector<Validator::Error>* errorList) {
+    unsigned int maxCardinality = property->maxCardinality(*currentCLass);
+    unsigned int minCardinality = property->minCardinality(*currentCLass);
+    Uri range = property->range(currentCLass.get());
+    std::vector<PropertyValue> propList = object.getPropertyValueList(property->rdfname(), false);
+    Validator::Error error(object, property->rdfname());
+    error.count = propList.size();
+    if (propList.size() > maxCardinality) {
+        error.type = error.TOOMANYVALUES;
+        error.message = "\'@subject\' property \'@property\' has @count distinct values. Maximum allowed is @val";
+        error.val = maxCardinality;
+        errorList->push_back(error);
+    }
+    if (propList.size() < minCardinality) {
+        error.type = error.NOTENOUHVALUES;
+        error.message = "\'@subject\' property \'@property\' has @count distinct values. Minimum allowed is @val";
+        error.val = minCardinality;
+        errorList->push_back(error);
+    }
 
-    for (auto const &dataProperty: currentCLass->dataProperties()) {
-        unsigned int maxCardinality = dataProperty->maxCardinality(*currentCLass);
-        unsigned int minCardinality = dataProperty->minCardinality(*currentCLass);
-        Uri range = dataProperty->range(currentCLass.get());
-        std::vector<PropertyValue> propList = object.getPropertyValueList(dataProperty->rdfname(), false);
-        Validator::Error error(object, dataProperty->rdfname());
-        error.count = propList.size();
-        if (propList.size() > maxCardinality) {
-            error.type = error.TOOMANYVALUES;
-            error.message = "\'@subject\' property \'@property\' has @count distinct values. Maximum allowed is @val";
-            error.val = maxCardinality;
-            errorList->push_back(error);
-        }
-        if (propList.size() < minCardinality) {
-            error.type = error.NOTENOUHVALUES;
-            error.message = "\'@subject\' property \'@property\' has @count distinct values. Minimum allowed is @val";
-            error.val = minCardinality;
-            errorList->push_back(error);
-        }
-
-        auto rdfType = cvt::rdfMapType.find(range);
-        if (rdfType != autordf::cvt::rdfMapType.end()) {
-            autordf::cvt::RdfTypeEnum rdfTypeEnum = rdfType->second;
-            for (auto const& prop: propList) {
-                if (!isDataTypeValid(prop, rdfTypeEnum)) {
-                    error.type = error.INVALIDDATATYPE;
-                    error.message = "\'@subject\' property \'@property\' value is not convertible as @range";
-                    error.range = cvt::rdfTypeEnumXMLString(rdfTypeEnum);
-                    errorList->push_back(error);
-                }
+    auto rdfType = cvt::rdfMapType.find(range);
+    if (rdfType != autordf::cvt::rdfMapType.end()) {
+        autordf::cvt::RdfTypeEnum rdfTypeEnum = rdfType->second;
+        for (auto const& prop: propList) {
+            if (!isDataTypeValid(prop, rdfTypeEnum)) {
+                error.type = error.INVALIDDATATYPE;
+                error.message = "\'@subject\' property \'@property\' value \'" + prop + "\' is not convertible as @range";
+                error.range = cvt::rdfTypeEnumXMLString(rdfTypeEnum);
+                errorList->push_back(error);
             }
         }
     }
 }
 
-void Validator::validateObjectProperty(const Object& object, const std::shared_ptr<const Klass>& currentClass,
+void Validator::validateAnnotationProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
                                        std::vector<Validator::Error>* errorList) {
+
+    for (auto const &annotationProperty: currentCLass->annotationProperties()) {
+        validatePropertyValue(object, currentCLass, annotationProperty, errorList);
+    }
+}
+
+void Validator::validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
+                                       std::vector<Validator::Error>* errorList) {
+
+    for (auto const &dataProperty: currentCLass->dataProperties()) {
+        validatePropertyValue(object, currentCLass, dataProperty, errorList);
+    }
+}
+
+void Validator::validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>& currentClass,
+                                         std::vector<Validator::Error>* errorList) {
 
     for (auto const& objectProperty: currentClass->objectProperties()) {
         unsigned int maxCardinality = objectProperty->maxCardinality(*currentClass);
@@ -120,7 +133,7 @@ void Validator::validateObjectProperty(const Object& object, const std::shared_p
             if (!isObjectTypeValid(subObj, range)) {
                 error.subject = subObj.iri().empty() ? object : subObj;
                 std::stringstream ss;
-                PropertyValueVector types = subObj.getPropertyValueList(Object::RDF_TYPE, false);
+                std::vector<PropertyValue> types = subObj.getPropertyValueList(Object::RDF_TYPE, false);
                 if (types.size()) {
                     ss << "\'@subject\' property \'@property\' is of incompatible object type.";
                     ss << " RDF expected type is @range while provided type is {";
@@ -159,8 +172,9 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const O
     }
     for(const Klass& kl : allKlass ) {
         auto klPtr = std::make_shared<const Klass>(kl);
-        validateDataProperty(object, klPtr, &errorList);
-        validateObjectProperty(object, klPtr, &errorList);
+        validateAnnotationProperties(object, klPtr, &errorList);
+        validateDataProperties(object, klPtr, &errorList);
+        validateObjectProperties(object, klPtr, &errorList);
 
     }
     return std::make_shared<std::vector<Validator::Error>> (errorList);
@@ -173,7 +187,7 @@ bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const au
         switch (rdfType) {
             case autordf::cvt::RdfTypeEnum::xsd_boolean:
                 property.get<cvt::RdfTypeEnum::xsd_boolean, bool>();
-                  break;
+                break;
             case autordf::cvt::RdfTypeEnum::xsd_decimal:
                 property.get<cvt::RdfTypeEnum::xsd_decimal, double>();
                 break;
@@ -230,6 +244,9 @@ bool Validator::isDataTypeValid(const autordf::PropertyValue& property, const au
                 break;
             case autordf::cvt::RdfTypeEnum::xsd_byte:
                 property.get<cvt::RdfTypeEnum::xsd_byte, char>();
+                break;
+            case autordf::cvt::RdfTypeEnum::rdf_langString:
+                property.get<cvt::RdfTypeEnum::rdf_langString, autordf::I18String>();
                 break;
         }
     } catch (const DataConvertionFailure&) {

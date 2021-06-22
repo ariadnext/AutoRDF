@@ -35,7 +35,6 @@ ADD_LIBRARY(
     Resource.cpp
     Property.cpp
     PropertyValue.cpp
-    PropertyValueVector.cpp
     Factory.cpp
     Object.cpp
     Exception.cpp
@@ -48,6 +47,8 @@ ADD_LIBRARY(
     internal/Stream.cpp
     internal/StatementConverter.cpp
     cvt/RdfTypeEnum.cpp
+    I18String.cpp
+    I18StringVector.cpp
 )
 
 include(GenerateExportHeader)

@@ -27,12 +27,12 @@ void Ontology::populateSchemaClasses(const Factory *f) {
     // BEGIN Add well known classes //
     auto owlThing = std::make_shared<Klass>(this);
     owlThing->_rdfname = OWL_NS + "Thing";
-    owlThing->_label = "This class is the ancestor for all user defined classes";
+    owlThing->_label = {"This class is the ancestor for all user defined classes"};
     addClass(owlThing);
 
     auto rdfsResource = std::make_shared<Klass>(this);
     rdfsResource->_rdfname = RDFS_NS + "Resource";
-    rdfsResource->_label = "This class is provided for compatibility with RDFS ontologies.";
+    rdfsResource->_label = {"This class is provided for compatibility with RDFS ontologies."};
     rdfsResource->_directAncestors.insert(owlThing->_rdfname);
     addClass(rdfsResource);
 
@@ -43,6 +43,18 @@ void Ontology::populateSchemaClasses(const Factory *f) {
     addHardcodedAnnotationProperty(RDFS_NS + "isDefinedBy", "Provides a link pointing to the source of information about the resource");
 
     // END Add well known classes //
+
+    // Gather annotation Properties
+    const std::vector<Object>& owlAnnotationProperties = Object::findByType(OWL_NS + "AnnotationProperty");
+    for ( auto const& owlAnnotationProperty : owlAnnotationProperties) {
+        if ( _verbose ) {
+            std::cout << "Found annotation property " << owlAnnotationProperty.iri() << std::endl;
+        }
+        auto p = std::make_shared<AnnotationProperty>(this);
+        extractRDFS(owlAnnotationProperty, p.get());
+        extractProperty(owlAnnotationProperty, p.get());
+        addAnnotationProperty(p);
+    }
 
     // Gather data Properties
     const std::vector<Object>& owlDataProperties = Object::findByType(OWL_NS + "DatatypeProperty");
@@ -86,6 +98,23 @@ void Ontology::populateSchemaClasses(const Factory *f) {
     }
 
     // Make links between properties and classes
+    for ( auto const& annotationPropertyMapItem : _annotationPropertyUri2Ptr ) {
+        const AnnotationProperty& annotationProperty = *annotationPropertyMapItem.second;
+        for ( const std::string& currentDomain : annotationProperty.domains() ) {
+            auto klassIt = _classUri2Ptr.find(currentDomain);
+            if ( klassIt != _classUri2Ptr.end() ) {
+                klassIt->second->_annotationProperties.insert(annotationPropertyMapItem.second);
+            } else  {
+                std::cerr << "Property " << annotationProperty._rdfname << " refers to unreachable rdfs class " << currentDomain << ", skipping" << std::endl;
+            }
+        }
+        if ( annotationProperty.domains().empty() ) {
+            if ( _verbose ) {
+                std::cout << annotationProperty.rdfname() << " has no domain, will attach to owl:Thing" << std::endl;
+            }
+            _classUri2Ptr[OWL_NS + "Thing"]->_annotationProperties.insert(annotationPropertyMapItem.second);
+        }
+    }
     for ( auto const& dataPropertyMapItem : _dataPropertyUri2Ptr ) {
         const DataProperty& dataProperty = *dataPropertyMapItem.second;
         for ( const std::string& currentDomain : dataProperty.domains() ) {
@@ -125,7 +154,9 @@ void Ontology::populateSchemaClasses(const Factory *f) {
     for ( auto & klsPair: _classUri2Ptr ) {
         auto kls = klsPair.second;
         for ( const std::string& key : kls->_keys ) {
-            if ( _objectPropertyUri2Ptr.count(key) ) {
+            if ( _annotationPropertyUri2Ptr.count(key) ) {
+                kls->_annotationKeys.insert( _annotationPropertyUri2Ptr[key]);
+            } else if ( _objectPropertyUri2Ptr.count(key) ) {
                 kls->_objectKeys.insert( _objectPropertyUri2Ptr[key]);
             } else if ( _dataPropertyUri2Ptr.count(key) ) {
                 kls->_dataKeys.insert(_dataPropertyUri2Ptr[key]);
@@ -138,22 +169,10 @@ void Ontology::populateSchemaClasses(const Factory *f) {
 
 void Ontology::extractRDFS(const Object& o, RdfsEntity *rdfs) {
     rdfs->_rdfname = o.iri();
-    std::shared_ptr<PropertyValue> comment = o.getOptionalPropertyValue(RDFS_NS + "comment");
-    if (comment) {
-        rdfs->_comment = *comment;
-    }
-    std::shared_ptr<PropertyValue> label = o.getOptionalPropertyValue(RDFS_NS + "label");
-    if (label) {
-        rdfs->_label = *label;
-    }
-    std::shared_ptr<PropertyValue> seeAlso = o.getOptionalPropertyValue(RDFS_NS + "seeAlso");
-    if (seeAlso) {
-        rdfs->_seeAlso = *seeAlso;
-    }
-    std::shared_ptr<PropertyValue> isDefinedBy = o.getOptionalPropertyValue(RDFS_NS + "isDefinedBy");
-    if (isDefinedBy) {
-        rdfs->_isDefinedBy = *isDefinedBy;
-    }
+    rdfs->_comment = o.getPropertyValueList(RDFS_NS + "comment", false);
+    rdfs->_label = o.getPropertyValueList(RDFS_NS + "label", false);
+    rdfs->_seeAlso = o.getPropertyValueList(RDFS_NS + "seeAlso", false);
+    rdfs->_isDefinedBy = o.getPropertyValueList(RDFS_NS + "isDefinedBy", false);
 }
 
 void Ontology::extractClassCardinality(const Object& o, Klass *kls, const char * card, const char * minCard, const char * maxCard) {
@@ -310,13 +329,23 @@ void Ontology::extractClasses(const std::string& classTypeIRI) {
 }
 
 void Ontology::addHardcodedAnnotationProperty(const std::string& iri, const std::string& label) {
-    // As a temporary way to go fast we implement annotations as data propertiesn THIS IS NOT CORRECT
-    auto annotationProperty = std::make_shared<DataProperty>(this);
-    annotationProperty->_rdfname = iri;
-    annotationProperty->_label = label;
-    annotationProperty->_domains.push_back(OWL_NS + "Thing");
-    addDataProperty(annotationProperty);
+        const Object& object = Object(iri);
+        auto p = std::make_shared<AnnotationProperty>(this);
+        extractRDFS(object, p.get());
+        extractProperty(object, p.get());
+        if (p->label().empty()) {
+            p->_label = {label};
+        }
+        if (p->domains().empty()) {
+            p->_domains.push_back(OWL_NS + "Thing");
+        }
+        addAnnotationProperty(p);
 }
 
+void Ontology::addAnnotationProperty(const std::shared_ptr<AnnotationProperty>& obj) {
+    if (_annotationPropertyUri2Ptr.find(obj->rdfname()) == _annotationPropertyUri2Ptr.end()) {
+        _annotationPropertyUri2Ptr[obj->rdfname()] = obj;
+    }
+}
 }
 }
