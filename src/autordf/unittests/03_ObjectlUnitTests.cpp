@@ -331,7 +331,7 @@ TEST(_03_Object, DataPropertyOrderingVector) {
     Object::setFactory(&f);
     Object obj("http://my/object");
 
-    std::vector<PropertyValue> pvv;
+    PropertyValueVector pvv;
     pvv.emplace_back("stringval1");
     pvv.emplace_back("stringval2");
     obj.setPropertyValueList("http://prop1", pvv, true);

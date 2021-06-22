@@ -13,17 +13,12 @@
 #include <autordf/Factory.h>
 #include <autordf/Object.h>
 #include <autordf/ontology/Ontology.h>
-#include <autordf/I18StringVector.h>
 
 using namespace autordf;
 
 std::ofstream ofs;
 std::ostream* out = &std::cout;
 bool verbose;
-
-namespace xmi {
-static std::vector<std::string> preferredLang;
-}
 
 void escape(std::string *data)
 {
@@ -82,21 +77,11 @@ void genComment(ontology::RdfsEntity& entity, const std::string& xmiid) {
     if ( !entity.label().empty() || !entity.comment().empty() ) {
         std::string xmicomment;
         if ( !entity.label().empty() ) {
-            try {
-                autordf::I18StringVector langString(entity.label());
-                xmicomment = langString.langPreferenceString(xmi::preferredLang);
-            } catch (DataConvertionFailure&) {
-                xmicomment = entity.label().front();
-            }
+            xmicomment = entity.label();
         }
         if ( !entity.comment().empty() ) {
             xmicomment.append("\n");
-            try {
-                autordf::I18StringVector langString(entity.label());
-                xmicomment.append(langString.langPreferenceString(xmi::preferredLang));
-            } catch (DataConvertionFailure&) {
-                xmicomment.append(entity.label().front());
-            }
+            xmicomment.append(entity.comment());
         }
         escape(&xmicomment);
         indent(out) << "<ownedComment xmi:type=\"uml:Comment\" body=\"" << xmicomment << "\" annotatedElement=\"" << xmiid << "\"/>";
@@ -213,8 +198,7 @@ int main(int argc, char **argv) {
             ("all-in-one,a", "Generate one cpp file that includes all the other called AllInOne.cpp")
             ("namespacemap,n", po::value< std::vector<std::string> >(), "Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.")
             ("outfile,o", po::value< std::string >(), "File to write to.")
-            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)")
-            ("preferredLang,l", po::value< std::vector<std::string> >(), "Preferred languages for documentation (repeated)");
+            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)");
 
     po::positional_options_description p;
     p.add("owlfile", -1);
@@ -230,10 +214,6 @@ int main(int argc, char **argv) {
     }
 
     verbose = vm.count("verbose") > 0;
-
-    if (vm.count("preferredLang")) {
-        xmi::preferredLang = vm["preferredLang"].as< std::vector<std::string> >();
-    }
 
     if(vm.count("namespacemap")) {
         for(auto prefix_namespace: vm["namespacemap"].as< std::vector<std::string> >()) {

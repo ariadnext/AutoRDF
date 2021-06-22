@@ -9,7 +9,6 @@
 
 #include <autordf/cvt/RdfTypeEnum.h>
 #include <autordf/Exception.h>
-#include <autordf/I18String.h>
 
 namespace autordf {
 namespace cvt {
@@ -36,7 +35,7 @@ template<typename T> T locale_agnostic_cast(const std::string& value) {
     T val;
     iss >> val;
     if ( !iss.eof() ) {
-        throw DataConvertionFailure("During conversion of " + value + ": extra chars found");
+        throw DataConvertionFailure("During convertion of " + value + ": extra chars found");
     }
     return val;
 }
@@ -48,7 +47,7 @@ template<typename CppType> CppType toCppGeneric(const std::string& rawValue) {
         return locale_agnostic_cast<CppType>(rawValue);
     }
     catch (const std::exception& e) {
-        throw DataConvertionFailure("During conversion of " + rawValue + ": " + e.what());
+        throw DataConvertionFailure("During convertion of " + rawValue + ": " + e.what());
     }
 }
 
@@ -63,7 +62,7 @@ inline boost::posix_time::ptime toCppDateTime(const std::string& rawValue) {
         ss >> result;
         return result.utc_time();
     } catch (const std::exception& e) {
-        throw DataConvertionFailure("During conversion of " + rawValue + ": " + e.what());
+        throw DataConvertionFailure("During convertion of " + rawValue + ": " + e.what());
     }
 };
 
@@ -73,23 +72,11 @@ public: \
     static cppType val(const std::string& rawValue) { return toCppGeneric<cppType>(rawValue); } \
 }; \
 
-// xsd:string
+// xs:string
 template<RdfTypeEnum rdfType> class toCpp<std::string, rdfType> {
 public:
     static std::string val(const std::string& rawValue) {
         return rawValue;
-    }
-};
-
-// rdf:langString
-template<RdfTypeEnum rdfType> class toCpp<autordf::I18String, rdfType> {
-public:
-    template<typename PropertyValue>
-    static autordf::I18String val(const PropertyValue& rawValue) {
-        if (rawValue.lang().empty()) {
-            throw DataConvertionFailure("During conversion of " + rawValue + ": lang is not optional");
-        }
-        return  autordf::I18String(rawValue, rawValue.lang());
     }
 };
 
@@ -105,7 +92,7 @@ GENERIC_TOCPP(float, xsd_float)
 // xsd:double
 GENERIC_TOCPP(double, xsd_double)
 
-// xsd:boolean
+// xsd_boolean
 template<typename CppType> class toCpp<CppType, RdfTypeEnum::xsd_boolean> {
 public:
     static CppType val(const std::string& rawValue) {
@@ -198,9 +185,6 @@ public: \
 
 // xsd:string
 GENERIC_TORDF(std::string, xsd_string)
-
-// autordf::I18String
-GENERIC_TORDF(autordf::I18String, rdf_langString)
 
 // xsd:integer
 GENERIC_TORDF(long long int, xsd_integer)

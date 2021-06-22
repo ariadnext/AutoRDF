@@ -17,7 +17,6 @@
 #include "codegen/ObjectProperty.h"
 #include "codegen/Klass.h"
 #include "codegen/Utils.h"
-#include "codegen/RdfsEntity.h"
 
 namespace autordf {
 namespace codegen {
@@ -91,8 +90,7 @@ int main(int argc, char **argv) {
             ("all-in-one,a", "Generate one cpp file that includes all the other called AllInOne.cpp")
             ("namespacemap,n", po::value< std::vector<std::string> >(), "Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.")
             ("outdir,o", po::value< std::string >(), "Folder where to generate files in. If it does not exit it will be created. Defaults to current directory.")
-            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)")
-            ("preferredLang,l", po::value< std::vector<std::string> >(), "Preferred languages for documentation (repeated)");
+            ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)");
 
     po::positional_options_description p;
     p.add("owlfile", -1);
@@ -108,10 +106,6 @@ int main(int argc, char **argv) {
     }
 
     autordf::codegen::verbose = vm.count("verbose") > 0;
-
-    if (vm.count("preferredLang")) {
-        autordf::codegen::RdfsEntity::preferredLang = vm["preferredLang"].as< std::vector<std::string> >();
-    }
 
     if(vm.count("namespacemap")) {
         for(auto prefix_namespace: vm["namespacemap"].as< std::vector<std::string> >()) {

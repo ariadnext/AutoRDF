@@ -6,7 +6,6 @@ ADD_LIBRARY(
     Klass.cpp
     ObjectProperty.cpp
     DataProperty.cpp
-    AnnotationProperty.cpp
     Ontology.cpp
     Validator.cpp
 )

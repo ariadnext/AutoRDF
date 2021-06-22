@@ -12,6 +12,9 @@ dc:date
 dc:description
     a owl:AnnotationProperty .
 
+dc:title
+    a owl:AnnotationProperty .
+
 rdfs:Class
     a owl:Class .
 
