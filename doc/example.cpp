@@ -4,7 +4,7 @@
 
 using namespace geometry;
 
-int main(int argc, char ** argv) {
+int main(int, char **) {
     autordf::Factory f;
     f.addNamespacePrefix("geo", "http://example.org/geometry#");
     autordf::Object::setFactory(&f);
