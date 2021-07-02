@@ -41,7 +41,7 @@ std::string Validator::Error::fullMessage() const {
     return str;
 }
 
-std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model& model) {
+std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model&) {
     std::vector<Validator::Error>  errorList;
     for ( auto uriKlass : _ontology->classUri2Ptr()) {
         std::vector<Object> objects = Object::findByType(uriKlass.first);
