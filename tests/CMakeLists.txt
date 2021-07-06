@@ -26,7 +26,7 @@ target_link_libraries (
 )
 
 add_custom_target(check
-    COMMAND gtest-all
+    COMMAND gtest-all --gtest_output="xml:${CMAKE_BINARY_DIR}/unittests.xml"
     DEPENDS gtest-all)
 
 add_executable(
