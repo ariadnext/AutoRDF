@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT( autordf CXX C )
 
+include(AxtLibrary)
+
 IF( NOT WIN32 )
     INCLUDE( FindPkgConfig )
 ENDIF()
@@ -101,6 +103,7 @@ ELSE()
         SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} --coverage" )
         SET( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage" )
     ENDIF()
+    axt_cond_append(CMAKE_CXX_FLAGS "-Wno-error=range-loop-construct -Wno-error=delete-non-abstract-non-virtual-dtor" "NOT SMARTPHONE")
 ENDIF()
 
 IF("${LIBRARY_TYPE}" STREQUAL "")
