@@ -564,7 +564,7 @@ const std::string& Model::nsToPrefix(const std::string& ns) const {
  * Returns the prefix that matches the given rdfiri if a prefix is registered, empty otherwise
  */
 std::string Model::iriPrefix(const std::string& rdfiri) const {
-    for ( const std::pair<std::string, std::string>& prefixMapItem : _namespacesPrefixes ) {
+    for ( const std::pair<const std::string, std::string>& prefixMapItem : _namespacesPrefixes ) {
         const std::string& iri = prefixMapItem.second;
         if ( rdfiri.find(iri) == 0 ) {
             return prefixMapItem.first;

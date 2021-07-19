@@ -66,6 +66,11 @@ void Klass::generateDeclaration() const {
     indent(ofs, 1) << "explicit " << cppName << "(const Object& other);" << std::endl;
     ofs << std::endl;
     indent(ofs, 1) << "/**" << std::endl;
+    indent(ofs, 1) << " * @brief Default destructor" << std::endl;
+    indent(ofs, 1) << " */" << std::endl;
+    indent(ofs, 1) << "virtual ~" << cppName << "() = default;" << std::endl;
+    ofs << std::endl;
+    indent(ofs, 1) << "/**" << std::endl;
     indent(ofs, 1) << " * @brief Clone the object, to given iri" << std::endl;
     indent(ofs, 1) << " * " << std::endl;
     indent(ofs, 1) << " * Object is copied by duplicating all it properties values. " << std::endl;
@@ -187,7 +192,8 @@ void Klass::generateInterfaceDeclaration() const {
         indent(ofs, 1) << " * @brief C++ Enum values mapping the owl instances restrictions for this class " << std::endl;
         indent(ofs, 1) << " */ " << std::endl;
         indent(ofs, 1) << "enum Enum {" << std::endl;
-        for ( const RdfsEntity& enumVal : _decorated.oneOfValues() ) {
+        // copy of autordf::ontology::RdfsEntity into autordf::codegen::RdfsEntity
+        for ( const RdfsEntity enumVal : _decorated.oneOfValues() ) {
             enumVal.generateComment(ofs, 2);
             indent(ofs, 2) << enumVal.decorated().prettyIRIName() << "," << std::endl;
         }
@@ -391,7 +397,7 @@ std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
     std::copy(_decorated.objectProperties().begin(), _decorated.objectProperties().end(), std::inserter(objects, objects.begin()));
     std::copy(_decorated.objectKeys().begin(), _decorated.objectKeys().end(), std::inserter(objects, objects.begin()));
 
-    for ( const std::shared_ptr<const ontology::ObjectProperty> p : objects) {
+    for ( const std::shared_ptr<const ontology::ObjectProperty>& p : objects) {
         auto val = p->findClass(&_decorated);
         if ( val ) {
             if ( val->prettyIRIName() != _decorated.prettyIRIName() ) {
