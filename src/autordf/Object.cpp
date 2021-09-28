@@ -557,7 +557,15 @@ void Object::remove(bool bRecursive /*= false*/) {
             for (const Statement &stmt: statements) {
                 if (stmt.object.type() == NodeType::BLANK) {
                     Object subobj(factory()->createResourceFromNode(stmt.object));
-                    if (subobj.findSources().size() == 1) {
+                    bool notReferencedByOtherObjects = true;
+                    for (const Object& source : subobj.findSources()) {
+                        std::shared_ptr<Object> sourceSubject = source.getOptionalObject(RDF_SUBJECT);
+                        bool subjectOfReifiedStatement = (sourceSubject && *sourceSubject == subobj);
+                        bool subjectOfCurrentObject = (source == *this);
+                        notReferencedByOtherObjects = notReferencedByOtherObjects &&
+                                (subjectOfReifiedStatement || subjectOfCurrentObject);
+                    }
+                    if (notReferencedByOtherObjects) {
                         subobj.remove(bRecursive);
                     }
                 }
