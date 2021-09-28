@@ -527,5 +527,37 @@ TEST(_03_Object, removeObjectRecursive) {
     obj.remove(true);
 
     ASSERT_EQ(1, f.find().size());  // http://testns/subobj
+}
 
+TEST(_03_Object, removeObjectRecursive2) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object obj("http://testns/myobject", "http://testns/type1");
+
+    // sub object of type bnode
+    Object bnode1("", "http://testns/type2");
+    bnode1.addPropertyValue("http://property", "val1", false);
+    bnode1.addObject("http://subobject", Object("http://bnode1/subobject"), false);
+    obj.addObject("http://subobject", bnode1, false);
+
+    // sub object of type bnode under reified formed
+    // --> bnode2 becomes a source of bnode1 as it refers to it by the predicate RDF_SUBJECT
+    // bnode1 and bnode2 should be removed nonetheless
+    Object subobject2("http://testns/type3");
+    Object bnode2 = bnode1.reifyObject("http://testns/reifiedobj", subobject2);
+    bnode2.addPropertyValue("http://property", "val2", false);
+    bnode2.addObject("http://subobject", Object("http://bnode2/subobject"), false);
+    bnode1.addObject("http://subobject", bnode2, false);
+    ASSERT_EQ(12, f.find().size());
+
+    obj.remove(true);
+
+    std::stringstream debugInfo;
+    debugInfo << "Remaining statements:" << std::endl;
+    for (auto const& node : f.find()) {
+        debugInfo << node << std::endl;
+    }
+
+    EXPECT_TRUE(f.find().empty()) << debugInfo.str();
 }
