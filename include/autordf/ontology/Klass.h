@@ -22,6 +22,31 @@ namespace ontology {
 class Klass : public RdfsEntity {
 public:
     using RdfsEntity::RdfsEntity;
+
+    /**
+     * Functor used to compare shared_ptr on Property
+     */
+    class PropertyComparison {
+    public:
+        PropertyComparison() = default;
+        /**
+         * Comparison operator between two shared_ptr on Property
+         * @param prop1
+         * @param prop2
+         * @return
+         */
+        bool operator() (const std::shared_ptr<Property>& prop1, const std::shared_ptr<Property>& prop2) const {
+            return prop1->rdfname() < prop2->rdfname();
+        }
+    };
+
+    /**
+     * Types holding class properties
+     */
+    typedef std::set <std::shared_ptr<AnnotationProperty>, PropertyComparison> AnnotationPropertySet;
+    typedef std::set <std::shared_ptr<DataProperty>, PropertyComparison> DataPropertySet;
+    typedef std::set <std::shared_ptr<ObjectProperty>, PropertyComparison> ObjectPropertySet;
+
     /**
      * Returns direct ancestors of this class
      */
@@ -51,32 +76,32 @@ public:
     /**
      * List of annotation properties for current class
      */
-    const std::set <std::shared_ptr<AnnotationProperty>>& annotationProperties() const { return _annotationProperties ; }
+    const AnnotationPropertySet& annotationProperties() const { return _annotationProperties ; }
 
     /**
      * List of data properties for current class
      */
-    const std::set <std::shared_ptr<DataProperty>>& dataProperties() const { return _dataProperties; }
+    const DataPropertySet& dataProperties() const { return _dataProperties; }
 
     /**
      * List of object properties for current class
      */
-    const std::set <std::shared_ptr<ObjectProperty>>& objectProperties() const { return _objectProperties; }
+    const ObjectPropertySet& objectProperties() const { return _objectProperties; }
 
     /**
      * List of annotation keys for current class
      */
-    const std::set <std::shared_ptr<AnnotationProperty>>& annotationKeys() const { return _annotationKeys; }
+    const AnnotationPropertySet& annotationKeys() const { return _annotationKeys; }
 
     /**
      * List of data keys for current class
      */
-    const std::set <std::shared_ptr<DataProperty>>& dataKeys() const { return _dataKeys; }
+    const DataPropertySet& dataKeys() const { return _dataKeys; }
 
     /**
      * List of object keys for current class
      */
-    const std::set <std::shared_ptr<ObjectProperty>>& objectKeys() const { return _objectKeys; }
+    const ObjectPropertySet& objectKeys() const { return _objectKeys; }
 
     /**
      * Returns all (direct and indirect) ancestors for this class
@@ -112,12 +137,12 @@ public:
 
 private:
     std::set <std::string> _directAncestors;
-    std::set <std::shared_ptr<AnnotationProperty>> _annotationProperties;
-    std::set <std::shared_ptr<DataProperty>> _dataProperties;
-    std::set <std::shared_ptr<ObjectProperty>> _objectProperties;
-    std::set <std::shared_ptr<AnnotationProperty>> _annotationKeys;
-    std::set <std::shared_ptr<DataProperty>> _dataKeys;
-    std::set <std::shared_ptr<ObjectProperty>> _objectKeys;
+    AnnotationPropertySet _annotationProperties;
+    DataPropertySet _dataProperties;
+    ObjectPropertySet _objectProperties;
+    AnnotationPropertySet _annotationKeys;
+    DataPropertySet _dataKeys;
+    ObjectPropertySet _objectKeys;
 
     /**
      * Iri to range map
