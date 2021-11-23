@@ -239,6 +239,17 @@ Resource& Resource::setProperties(const std::shared_ptr<std::list<Property>>& li
     return *this;
 }
 
+bool Resource::isA(const Uri& typeIRI) const {
+    const std::shared_ptr<std::list<Property>>& propList = getPropertyValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+    for (const Property& prop: *propList) {
+        autordf::Uri type = prop.asResource().name();
+        if ( type == typeIRI ) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::ostream& operator<<(std::ostream& os, const Resource& r) {
     switch(r.type()) {
         case NodeType::RESOURCE:
