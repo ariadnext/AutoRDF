@@ -100,6 +100,12 @@ public:
      */
     Resource& remove() { return removeProperties(""); }
 
+    /**
+     * Tests if a Resource is of given rdf type
+     * @returns true if typeIRI is found in rdf:type property, false otherwise
+     */
+    AUTORDF_EXPORT bool isA(const Uri& typeIRI) const;
+
 private:
     NodeType _type;
 

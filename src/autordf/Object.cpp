@@ -523,14 +523,7 @@ void Object::propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std:
 }
 
 bool Object::isA(const Uri& typeIRI) const {
-    const std::shared_ptr<std::list<Property>>& propList = _r.getPropertyValues(RDF_TYPE);
-    for (const Property& prop: *propList) {
-        autordf::Uri type = prop.asResource().name();
-        if ( type == typeIRI ) {
-            return true;
-        }
-    }
-    return false;
+    return _r.isA(typeIRI);
 }
 
 void Object::remove(bool bRecursive /*= false*/) {
@@ -557,15 +550,7 @@ void Object::remove(bool bRecursive /*= false*/) {
             for (const Statement &stmt: statements) {
                 if (stmt.object.type() == NodeType::BLANK) {
                     Object subobj(factory()->createResourceFromNode(stmt.object));
-                    bool notReferencedByOtherObjects = true;
-                    for (const Object& source : subobj.findSources()) {
-                        std::shared_ptr<Object> sourceSubject = source.getOptionalObject(RDF_SUBJECT);
-                        bool subjectOfReifiedStatement = (sourceSubject && *sourceSubject == subobj);
-                        bool subjectOfCurrentObject = (source == *this);
-                        notReferencedByOtherObjects = notReferencedByOtherObjects &&
-                                (subjectOfReifiedStatement || subjectOfCurrentObject);
-                    }
-                    if (notReferencedByOtherObjects) {
+                    if (subobj.findSources().size() == 1) {
                         subobj.remove(bRecursive);
                     }
                 }
@@ -761,19 +746,19 @@ std::set<Object> Object::findSources() const {
     query.object = currentNode();
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
-        Object object(factory()->createResourceFromNode(stmt.subject));
-        bool isNew = objList.insert(object).second;
-        // Follow reified statement
-        if (isNew && object.isA(RDF_STATEMENT)) {
-            Node predicate;
-            predicate.setIri(RDF_SUBJECT);
-            Node node = factory()->findTarget(stmt.subject, predicate);
-            if (!node.empty()) {
-                auto reifiedObject = Object(factory()->createResourceFromNode(node));
-                if (reifiedObject != *this) {
-                    objList.insert(reifiedObject);
-                }
+        Node rawSourceNode(stmt.subject);
+        Resource rawSourceResource(factory()->createResourceFromNode(rawSourceNode));
+        // Test for reified statement
+        // In order to speed up sources lookup in reified environment, we don't check if the surrounding object
+        // is really of type rdf:statement, we just assume it is
+        Node subjectNode = factory()->findTarget(rawSourceNode, /* predicate */ Node().setIri(RDF_SUBJECT));
+        if (!subjectNode.empty()) {
+            auto subjectObject = Object(factory()->createResourceFromNode(subjectNode));
+            if (subjectObject != *this) {
+                objList.insert(subjectObject);
             }
+        } else {
+            objList.insert(Object(rawSourceResource));
         }
     }
     return objList;
@@ -781,12 +766,22 @@ std::set<Object> Object::findSources() const {
 
 std::set<Object> Object::findTargets() const {
     std::set<Object> objList;
+    // Non reified statements
     Statement query;
     query.subject = currentNode();
     const StatementList& statements = factory()->find(query);
     for (const Statement& stmt: statements) {
         if ( stmt.object.type() == NodeType::RESOURCE || stmt.object.type() == NodeType::BLANK) {
             objList.insert(Object(factory()->createResourceFromNode(stmt.object)));
+        }
+    }
+    // Reified statements
+    NodeList objectReifiedStatements = reificationResourcesForCurrentObject();
+    for (const Node& objectReifiedStatement : objectReifiedStatements ) {
+        Resource reifiedStatement(factory()->createResourceFromNode(objectReifiedStatement));
+        std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
+        if ( prop->isResource() ) {
+            objList.insert(prop->asResource());
         }
     }
     return objList;

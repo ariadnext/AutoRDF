@@ -457,6 +457,25 @@ TEST(_03_Object, FindTargets) {
     EXPECT_TRUE(targets.find(known) != targets.end());
 }
 
+
+TEST(_03_Object, SourcesAndTargetsReification) {
+    Factory f;
+    Object::setFactory(&f);
+
+    Object a("http://objecta");
+    Object b("http://objectb");
+    a.setObject("http://myprop1", b);
+    Object reifiedstatement = a.reifyObject("http://myprop1", b);
+
+    f.saveToFile("/tmp/SourcesAndTargetsReification.ttl");
+
+    ASSERT_EQ(1, b.findSources().size());
+    EXPECT_EQ(a, *b.findSources().begin());
+
+    ASSERT_EQ(1, a.findTargets().size());
+    EXPECT_EQ(b, *a.findTargets().begin());
+}
+
 TEST(_03_Object, cloneRecursiveStopAtResources) {
     Factory f;
     Object::setFactory(&f);
