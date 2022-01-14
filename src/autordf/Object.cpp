@@ -806,22 +806,22 @@ std::set<Object> Object::findReified() const {
 }
 
 //TODO : add a version that also clone ressources
-Object Object::cloneRecursiveStopAtResources(const Uri& newIri, bool(*doNotClone)(const Resource&, const std::string&, const Resource *)) const {
+Object Object::cloneRecursiveStopAtResources(const Uri& newIri, bool(*doNotClone)(const Object &, const std::string &, const Object *)) const {
     return cloneRecursiveStopAtResourcesInternal(newIri, doNotClone, true);
 }
 
-Object Object::cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Resource&, const std::string&, const Resource *), bool first) const {
+Object Object::cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Object &, const std::string &, const Object *), bool first) const {
     Object res(newIri, this->_rdfTypeIRI);
     copyPropertiesInternal(doNotClone, res, first);
     copyReifiedProperties(doNotClone, res);
     return res;
 }
 
-void Object::copyReifiedProperties(bool(*doNotClone)(const Resource&, const std::string&, const Resource *), Object& to) const {
+void Object::copyReifiedProperties(bool(*doNotClone)(const Object &, const std::string &, const Object *), Object& to) const {
     NodeList reifiedNodes = reificationResourcesForCurrentObject();
     for (const Node & node : reifiedNodes) {
         Resource reifiedStatement(factory()->createResourceFromNode(node));
-        if (doNotClone && doNotClone(reifiedStatement, reifiedStatement.getProperty(RDF_PREDICATE)->iri(), &_r)) {
+        if (doNotClone && doNotClone(reifiedStatement, reifiedStatement.getProperty(RDF_PREDICATE)->iri(), this)) {
             continue;
         }
         std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
@@ -846,7 +846,7 @@ void Object::copyReifiedProperties(bool(*doNotClone)(const Resource&, const std:
     }
 }
 
-void Object::copyPropertiesInternal(bool(*doNotClone)(const Resource&, const std::string&, const Resource *), Object& to, bool first) const {
+void Object::copyPropertiesInternal(bool(*doNotClone)(const Object &, const std::string &, const Object *), Object& to, bool first) const {
     if (first && doNotClone && doNotClone(_r, "", nullptr)) {
         return;
     }
@@ -860,7 +860,7 @@ void Object::copyPropertiesInternal(bool(*doNotClone)(const Resource&, const std
         if (property.isLiteral()) {
             to.addPropertyValue(property.iri(), property.value(), false);
         } else if (property.type() == NodeType::BLANK) {
-            if (!doNotClone || !doNotClone(property.asResource(), property.iri(), &_r)) {
+            if (!doNotClone || !doNotClone(property.asResource(), property.iri(), this)) {
                 to.addObject(property.iri(), Object(property.asResource()).cloneRecursiveStopAtResourcesInternal("", doNotClone), false);
             }
         } else {
