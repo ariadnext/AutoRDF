@@ -1,0 +1,217 @@
+@prefix : <http://example.org/geometry#> .
+@prefix geo: <http://example.org/geometry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix AutoRDF: <http://github.com/ariadnext/AutoRDF#> .
+@base <http://example.org/geometry> .
+
+<http://example.org/geometry> rdf:type owl:Ontology .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://github.com/ariadnext/AutoRDF#ordered
+AutoRDF:ordered rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/geometry#bottomRight
+geo:bottomRight rdf:type owl:ObjectProperty ;
+                rdfs:domain geo:Rectangle ;
+                rdfs:comment "Rectangle bottom right coordinates"@en .
+
+
+###  http://example.org/geometry#center
+geo:center rdf:type owl:ObjectProperty ;
+           rdfs:range geo:Point ;
+           rdfs:comment "Shape center"@en .
+
+
+###  http://example.org/geometry#hasShape
+geo:hasShape rdf:type owl:ObjectProperty ;
+             rdfs:domain geo:Schema ;
+             rdfs:range geo:Shape .
+
+
+###  http://example.org/geometry#text
+geo:text rdf:type owl:ObjectProperty ,
+                  owl:FunctionalProperty ;
+         rdfs:domain geo:Shape ;
+         rdfs:range geo:Text .
+
+
+###  http://example.org/geometry#topLeft
+geo:topLeft rdf:type owl:ObjectProperty ;
+            rdfs:domain geo:Rectangle ;
+            rdfs:comment "Rectangle top left coordinates"@en .
+
+
+###  http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#vertex
+<http://www.ariadnext.com/ontologies/2015/MachineReadableDocument/1.0.0#vertex> rdf:type owl:ObjectProperty ;
+                                                                                rdfs:domain geo:Polygon ;
+                                                                                rdfs:range geo:Point ;
+                                                                                AutoRDF:ordered "" ;
+                                                                                rdfs:comment <http://example.org/geometry> .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/geometry#borderColor
+geo:borderColor rdf:type owl:DatatypeProperty ,
+                         owl:FunctionalProperty ;
+                rdfs:domain geo:Shape ;
+                rdfs:comment "Color used to draw the border of the shape"@en .
+
+
+###  http://example.org/geometry#borderThickness
+geo:borderThickness rdf:type owl:DatatypeProperty ,
+                             owl:FunctionalProperty ;
+                    rdfs:domain geo:Shape ;
+                    rdfs:range xsd:integer ;
+                    rdfs:comment "Thikness of the border of the shape"@en .
+
+
+###  http://example.org/geometry#fillColor
+geo:fillColor rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain geo:Shape ;
+              rdfs:comment "Color used to fill the shape"@en .
+
+
+###  http://example.org/geometry#radius
+geo:radius rdf:type owl:DatatypeProperty ;
+           rdfs:domain geo:Circle ;
+           rdfs:range xsd:double ;
+           rdfs:comment "Shape radius"@en .
+
+
+###  http://example.org/geometry#textColor
+geo:textColor rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain geo:Text ;
+              rdfs:range xsd:string ;
+              rdfs:comment "color used to draw a text"@en .
+
+
+###  http://example.org/geometry#textString
+geo:textString rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain geo:Text ;
+               rdfs:range xsd:string ;
+               rdfs:comment "Text to be displayed on the shape"@en .
+
+
+###  http://example.org/geometry#x
+geo:x rdf:type owl:DatatypeProperty ;
+      rdfs:domain geo:Point ;
+      rdfs:comment "x coordinates"@en .
+
+
+###  http://example.org/geometry#y
+geo:y rdf:type owl:DatatypeProperty ;
+      rdfs:domain geo:Point ;
+      rdfs:comment "y coordinates"@en .
+
+
+###  http://example.org/geometry#schemaUniqueName
+geo:schemaUniqueName rdf:type owl:DatatypeProperty ;
+    rdfs:domain geo:Schema ;
+    rdfs:range xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/geometry#Circle
+geo:Circle rdf:type owl:Class ;
+           rdfs:subClassOf geo:Shape ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty geo:center ;
+                             owl:cardinality "1"^^xsd:nonNegativeInteger
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty geo:radius ;
+                             owl:cardinality "1"^^xsd:nonNegativeInteger
+                           ] ;
+           rdfs:comment "A circle, specified by its radius."@en .
+
+
+###  http://example.org/geometry#Point
+geo:Point rdf:type owl:Class ;
+          rdfs:subClassOf [ rdf:type owl:Restriction ;
+                            owl:onProperty geo:x ;
+                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onDataRange xsd:double
+                          ] ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty geo:y ;
+                            owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onDataRange xsd:double
+                          ] ;
+          rdfs:comment "A point un a 2 dimension area"@en .
+
+
+###  http://example.org/geometry#Polygon
+geo:Polygon rdf:type owl:Class ;
+            rdfs:subClassOf geo:Shape .
+
+
+###  http://example.org/geometry#Rectangle
+geo:Rectangle rdf:type owl:Class ;
+              rdfs:subClassOf geo:Shape ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty geo:bottomRight ;
+                                owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:onClass geo:Point
+                              ] ,
+                              [ rdf:type owl:Restriction ;
+                                owl:onProperty geo:topLeft ;
+                                owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                owl:onClass geo:Point
+                              ] ;
+              rdfs:comment "A rectangle identified by its top-left and bottom-right coordinates"@en .
+
+
+###  http://example.org/geometry#Schema
+geo:Schema rdf:type owl:Class ;
+           rdfs:subClassOf [ rdf:type owl:Restriction ;
+                             owl:onProperty geo:hasShape ;
+                             owl:someValuesFrom geo:Shape
+                           ] .
+
+
+###  http://example.org/geometry#Shape
+geo:Shape rdf:type owl:Class ;
+          rdfs:subClassOf [ rdf:type owl:Restriction ;
+                            owl:onProperty geo:borderThickness ;
+                            owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                            owl:onDataRange xsd:integer
+                          ] ;
+          rdfs:comment "The parent class for all shapes"@en .
+
+
+###  http://example.org/geometry#Text
+geo:Text rdf:type owl:Class ;
+         rdfs:subClassOf [ rdf:type owl:Restriction ;
+                           owl:onProperty geo:textString ;
+                           owl:minQualifiedCardinality "0"^^xsd:nonNegativeInteger ;
+                           owl:onDataRange xsd:string
+                         ] ,
+                         [ rdf:type owl:Restriction ;
+                           owl:onProperty geo:textColor ;
+                           owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                           owl:onDataRange xsd:string
+                         ] .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

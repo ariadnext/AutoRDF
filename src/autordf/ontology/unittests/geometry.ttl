@@ -1,10 +1,24 @@
-@base <http://example.org/geometry/base> .
+@base <http://example.org/geometry> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix geo: <http://example.org/geometry#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/geometry#> .
+
+#################################################################
+#    Individuals
+#################################################################
+
+:pointWithoutY
+  rdf:type geo:Point ;
+  geo:x "42.0"^^xsd:double  .
+
+:pointWithoutX
+  geo:y -2 ;
+a geo:Point .
 
 
-<myShape>
+:myShape
  geo:text [
      geo:textString 2.0 ;
      geo:textColor "color" ;
@@ -20,14 +34,14 @@
  geo:borderColor "orange" ;
 a geo:Circle .
 
-<text>
+:text
  geo:text [
     geo:textColor 1 ;
     a geo:Point
   ] ;
 a geo:Text .
 
-<rectangle>
+:rectangle
  geo:topLeft [
     geo:x "1.0" ;
     geo:y "2.0" ;
@@ -45,7 +59,7 @@ a geo:Text .
    ] ;
 a geo:Rectangle .
 
-<circle>
+:circle
   geo:center [
       geo:x "1.0" ;
       geo:y "2" ;
@@ -53,16 +67,27 @@ a geo:Rectangle .
   ] ;
   a geo:Circle .
 
-<point>
+:point
   geo:x "toto" ;
-   geo:y "-2" ;
+  geo:y "-2" ;
 a geo:Point .
 
-<objectType>
+:objectType
     geo:radius "2" ;
     geo:center <point/center> ;
     a geo:Circle .
 
-<schema>
+:schema1
     geo:shape <rectangle>;
+    geo:schemaUniqueName "schema1";
+a geo:Schema .
+
+:schema2
+    geo:shape <rectangle>;
+    geo:schemaUniqueName "schema2";
+a geo:Schema .
+
+:schema2repeated
+    geo:shape <rectangle>;
+    geo:schemaUniqueName "schema2";
 a geo:Schema .

@@ -291,7 +291,10 @@ Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(fals
 }
 
 const char * guessFormat(const std::string& path) {
-    std::string ext = path.substr(path.length() - 3);
+    if(path.size() <= 3) {
+        throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
+    }
+    const std::string ext = path.substr(path.length() - 3);
     const char * format = nullptr;
     if ( ext == "ttl" ) {
         format = "turtle";
