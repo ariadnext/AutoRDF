@@ -1,0 +1,26 @@
+@base <http://example.org/geometry> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo: <http://example.org/geometry#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/geometry#> .
+
+#################################################################
+#    Individuals
+#################################################################
+
+
+:schema1
+    geo:shape <rectangle>;
+    geo:schemaUniqueName "schema1Key";
+a geo:Schema .
+
+:schema2
+    geo:shape <rectangle>;
+    geo:schemaUniqueName "sharedSchemaKey";
+a geo:Schema .
+
+:schema2repeated
+    geo:shape <rectangle>;
+    geo:schemaUniqueName "sharedSchemaKey"; # validation should fail, the key should be unique
+a geo:Schema .
