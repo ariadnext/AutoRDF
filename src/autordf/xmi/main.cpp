@@ -59,7 +59,7 @@ std::string genXmiId(const std::string& rawData) {
     return ss.str();
 }
 
-int _indent = 0;
+unsigned int _indent = 0;
 std::ostream& indent(std::ostream *stream) {
     *stream << std::endl;
     for ( unsigned int i = 0; i < _indent; ++i ) {

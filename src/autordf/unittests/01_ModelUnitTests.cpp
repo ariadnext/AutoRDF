@@ -44,7 +44,7 @@ TEST(_01_Model, SeenPrefixes) {
     }
     ASSERT_EQ("http://xmlns.com/foaf/0.1/", ts.prefixToNs("foaf") );
     ASSERT_EQ("foaf", ts.nsToPrefix("http://xmlns.com/foaf/0.1/") );
-    ASSERT_EQ(3, ts.namespacesPrefixes().size());
+    ASSERT_EQ(size_t{3}, ts.namespacesPrefixes().size());
 }
 
 TEST(_01_Model, SearchByPredicate) {
@@ -55,7 +55,7 @@ TEST(_01_Model, SearchByPredicate) {
     req.predicate.setIri("http://xmlns.com/foaf/0.1/name");
     const StatementList& stmtList = ts.find(req);
     std::cout << stmtList << std::endl;
-    ASSERT_EQ(3, stmtList.size());
+    ASSERT_EQ(size_t{3}, stmtList.size());
 }
 
 TEST(_01_Model, SearchSubject) {
@@ -68,7 +68,7 @@ TEST(_01_Model, SearchSubject) {
     object.setLiteral("RDF/XML Syntax Specification (Revised)");
 
     const NodeList& nodeList = ts.findSources(predicate, object);
-    ASSERT_EQ(1, nodeList.size());
+    ASSERT_EQ(size_t{1}, nodeList.size());
     ASSERT_STREQ("http://www.w3.org/TR/rdf-syntax-grammar", nodeList.begin()->iri());
 }
 
@@ -79,7 +79,7 @@ TEST(_01_Model, SearchBySubject) {
     Statement req;
     req.subject.setIri("http://jimmycricket.com/me");
     const StatementList& stmtList = ts.find(req);
-    ASSERT_EQ(2, stmtList.size());
+    ASSERT_EQ(size_t{2}, stmtList.size());
 }
 
 TEST(_01_Model, findTargets) {
@@ -92,11 +92,11 @@ TEST(_01_Model, findTargets) {
     predicate.setIri("http://purl.org/dc/elements/1.1/title");
 
     const NodeList& nodeList = ts.findTargets(source, predicate);
-    ASSERT_EQ(1, nodeList.size());
+    ASSERT_EQ(size_t{1}, nodeList.size());
     ASSERT_STREQ("RDF/XML Syntax Specification (Revised)", nodeList.begin()->literal());
 
     predicate.setIri("http://pwet");
-    ASSERT_EQ(0, ts.findTargets(source, predicate).size());
+    ASSERT_TRUE(ts.findTargets(source, predicate).empty());
 }
 
 TEST(_01_Model, findTarget) {
@@ -117,7 +117,7 @@ TEST(_01_Model, SearchByObject) {
     Statement req;
     req.object.setLiteral("Jimmy");
     const StatementList& stmtList = ts.find(req);
-    ASSERT_EQ(1, stmtList.size());
+    ASSERT_EQ(size_t{1}, stmtList.size());
 }
 
 TEST(_01_Model, AddSaveEraseStatement) {
@@ -134,11 +134,11 @@ TEST(_01_Model, AddSaveEraseStatement) {
     Model read1;
     read1.loadFromFile("/tmp/test1.ttl", "http://mydomain/me");
     const StatementList& stmtList = read1.find();
-    ASSERT_EQ(1, stmtList.size());
+    ASSERT_EQ(size_t{1}, stmtList.size());
 
     read1.remove(&stClone);
     const StatementList& stmtList1 = read1.find();
-    ASSERT_EQ(0, stmtList1.size());
+    ASSERT_EQ(size_t{0}, stmtList1.size());
 }
 
 TEST(_01_Model, TypeLiterals) {
@@ -220,7 +220,7 @@ TEST(_01_Model, LoadSave) {
     Model n;
     n.loadFromFile("/tmp/autordf_unittest.ttl", "http://mydomain/me");
 
-    ASSERT_EQ(2, n.find().size());
+    ASSERT_EQ(size_t{2}, n.find().size());
 
     Statement st2;
     st2.subject.setIri("http://mydomain/me");
@@ -245,7 +245,7 @@ TEST(_01_Model, LoadSaveMultiBlankNodes) {
     std::string serialized = *m.saveToMemory("turtle");
     std::cout << serialized << std::endl;
 
-    ASSERT_EQ(2, subjects.size());
+    ASSERT_EQ(size_t{2}, subjects.size());
 
     Model reloaded;
     reloaded.loadFromMemory(serialized.c_str(), "turtle");

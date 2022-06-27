@@ -21,7 +21,7 @@
 namespace autordf {
 namespace codegen {
 
-std::ostream& indent(std::ostream& os, int numIndent) {
+std::ostream& indent(std::ostream& os, unsigned int numIndent) {
     for (unsigned int i = 0; i < numIndent * 4; ++i) {
         os << ' ';
     }

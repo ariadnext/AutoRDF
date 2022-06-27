@@ -7,21 +7,29 @@
 
 using namespace autordf::cvt;
 
+using LLUINT = long long unsigned int;
+using LLINT = long long int;
+using LUINT = long unsigned int;
+using LINT = long int;
+using USHORT = unsigned short;
+using UCHAR = unsigned char;
+
+
 TEST(_04_cvt, xsd_to_cpp) {
     ASSERT_EQ("date of birth", (toCpp<std::string, RdfTypeEnum::xsd_string>::val("date of birth")));
     ASSERT_EQ(-210, (toCpp<long long int, RdfTypeEnum::xsd_integer>::val("-210")));
-    ASSERT_EQ(210, (toCpp<long long unsigned int, RdfTypeEnum::xsd_nonNegativeInteger>::val("210")));
-    ASSERT_EQ(210, (toCpp<long long unsigned int, RdfTypeEnum::xsd_positiveInteger>::val("210")));
-    ASSERT_EQ(-210, (toCpp<long long int, RdfTypeEnum::xsd_negativeInteger>::val("-210")));
-    ASSERT_EQ(-210, (toCpp<long long int, RdfTypeEnum::xsd_nonPositiveInteger>::val("-210")));
-    ASSERT_EQ(210, (toCpp<long long unsigned int, RdfTypeEnum::xsd_unsignedLong>::val("210")));
-    ASSERT_EQ(-210, (toCpp<long long int, RdfTypeEnum::xsd_long>::val("-210")));
-    ASSERT_EQ(210, (toCpp<long unsigned int, RdfTypeEnum::xsd_unsignedInt>::val("210")));
-    ASSERT_EQ(-210, (toCpp<long int, RdfTypeEnum::xsd_int>::val("-210")));
-    ASSERT_EQ(210, (toCpp<unsigned short, RdfTypeEnum::xsd_unsignedShort>::val("210")));
-    ASSERT_EQ(-210, (toCpp<short, RdfTypeEnum::xsd_short>::val("-210")));
-    ASSERT_EQ(127, (toCpp<unsigned char, RdfTypeEnum::xsd_unsignedByte>::val("127")));
-    ASSERT_EQ(-127, (toCpp<char, RdfTypeEnum::xsd_byte>::val("-127")));
+    ASSERT_EQ(LLUINT{210}, (toCpp<long long unsigned int, RdfTypeEnum::xsd_nonNegativeInteger>::val("210")));
+    ASSERT_EQ(LLUINT{210}, (toCpp<long long unsigned int, RdfTypeEnum::xsd_positiveInteger>::val("210")));
+    ASSERT_EQ(LLINT{-210}, (toCpp<long long int, RdfTypeEnum::xsd_negativeInteger>::val("-210")));
+    ASSERT_EQ(LLINT{-210}, (toCpp<long long int, RdfTypeEnum::xsd_nonPositiveInteger>::val("-210")));
+    ASSERT_EQ(LLUINT{210}, (toCpp<long long unsigned int, RdfTypeEnum::xsd_unsignedLong>::val("210")));
+    ASSERT_EQ(LLINT{-210}, (toCpp<long long int, RdfTypeEnum::xsd_long>::val("-210")));
+    ASSERT_EQ(LUINT{210}, (toCpp<long unsigned int, RdfTypeEnum::xsd_unsignedInt>::val("210")));
+    ASSERT_EQ(LINT{-210}, (toCpp<long int, RdfTypeEnum::xsd_int>::val("-210")));
+    ASSERT_EQ(USHORT{210}, (toCpp<unsigned short, RdfTypeEnum::xsd_unsignedShort>::val("210")));
+    ASSERT_EQ(short{-210}, (toCpp<short, RdfTypeEnum::xsd_short>::val("-210")));
+    ASSERT_EQ(UCHAR{127}, (toCpp<unsigned char, RdfTypeEnum::xsd_unsignedByte>::val("127")));
+    ASSERT_EQ(char{-127}, (toCpp<char, RdfTypeEnum::xsd_byte>::val("-127")));
     ASSERT_EQ(true, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val("true")));
     ASSERT_EQ(true, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val("1")));
     ASSERT_EQ(false, (toCpp<bool, RdfTypeEnum::xsd_boolean>::val("0")));
