@@ -40,7 +40,7 @@ TEST(_02_LoadSave, AllProperties) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://test");
 
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
-    ASSERT_EQ(2, r.getPropertyValues()->size());
+    ASSERT_EQ(size_t{2}, r.getPropertyValues()->size());
 }
 
 TEST(_02_LoadSave, loadPerson) {
@@ -53,7 +53,7 @@ TEST(_02_LoadSave, loadPerson) {
     for (const Property& p : *values) {
         std::cout << p << std::endl;
     }
-    ASSERT_EQ(14, person.getPropertyValues()->size());
+    ASSERT_EQ(size_t{14}, person.getPropertyValues()->size());
 
     ASSERT_EQ("jwales", person
             .getProperty("http://xmlns.com/foaf/0.1/account")->asResource()
@@ -91,19 +91,19 @@ TEST(_02_LoadSave, deleteProperties) {
     drawing.addProperty(f.createProperty("http://my/own/shape")->setValue("rectangle"));
     drawing.addProperty(f.createProperty("http://my/own/backround")->setValue("dots"));
 
-    EXPECT_EQ(6, f.find().size());
+    EXPECT_EQ(size_t{6}, f.find().size());
 
     f.saveToFile("/tmp/test_deleteProperties.ttl", "http://my/own/");
 
     drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue("blue"));
-    ASSERT_EQ(5, f.find().size());
+    ASSERT_EQ(size_t{5}, f.find().size());
 
     drawing.removeProperties("http://my/own/color");
     f.saveToFile("/tmp/test_deleteProperties2.ttl", "http://my/own/");
-    ASSERT_EQ(3, f.find().size());
+    ASSERT_EQ(size_t{3}, f.find().size());
 
     drawing.removeProperties("");
-    ASSERT_EQ(0, f.find().size());
+    ASSERT_TRUE(f.find().empty());
 
     ASSERT_THROW(drawing.removeSingleProperty(f.createProperty("http://my/own/color")->setValue("nonexistent")), PropertyNotFound);
 }

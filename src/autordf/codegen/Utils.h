@@ -10,7 +10,7 @@ class Model;
 
 namespace codegen {
 
-std::ostream& indent(std::ostream& os, int numIndent);
+std::ostream& indent(std::ostream& os, unsigned int numIndent);
 
 void startInternal(std::ostream& os, int numIndent = 0);
 void stopInternal(std::ostream& os, int numIndent = 0);

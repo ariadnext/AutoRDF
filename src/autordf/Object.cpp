@@ -665,13 +665,13 @@ Factory *Object::factory() {
 
 namespace {
 
-void indentLine(std::ostream& os, int indent) {
+void indentLine(std::ostream& os, unsigned int indent) {
     for (unsigned int i = 0; i < indent; ++i) {
         os << '\t';
     }
 }
 
-void newLine(std::ostream& os, int indent) {
+void newLine(std::ostream& os, unsigned int indent) {
     os << std::endl;
     indentLine(os, indent);
 }
@@ -683,7 +683,7 @@ std::ostream& operator<<(std::ostream& os, const Object& obj) {
     return os;
 }
 
-std::ostream& Object::printStream(std::ostream& os, int recurse, int indentLevel) const {
+std::ostream& Object::printStream(std::ostream& os, int recurse, unsigned int indentLevel) const {
     indentLine(os, indentLevel);
     os << "\"Subject\": \"" << _r.name() <<'"';
     std::set<std::string> donePropsIRI;

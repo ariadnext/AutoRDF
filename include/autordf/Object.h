@@ -431,7 +431,7 @@ public:
      * @param recurse: if > 0, go down resource hierarchy by recurse level
      * @param indentLevel: How much layer of tabs to insert
      */
-    AUTORDF_EXPORT std::ostream& printStream(std::ostream&, int recurse = 0, int indentLevel = 0) const;
+    AUTORDF_EXPORT std::ostream& printStream(std::ostream&, int recurse = 0, unsigned int indentLevel = 0) const;
 
     /**
      * @param f : if provided, work on this factory object.

@@ -65,9 +65,9 @@ TEST(_03_Object, Copy) {
 
     Object first = objs.front();
 
-    ASSERT_EQ(3, Object::findByType("http://xmlns.com/foaf/0.1/Person").size());
+    ASSERT_EQ(size_t{3}, Object::findByType("http://xmlns.com/foaf/0.1/Person").size());
     Object copy = first.clone("http://personcopy");
-    ASSERT_EQ(4, Object::findByType("http://xmlns.com/foaf/0.1/Person").size());
+    ASSERT_EQ(size_t{4}, Object::findByType("http://xmlns.com/foaf/0.1/Person").size());
     printRecurse(copy, 0);
 }
 
@@ -88,8 +88,8 @@ TEST(_03_Object, Accessors) {
 
     ASSERT_NO_THROW(person.getObject("http://xmlns.com/foaf/0.1/account"));
     ASSERT_EQ(nullptr, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
-    ASSERT_EQ(0, person.getObjectList("http://xmlns.com/foaf/0.1/unexisting", false).size());
-    ASSERT_EQ(2, person.getObjectList("http://xmlns.com/foaf/0.1/knows", false).size());
+    ASSERT_TRUE(person.getObjectList("http://xmlns.com/foaf/0.1/unexisting", false).empty());
+    ASSERT_EQ(size_t{2}, person.getObjectList("http://xmlns.com/foaf/0.1/knows", false).size());
 
     Object account = person.getObject("http://xmlns.com/foaf/0.1/account");
     ASSERT_EQ("Jimmy Wales", person.getPropertyValue("http://xmlns.com/foaf/0.1/name"));
@@ -114,10 +114,10 @@ TEST(_03_Object, DelayedTypeWriting) {
     Object obj("http://myuri/myobject", "http://myuri/type1");
 
     // No statement written that far
-    ASSERT_EQ(0, f.find().size());
+    ASSERT_TRUE(f.find().empty());
     obj.setPropertyValue("http://myuri/myprop", "value");
     // two statements written
-    ASSERT_EQ(2, f.find().size());
+    ASSERT_EQ(size_t{2}, f.find().size());
     ASSERT_EQ("http://myuri/type1", obj.getObject("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").iri());
 }
 
@@ -129,7 +129,7 @@ TEST(_03_Object, NoTypeWrittenWhenCloning) {
 
     Object obj2 = obj.clone("http://myuri/myobject2");
     // No statement written that far
-    ASSERT_EQ(0, f.find().size());
+    ASSERT_TRUE(f.find().empty());
 }
 
 TEST(_03_Object, removeSingleProperty) {
@@ -139,19 +139,19 @@ TEST(_03_Object, removeSingleProperty) {
     Object obj("http://myuri/myobject", "http://myuri/type1");
 
     obj.addPropertyValue("http://myuri/prop", "val1", false);
-    ASSERT_EQ(2, f.find().size());
+    ASSERT_EQ(size_t{2}, f.find().size());
 
     obj.removePropertyValue("http://myuri/prop", "val1");
-    ASSERT_EQ(1, f.find().size());
+    ASSERT_EQ(size_t{1}, f.find().size());
 
     long long int toto = 1;
     PropertyValue val;
     val.set<cvt::RdfTypeEnum::xsd_integer>(toto);
     obj.addPropertyValue("http://myuri/prop", val, false);
-    ASSERT_EQ(2, f.find().size());
+    ASSERT_EQ(size_t{2}, f.find().size());
 
     obj.removePropertyValue("http://myuri/prop", val);
-    ASSERT_EQ(1, f.find().size());
+    ASSERT_EQ(size_t{1}, f.find().size());
 
     ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
 }
@@ -183,7 +183,7 @@ TEST(_03_Object, findAllObjects) {
     f.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl", "http://xmlns.com/foaf/0.1/");
 
     std::set<Object> objs = Object::findAll();
-    ASSERT_EQ(5, objs.size());
+    ASSERT_EQ(size_t{5}, objs.size());
 }
 
 TEST(_03_Object, DataPropertyReification) {
@@ -229,7 +229,7 @@ TEST(_03_Object, DataPropertyReification2) {
     obj.setPropertyValue("http://myprop3", "3");
     obj.reifyPropertyValue("http://myprop3", "3");
 
-    EXPECT_EQ(4, f.find().size());
+    EXPECT_EQ(size_t{4}, f.find().size());
 }
 
 TEST(_03_Object, DataPropertyUnReification) {
@@ -299,7 +299,7 @@ TEST(_03_Object, ObjectPropertyReification2) {
     obj.setObject("http://myprop3", obj3);
     obj.reifyObject("http://myprop3", obj3);
 
-    EXPECT_EQ(4, f.find().size());
+    EXPECT_EQ(size_t{4}, f.find().size());
 }
 
 TEST(_03_Object, ObjectPropertyUnReification) {
@@ -380,7 +380,7 @@ TEST(_03_Object, ObjectPropertyOrderingVector) {
 
     std::vector<Object> read2 = obj.getObjectList("http://prop1", true);
 
-    ASSERT_EQ(2, read2.size());
+    ASSERT_EQ(size_t{2}, read2.size());
 
     ASSERT_EQ(objects[0], read2[1]);
     ASSERT_EQ(objects[1], read2[0]);
@@ -469,10 +469,10 @@ TEST(_03_Object, SourcesAndTargetsReification) {
 
     f.saveToFile("/tmp/SourcesAndTargetsReification.ttl");
 
-    ASSERT_EQ(1, b.findSources().size());
+    ASSERT_EQ(size_t{1}, b.findSources().size());
     EXPECT_EQ(a, *b.findSources().begin());
 
-    ASSERT_EQ(1, a.findTargets().size());
+    ASSERT_EQ(size_t{1}, a.findTargets().size());
     EXPECT_EQ(b, *a.findTargets().begin());
 }
 
@@ -526,26 +526,26 @@ TEST(_03_Object, removeObjectRecursive) {
     Object obj("http://testns/myobject", "http://testns/type1");
 
     obj.addPropertyValue("http://property", "val1", false);
-    ASSERT_EQ(2, f.find().size());
+    ASSERT_EQ(size_t{2}, f.find().size());
 
     obj.addPropertyValue("http://property", "val2", false);
-    ASSERT_EQ(3, f.find().size());
+    ASSERT_EQ(size_t{3}, f.find().size());
 
     Object subobject("http://testns/subobj");
     subobject.addPropertyValue("http://property", "val3", false);
     obj.addObject("http://subobject", Object("http://testns/subobject"), false);
-    ASSERT_EQ(5, f.find().size());
+    ASSERT_EQ(size_t{5}, f.find().size());
 
     Object subobject2("http://subobj/bnode");
     Object bnode = obj.reifyObject("http://testns/bnode", subobject2);
     bnode.addPropertyValue("http://property", "val4", false);
     bnode.addObject("http://subobject", Object("http://bnode/subobject"), false);
     obj.addObject("http://testns/obj", bnode, false);
-    ASSERT_EQ(12, f.find().size());
+    ASSERT_EQ(size_t{12}, f.find().size());
 
     obj.remove(true);
 
-    ASSERT_EQ(1, f.find().size());  // http://testns/subobj
+    ASSERT_EQ(size_t{1}, f.find().size());  // http://testns/subobj
 }
 
 TEST(_03_Object, removeObjectRecursive2) {
@@ -568,7 +568,7 @@ TEST(_03_Object, removeObjectRecursive2) {
     bnode2.addPropertyValue("http://property", "val2", false);
     bnode2.addObject("http://subobject", Object("http://bnode2/subobject"), false);
     bnode1.addObject("http://subobject", bnode2, false);
-    ASSERT_EQ(12, f.find().size());
+    ASSERT_EQ(size_t{12}, f.find().size());
 
     obj.remove(true);
 
