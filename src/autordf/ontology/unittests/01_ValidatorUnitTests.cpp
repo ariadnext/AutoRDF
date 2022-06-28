@@ -157,7 +157,7 @@ TEST_F(ValidatorTest, Type) {
 }
 
 TEST_F(ValidatorTest, UniqueKeyValidator) {
-    const Object obj("http://example.org/geometry#schema1");
+    const Object obj("http://example.org/geometry#rectangle1");
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj);
     ASSERT_EQ(0, errors->size());
 }
@@ -165,9 +165,14 @@ TEST_F(ValidatorTest, UniqueKeyValidator) {
 TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
     const Object obj("http://example.org/geometry#schema2");
 
-    // FIXME This should fail as shemaUniqueName is a Key and should therefore be unique
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj);
-    // ASSERT_EQ(1, errors->size());
+    EXPECT_EQ(0, errors->size());
+
+    Validator::ValidationOption option = {true};
+    errors = validator->validateObject(obj, option);
+    ASSERT_EQ(1, errors->size());
+    EXPECT_EQ(Validator::Error::DUPLICATEDVALUESKEY, errors->at(0).type);
+    EXPECT_EQ("\'Schema\' class key \'schemaUniqueName\' has the duplicated value \'sharedSchemaKey\'", errors->at(0).fullMessage());
 
     // The error is indeed catched at runtime
     EXPECT_THROW(
@@ -177,10 +182,25 @@ TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
 
 }
 
+TEST_F(ValidatorTest, UniqueKeyValidatorFailForOtherInstance) {
+    const Object obj("http://example.org/geometry#schema1");
+
+    Validator::ValidationOption option = {true};
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj, option);
+    ASSERT_EQ(1, errors->size());
+    EXPECT_EQ(Validator::Error::DUPLICATEDVALUESKEY, errors->at(0).type);
+    EXPECT_EQ("\'Schema\' class key \'schemaUniqueName\' has the duplicated value \'sharedSchemaKey\'", errors->at(0).fullMessage());
+}
+
 TEST_F(ValidatorTest, ModelValidator) {
-    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory);
+    Validator::ValidationOption option = {true};
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory, option);
     dumpErrors(errors);
-    ASSERT_EQ(16, errors->size());
+    EXPECT_EQ(19, errors->size());
+
+    errors = validator->validateModel(factory);
+    dumpErrors(errors);
+    EXPECT_EQ(16, errors->size());
 }
 
 

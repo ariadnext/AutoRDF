@@ -3,6 +3,8 @@
 #include <autordf/Factory.h>
 #include <autordf/Exception.h>
 
+#include <memory>
+
 namespace autordf {
 
 std::stack<Factory *> Object::_factories;
@@ -377,13 +379,13 @@ std::shared_ptr<Resource> Object::reifiedPropertyAsResource(const Property& p) c
             switch (p.type()) {
                 case NodeType::LITERAL:
                     if ( object->isLiteral() && (object->value() == p.value()) ) {
-                        return std::shared_ptr<Resource>(new Resource(reifiedStatement));
+                        return std::make_shared<Resource>(reifiedStatement);
                     }
                     break;
                 case NodeType::RESOURCE:
                 case NodeType::BLANK:
                     if ( object->asResource().name() == p.asResource().name() ){
-                        return std::shared_ptr<Resource>(new Resource(reifiedStatement));
+                        return std::make_shared<Resource>(reifiedStatement);
                     }
                     break;
                 default:
@@ -600,7 +602,7 @@ Object Object::findByKey(const Uri& propertyIRI, const PropertyValue& value) {
     query.predicate.setIri(propertyIRI);
     query.object.setLiteral(value, value.lang(), value.dataTypeIri());
     const StatementList& statements = factory()->find(query);
-    if ( statements.size() == 0 ) {
+    if ( statements.empty() ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + value + " found");
     }
     if ( statements.size() > 1 ) {
@@ -614,7 +616,7 @@ Object Object::findByKey(const Uri& propertyIRI, const Object& object) {
     query.predicate.setIri(propertyIRI);
     query.object.setIri(object.iri());
     const StatementList& statements = factory()->find(query);
-    if ( statements.size() == 0 ) {
+    if ( statements.empty() ) {
         throw ObjectNotFound(std::string("No object with owl key ") + propertyIRI + " set to " + object.iri() + " found");
     }
     if ( statements.size() > 1 ) {
