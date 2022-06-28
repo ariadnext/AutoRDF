@@ -57,6 +57,22 @@ a geo:Text .
    geo:y "2.0" ;
    a geo:Point
    ] ;
+ geo:rectangleUniqueName "rectangleKey";
+a geo:Rectangle .
+
+:rectangle1
+ geo:topLeft [
+    geo:x "1.0" ;
+    geo:y "2.0" ;
+    a geo:Point
+  ] ;
+ geo:bottomRight [
+   geo:x "2.0" ;
+   geo:y "3.0" ;
+   a geo:Point
+   ] ;
+ geo:borderThickness "1" ;
+ geo:rectangleUniqueName "rectangle1Key";
 a geo:Rectangle .
 
 :circle
@@ -76,18 +92,3 @@ a geo:Point .
     geo:radius "2" ;
     geo:center <point/center> ;
     a geo:Circle .
-
-:schema1
-    geo:shape <rectangle>;
-    geo:schemaUniqueName "schema1";
-a geo:Schema .
-
-:schema2
-    geo:shape <rectangle>;
-    geo:schemaUniqueName "schema2";
-a geo:Schema .
-
-:schema2repeated
-    geo:shape <rectangle>;
-    geo:schemaUniqueName "schema2";
-a geo:Schema .

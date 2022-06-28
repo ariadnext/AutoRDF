@@ -29,8 +29,8 @@ public:
             X(INVALIDDATATYPE,   "Rdf type of dataproperty is not allowed. subject, property are filled") \
             X(INVALIDTYPE,       "Rdf type of object is not allowed. subject, property are filled") \
             X(NOTENOUHVALUES,    "This property does not have enough values - subject, property, count and expected value are filled") \
-            X(TOOMANYVALUES,     "This property has too many values. subject, property, count and expected value are filled")
-
+            X(TOOMANYVALUES,     "This property has too many values. subject, property, count and expected value are filled")          \
+            X(DUPLICATEDVALUESKEY, "This key has duplicated values")
         enum Type {
         #define X(a, b) a,
             ERROR_TYPE(X)
@@ -76,17 +76,29 @@ public:
         AUTORDF_ONTOLOGY_EXPORT std::string fullMessage() const;
     };
 
+    struct ValidationOption{
+        ValidationOption() : enforceObjectKeyUniqueness(false) {}
+        ValidationOption(const bool & objectKeyUniqueness) {
+            enforceObjectKeyUniqueness = objectKeyUniqueness;
+        }
+        /**
+         * Ensure that every key is unique
+         */
+        bool enforceObjectKeyUniqueness = false;
+    };
+
     /**
      * Checks all model resources are compatible with ontology
      * FIXME @param model is not used in this case. autordf::Object has the model
      */
-    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Error>> validateModel(const Model& model);
+    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Error>> validateModel(const Model& model, const ValidationOption& option = ValidationOption());
 
     /**
      * Checks this object is compatible with ontology,
      * that means all its properties are compatible with the ontology
      */
-    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object);
+    AUTORDF_ONTOLOGY_EXPORT std::shared_ptr<std::vector<Validator::Error>> validateObject(const Object& object,
+                                                                                          const ValidationOption & option = ValidationOption());
 
 private:
     std::shared_ptr<Ontology> _ontology;
@@ -112,6 +124,15 @@ private:
      * Fill the given error list with OWL errors found on the object Dataproperty
      */
     void validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>* errorList);
+
+    /**
+     * @brief validateDataKeys
+     * @param object autordf::Object to validate
+     * @param currentCLass Rdf Class to get all data property from
+     * @param errorList list of errors
+     * Fill the given error list with OWL errors found on the object KeyData
+     */
+    void validateDataKeys(const std::shared_ptr<const Klass>& currentClass, std::vector<Validator::Error>* errorList);
 
     /**
      * @brief validateObjectProperty

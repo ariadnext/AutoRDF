@@ -41,12 +41,12 @@ std::string Validator::Error::fullMessage() const {
     return str;
 }
 
-std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model&) {
+std::shared_ptr<std::vector<Validator::Error>> Validator::validateModel(const Model&, const ValidationOption& option) {
     std::vector<Validator::Error>  errorList;
-    for ( auto uriKlass : _ontology->classUri2Ptr()) {
+    for ( const auto& uriKlass : _ontology->classUri2Ptr()) {
         std::vector<Object> objects = Object::findByType(uriKlass.first);
         for (auto const& object: objects) {
-            std::shared_ptr<std::vector<Validator::Error> > objErrors = validateObject(object);
+            std::shared_ptr<std::vector<Validator::Error> > objErrors = validateObject(object, option);
             for (auto const& objError: *objErrors) {
                 errorList.push_back(objError);
             }
@@ -107,6 +107,25 @@ void Validator::validateDataProperties(const Object& object, const std::shared_p
     }
 }
 
+void Validator::validateDataKeys(const std::shared_ptr<const Klass>& currentClass,
+                                 std::vector<Validator::Error>* errorList) {
+    std::vector<Object> objList = Object::findByType(currentClass->rdfname());
+    for (auto const& dataKey: currentClass->dataKeys()) {
+        std::vector<PropertyValue> propListAll;
+        for(auto const & obj : objList) {
+            std::vector<PropertyValue> propList = obj.getPropertyValueList(dataKey->rdfname(), false);
+            propListAll.insert(propListAll.end(), propList.begin(), propList.end());
+        }
+        auto duplicated = std::adjacent_find(propListAll.begin(), propListAll.end());
+        if (duplicated != propListAll.end()) {
+            Error error(currentClass->rdfname(), dataKey->rdfname());
+            error.type = Error::DUPLICATEDVALUESKEY;
+            error.message = "\'@subject\' class key \'@property\' has the duplicated value \'" + *duplicated+ '\'';
+            errorList->push_back(error);
+        }
+    }
+}
+
 void Validator::validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>& currentClass,
                                          std::vector<Validator::Error>* errorList) {
 
@@ -116,17 +135,17 @@ void Validator::validateObjectProperties(const Object& object, const std::shared
         autordf::Uri range = objectProperty->range(currentClass.get());
         std::vector<Object> objList = object.getObjectList(objectProperty->rdfname(), false);
         Validator::Error error(object, objectProperty->rdfname());
-        error.count = objList.size();
+        error.count = (int) objList.size();
         if(objList.size() > maxCardinality) {
             error.type = error.TOOMANYVALUES;
             error.message = "\'@subject\' property \'@property\' has @count distinct values. Maximum allowed is @val";
-            error.val = maxCardinality;
+            error.val = (int) maxCardinality;
             errorList->push_back(error);
         }
         if (objList.size() < minCardinality) {
             error.type = error.NOTENOUHVALUES;
             error.message = "\'@subject\' property \'@property\' has @count distinct values. Minimum allowed is @val";
-            error.val = minCardinality;
+            error.val = (int) minCardinality;
             errorList->push_back(error);
         }
         for (auto const& subObj: objList) {
@@ -134,7 +153,7 @@ void Validator::validateObjectProperties(const Object& object, const std::shared
                 error.subject = subObj.iri().empty() ? object : subObj;
                 std::stringstream ss;
                 std::vector<PropertyValue> types = subObj.getPropertyValueList(Object::RDF_TYPE, false);
-                if (types.size()) {
+                if (!types.empty()) {
                     ss << "\'@subject\' property \'@property\' is of incompatible object type.";
                     ss << " RDF expected type is @range while provided type is {";
                     for ( auto it = types.begin(); it != types.end(); ++it ) {
@@ -157,7 +176,7 @@ void Validator::validateObjectProperties(const Object& object, const std::shared
     }
 }
 
-std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const Object& object) {
+std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const Object& object, const ValidationOption & option) {
     std::vector<Validator::Error>  errorList;
     std::vector<Uri> types = object.getTypes(_ontology->model()->baseUri());
     std::set<Klass> allKlass;
@@ -175,7 +194,9 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const O
         validateAnnotationProperties(object, klPtr, &errorList);
         validateDataProperties(object, klPtr, &errorList);
         validateObjectProperties(object, klPtr, &errorList);
-
+        if(option.enforceObjectKeyUniqueness){
+            validateDataKeys(klPtr, &errorList);
+        }
     }
     return std::make_shared<std::vector<Validator::Error>> (errorList);
 }
@@ -262,7 +283,7 @@ bool Validator::isObjectTypeValid(const autordf::Object& object, const autordf::
     } else {
         std::shared_ptr<const autordf::ontology::Klass> klass =  _ontology->findClass(type);
         if (klass != nullptr) {
-            for (auto predecessor: klass->getAllPredecessors()) {
+            for (const auto& predecessor: klass->getAllPredecessors()) {
                 if (object.isA(predecessor->rdfname())) {
                     return true;
                 }

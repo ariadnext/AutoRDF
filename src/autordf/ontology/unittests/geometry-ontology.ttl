@@ -94,6 +94,18 @@ geo:radius rdf:type owl:DatatypeProperty ;
            rdfs:comment "Shape radius"@en .
 
 
+###  http://example.org/geometry#schemaUniqueName
+geo:schemaUniqueName rdf:type owl:DatatypeProperty ;
+                     rdfs:domain geo:Schema ;
+                     rdfs:range xsd:string .
+
+
+###  http://example.org/geometry#rectangleUniqueName
+geo:rectangleUniqueName rdf:type owl:DatatypeProperty ;
+                        rdfs:domain geo:Rectangle ;
+                        rdfs:range xsd:string .
+
+
 ###  http://example.org/geometry#textColor
 geo:textColor rdf:type owl:DatatypeProperty ,
                        owl:FunctionalProperty ;
@@ -120,12 +132,6 @@ geo:x rdf:type owl:DatatypeProperty ;
 geo:y rdf:type owl:DatatypeProperty ;
       rdfs:domain geo:Point ;
       rdfs:comment "y coordinates"@en .
-
-
-###  http://example.org/geometry#schemaUniqueName
-geo:schemaUniqueName rdf:type owl:DatatypeProperty ;
-    rdfs:domain geo:Schema ;
-    rdfs:range xsd:string .
 
 
 #################################################################
@@ -179,6 +185,7 @@ geo:Rectangle rdf:type owl:Class ;
                                 owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
                                 owl:onClass geo:Point
                               ] ;
+              owl:hasKey ( geo:rectangleUniqueName ) ;
               rdfs:comment "A rectangle identified by its top-left and bottom-right coordinates"@en .
 
 
@@ -187,7 +194,14 @@ geo:Schema rdf:type owl:Class ;
            rdfs:subClassOf [ rdf:type owl:Restriction ;
                              owl:onProperty geo:hasShape ;
                              owl:someValuesFrom geo:Shape
-                           ] .
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty geo:schemaUniqueName ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onDataRange xsd:string
+                           ] ;
+           owl:hasKey ( geo:schemaUniqueName
+                      ) .
 
 
 ###  http://example.org/geometry#Shape
