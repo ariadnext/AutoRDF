@@ -156,7 +156,7 @@ TEST(_03_Object, removeSingleProperty) {
     ASSERT_THROW((obj.removePropertyValue("http://myuri/prop", "val1")), PropertyNotFound);
 }
 
-TEST(_03_Object, findByKeyProp) {
+TEST(_03_Object, findByKeyObject) {
     Factory f;
     Object::setFactory(&f);
 
@@ -165,7 +165,7 @@ TEST(_03_Object, findByKeyProp) {
     ASSERT_NO_THROW(Object::findByKey("http://xmlns.com/foaf/0.1/mbox", Object("mailto:jwales@bomis.com")));
 }
 
-TEST(_03_Object, findByKeyObject) {
+TEST(_03_Object, findByKeyProp) {
     Factory f;
     Object::setFactory(&f);
 
@@ -506,7 +506,7 @@ TEST(_03_Object, cloneReification) {
     Object obj("http://my/object");
     obj.reifyPropertyValue("http://myprop1", "1");
     Object clone = obj.cloneRecursiveStopAtResources("http://my/object2");
-    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+    ASSERT_TRUE(clone.reifiedPropertyValue("http://myprop1", "1").get());
 }
 
 TEST(_03_Object, cloneReificationViaStandardClone) {
@@ -516,7 +516,7 @@ TEST(_03_Object, cloneReificationViaStandardClone) {
     Object obj("http://my/object");
     obj.reifyPropertyValue("http://myprop1", "1");
     Object clone = obj.clone("http://my/object2");
-    ASSERT_TRUE(obj.reifiedPropertyValue("http://myprop1", "1").get());
+    ASSERT_TRUE(clone.reifiedPropertyValue("http://myprop1", "1").get());
 }
 
 TEST(_03_Object, removeObjectRecursive) {

@@ -33,6 +33,8 @@ IF("${RDF_C_API}" STREQUAL "")
     SET(RDF_C_API REDLAND)
 ENDIF()
 
+OPTION(GENERATE_PYTHON_BINDINGS "Generate python bindings" OFF)
+
 IF( "${RDF_C_API}" STREQUAL "REDLAND" )
     IF( WIN32 )
         message( FATAL_ERROR "TODO: windows redland" )
