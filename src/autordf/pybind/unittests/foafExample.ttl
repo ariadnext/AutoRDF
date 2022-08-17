@@ -1,0 +1,33 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://jimmycricket.com/me>
+    a foaf:Person ;
+    foaf:name "Jimmy Criket" .
+
+<http://www.wikimedia.org>
+    rdfs:label "Wikipedia" .
+
+[]
+    a foaf:Person ;
+    foaf:account [
+        a foaf:OnlineAccount, foaf:OnlineChatAccount ;
+        foaf:accountName "jwales" ;
+        foaf:accountServiceHomepage <http://www.freenode.net/>
+    ] ;
+    foaf:depiction <http://www.jimmywales.com/aus_img_small.jpg> ;
+    foaf:familyName "Wales" ;
+    foaf:givenName "Jimmy" ;
+    foaf:homepage <http://www.jimmywales.com/> ;
+    foaf:interest <http://www.wikimedia.org> ;
+    foaf:knows <http://jimmycricket.com/me>, [
+        a foaf:Person ;
+        foaf:name "Angela Beesley"
+    ] ;
+    foaf:mbox <mailto:jwales@bomis.com> ;
+    foaf:name "Jimmy Wales" ;
+    foaf:nick "Jimbo" ;
+    foaf:publications <http://www.jimmywales.com/pubs/publications.rdf> ;
+    foaf:title "Mr." .
+
