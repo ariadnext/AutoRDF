@@ -132,7 +132,7 @@ void ObjectProperty::generateDeclarationSetterForMany(std::ostream& ofs, const K
     methodName = "add" + _decorated.prettyIRIName(true);
     generatePropertyComment(ofs, onClass, methodName, 1,
                     "Adds a value for this property.\n"
-                            "@param value value to set for this property, removing all other values", &propertyClass);
+                            "@param value value to set for this property", &propertyClass);
     indent(ofs, 1) << currentClassName << "& " << methodName << "( const " << propertyClass.genCppNameWithNamespace(true) << "& value);" << std::endl;
 }
 

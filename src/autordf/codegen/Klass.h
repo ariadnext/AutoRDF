@@ -23,7 +23,7 @@ public:
 
     const ontology::Klass& decorated() const { return _decorated; }
 
-    std::set <std::shared_ptr<const Klass>> getClassDependencies() const;
+    std::set<Klass> getClassDependencies() const;
 
     void generateInterfaceDeclaration() const;
 
@@ -37,6 +37,9 @@ public:
     void leaveNameSpace(std::ofstream& ofs) const;
 
     Klass uri2Klass(const std::string& uri) const;
+
+    //used for sets
+    bool operator<(const Klass& other) const {return this->decorated() < other.decorated(); }
 private:
 };
 

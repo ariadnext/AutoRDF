@@ -21,6 +21,7 @@ void init_object_bind(py::module_& m) {
 
     py::class_<autordf::Object, std::shared_ptr<autordf::Object> >(m, "Object")
             // Constructors
+            // TODO find a way so that setFactory error when building links to python setFactory, not cpp one
             .def(py::init<const autordf::Uri&, const autordf::Uri&>(), py::arg("iri") = "", py::arg("rdfTypeIRI") = "")
             .def(py::init<autordf::Object const &>())
             // PropertyValue

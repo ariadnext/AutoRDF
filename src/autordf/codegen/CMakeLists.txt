@@ -6,6 +6,7 @@ ADD_EXECUTABLE(
     ObjectProperty.cpp
     Klass.cpp
     Utils.cpp
+    UtilsCommon.cpp
 )
 
 TARGET_LINK_LIBRARIES (
