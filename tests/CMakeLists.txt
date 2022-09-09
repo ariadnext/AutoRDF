@@ -26,8 +26,25 @@ target_link_libraries (
 )
 
 add_custom_target(check
-    COMMAND gtest-all --gtest_output="xml:${CMAKE_BINARY_DIR}/unittests.xml"
-    DEPENDS gtest-all)
+    DEPENDS cmd_test)
+
+ADD_CUSTOM_COMMAND(
+    OUTPUT cmd_test
+    COMMAND gtest-all --gtest_output=\"xml:${CMAKE_BINARY_DIR}/unittests.xml\"
+)
+
+if(GENERATE_PYTHON_BINDINGS)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT cmd_test APPEND
+        COMMAND LD_LIBRARY_PATH=${STAGING_PATH}/lib PYTHONPATH=${PYTHONPATH}:${STAGING_PATH}/lib python3 -m unittest ObjectUnitTests.py -vvv
+    )
+    IF(BUILD_TOOLS)
+        ADD_CUSTOM_COMMAND(
+            OUTPUT cmd_test APPEND
+            COMMAND LD_LIBRARY_PATH=${STAGING_PATH}/lib PYTHONPATH=${PYTHONPATH}:${STAGING_PATH}/lib python3 -m unittest CodegenUnitTests.py -vvv
+        )
+    endif()
+endif()
 
 add_executable(
     perftest

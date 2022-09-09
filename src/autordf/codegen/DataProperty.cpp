@@ -124,21 +124,18 @@ void DataProperty::generateDefinition(std::ostream& ofs, const Klass& onClass) c
         std::string oneCppType = rdfCppType.second.oneType;
         std::string manyCppType = rdfCppType.second.manyType;
 
-        if (_decorated.maxCardinality(onClass.decorated()) <= 1) {
-            if (_decorated.minCardinality(onClass.decorated()) > 0) {
-                // Nothing
-            } else {
-                ofs << "std::shared_ptr<" << oneCppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
-                indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
-                indent(ofs, 1) << "return (ptrval ? std::shared_ptr<" << oneCppType << ">(new " << oneCppType <<
-                               "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << oneCppType << ">())) : nullptr);" << std::endl;
-                ofs << "}" << std::endl;
-                ofs << std::endl;
-                ofs << oneCppType << " " << currentClassName << "::" << _decorated.prettyIRIName() << "(const " << oneCppType << "& defaultval) const {" << std::endl;
-                indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
-                indent(ofs, 1) << "return (ptrval ? ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << oneCppType << ">() : defaultval);" << std::endl;
-                ofs << "}" << std::endl;
-            }
+        if (_decorated.maxCardinality(onClass.decorated()) == 1 &&
+            _decorated.minCardinality(onClass.decorated()) == 0) {
+            ofs << "std::shared_ptr<" << oneCppType << "> " << currentClassName << "::" << _decorated.prettyIRIName() << "Optional() const {" << std::endl;
+            indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
+            indent(ofs, 1) << "return (ptrval ? std::shared_ptr<" << oneCppType << ">(new " << oneCppType <<
+                           "(ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << oneCppType << ">())) : nullptr);" << std::endl;
+            ofs << "}" << std::endl;
+            ofs << std::endl;
+            ofs << oneCppType << " " << currentClassName << "::" << _decorated.prettyIRIName() << "(const " << oneCppType << "& defaultval) const {" << std::endl;
+            indent(ofs, 1) << "auto ptrval = object().getOptionalPropertyValue(\"" << _decorated.rdfname() << "\");" << std::endl;
+            indent(ofs, 1) << "return (ptrval ? ptrval->get<autordf::cvt::RdfTypeEnum::" << cvt::rdfTypeEnumString(rdfType) << ", " << oneCppType << ">() : defaultval);" << std::endl;
+            ofs << "}" << std::endl;
         }
         if (_decorated.maxCardinality(onClass.decorated()) > 1) {
             ofs << manyCppType << " " << currentClassName << "::" << _decorated.prettyIRIName() << "List() const {" << std::endl;

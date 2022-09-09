@@ -7,6 +7,7 @@
 #include <iterator>
 
 #include "Utils.h"
+#include <autordf/codegen/UtilsCommon.h>
 
 namespace autordf {
 namespace codegen {
@@ -159,12 +160,12 @@ void Klass::generateInterfaceDeclaration() const {
     ofs << std::endl;
 
     //get forward declarations
-    std::set<std::shared_ptr<const Klass> > cppClassDeps = getClassDependencies();
-    for ( const std::shared_ptr<const Klass>& cppClassDep : cppClassDeps ) {
-        cppClassDep->enterNameSpace(ofs);
-        ofs << "class " << cppClassDep->decorated().prettyIRIName() << ";" << std::endl;
-        ofs << "class I" << cppClassDep->decorated().prettyIRIName() << ";" << std::endl;
-        cppClassDep->leaveNameSpace(ofs);
+    std::set<Klass> cppClassDeps = getClassDependencies();
+    for (auto const& cppClassDep : cppClassDeps) {
+        cppClassDep.enterNameSpace(ofs);
+        ofs << "class " << cppClassDep.decorated().prettyIRIName() << ";" << std::endl;
+        ofs << "class I" << cppClassDep.decorated().prettyIRIName() << ";" << std::endl;
+        cppClassDep.leaveNameSpace(ofs);
     }
     // Add forward declaration for our own class
     enterNameSpace(ofs);
@@ -312,9 +313,9 @@ void Klass::generateInterfaceDefinition() const {
     ofs << std::endl;
 
     // Generate class imports
-    std::set<std::shared_ptr<const Klass> > cppDeps = getClassDependencies();
-    for ( const std::shared_ptr<const Klass>& cppDep : cppDeps ) {
-        ofs << "#include <" << cppDep->genCppNameSpaceInclusionPath() << "/" << cppDep->decorated().prettyIRIName() << ".h>" << std::endl;
+    auto cppDeps = getClassDependencies();
+    for ( auto const& cppDep : cppDeps ) {
+        ofs << "#include <" << cppDep.genCppNameSpaceInclusionPath() << "/" << cppDep.decorated().prettyIRIName() << ".h>" << std::endl;
     }
     // Include our own class
     ofs << "#include <" << genCppNameSpaceInclusionPath() << "/" << _decorated.prettyIRIName() << ".h>" << std::endl;
@@ -390,8 +391,8 @@ void Klass::generateInterfaceDefinition() const {
     stopInternal(ofs);
 }
 
-std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
-    std::set<std::shared_ptr<const Klass> > deps;
+std::set<Klass> Klass::getClassDependencies() const {
+    std::set<Klass> deps;
     std::set<std::shared_ptr<const ontology::ObjectProperty> > objects;
 
     std::copy(_decorated.objectProperties().begin(), _decorated.objectProperties().end(), std::inserter(objects, objects.begin()));
@@ -401,10 +402,10 @@ std::set<std::shared_ptr<const Klass> > Klass::getClassDependencies() const {
         auto val = p->findClass(&_decorated);
         if ( val ) {
             if ( val->prettyIRIName() != _decorated.prettyIRIName() ) {
-                deps.insert(std::shared_ptr<Klass>(new Klass(*val.get())));
+                deps.emplace(*val);
             }
         } else {
-            deps.insert(std::shared_ptr<Klass>(new Klass(*_decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing"))));
+            deps.emplace(*(_decorated.ontology()->findClass(autordf::ontology::Ontology::OWL_NS + "Thing")));
         }
     }
 
