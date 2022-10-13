@@ -498,6 +498,32 @@ public:
     }
 
     /**
+     * Find all objects with the given iri
+     */
+    static std::set<autordf::Object> findByIri(const Uri& iri, Factory* f = nullptr) {
+        if(nullptr == f) {
+            f = factory();
+        }
+        std::set<autordf::Object> objList;
+
+        /* Search on the subjects. */
+        Statement subjectQuery;
+        subjectQuery.subject.setIri(iri);
+        for(const Statement& stmt : f->find(subjectQuery)) {
+            objList.insert(f->createResourceFromNode(stmt.subject));
+        }
+
+        /* Search on the objects. */
+        Statement objectQuery;
+        objectQuery.object.setIri(iri);
+        for(const Statement& stmt : f->find(objectQuery)) {
+            objList.insert(f->createResourceFromNode(stmt.object));
+        }
+
+        return objList;
+    }
+
+    /**
      * Offered to interfaces
      * @throw InvalidIRI if propertyIRI is empty
      */
