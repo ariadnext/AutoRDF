@@ -68,17 +68,29 @@ ENDIF()
 
 IF(GENERATE_PYTHON_BINDINGS)
     find_package(pybind11 REQUIRED)
-    FILE(GLOB AUTORDF_PY_SOURCES ${PROJECT_SOURCE_DIR}/src/autordf/pybind/*.cpp)
+    FILE(GLOB AUTORDF_PY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/pybind/*.cpp)
     pybind11_add_module(autordf_py ${AUTORDF_PY_SOURCES})
     target_link_libraries(autordf_py autordf)
 
     INSTALL(TARGETS autordf_py DESTINATION ${CMAKE_INSTALL_LIBDIR})
     IF(${BUILD_TESTS} STREQUAL "1")
-        FILE(GLOB PYBIND_TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/autordf/pybind/unittests/*.py
-            ${PROJECT_SOURCE_DIR}/src/autordf/pybind/unittests/*.ttl)
+        FILE(GLOB PYBIND_TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/pybind/unittests/*.py
+            ${CMAKE_CURRENT_SOURCE_DIR}/pybind/unittests/*.ttl)
         message("${PYBIND_TEST_SOURCES}")
         INSTALL(FILES ${PYBIND_TEST_SOURCES} DESTINATION ${CMAKE_BINARY_DIR}/tests/)
     ENDIF()
+
+    # Generating Python Wheel
+    FIND_PACKAGE(Python REQUIRED)
+
+    ADD_CUSTOM_COMMAND(TARGET autordf_py
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E env PREBUILT_FILE=$<TARGET_FILE:autordf_py> ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/setup.py bdist_wheel
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/dist
+        )
+
+    INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dist DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 ENDIF()
 INSTALL(TARGETS autordf DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ADD_SUBDIRECTORY(ontology)
