@@ -109,16 +109,27 @@ void Validator::validateDataProperties(const Object& object, const std::shared_p
 
 void Validator::validateDataKeys(const std::shared_ptr<const Klass>& currentClass,
                                  std::vector<Validator::Error>* errorList) {
+    auto dataKeys = currentClass->dataKeys();
+    if (dataKeys.empty()) {
+        return;
+    }
     std::vector<Object> objList = Object::findByType(currentClass->rdfname());
-    for (auto const& dataKey: currentClass->dataKeys()) {
-        std::vector<PropertyValue> propListAll;
-        for(auto const & obj : objList) {
-            std::vector<PropertyValue> propList = obj.getPropertyValueList(dataKey->rdfname(), false);
-            propListAll.insert(propListAll.end(), propList.begin(), propList.end());
+    std::map<Uri, std::list<PropertyValue>> propListAll;
+
+    for(auto const & obj : objList) {
+        for (auto const& dataKey: dataKeys) {
+            std::vector<PropertyValue> propListCurrent = obj.getPropertyValueList(dataKey->rdfname(), false);
+            auto &propList = propListAll[dataKey->rdfname()];
+            propList.insert(propList.end(), propListCurrent.begin(), propListCurrent.end());
+
         }
-        auto duplicated = std::adjacent_find(propListAll.begin(), propListAll.end());
-        if (duplicated != propListAll.end()) {
-            Error error(currentClass->rdfname(), dataKey->rdfname());
+    }
+
+    for(auto & prop : propListAll) {
+        prop.second.sort();
+        auto duplicated = std::adjacent_find(prop.second.begin(), prop.second.end());
+        if (duplicated != prop.second.end()) {
+            Error error(currentClass->rdfname(), prop.first);
             error.type = Error::DUPLICATEDVALUESKEY;
             error.message = "\'@subject\' class key \'@property\' has the duplicated value \'" + *duplicated+ '\'';
             errorList->push_back(error);

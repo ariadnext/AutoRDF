@@ -163,7 +163,7 @@ TEST_F(ValidatorTest, UniqueKeyValidator) {
 }
 
 TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
-    const Object obj("http://example.org/geometry#schema2");
+    const Object obj("http://example.org/geometry#schema1");
 
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj);
     EXPECT_EQ(0, errors->size());
@@ -183,7 +183,7 @@ TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
 }
 
 TEST_F(ValidatorTest, UniqueKeyValidatorFailForOtherInstance) {
-    const Object obj("http://example.org/geometry#schema1");
+    const Object obj("http://example.org/geometry#schema2");
 
     Validator::ValidationOption option = {true};
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj, option);
