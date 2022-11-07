@@ -12,12 +12,12 @@
 
 :schema1
     geo:shape <rectangle>;
-    geo:schemaUniqueName "schema1Key";
+    geo:schemaUniqueName "sharedSchemaKey";
 a geo:Schema .
 
 :schema2
     geo:shape <rectangle>;
-    geo:schemaUniqueName "sharedSchemaKey";
+    geo:schemaUniqueName "schema2Key";
 a geo:Schema .
 
 :schema2repeated
