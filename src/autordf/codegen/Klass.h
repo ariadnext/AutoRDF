@@ -1,48 +1,86 @@
-#ifndef AUTORDF_CODEGEN_KLASS_H
-#define AUTORDF_CODEGEN_KLASS_H
+#pragma once
 
-#include <set>
-#include <map>
 #include <memory>
-#include <string>
 
-#include "RdfsEntity.h"
-#include "DataProperty.h"
-#include "ObjectProperty.h"
+#include <inja/inja.hpp>
 
-#include <autordf/ontology/Klass.h>
-#include "RdfsEntity.h"
+#include "autordf/ontology/Klass.h"
 
 namespace autordf {
 namespace codegen {
-
-class Klass : public RdfsEntity {
-    const ontology::Klass& _decorated;
+/**
+ * This class wrap around the ontology Klass to add the functions dedicated to code generation.
+ * Inherit to generate classes in another language
+ */
+class Klass {
 public:
-    Klass(const ontology::Klass& decorated) : RdfsEntity(decorated), _decorated(decorated) {}
+    /**
+     * Constructs a class for rendering
+     *
+     * @param ontology the class ontology
+     * @param renderer the renderer to use to render this class
+     */
+    Klass(const ontology::Klass& ontology, inja::Environment& renderer);
 
-    const ontology::Klass& decorated() const { return _decorated; }
+    /**
+     * Constructs a class for use as a dependency
+     *
+     * @param ontology the class ontology
+     */
+    explicit Klass(const ontology::Klass& ontology);
 
-    std::set<Klass> getClassDependencies() const;
+    virtual ~Klass() = default;
 
-    void generateInterfaceDeclaration() const;
+    /**
+     * Builds the Json representation of the class ontology
+     */
+    void buildTemplateData(bool withDependency = true);
 
-    void generateInterfaceDefinition() const;
+    /**
+     * Gives the Json representation of the class ontology
+     *
+     * @return the Json representation of the class ontology
+     * @see https://confluence.rennes.ariadnext.com/display/OCR/AutoRDF+template+system
+     */
+    nlohmann::json templateData() const {
+        return _templateData;
+    }
 
-    void generateDeclaration() const;
+    /**
+     * Implement this function for your target language
+     */
+    virtual void generate() const = 0;
 
-    void generateDefinition() const;
+    std::string className() const;
+    std::string interfaceName() const;
+    std::string packagePath() const;
+    std::string basePackageName() const;
+    std::string fullPackageName() const;
 
-    void enterNameSpace(std::ofstream& ofs) const;
-    void leaveNameSpace(std::ofstream& ofs) const;
+protected:
+    mutable inja::Environment _renderer;
+    std::string _interfacePrefix = "I";
+    std::string _packageSeparator = "::";
+    std::string _pathSeparator = "/";
 
-    Klass uri2Klass(const std::string& uri) const;
-
-    //used for sets
-    bool operator<(const Klass& other) const {return this->decorated() < other.decorated(); }
 private:
-};
+    const ontology::Klass& _ontology;
+    nlohmann::json _templateData;
 
+    virtual std::unique_ptr<Klass> buildDependency(const ontology::Klass& ontology) const = 0;
+    void buildDependencies();
+    void buildAnnotations();
+    void buildDataProperties();
+    void buildObjectProperties();
+    void buildOneOfValues();
+    void buildAncestors();
+
+    nlohmann::json buildProperty(const ontology::Property& property) const;
+    nlohmann::json buildPropertyKlass(const ontology::Property& property) const;
+    nlohmann::json buildCommentSection(const ontology::RdfsEntity& input) const;
+    nlohmann::json buildComment(const std::vector<PropertyValue>& input) const;
+
+    nlohmann::json getPrefix() const;
+};
 }
 }
-#endif //AUTORDF_CODEGEN_KLASS_H
