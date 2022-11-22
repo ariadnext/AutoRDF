@@ -1,5 +1,5 @@
     """
-    @brief This method {{ fullClassName }}.findBy{{ capitalize(property.name) }} returns the only instance of {{ rdfName }} with property {{ property.rdfName }} set to given value.
+    @brief This method {{ fullClassName }}.findBy{{ capitalize(key.name) }} returns the only instance of {{ rdfName }} with property {{ key.rdfName }} set to given value.
 
     @param key value that uniquely identifies the expected object
 
@@ -7,5 +7,5 @@
     @throw ObjectNotFound if no object has given property with value
     """
     @staticmethod
-    def findBy{{ capitalize(property.name) }}(key):
-        return autordf_py.Object.findByKey("{{ property.rdfName }}", key)
+    def findBy{{ capitalize(key.name) }}(key):
+        return autordf_py.Object.findByKey("{{ key.rdfName }}", key)
