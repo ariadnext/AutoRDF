@@ -290,27 +290,22 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
 Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false) {
 }
 
-const char * guessFormat(const std::string& path) {
+std::string guessFormat(const std::string& path) {
     if(path.size() <= 3) {
         throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
     }
     const std::string ext = path.substr(path.length() - 3);
-    const char * format = nullptr;
     if ( ext == "ttl" ) {
-        format = "turtle";
+        return "turtle";
     } else if ( ext == ".nt" ) {
-        format = "ntriples";
+        return "ntriples";
     }
 
-    if ( !format ) {
-        throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
-    }
-
-    return format;
+    throw UnsupportedRdfFileFormat("Unable to deduce format from file save name");
 }
 
 void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
-    const char *format = guessFormat(path);
+    const std::string format = guessFormat(path);
     FILE *f = ::fopen(path.c_str(), "r");
     if ( !f ) {
         std::stringstream ss;
@@ -318,7 +313,7 @@ void Model::loadFromFile(const std::string& path, const std::string& baseIRI) {
         throw FileIOError(ss.str().c_str());
     }
     try {
-        loadFromFile(f, format, baseIRI, path);
+        loadFromFile(f, format.c_str(), baseIRI, path);
     }
     catch(...) {
         ::fclose(f);
@@ -392,8 +387,9 @@ void Model::loadFromFile(FILE *fileHandle, const char *format, const std::string
     extractBaseURI(this, env, baseIRI);
 }
 
-void Model::saveToFile(const std::string& path, const std::string& baseIRI, bool enforceRepeatable, const char *format) {
-    if ( !format ) {
+
+void Model::saveToFile(const std::string& path, const std::string& baseIRI, bool enforceRepeatable, std::string format) {
+    if ( format.empty() ) {
         format = guessFormat(path);
     }
     FILE *f = ::fopen(path.c_str(), "w");
@@ -403,7 +399,7 @@ void Model::saveToFile(const std::string& path, const std::string& baseIRI, bool
         throw FileIOError(ss.str().c_str());
     }
     try {
-        saveToFile(f, format, baseIRI, enforceRepeatable);
+        saveToFileHandle(f, format.c_str(), baseIRI, enforceRepeatable);
     }
     catch(...) {
         ::fclose(f);
@@ -451,7 +447,7 @@ void saveToWriter(Model *m, SordModel *sord, const char *format, const std::stri
     sord_write(sord, writer.get(), nullptr);
 }
 
-void Model::saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI, bool) {
+void Model::saveToFileHandle(FILE *fileHandle, const char *format, const std::string& baseIRI, bool) {
     saveToWriter(this, _model->get(), format, baseIRI, serd_file_sink, fileHandle);
 }
 

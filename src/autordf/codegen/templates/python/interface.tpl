@@ -6,7 +6,7 @@ import autordf_py
 from enum import Enum
 {% endif %}
 {% for dep in dependencies %}
-import {{ dep.fullClassName }}
+from {{ dep.fullClassName }} import {{ dep.className }}
 {% endfor %}
 
 
@@ -25,7 +25,7 @@ class {{ interfaceName }}(autordf_py.Object):
     {% endfor %}
     ENUMARRAY = [
     {% for oneOf in oneOfValues %}
-        (InternalEnum.{{ oneOf.name }}, "{{ oneOf.rdfName }}", "{{ oneOf.name }}")
+        (InternalEnum.{{ oneOf.name }}, "{{ oneOf.rdfName }}", "{{ oneOf.name }}"),
     {% endfor %}
     ]
 
@@ -63,7 +63,7 @@ class {{ interfaceName }}(autordf_py.Object):
     @param enumVal enum value
     @return enum value converted as string
     """
-    @classmethod"
+    @classmethod
     def enumString(cls, enumVal):
         return cls.enumVal2Entry(enumVal)[2]
 
@@ -93,21 +93,6 @@ class {{ interfaceName }}(autordf_py.Object):
     """This type {{ fullInterfaceName }} has IRI {{ rdfName }}"""
     TYPEIRI = "{{ rdfName }}"
 
-{% for annotationKey in annotationKeys %}
-    {% set key = annotationKey %}
-    {% include "data_property/key.tpl" %}
-
-{% endfor %}
-{% for dataKey in dataKeys %}
-    {% set key = dataKey %}
-    {% include "data_property/key.tpl" %}
-
-{% endfor %}
-{% for objectKey in objectKeys %}
-    {% set key = objectKey %}
-    {% include "object_property/key.tpl" %}
-
-{% endfor %}
 {% for annotationProperty in annotationProperties %}
     {% set property = annotationProperty %}
     {% include "data_property/data_property.tpl" %}

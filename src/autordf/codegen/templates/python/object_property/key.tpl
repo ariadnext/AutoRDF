@@ -5,6 +5,6 @@
     @throw DuplicateObject if more than one object have the same property value
     @throw ObjectNotFound if no object has given property with value
     """
-    i@staticmethod
+    @staticmethod
     def findBy{{ capitalize(key.name) }}(key):
         return {{ className }}(other=autordf_py.Object.findByKey("{{ key.rdfName }}", key))
