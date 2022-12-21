@@ -1,7 +1,6 @@
 #ifndef AUTORDF_TRIPLESTORE_H
 #define AUTORDF_TRIPLESTORE_H
 
-#include <string>
 #include <memory>
 #include <map>
 #include <list>
@@ -95,7 +94,7 @@ public:
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    AUTORDF_EXPORT void saveToFile(const std::string& path, const std::string& baseIRI = "", bool enforceRepeatable = false, const char *format = 0);
+    AUTORDF_EXPORT void saveToFile(const std::string& path, const std::string& baseIRI = "", bool enforceRepeatable = false, std::string format = {});
 
     /**
      * Save model to file.
@@ -110,7 +109,7 @@ public:
      * @throw UnsupportedRdfFileFormat if format is not recognized
      * @throw InternalError if for some strange reason data serialization failed
      */
-    AUTORDF_EXPORT void saveToFile(FILE *fileHandle, const char *format, const std::string& baseIRI = "", bool enforceRepeatable = false);
+    AUTORDF_EXPORT void saveToFileHandle(FILE *fileHandle, const char *format, const std::string& baseIRI = "", bool enforceRepeatable = false);
 
     /**
      * Saves model into memory

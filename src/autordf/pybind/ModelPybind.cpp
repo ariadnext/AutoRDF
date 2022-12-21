@@ -13,5 +13,6 @@ void init_model_bind(py::module_& m) {
             // To change if we get to cpp14
             .def("loadFromFile", static_cast<void (autordf::Model::*)(const std::string&, const std::string&)>(&autordf::Model::loadFromFile),
                  py::arg("path"), py::arg("baseIRI") = "")
+            .def("saveToFile", &autordf::Model::saveToFile)
             .def("addNamespacePrefix", &autordf::Model::addNamespacePrefix);
 }

@@ -44,5 +44,20 @@ class {{ className }}({% for ancestor in ancestors %}{{ ancestor.interfaceName }
     @staticmethod
     def find():
         return [{{ className }}(other=found) for found in autordf_py.Object.findByType({{ interfaceName }}.TYPEIRI)]
+{% for annotationKey in annotationKeys %}
+    {% set key = annotationKey %}
+    {% include "data_property/key.tpl" %}
+
+{% endfor %}
+{% for dataKey in dataKeys %}
+    {% set key = dataKey %}
+    {% include "data_property/key.tpl" %}
+
+{% endfor %}
+{% for objectKey in objectKeys %}
+    {% set key = objectKey %}
+    {% include "object_property/key.tpl" %}
+
+{% endfor %}
 
 """@endcond internal"""

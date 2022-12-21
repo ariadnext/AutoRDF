@@ -8,4 +8,4 @@
     """
     @staticmethod
     def findBy{{ capitalize(key.name) }}(key):
-        return autordf_py.Object.findByKey("{{ key.rdfName }}", key)
+        return {{ className }}(other=autordf_py.Object.findByKey("{{ key.rdfName }}", key))
