@@ -168,7 +168,7 @@ TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj);
     EXPECT_EQ(0, errors->size());
 
-    Validator::ValidationOption option = {true};
+    Validator::ValidationOption option(true, false);
     errors = validator->validateObject(obj, option);
     ASSERT_EQ(1, errors->size());
     EXPECT_EQ(Validator::Error::DUPLICATEDVALUESKEY, errors->at(0).type);
@@ -185,18 +185,28 @@ TEST_F(ValidatorTest, UniqueKeyValidatorFail) {
 TEST_F(ValidatorTest, UniqueKeyValidatorFailForOtherInstance) {
     const Object obj("http://example.org/geometry#schema2");
 
-    Validator::ValidationOption option = {true};
+    Validator::ValidationOption option(true, false);
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj, option);
     ASSERT_EQ(1, errors->size());
     EXPECT_EQ(Validator::Error::DUPLICATEDVALUESKEY, errors->at(0).type);
     EXPECT_EQ("\'Schema\' class key \'schemaUniqueName\' has the duplicated value \'sharedSchemaKey\'", errors->at(0).fullMessage());
 }
 
+TEST_F(ValidatorTest, DomainErrors) {
+    const Object obj("http://example.org/geometry#schema2");
+
+    Validator::ValidationOption option(false, true);
+    std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateObject(obj, option);
+    ASSERT_EQ(2, errors->size());
+    EXPECT_EQ(Validator::Error::INVALIDDOMAIN, errors->at(0).type);
+    EXPECT_EQ("Thing class should be in the 'AutoRDF:ordered' domain", errors->at(0).fullMessage());
+}
+
 TEST_F(ValidatorTest, ModelValidator) {
-    Validator::ValidationOption option = {true};
+    Validator::ValidationOption option(true, true);
     std::shared_ptr<std::vector<Validator::Error>> errors = validator->validateModel(factory, option);
     dumpErrors(errors);
-    EXPECT_EQ(19, errors->size());
+    EXPECT_EQ(64, errors->size());
 
     errors = validator->validateModel(factory);
     dumpErrors(errors);

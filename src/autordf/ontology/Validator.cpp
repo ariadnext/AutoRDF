@@ -92,18 +92,23 @@ void Validator::validatePropertyValue(const Object& object, const std::shared_pt
 }
 
 void Validator::validateAnnotationProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
-                                       std::vector<Validator::Error>* errorList) {
+                                       std::vector<Validator::Error>* errorList, const ValidationOption& option) {
 
     for (auto const &annotationProperty: currentCLass->annotationProperties()) {
         validatePropertyValue(object, currentCLass, annotationProperty, errorList);
+        if (option.enforceExplicitDomains) {
+            validateDomainProperties(object, currentCLass, annotationProperty, errorList);
+        }
     }
 }
 
 void Validator::validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
-                                       std::vector<Validator::Error>* errorList) {
-
+                                       std::vector<Validator::Error>* errorList, const ValidationOption& option) {
     for (auto const &dataProperty: currentCLass->dataProperties()) {
         validatePropertyValue(object, currentCLass, dataProperty, errorList);
+        if (option.enforceExplicitDomains) {
+            validateDomainProperties(object, currentCLass, dataProperty, errorList);
+        }
     }
 }
 
@@ -137,10 +142,26 @@ void Validator::validateDataKeys(const std::shared_ptr<const Klass>& currentClas
     }
 }
 
+void Validator::validateDomainProperties(const Object& object, const std::shared_ptr<const Klass>& currentClass,
+                                         const std::shared_ptr<Property>& property, std::vector<Validator::Error> *errorList) {
+    Validator::Error error(object, property->rdfname());
+    // Verify that the class is in the property domain list
+    auto domains = property->domains();
+    if (std::find(domains.begin(), domains.end(), currentClass->rdfname()) == domains.end()) {
+        error.type = Error::INVALIDDOMAIN;
+        error.message = currentClass->rdfname().prettyName()
+                        + " class should be in the \'@property\' domain";
+        errorList->push_back(error);
+    }
+}
+
 void Validator::validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>& currentClass,
-                                         std::vector<Validator::Error>* errorList) {
+                                         std::vector<Validator::Error>* errorList, const ValidationOption& option) {
 
     for (auto const& objectProperty: currentClass->objectProperties()) {
+        if (option.enforceExplicitDomains) {
+            validateDomainProperties(object, currentClass, objectProperty, errorList);
+        }
         unsigned int maxCardinality = objectProperty->maxCardinality(*currentClass);
         unsigned int minCardinality = objectProperty->minCardinality(*currentClass);
         autordf::Uri range = objectProperty->range(currentClass.get());
@@ -202,10 +223,10 @@ std::shared_ptr<std::vector<Validator::Error>> Validator::validateObject(const O
     }
     for(const Klass& kl : allKlass ) {
         auto klPtr = std::make_shared<const Klass>(kl);
-        validateAnnotationProperties(object, klPtr, &errorList);
-        validateDataProperties(object, klPtr, &errorList);
-        validateObjectProperties(object, klPtr, &errorList);
-        if(option.enforceObjectKeyUniqueness){
+        validateAnnotationProperties(object, klPtr, &errorList, option);
+        validateDataProperties(object, klPtr, &errorList, option);
+        validateObjectProperties(object, klPtr, &errorList, option);
+        if (option.enforceObjectKeyUniqueness) {
             validateDataKeys(klPtr, &errorList);
         }
     }

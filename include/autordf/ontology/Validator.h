@@ -30,7 +30,8 @@ public:
             X(INVALIDTYPE,       "Rdf type of object is not allowed. subject, property are filled") \
             X(NOTENOUHVALUES,    "This property does not have enough values - subject, property, count and expected value are filled") \
             X(TOOMANYVALUES,     "This property has too many values. subject, property, count and expected value are filled")          \
-            X(DUPLICATEDVALUESKEY, "This key has duplicated values")
+            X(DUPLICATEDVALUESKEY, "This key has duplicated values")  \
+            X(INVALIDDOMAIN, "This property has the wrong domain")
         enum Type {
         #define X(a, b) a,
             ERROR_TYPE(X)
@@ -77,14 +78,19 @@ public:
     };
 
     struct ValidationOption{
-        ValidationOption() : enforceObjectKeyUniqueness(false) {}
-        ValidationOption(const bool & objectKeyUniqueness) {
+        ValidationOption() : enforceObjectKeyUniqueness(false), enforceExplicitDomains(false) {}
+        explicit ValidationOption(const bool & objectKeyUniqueness, const bool & explicitDomains = false) {
             enforceObjectKeyUniqueness = objectKeyUniqueness;
+            enforceExplicitDomains = explicitDomains;
         }
         /**
          * Ensure that every key is unique
          */
         bool enforceObjectKeyUniqueness = false;
+        /**
+         * Ensure that domains are correctly set for all properties
+         */
+        bool enforceExplicitDomains = false;
     };
 
     /**
@@ -114,7 +120,8 @@ private:
     void validatePropertyValue(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
                                const std::shared_ptr<Property>& property, std::vector<Validator::Error>* errorList);
 
-    void validateAnnotationProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>* errorList);
+    void validateAnnotationProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
+                                      std::vector<Validator::Error>* errorList, const ValidationOption& option);
 
     /**
      * @brief validateDataProperties
@@ -123,7 +130,8 @@ private:
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object Dataproperty
      */
-    void validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass, std::vector<Validator::Error>* errorList);
+    void validateDataProperties(const Object& object, const std::shared_ptr<const Klass>& currentCLass,
+                                std::vector<Validator::Error>* errorList, const ValidationOption& option);
 
     /**
      * @brief validateDataKeys
@@ -135,13 +143,24 @@ private:
     void validateDataKeys(const std::shared_ptr<const Klass>& currentClass, std::vector<Validator::Error>* errorList);
 
     /**
+     * @brief validateDomainProperties
+     * @param object autordf::Object to validate
+     * @param currentCLass Rdf Class to get all data property from
+     * @param errorList list of errors
+     * Fill the given error list with OWL errors found on a domain of a property
+     */
+    void validateDomainProperties(const Object& object, const std::shared_ptr<const Klass>& currentClass,
+                                      const std::shared_ptr<Property>& property, std::vector<Validator::Error> *errorList);
+
+    /**
      * @brief validateObjectProperty
      * @param object autordf::Object to validate
      * @param currentCLass Rdf Class to get all data property from
      * @param errorList list of errors
      * Fill the given error list with OWL errors found on the object's objectProperties
      */
-    void validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>&, std::vector<Validator::Error>* errorList);
+    void validateObjectProperties(const Object& object, const std::shared_ptr<const Klass>&,
+            std::vector<Validator::Error>* errorList, const ValidationOption& option);
 
     /**
      * @brief isDataTypeValid
