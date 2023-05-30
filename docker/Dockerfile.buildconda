@@ -2,6 +2,14 @@ FROM gitlab.rennes.ariadnext.com:4567/ocr-docker-utils/axt-certs:latest as axt-c
 
 FROM registry.rennes.ariadnext.com/docker-hub/debian:bullseye
 
+# Define arguments
+ARG irma_rsa
+ARG irma_rsa_pub
+ARG known_hosts
+
+# Create directory for keyring
+RUN mkdir -p /docker/keyring
+
 
 # Install some basic tools
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
@@ -63,6 +71,14 @@ RUN groupadd --gid $USER_GID $USERNAME && \
 
 #Create SSH Dir for current user
 RUN mkdir /home/$USERNAME/.ssh/
+
+# Write the content of variables into files
+RUN echo "$irma_rsa" > /home/$USERNAME/.ssh/id_rsa \
+    && echo "$irma_rsa_pub" > /home/$USERNAME/.ssh/id_rsa.pub \
+    && echo "$known_hosts" > /home/$USERNAME/.ssh/known_hosts
+
+RUN chmod -R 600 /home/$USERNAME/.ssh/id_rsa*
+RUN chown $USERNAME:$USERNAME -R /home/$USERNAME/.ssh/
 
 
 

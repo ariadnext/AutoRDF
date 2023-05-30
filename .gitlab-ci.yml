@@ -12,7 +12,10 @@ stages:
 setup-builder:
   stage: setup-builder
   script:
-    - echo "Setup Builder"
+    - echo $IRMA_RSA
+    - echo $IRMA_RSA_PUB
+    - echo $KNOWN_HOSTS
+    - docker build --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
   tags:
   - ocr
   - docker
