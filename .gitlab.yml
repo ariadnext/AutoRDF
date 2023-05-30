@@ -1,0 +1,26 @@
+stages:
+  - setup-builder
+  - conda-build
+  - deploy
+
+.wget_common: &wget-common
+  - echo -e "\e[0Ksection_start:$(date +%s):wget_common[collapsed=true]\r\e[0Kwget common.sh - $(date)"
+  - wget -O tmp.sh https://gitlab.rennes.ariadnext.com/ocr-docker-utils/common-tools/raw/master/common.sh && source tmp.sh && rm tmp.sh
+  - echo -e "\e[0Ksection_end:$(date +%s):wget_common\r\e[0K"
+
+
+setup-builder:
+  stage: setup-builder
+  script:
+    - echo "Setup Builder"
+
+conda-build:
+  stage: conda-build
+  script:
+    - echo "Conda Build Recipe"
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploy"
+
