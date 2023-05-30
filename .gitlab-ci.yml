@@ -14,8 +14,8 @@ setup-builder:
   script:
     - echo "Setup Builder"
   tags:
-  - ocr-3
-  - irma
+  - ocr
+  - docker
   - shell
 
 
@@ -24,8 +24,8 @@ conda-build:
   script:
     - echo "Conda Build Recipe"
   tags:
-    - ocr-3
-    - irma
+    - ocr
+    - docker
     - shell
 
 deploy:
@@ -33,6 +33,6 @@ deploy:
   script:
     - echo "Deploy"
   tags:
-    - ocr-3
-    - irma
+    - ocr
+    - docker
     - shell
