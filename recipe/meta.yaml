@@ -1,0 +1,27 @@
+package:
+  name: autordf
+  version: '1.0.0'
+
+source:
+  path: ../
+
+requirements:
+   build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - boost
+    - pybind11
+    - cmake
+    - pkg-config
+   host:
+    - python
+   run:
+    - python
+
+test:
+  imports:
+    - autordf_py
+
+about:
+  home: 'https://github.com/ariadnext/AutoRDF'
+  summary: 'AutoRDF Python binding'
