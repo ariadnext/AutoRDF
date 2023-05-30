@@ -11,7 +11,7 @@
 
     "remoteUser": "${localEnv:USER}",
     "containerUser": "${localEnv:USER}",
-
+    "mounts":["source=${localEnv:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind"],
     "customizations": {
         "vscode": {
             "extensions": [
