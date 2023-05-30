@@ -1,0 +1,78 @@
+FROM gitlab.rennes.ariadnext.com:4567/ocr-docker-utils/axt-certs:latest as axt-certs
+
+FROM registry.rennes.ariadnext.com/docker-hub/debian:bullseye
+
+
+# Install some basic tools
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
+    curl \
+    git \
+    sudo \
+    unzip \
+    wget \
+    bash \
+    ssh \
+    build-essential \
+    clang \
+    clang-tools \
+    clangd \
+    llvm \
+    llvm-11-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+
+#Set Clang as the default compiler
+RUN update-alternatives --set c++ /usr/bin/clang++
+
+
+
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
+    python3-distutils \
+    python3.9-dev \
+    python3-pip
+
+# Set environment variables for using Conda
+ENV MINICONDA_VERSION latest
+ENV CONDA_DIR /opt/miniconda
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+# Install necessary tools and Miniconda
+RUN apt-get update && \
+    apt-get install -y wget bash && \
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniconda.sh && \
+    apt-get purge -y --auto-remove wget && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN conda install -y conda-build
+
+RUN pip3 install setuptools
+
+# Create the non-root user
+ARG USERNAME=developer
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME && \
+    useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
+    # Add sudo support
+    echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME
+
+#Create SSH Dir for current user
+RUN mkdir /home/$USERNAME/.ssh/
+
+
+
+USER $USERNAME
+
+# Set the working directory
+WORKDIR /home/$USERNAME
+
+CMD [ "bash" ]
+
+
+
+
