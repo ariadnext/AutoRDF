@@ -72,33 +72,13 @@ IF(GENERATE_PYTHON_BINDINGS)
     pybind11_add_module(autordf_py ${AUTORDF_PY_SOURCES})
     target_link_libraries(autordf_py autordf)
 
-    INSTALL(TARGETS autordf_py DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    INSTALL(TARGETS autordf_py DESTINATION ${PYTHON_SITE_PACKAGE})
     IF(${BUILD_TESTS} STREQUAL "1")
         FILE(GLOB PYBIND_TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/pybind/unittests/*.py
             ${CMAKE_CURRENT_SOURCE_DIR}/pybind/unittests/*.ttl)
         message("${PYBIND_TEST_SOURCES}")
         INSTALL(FILES ${PYBIND_TEST_SOURCES} DESTINATION ${CMAKE_BINARY_DIR}/tests/)
     ENDIF()
-
-    # Generating Python Wheel
-    FIND_PACKAGE(Python REQUIRED)
-
-    ADD_CUSTOM_COMMAND(TARGET autordf_py
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E env PREBUILT_FILE=$<TARGET_FILE:autordf_py> ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/setup.py bdist_wheel
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/dist
-        )
-
-    ADD_CUSTOM_COMMAND(TARGET autordf_py
-        POST_BUILD
-        COMMAND env AUTORDF_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}" IRMA_INSTALL_DIR="${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
-            /opt/miniconda/condabin/conda build --output-folder ${CMAKE_CURRENT_BINARY_DIR} .
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/conda
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dist ${CMAKE_SOURCE_DIR}/conda/meta.yaml ${CMAKE_SOURCE_DIR}/conda/build.sh
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/linux-64
-        )
-
-    INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/linux-64 DESTINATION ${CMAKE_INSTALL_LIBDIR}/conda/autordf)
 ENDIF()
 
 INSTALL(TARGETS autordf DESTINATION ${CMAKE_INSTALL_LIBDIR})

@@ -1,0 +1,23 @@
+{
+    "build": {
+        "dockerfile": "../docker/Dockerfile.buildconda",
+        "context": "..",
+        "args": {
+            "USERNAME": "${localEnv:USER}",
+            "BUILDKIT_INLINE_CACHE": "0"
+        }
+    },
+
+
+    "remoteUser": "${localEnv:USER}",
+    "containerUser": "${localEnv:USER}",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+				"twxs.cmake"
+			]
+        }
+    }
+}
+
