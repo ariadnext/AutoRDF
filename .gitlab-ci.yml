@@ -13,14 +13,26 @@ setup-builder:
   stage: setup-builder
   script:
     - echo "Setup Builder"
+  tags:
+  - ocr-3
+  - irma
+  - shell
+
 
 conda-build:
   stage: conda-build
   script:
     - echo "Conda Build Recipe"
+  tags:
+    - ocr-3
+    - irma
+    - shell
 
 deploy:
   stage: deploy
   script:
     - echo "Deploy"
-
+  tags:
+    - ocr-3
+    - irma
+    - shell
