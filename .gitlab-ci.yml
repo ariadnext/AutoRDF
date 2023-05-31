@@ -15,7 +15,6 @@ setup-builder:
     - echo $IRMA_RSA
     - echo $IRMA_RSA_PUB
     - echo $KNOWN_HOSTS
-    - if [ "$(docker ps -q -f name=temporary_container)" ]; then docker rm -f temporary_container
     - docker build --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
     - docker run -v ./:/workspaces:ro --name temporary_container autordf_conda_packaging:latest bash -c "cd /workspaces && conda build recipe && tar -cvjf conda_packages.tar.bz2 *.tar.bz2"
     - docker cp temporary_container:/home/developer/conda-bld/linux-64/conda_package.tar.bz2 ./
