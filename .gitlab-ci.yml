@@ -12,7 +12,7 @@ stages:
 setup-builder:
   stage: setup-builder
   script:
-    - if [ "$(docker ps -q -f name=temporary_container)" ]; then docker rm -f temporary_container; fi
+    - if [ "$(docker ps -aq -f name=temporary_container)" ]; then docker rm -f temporary_container; fi
     - echo $IRMA_RSA
     - echo $IRMA_RSA_PUB
     - echo $KNOWN_HOSTS
