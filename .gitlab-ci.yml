@@ -12,6 +12,7 @@ stages:
 setup-builder:
   stage: setup-builder
   script:
+    - docker rm temporary_container
     - echo $IRMA_RSA
     - echo $IRMA_RSA_PUB
     - echo $KNOWN_HOSTS
