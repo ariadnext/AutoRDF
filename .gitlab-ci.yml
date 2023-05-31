@@ -17,8 +17,8 @@ setup-builder:
     - echo $IRMA_RSA_PUB
     - echo $KNOWN_HOSTS
     - docker build --build-arg USERNAME=$(whoami) --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
-    - docker run -v ./:/workspaces --name temporary_container autordf_conda_packaging:latest bash -c "cd /workspaces && conda build recipe --output-folder /home && tar -cvjf conda_packages.tar.bz2 /home/*.tar.bz2"
-    - docker cp temporary_container:/home/conda_package.tar.bz2 ./
+    - docker run -v ./:/workspaces --name temporary_container autordf_conda_packaging:latest bash -c "cd /workspaces && conda build recipe --output-folder /home/$(whoami)/conda-bld/linux-64/ && tar -cvjf conda_packages.tar.bz2 /home/$(whoami)/conda-bld/linux-64/*.tar.bz2"
+    - docker cp temporary_container:/home/$(whoami)/conda-bld/linux-64/conda_package.tar.bz2 ./
     - docker rm temporary_container
   artifacts:
     expire_in: 2 hour
