@@ -30,7 +30,7 @@ conda-package-build:
 
 conda-package-deploy:
   stage: conda-package-deploy
-   variables:
+  variables:
     CHANNEL: falcon
   script:
     - echo "Conda Package Deploy"
