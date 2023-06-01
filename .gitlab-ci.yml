@@ -1,7 +1,6 @@
 stages:
-  - setup-builder
-  - conda-build
-  - deploy
+  - conda-package-build
+  - conda-package-deploy
 
 .wget_common: &wget-common
   - echo -e "\e[0Ksection_start:$(date +%s):wget_common[collapsed=true]\r\e[0Kwget common.sh - $(date)"
@@ -9,17 +8,15 @@ stages:
   - echo -e "\e[0Ksection_end:$(date +%s):wget_common\r\e[0K"
 
 
-setup-builder:
-  stage: setup-builder
+conda-package-build:
+  stage: conda-package-build
   script:
+    - echo "Conda Package Build"
     - if [ "$(docker ps -aq -f name=temporary_container)" ]; then docker rm -f temporary_container; fi
-    - echo $IRMA_RSA
-    - echo $IRMA_RSA_PUB
-    - echo $KNOWN_HOSTS
     - USERNAME=$(whoami) 
     - docker build --build-arg USERNAME=${USERNAME} --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
-    - docker run -v ./:/workspaces --name temporary_container autordf_conda_packaging:latest bash -c "cd /workspaces && conda build recipe && tar -cvjf /home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 /home/$USERNAME/conda-bld/linux-64/*.tar.bz2"
-    - docker cp temporary_container:/home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 ./
+    - docker run -v ./:/workspaces --name temporary_container autordf_conda_packaging:latest bash -c "cd /workspaces && conda build recipe"
+    - docker cp temporary_container:/home/$USERNAME/conda-bld/linux-64/*.tar.bz2 ./
     - docker rm temporary_container
   artifacts:
     expire_in: 2 hour
@@ -31,20 +28,18 @@ setup-builder:
   - shell
 
 
-conda-build:
-  stage: conda-build
+conda-package-deploy:
+  stage: conda-package-deploy
+   variables:
+    CHANNEL: falcon
   script:
-    - echo "Conda Build Recipe"
+    - echo "Conda Package Deploy"
+    - echo "Channel Conda ${CHANNEL}"
   tags:
     - ocr
     - docker
     - shell
+  needs:
+    - job: conda-package-build
+      artifacts: true
 
-deploy:
-  stage: deploy
-  script:
-    - echo "Deploy"
-  tags:
-    - ocr
-    - docker
-    - shell
