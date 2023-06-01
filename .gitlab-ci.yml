@@ -35,6 +35,7 @@ conda-package-deploy:
   variables:
     CHANNEL: axt
   script:
+    - *wget-common
     - echo "Conda Package Deploy"
     - echo "Channel Conda ${CHANNEL}"
     - for file in *.tar.bz2; do conda_upload -c "${CHANNEL}" "$file"; done
