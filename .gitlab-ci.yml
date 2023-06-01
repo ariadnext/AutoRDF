@@ -23,7 +23,7 @@ conda-package-build:
   artifacts:
     expire_in: 2 hour
     paths:
-      - ./home/$USERNAME/conda-bld/linux-64/*.tar.bz2
+      - home/gitlab-runner/conda-bld/linux-64/*.tar.bz2
   tags:
   - ocr
   - docker
@@ -37,6 +37,7 @@ conda-package-deploy:
   script:
     - echo "Conda Package Deploy"
     - echo "Channel Conda ${CHANNEL}"
+    - for file in *.tar.bz2; do conda_upload -c "${CHANNEL}" "$file"; done
   tags:
     - ocr
     - docker
