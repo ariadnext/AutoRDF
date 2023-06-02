@@ -1,6 +1,5 @@
 stages:
-  - conda-package-build-py38
-  - conda-package-build-py39
+  - conda-package-build
   - conda-package-deploy
 
 .wget_common: &wget-common
