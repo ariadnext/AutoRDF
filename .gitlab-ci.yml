@@ -9,7 +9,7 @@ stages:
   - echo -e "\e[0Ksection_end:$(date +%s):wget_common\r\e[0K"
 
 
-conda-package-build:
+conda-package-build-py38:
   stage: conda-package-build-py38
   script:
     - echo "Conda Package Build"
@@ -30,7 +30,7 @@ conda-package-build:
   - docker
   - shell
 
-conda-package-build:
+conda-package-build-py39:
   stage: conda-package-build-py39
   script:
     - echo "Conda Package Build"
@@ -66,6 +66,8 @@ conda-package-deploy:
     - docker
     - shell
   needs:
-    - job: conda-package-build
+    - job: conda-package-build-py38
+      artifacts: true
+    - job: conda-package-build-py39
       artifacts: true
 
