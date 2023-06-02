@@ -13,8 +13,6 @@ requirements:
     - pybind11
     - cmake
     - pkg-config
-   host:
-    - python={{ python }}
    run:
     - python={{ python }}
 
