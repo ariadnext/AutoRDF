@@ -90,7 +90,11 @@ USER $USERNAME
 # Set the working directory
 WORKDIR /home/$USERNAME
 
-COPY . /workspaces_pipeline
+COPY ./include /workspaces_pipeline/include
+COPY ./recipe /workspaces_pipeline/recipe
+COPY ./src /workspaces_pipeline/src
+COPY ./CMakeLists.txt /workspaces_pipeline/CMakeLists.txt
+
 
 WORKDIR /workspaces_pipeline
 RUN conda build recipe --python 3.8
