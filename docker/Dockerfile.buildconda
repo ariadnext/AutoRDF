@@ -93,6 +93,8 @@ WORKDIR /home/$USERNAME
 COPY ./include /workspaces_pipeline/include
 COPY ./recipe /workspaces_pipeline/recipe
 COPY ./src /workspaces_pipeline/src
+COPY ./doc /workspaces_pipeline/doc
+COPY ./tests /workspaces_pipeline/tests
 COPY ./CMakeLists.txt /workspaces_pipeline/CMakeLists.txt
 
 
