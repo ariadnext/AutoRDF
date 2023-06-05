@@ -96,6 +96,9 @@ COPY ./src /workspaces_pipeline/src
 COPY ./doc /workspaces_pipeline/doc
 COPY ./tests /workspaces_pipeline/tests
 COPY ./CMakeLists.txt /workspaces_pipeline/CMakeLists.txt
+COPY ./autordf-ontology.pc.in /workspaces_pipeline/autordf-ontology.pc.in
+COPY ./autordf.pc.in /workspaces_pipeline/autordf.pc.in
+COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
 
 
 WORKDIR /workspaces_pipeline
