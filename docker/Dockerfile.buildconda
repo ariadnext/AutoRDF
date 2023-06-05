@@ -90,6 +90,13 @@ USER $USERNAME
 # Set the working directory
 WORKDIR /home/$USERNAME
 
+COPY . /workspaces_pipeline
+
+WORKDIR /workspaces_pipeline
+RUN conda build recipe --python 3.8
+
+RUN tar -cvjf /home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 /home/$USERNAME/conda-bld/linux-64/*.tar.bz2
+
 CMD [ "bash" ]
 
 
