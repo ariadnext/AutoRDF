@@ -87,8 +87,6 @@ RUN chown $USERNAME:$USERNAME -R /home/$USERNAME/.ssh/
 
 USER $USERNAME
 
-# Set the working directory
-WORKDIR /home/$USERNAME
 
 COPY ./include /workspaces_pipeline/include
 COPY ./recipe /workspaces_pipeline/recipe
@@ -103,9 +101,9 @@ COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
 
 WORKDIR /workspaces_pipeline
 
+#Build Conda Package for different version of Python
 RUN conda build recipe --python 3.8
 RUN conda build recipe --python 3.9
-
 
 RUN tar -cvjf /home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 /home/$USERNAME/conda-bld/linux-64/*.tar.bz2
 
