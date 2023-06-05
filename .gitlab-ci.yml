@@ -58,8 +58,8 @@ conda-package-deploy:
     - *wget-common
     - echo "Conda Package Deploy"
     - echo "Channel Conda ${CHANNEL}"
-    - ls home/gitlab-runner/conda-bld/linux-64/
-    #- for file in *.tar.bz2; do conda_upload -c "${CHANNEL}" "$file"; done
+    - cd home/gitlab-runner/conda-bld/linux-64/
+    - for file in *; do if [ -f "$file" ]; then echo "Uploading $file to $CHANNEL"; conda_upload -c "${CHANNEL}" "$file"; fi; done
   tags:
     - ocr
     - docker
