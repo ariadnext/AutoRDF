@@ -17,12 +17,12 @@ conda-package-build:
     - docker build --build-arg USERNAME=${USERNAME} --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
     - docker run -v ./:/workspaces --name temporary_container_to_build_conda autordf_conda_packaging:latest
     - mkdir -p ./conda_packages/
-    - for file in /home/$USERNAME/conda-bld/linux-64/*; do docker cp temporary_container_to_build_conda:/home/$USERNAME/conda-bld/linux-64/$file /conda_packages/; done
+    - for file in /home/$USERNAME/conda-bld/linux-64/*; do docker cp temporary_container_to_build_conda:$file ./conda_packages/; done
     - docker rm temporary_container_to_build_conda
   artifacts:
     expire_in: 2 hour
     paths:
-      - home/gitlab-runner/conda-bld/linux-64/.
+      - ./conda_packages/
   tags:
   - ocr
   - docker
