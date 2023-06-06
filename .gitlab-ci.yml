@@ -26,7 +26,7 @@ conda-package-build:
   artifacts:
     expire_in: 2 hour
     paths:
-      - ./conda_package
+      - ./conda_package/
   tags:
   - ocr
   - docker
