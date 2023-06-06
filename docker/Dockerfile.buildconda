@@ -106,10 +106,7 @@ RUN conda build recipe --python 3.8
 RUN conda build recipe --python 3.9
 RUN conda build recipe --python 3.10
 
+
 #RUN tar -cvjf /home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 /home/$USERNAME/conda-bld/linux-64/*.tar.bz2
 
 CMD [ "bash" ]
-
-
-
-
