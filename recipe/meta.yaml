@@ -7,7 +7,7 @@ source:
 
 build:
   number: 0
-  string: {{ python }}
+  string: py{{ python|replace(".", "") }}
 
 requirements:
    build:
