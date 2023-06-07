@@ -41,7 +41,7 @@ conda-package-deploy:
     - echo "Conda Package Deploy"
     - echo "Channel Conda ${CHANNEL}"
     - cd home/gitlab-runner/conda-bld/linux-64/
-    - for file in *; do if [ -f "$file" ]; then echo "Uploading $file to $CHANNEL"; conda_upload -c "${CHANNEL}" "$file"; fi; done
+    - for file in *; do if [ -f "$file" ]; then echo "Uploading $file to $CHANNEL"; conda_upload -c "${CHANNEL}" -s "${SUBDIR}" "$file"; fi; done
   tags:
     - ocr
     - docker
