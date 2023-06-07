@@ -20,6 +20,8 @@ requirements:
     - python ={{ python }}
    run:
     - python ={{ python }}
+    - boost
+    - pybind11
    host:
     - python ={{ python }}
 
