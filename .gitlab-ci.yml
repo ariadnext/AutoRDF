@@ -48,6 +48,6 @@ conda-package-deploy:
     - job: conda-package-build
       artifacts: true
   rules:
-  - if: '$CI_COMMIT_REF_NAME == "master"'
-    when: always
+  #- if: '$CI_COMMIT_REF_NAME == "master"'
+  #  when: always
   - when: manual
