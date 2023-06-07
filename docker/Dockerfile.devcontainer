@@ -68,5 +68,3 @@ USER $USERNAME
 
 # Set the working directory
 WORKDIR /home/$USERNAME
-
-CMD [ "bash" ]
