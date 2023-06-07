@@ -34,6 +34,8 @@ conda-package-deploy:
   stage: conda-package-deploy
   variables:
     CHANNEL: axt
+    GIT_STRATEGY: none # Do not clone the projects
+    SUBDIR: linux-64
   script:
     - *wget-common
     - echo "Conda Package Deploy"
@@ -47,7 +49,7 @@ conda-package-deploy:
   needs:
     - job: conda-package-build
       artifacts: true
-  rules:
+  #rules:
   #- if: '$CI_COMMIT_REF_NAME == "master"'
   #  when: always
-  - when: manual
+  #- when: manual
