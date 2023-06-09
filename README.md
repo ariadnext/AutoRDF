@@ -11,9 +11,9 @@ More info at https://github.com/ariadnext/AutoRDF/wiki
 In order to generate the Conda Packaging, here are the steps:
 - Run the docker container from the the Dockerfile ./docker/Dockerfile.buildconda mount the current repository as a volume
 ```
-docker build --build-arg irma_rsa="$(cat /home/kduigou/Projects/Temp/irma_rsa)" \
-             --build-arg irma_rsa_pub="$(cat /home/kduigou/Projects/Temp/irma_rsa.pub)" \
-             --build-arg known_hosts="$(cat /home/kduigou/Projects/Temp/known_hosts)" \
+docker build --build-arg irma_rsa= <Gitlab Private Key> \
+             --build-arg irma_rsa_pub= <Gitlab Public Key> \
+             --build-arg known_hosts= <Gitlab Known Host>  \
              -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
 docker run -it -v ./:/workspaces autordf_conda_packaging:latest
 cd /workspaces

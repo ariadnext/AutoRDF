@@ -14,7 +14,7 @@ conda-package-build:
     - echo "Conda Package Build"
     - if [ "$(docker ps -aq -f name=temporary_container_to_build_conda)" ]; then docker rm -f temporary_container_to_build_conda; fi
     - USERNAME=$(whoami) 
-    - docker build --build-arg USERNAME=${USERNAME} --build-arg irma_rsa="$IRMA_RSA" --build-arg irma_rsa_pub="$IRMA_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
+    - docker build --build-arg USERNAME=${USERNAME} --build-arg gitlab_rsa="$GITLAB_RSA" --build-arg gitlab_rsa_pub="$GITLAB_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
     - docker run -v ./:/workspaces --name temporary_container_to_build_conda autordf_conda_packaging:latest
     - docker cp temporary_container_to_build_conda:/home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 ./
     - docker rm temporary_container_to_build_conda

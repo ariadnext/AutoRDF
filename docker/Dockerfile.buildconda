@@ -3,8 +3,8 @@ FROM gitlab.rennes.ariadnext.com:4567/ocr-docker-utils/axt-certs:latest as axt-c
 FROM registry.rennes.ariadnext.com/docker-hub/debian:bullseye
 
 # Define arguments
-ARG irma_rsa
-ARG irma_rsa_pub
+ARG gitlab_rsa
+ARG gitlab_rsa_pub
 ARG known_hosts
 
 # Create the non-root user
@@ -74,8 +74,8 @@ RUN groupadd --gid $USER_GID $USERNAME && \
 RUN mkdir /home/$USERNAME/.ssh/
 
 # Write the content of variables into files
-RUN echo "$irma_rsa" > /home/$USERNAME/.ssh/id_rsa \
-    && echo "$irma_rsa_pub" > /home/$USERNAME/.ssh/id_rsa.pub \
+RUN echo "$gitlab_rsa" > /home/$USERNAME/.ssh/id_rsa \
+    && echo "$gitlab_rsa_pub" > /home/$USERNAME/.ssh/id_rsa.pub \
     && echo "$known_hosts" > /home/$USERNAME/.ssh/known_hosts
 
 RUN chmod -R 600 /home/$USERNAME/.ssh/id_rsa*
