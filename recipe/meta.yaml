@@ -5,6 +5,10 @@ package:
 source:
   path: ../
 
+build:
+  number: 0
+  string: py{{ python|replace(".", "") }}
+
 requirements:
    build:
     - {{ compiler('c') }}
@@ -13,10 +17,14 @@ requirements:
     - pybind11
     - cmake
     - pkg-config
-   host:
-    - python
+    - python ={{ python }}
    run:
-    - python
+    - python ={{ python }}
+    - boost
+    - pybind11
+   host:
+    - python ={{ python }}
+
 
 test:
   imports:

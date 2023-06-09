@@ -1,0 +1,54 @@
+stages:
+  - conda-package-build
+  - conda-package-deploy
+
+.wget_common: &wget-common
+  - echo -e "\e[0Ksection_start:$(date +%s):wget_common[collapsed=true]\r\e[0Kwget common.sh - $(date)"
+  - wget -O tmp.sh https://gitlab.rennes.ariadnext.com/ocr-docker-utils/common-tools/raw/master/common.sh && source tmp.sh && rm tmp.sh
+  - echo -e "\e[0Ksection_end:$(date +%s):wget_common\r\e[0K"
+
+
+conda-package-build:
+  stage: conda-package-build
+  script:
+    - echo "Conda Package Build"
+    - if [ "$(docker ps -aq -f name=temporary_container_to_build_conda)" ]; then docker rm -f temporary_container_to_build_conda; fi
+    - USERNAME=$(whoami) 
+    - docker build --build-arg USERNAME=${USERNAME} --build-arg gitlab_rsa="$GITLAB_RSA" --build-arg gitlab_rsa_pub="$GITLAB_RSA_PUB" --build-arg known_hosts="$KNOWN_HOSTS" -t autordf_conda_packaging -f ./docker/Dockerfile.buildconda .
+    - docker run -v ./:/workspaces --name temporary_container_to_build_conda autordf_conda_packaging:latest
+    - docker cp temporary_container_to_build_conda:/home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 ./
+    - docker rm temporary_container_to_build_conda
+    - tar -xvjf ./conda_packages.tar.bz2
+    - rm ./conda_packages.tar.bz2
+  artifacts:
+    expire_in: 2 hour
+    paths:
+      - home/gitlab-runner/conda-bld/linux-64/*.tar.bz2
+  tags:
+  - ocr
+  - docker
+  - shell
+
+
+conda-package-deploy:
+  stage: conda-package-deploy
+  variables:
+    CHANNEL: axt
+    GIT_STRATEGY: none # Do not clone the projects
+    SUBDIR: linux-64
+  script:
+    - *wget-common
+    - echo "Conda Package Deploy"
+    - echo "Channel Conda ${CHANNEL}"
+    - cd home/gitlab-runner/conda-bld/linux-64/
+    - for file in *; do if [ -f "$file" ]; then echo "Uploading $file to $CHANNEL"; conda_upload -c "${CHANNEL}" -s "${SUBDIR}" "$file"; fi; done
+  tags:
+    - ocr
+    - docker
+    - shell
+  needs:
+    - job: conda-package-build
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: manual

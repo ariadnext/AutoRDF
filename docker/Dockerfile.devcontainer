@@ -2,19 +2,6 @@ FROM gitlab.rennes.ariadnext.com:4567/ocr-docker-utils/axt-certs:latest as axt-c
 
 FROM registry.rennes.ariadnext.com/docker-hub/debian:bullseye
 
-# Define arguments
-ARG gitlab_rsa
-ARG gitlab_rsa_pub
-ARG known_hosts
-
-# Create the non-root user
-ARG USERNAME=developer
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-# Create directory for keyring
-RUN mkdir -p /docker/keyring
-
 
 # Install some basic tools
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
@@ -36,8 +23,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recomm
 
 #Set Clang as the default compiler
 RUN update-alternatives --set c++ /usr/bin/clang++
-
-
 
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -y \
@@ -63,6 +48,10 @@ RUN conda install -y conda-build
 
 RUN pip3 install setuptools
 
+# Create the non-root user
+ARG USERNAME=developer
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
 RUN groupadd --gid $USER_GID $USERNAME && \
     useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME && \
@@ -73,39 +62,9 @@ RUN groupadd --gid $USER_GID $USERNAME && \
 #Create SSH Dir for current user
 RUN mkdir /home/$USERNAME/.ssh/
 
-# Write the content of variables into files
-RUN echo "$gitlab_rsa" > /home/$USERNAME/.ssh/id_rsa \
-    && echo "$gitlab_rsa_pub" > /home/$USERNAME/.ssh/id_rsa.pub \
-    && echo "$known_hosts" > /home/$USERNAME/.ssh/known_hosts
-
-RUN chmod -R 600 /home/$USERNAME/.ssh/id_rsa*
-RUN chown $USERNAME:$USERNAME -R /home/$USERNAME/.ssh/
-
 
 
 USER $USERNAME
 
-
-COPY ./include /workspaces_pipeline/include
-COPY ./recipe /workspaces_pipeline/recipe
-COPY ./src /workspaces_pipeline/src
-COPY ./doc /workspaces_pipeline/doc
-COPY ./tests /workspaces_pipeline/tests
-COPY ./CMakeLists.txt /workspaces_pipeline/CMakeLists.txt
-COPY ./autordf-ontology.pc.in /workspaces_pipeline/autordf-ontology.pc.in
-COPY ./autordf.pc.in /workspaces_pipeline/autordf.pc.in
-COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
-
-
-WORKDIR /workspaces_pipeline
-
-#Build Conda Package for different version of Python
-RUN conda build recipe --python 3.8
-RUN conda build recipe --python 3.9
-RUN conda build recipe --python 3.10
-
-
-#Tar the Conda Package in oder to use only once docker cp to copy packages in the pipeline
-RUN tar -cvjf /home/$USERNAME/conda-bld/linux-64/conda_packages.tar.bz2 /home/$USERNAME/conda-bld/linux-64/*.tar.bz2
-
-CMD [ "bash" ]
+# Set the working directory
+WORKDIR /home/$USERNAME

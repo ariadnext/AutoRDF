@@ -1,6 +1,6 @@
 {
     "build": {
-        "dockerfile": "../docker/Dockerfile.buildconda",
+        "dockerfile": "../docker/Dockerfile.devcontainer",
         "context": "..",
         "args": {
             "USERNAME": "${localEnv:USER}",
