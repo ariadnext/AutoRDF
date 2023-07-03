@@ -3,7 +3,7 @@
 
 #include <cstdio>
 #include <mutex>
-
+#include <string>
 #include <autordf/internal/cAPI.h>
 
 namespace autordf {
