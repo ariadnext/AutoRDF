@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 
+#include <autordf/INotifier.h>
 #include <autordf/StatementList.h>
 #include <autordf/NodeList.h>
 #ifdef USE_REDLAND
@@ -48,6 +49,16 @@ public:
      * Disallow copy construction
      */
     AUTORDF_EXPORT Model(const Model&) = delete;
+
+    /**
+     * Returns the current notifier (nullptr if none).
+     */
+    AUTORDF_EXPORT INotifier *notifier() const;
+
+    /**
+     * Set the notifier to use for add/remove operation. Use nullptr to disable.
+     */
+    AUTORDF_EXPORT void setNotifier(INotifier *notifier);
 
     /**
      * Loads rdf resource from a local file
@@ -236,6 +247,8 @@ private:
     std::string _baseUri;
     // Prefixes seen during parsing prefix --> IRI
     std::map<std::string, std::string> _namespacesPrefixes;
+    // Emit notification for add() and remove() functions
+    INotifier *_notifier = nullptr;
 
     friend class StatementList;
     friend class NodeList;

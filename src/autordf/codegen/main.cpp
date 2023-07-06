@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
             ("generator,g", po::value< std::string >()->default_value("cpp"), "Choose the generator to be used (supported: cpp, python; default: cpp).")
             ("all-in-one,a", "Generate one cpp file that includes all the other called AllInOne.cpp (cpp only)")
             ("namespacemap,n", po::value< std::vector<std::string> >(), "Adds supplementary namespaces prefix definition, in the form 'prefix:namespace IRI'. Defaults to empty.")
+            ("subnamespace,s", po::value< std::string >(), "Adds a namespace before the generated code")
             ("outdir,o", po::value< std::string >(), "Folder where to generate files in. If it does not exit it will be created. Defaults to current directory.")
             ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)")
             ("preferredLang,l", po::value< std::vector<std::string> >(), "Preferred languages for documentation (repeated)")
@@ -70,6 +71,14 @@ int main(int argc, char** argv) {
         }
     }
 
+    if(vm.count("subnamespace")) {
+        autordf::codegen::Environment::namespace_ = vm["subnamespace"].as<std::string>();
+
+        if (autordf::codegen::Environment::verbose) {
+            std::cout << "Global namespace: " << autordf::codegen::Environment::namespace_ << std::endl;
+        }
+    }
+
     if(vm.count("tpldir")) {
         autordf::codegen::Environment::tpldir = vm["tpldir"].as<std::string>();
         if (autordf::codegen::Environment::tpldir.back() != '/') {
@@ -98,6 +107,9 @@ int main(int argc, char** argv) {
     std::unique_ptr<autordf::codegen::CodeGenerator> generator;
     try {
         autordf::codegen::Environment::createDirectory(autordf::codegen::Environment::outdir);
+        if (!autordf::codegen::Environment::namespace_.empty()) {
+            autordf::codegen::Environment::createOutDirectory(autordf::codegen::Environment::namespace_);
+        }
 
         // Hardcode some prefixes
         f.addNamespacePrefix("owl", autordf::ontology::Ontology::OWL_NS);

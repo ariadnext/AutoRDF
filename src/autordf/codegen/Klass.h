@@ -81,6 +81,7 @@ private:
     nlohmann::json buildComment(const std::vector<PropertyValue>& input) const;
 
     nlohmann::json getPrefix() const;
+    nlohmann::json getPackages() const;
 };
 }
 }

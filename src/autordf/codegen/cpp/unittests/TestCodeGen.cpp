@@ -1,12 +1,10 @@
 #include <autordf/Factory.h>
-#include <foaftest/owl/owl.h>
-#include <foaftest/foaf/foaf.h>
+#include <owl/owl.h>
+#include <foaf/foaf.h>
 
 #include <boost/filesystem.hpp>
 
 #include <iostream>
-
-using namespace foaftest;
 
 int main() {
     autordf::Factory f;

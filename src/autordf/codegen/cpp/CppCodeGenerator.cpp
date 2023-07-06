@@ -34,7 +34,7 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
         klass.buildTemplateData();
 
         // created directory if needed
-        Environment::createDirectory(klass.packagePath());
+        Environment::createOutDirectory(klass.packagePath());
         cppNameSpaces.insert(klass.basePackageName());
 
         if (Environment::verbose) {
@@ -52,7 +52,11 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
     }
     for (const std::string& cppNameSpace : cppNameSpaces) {
         std::ofstream out;
-        Environment::createFile(Environment::outdir + "/" + cppNameSpace + "/" + cppNameSpace + ".h", out);
+        if (!Environment::namespace_.empty()) {
+            Environment::createFile(Environment::namespace_ + "/" +cppNameSpace + "/" + cppNameSpace + ".h", out);
+        } else {
+            Environment::createFile(cppNameSpace + "/" + cppNameSpace + ".h", out);
+        }
 
         nlohmann::json data;
 
@@ -92,7 +96,11 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
         }
 
         std::ofstream out;
-        Environment::createFile(Environment::outdir + "/AllInOne.cpp", out);
+        if (!Environment::namespace_.empty()) {
+            Environment::createFile("/" + Environment::namespace_ +"/AllInOne.cpp", out);
+        } else {
+            Environment::createFile("/AllInOne.cpp", out);
+        }
 
         nlohmann::json data;
         data["classes"] = nlohmann::json::array();
