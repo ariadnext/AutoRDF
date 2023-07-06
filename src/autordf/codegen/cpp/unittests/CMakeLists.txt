@@ -1,6 +1,5 @@
 INCLUDE_DIRECTORIES(
     "${PROJECT_SOURCE_DIR}/include"
-    "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
 ADD_EXECUTABLE(
@@ -38,6 +37,11 @@ ADD_EXECUTABLE(
     "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Resource.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaftest/rdfs/Class.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/foaftest/owl/Thing.cpp"
+)
+
+TARGET_INCLUDE_DIRECTORIES(
+    testcodegen
+    PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/foaftest
 )
 
 TARGET_LINK_LIBRARIES(
@@ -88,7 +92,14 @@ ADD_CUSTOM_COMMAND(
 ADD_EXECUTABLE(
     testmrd
     TestMrd.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/AllInOne.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/testmrd_output/AllInOne.cpp
+)
+
+TARGET_INCLUDE_DIRECTORIES(
+    testmrd
+    PUBLIC
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/testmrd_output
 )
 
 TARGET_LINK_LIBRARIES(
@@ -98,7 +109,7 @@ TARGET_LINK_LIBRARIES(
 
 ADD_CUSTOM_COMMAND(
     OUTPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/AllInOne.cpp
-    COMMAND "autordfcodegen" -a -t "${CMAKE_SOURCE_DIR}/src/autordf/codegen/templates" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
+    ${CMAKE_CURRENT_BINARY_DIR}/testmrd_output/AllInOne.cpp
+    COMMAND "autordfcodegen" -a -t "${CMAKE_SOURCE_DIR}/src/autordf/codegen/templates" -o testmrd_output "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl"
     DEPENDS "autordfcodegen" "${CMAKE_CURRENT_SOURCE_DIR}/MachineReadableDocument.ttl" ${AUTORDF_TEMPLATES}
 )

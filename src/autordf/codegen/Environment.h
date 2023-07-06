@@ -20,6 +20,11 @@ public:
     static std::string tpldir;
 
     /**
+     * Stores the global namespace for the generated code
+     */
+    static std::string namespace_;
+
+    /**
      * Stores the directory where the generated code will be placed
      */
     static std::string outdir;
@@ -33,6 +38,13 @@ public:
      * Tells if the command should print additional debug text to the shell
      */
     static bool verbose;
+
+    /**
+     * Creates a folder with a relative path to the out directory
+     *
+     * @param relativeDirName a relative path to the out directory
+     */
+    static void createOutDirectory(const std::string& relativeDirName);
 
     /**
      * Creates a folder with a path relative to the current directory

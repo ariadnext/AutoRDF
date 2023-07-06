@@ -18,7 +18,7 @@ void PythonCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::
         klass.buildTemplateData();
 
         // created directory if needed
-        Environment::createDirectory(klass.packagePath());
+        Environment::createOutDirectory(klass.packagePath());
 
         if (Environment::verbose) {
             std::cout << "Generating class '" << klass.className() << "'..." << std::endl;

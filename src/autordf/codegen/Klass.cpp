@@ -24,17 +24,17 @@ Klass::Klass(const ontology::Klass& ontology) :
 }
 
 void Klass::buildTemplateData(bool withDependency) {
-    nlohmann::json prefix;
-    prefix["prefix"] = getPrefix();
+    nlohmann::json packages;
+    packages["packages"] = getPackages();
 
     _templateData["className"] = _ontology.prettyIRIName();
     _templateData["interfaceName"] = _interfacePrefix + _ontology.prettyIRIName();
-    _templateData["rdfName"] = _ontology.rdfname();
-    _templateData["packages"] = getPrefix();
-    _templateData["packagePath"] = inja::render("{{ join(prefix, \"/\") }}", prefix);
-    _templateData["basePackageName"] = inja::render("{{ last(prefix) }}", prefix);
-    _templateData["fullPackageName"] = inja::render("{{ join(prefix, \"" + _packageSeparator + "\") }}", prefix);
-    _templateData["fullPackagePath"] = inja::render("{{ join(prefix, \"" + _pathSeparator + "\") }}", prefix);
+    _templateData["rdfName"] = _ontology.rdfname().c_str();
+    _templateData["packages"] = getPackages();
+    _templateData["packagePath"] = inja::render("{{ join(packages, \"/\") }}", packages);
+    _templateData["basePackageName"] = inja::render("{{ last(packages) }}", packages);
+    _templateData["fullPackageName"] = inja::render("{{ join(packages, \"" + _packageSeparator + "\") }}", packages);
+    _templateData["fullPackagePath"] = inja::render("{{ join(packages, \"" + _pathSeparator + "\") }}", packages);
     _templateData["fullClassName"] = _templateData.value("fullPackageName", "") + _packageSeparator + _templateData.value("className", "");
     _templateData["fullInterfaceName"] = _templateData.value("fullPackageName", "") + _packageSeparator + _templateData.value("interfaceName", "");
     _templateData["hasOneOf"] = !_ontology.oneOfValues().empty();
@@ -143,7 +143,7 @@ void Klass::buildOneOfValues() {
         nlohmann::json jsonValue;
 
         jsonValue["name"] = oneOfValue.prettyIRIName();
-        jsonValue["rdfName"] = oneOfValue.rdfname();
+        jsonValue["rdfName"] = oneOfValue.rdfname().c_str();
         jsonValue["comment"] = buildCommentSection(oneOfValue);
 
         _templateData["oneOfValues"].push_back(jsonValue);
@@ -165,7 +165,7 @@ nlohmann::json Klass::buildProperty(const ontology::Property& property) const {
 
     jsonProperty["name"] = property.prettyIRIName();
     jsonProperty["fullName"] = property.rdfname().prettyName();
-    jsonProperty["rdfName"] = property.rdfname();
+    jsonProperty["rdfName"] = property.rdfname().c_str();
     jsonProperty["minCardinality"] = property.minCardinality(_ontology);
     jsonProperty["maxCardinality"] = property.maxCardinality(_ontology);
     jsonProperty["ordered"] = property.ordered();
@@ -243,8 +243,18 @@ nlohmann::json Klass::getPrefix() const {
     std::string prefix = _ontology.ontology()->model()->iriPrefix(_ontology.rdfname());
 
     if (!prefix.empty()) {
-        if (Environment::outdir != ".") {
-            return {Environment::outdir, prefix};
+        return {prefix};
+    } else {
+        throw std::runtime_error("No prefix found for " + _ontology.rdfname() + " RDF resource");
+    }
+}
+
+nlohmann::json Klass::getPackages() const {
+    std::string prefix = _ontology.ontology()->model()->iriPrefix(_ontology.rdfname());
+
+    if (!prefix.empty()) {
+        if (!Environment::namespace_.empty()) {
+            return {Environment::namespace_, prefix};
         } else {
             return {prefix};
         }

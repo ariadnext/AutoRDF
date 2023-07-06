@@ -264,6 +264,9 @@ void Model::add(Statement *stmt) {
         ss << "Unable to add statement";
         throw InternalError(ss.str());
     }
+    if (_notifier) {
+        _notifier->added(*stmt);
+    }
 }
 
 void Model::remove(Statement *stmt) {
@@ -276,6 +279,9 @@ void Model::remove(Statement *stmt) {
         ss << "Unable to remove statement";
         throw InternalError(ss.str());
     }
+    if (_notifier) {
+        _notifier->removed(*stmt);
+    }
 }
 
 /**
@@ -283,6 +289,14 @@ void Model::remove(Statement *stmt) {
  */
 Node Model::findTarget(const Node& source, const Node& arc) const {
     return Node(librdf_model_get_target(_model->get(), source.get(), arc.get()), true);
+}
+
+INotifier *Model::notifier() const {
+    return _notifier;
+}
+
+void Model::setNotifier(INotifier *notifier) {
+    _notifier = notifier;
 }
 
 #elif defined(USE_SORD)
@@ -479,6 +493,9 @@ void Model::add(Statement *stmt) {
             throw InternalError(ss.str());
         }
     }
+    if (_notifier) {
+        _notifier->added(*stmt);
+    }
 }
 
 void Model::remove(Statement *stmt) {
@@ -495,6 +512,9 @@ void Model::remove(Statement *stmt) {
         std::stringstream ss;
         ss << "Unexisting statement";
         throw InternalError(ss.str());
+    }
+    if (_notifier) {
+        _notifier->removed(*stmt);
     }
 }
 
@@ -583,5 +603,13 @@ void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns)
     } else if ( it->second != ns ) {
         throw InternalError("Unable to add prefix " + prefix + "-->" + ns + " mappping: already registered to " + it->second);
     }
+}
+
+INotifier *Model::notifier() const {
+    return _notifier;
+}
+
+void Model::setNotifier(INotifier *notifier) {
+    _notifier = notifier;
 }
 }
