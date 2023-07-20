@@ -1,18 +1,33 @@
-autordfcodegen_includes = include_directories(['.', 'cpp', 'vendors', 'python', '../../../include', '../../../meson_include'])
+autordf_codegen_src = [
+  'main.cpp',
+  'Environment.cpp',
+  'CodeGenerator.cpp',
+  'Klass.cpp',
+]
 
-boost_dep = dependency('boost', modules : ['program_options'])
+autordf_codegen_cpp_src = [
+  'cpp/CppCodeGenerator.cpp',
+  'cpp/CppKlass.cpp',
+]
 
-source_files = ['main.cpp', 'Environment.cpp', 'CodeGenerator.cpp', 'Klass.cpp', 'cpp/CppCodeGenerator.cpp', 'cpp/CppKlass.cpp', 'python/PythonCodeGenerator.cpp', 'python/PythonKlass.cpp']
+autordf_codegen_python_src = [
+  'python/PythonCodeGenerator.cpp',
+  'python/PythonKlass.cpp',
+]
 
-autordfcodegen = executable(
-    'autordfcodegen',
-    sources: source_files,
-    include_directories: autordfcodegen_includes,
-    link_with: [autordf_library, autordf_ontology_lib],
-    dependencies: [boost_dep],
-    install: true
+autordf_codegen_exe = executable(
+  meson.project_name() + 'codegen',
+  sources: [autordf_codegen_src, autordf_codegen_cpp_src, autordf_codegen_python_src],
+  include_directories: [autordf_include_directories, 'vendors'],
+  link_with: [autordf_lib, autordf_ontology_lib],
+  dependencies: [boost_dep],
+  install: true,
 )
 
-template_dir = join_paths(meson.current_source_dir(), 'templates')
+if get_option('build_tests')
+  subdir('cpp/unittests')
+  subdir('python/unittests')
+endif
 
-meson.override_find_program('autordfcodegen', autordfcodegen)
+#template_dir = join_paths(meson.current_source_dir(), 'templates')
+#meson.override_find_program('autordfcodegen', autordfcodegen)
