@@ -24,10 +24,16 @@ autordf_codegen_exe = executable(
   install: true,
 )
 
+# Templates installation
+install_subdir(
+  'templates',
+  install_dir: get_option('datadir') / meson.project_name(),
+)
+
 if get_option('build_tests')
   subdir('cpp/unittests')
   subdir('python/unittests')
 endif
 
-#template_dir = join_paths(meson.current_source_dir(), 'templates')
-#meson.override_find_program('autordfcodegen', autordfcodegen)
+# Helps finding autordfcodegen in other projects without installing it in the PATH
+meson.override_find_program('autordfcodegen', autordf_codegen_exe)

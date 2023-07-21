@@ -4,7 +4,7 @@ add_project_arguments('-DUSE_SORD', language : 'cpp')
 
 pkgconfig = import('pkgconfig')
 
-boost_dep = dependency('boost', modules: ['program_options', 'date_time'])
+boost_dep = dependency('boost', modules: ['program_options', 'date_time', 'filesystem'])
 # Fallback is used when sord is in a subproject
 sord_dep = dependency('sord', fallback: ['sord', 'sord_dep'])
 
