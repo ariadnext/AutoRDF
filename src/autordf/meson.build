@@ -49,6 +49,7 @@ autordf_dep = declare_dependency(
 pkgconfig.generate(
   autordf_lib,
   libraries: sord_dep,
+  extra_cflags: '-DUSE_SORD',
 )
 
 subdir('ontology')
