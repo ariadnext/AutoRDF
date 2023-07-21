@@ -5,9 +5,6 @@ import autordf_py
 {% if hasOneOf %}
 from enum import Enum
 {% endif %}
-{% for dep in dependencies %}
-from {{ dep.fullClassName }} import {{ dep.className }}
-{% endfor %}
 
 
 class {{ interfaceName }}(autordf_py.Object):
