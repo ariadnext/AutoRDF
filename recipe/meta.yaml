@@ -1,6 +1,6 @@
 package:
   name: autordf
-  version: "{{ version }}"
+  version: "1.0.1"
 
 source:
   path: ../
