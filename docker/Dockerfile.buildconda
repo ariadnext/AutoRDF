@@ -103,10 +103,10 @@ WORKDIR /workspaces_pipeline
 
 #Build Conda Package for different version of Python
 RUN if [ -z "$TAG_VERSION" ]; then export CONDA_PACKAGE_VERSION_TAG="1.0.0"; else export CONDA_PACKAGE_VERSION_TAG="$TAG_VERSION"; fi
-RUN sed -i "s/version:.*/version: \"${CONDA_PACKAGE_VERSION_TAG}\"/g" /workspaces_pipeline/recipe/meta.yaml
-RUN conda build recipe --python 3.8
-RUN conda build recipe --python 3.9
-RUN conda build recipe --python 3.10
+RUN echo $CONDA_PACKAGE_VERSION_TAG
+RUN conda build recipe --python 3.8 --version CONDA_PACKAGE_VERSION_TAG
+#RUN conda build recipe --python 3.9
+#RUN conda build recipe --python 3.10
 
 
 #Tar the Conda Package in oder to use only once docker cp to copy packages in the pipeline
