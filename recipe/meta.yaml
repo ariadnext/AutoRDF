@@ -1,6 +1,6 @@
 package:
   name: autordf
-  version: "{{ environ['CONDA_PACKAGE_VERSION_TAG'] }}"
+  version: "{{ version }}"
 
 source:
   path: ../
