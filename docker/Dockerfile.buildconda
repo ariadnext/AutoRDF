@@ -102,7 +102,8 @@ COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
 WORKDIR /workspaces_pipeline
 
 #Build Conda Package for different version of Python
-RUN if [ -z "$TAG_VERSION" ]; then export CONDA_PACKAGE_VERSION_TAG="v1.0.0"; else export CONDA_PACKAGE_VERSION_TAG="$TAG_VERSION"; fi
+RUN if [ -z "$TAG_VERSION" ]; then export CONDA_PACKAGE_VERSION_TAG="1.0.0"; else export CONDA_PACKAGE_VERSION_TAG="$TAG_VERSION"; fi
+RUN echo $CONDA_PACKAGE_VERSION_TAG
 RUN conda build recipe --python 3.8 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
 RUN conda build recipe --python 3.9 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
 RUN conda build recipe --python 3.10 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
