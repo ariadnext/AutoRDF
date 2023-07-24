@@ -84,10 +84,6 @@ RUN chmod -R 600 /home/$USERNAME/.ssh/id_rsa*
 RUN chown $USERNAME:$USERNAME -R /home/$USERNAME/.ssh/
 
 
-
-USER $USERNAME
-
-
 COPY ./include /workspaces_pipeline/include
 COPY ./recipe /workspaces_pipeline/recipe
 COPY ./src /workspaces_pipeline/src
@@ -97,6 +93,10 @@ COPY ./CMakeLists.txt /workspaces_pipeline/CMakeLists.txt
 COPY ./autordf-ontology.pc.in /workspaces_pipeline/autordf-ontology.pc.in
 COPY ./autordf.pc.in /workspaces_pipeline/autordf.pc.in
 COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
+
+RUN chown $USERNAME:$USERNAME -R /workspaces_pipeline
+
+USER $USERNAME
 
 
 WORKDIR /workspaces_pipeline
