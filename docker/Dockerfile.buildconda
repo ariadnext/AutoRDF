@@ -13,7 +13,6 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 ARG TAG_VERSION
-ENV CONDA_PACKAGE_VERSION_TAG=$TAG_VERSION
 
 # Create directory for keyring
 RUN mkdir -p /docker/keyring
@@ -103,9 +102,10 @@ COPY ./autordfConfig.cmake.in /workspaces_pipeline/autordfConfig.cmake.in
 WORKDIR /workspaces_pipeline
 
 #Build Conda Package for different version of Python
-RUN conda build recipe --python 3.8
-RUN conda build recipe --python 3.9
-RUN conda build recipe --python 3.10
+ENV CONDA_PACKAGE_VERSION_TAG=$TAG_VERSION
+RUN conda build recipe --python 3.8 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
+RUN conda build recipe --python 3.9 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
+RUN conda build recipe --python 3.10 --variant "version=${CONDA_PACKAGE_VERSION_TAG}"
 
 
 #Tar the Conda Package in oder to use only once docker cp to copy packages in the pipeline
