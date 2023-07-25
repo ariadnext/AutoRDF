@@ -40,8 +40,8 @@ conda-package-deploy:
     - *wget-common
     - echo "Conda Package Deploy"
     - echo "Channel Conda ${CHANNEL}"
-    - cd /home/gitlab-runner/conda-bld/linux-64/
-    - ls -al /home/gitlab-runner/conda-bld/linux-64/
+    - cd home/gitlab-runner/conda-bld/linux-64/
+    - ls -al ./
     - for file in *; do if [ -f "$file" ]; then echo "Uploading $file to $CHANNEL"; conda_upload -c "${CHANNEL}" -s "${SUBDIR}" "$file"; fi; done
   tags:
     - ocr
