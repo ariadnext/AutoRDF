@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
             ("outdir,o", po::value< std::string >(), "Folder where to generate files in. If it does not exit it will be created. Defaults to current directory.")
             ("owlfile", po::value< std::vector<std::string> >(), "Input file (repeated)")
             ("preferredLang,l", po::value< std::vector<std::string> >(), "Preferred languages for documentation (repeated)")
-            ("tpldir,t", po::value< std::string >(), "Folder containing the template files. Defaults to 'template' inside the current directory.");
+            ("tpldir,t", po::value< std::string >(), "Folder containing the template files. Defaults to 'template' inside the current directory.")
+            ("separate-headers,sh", "Generate the header files in a separate folder (cpp only)");
 
     po::positional_options_description p;
     p.add("owlfile", -1);
@@ -51,7 +52,8 @@ int main(int argc, char** argv) {
     }
 
     autordf::codegen::Environment::verbose = vm.count("verbose") > 0;
-    auto generateAllInOne = vm.count("all-in-one") > 0;;
+    auto generateAllInOne = vm.count("all-in-one") > 0;
+    auto separatedHeaders = vm.count("separate-headers") > 0;
 
     if (vm.count("preferredLang")) {
         autordf::codegen::Environment::preferredLang = vm["preferredLang"].as< std::vector<std::string> >();
@@ -109,6 +111,10 @@ int main(int argc, char** argv) {
         autordf::codegen::Environment::createDirectory(autordf::codegen::Environment::outdir);
         if (!autordf::codegen::Environment::namespace_.empty()) {
             autordf::codegen::Environment::createOutDirectory(autordf::codegen::Environment::namespace_);
+            if (separatedHeaders) {
+                autordf::codegen::Environment::createOutDirectory("include");
+                autordf::codegen::Environment::createOutDirectory("include/" + autordf::codegen::Environment::namespace_);
+            }
         }
 
         // Hardcode some prefixes
@@ -124,7 +130,7 @@ int main(int argc, char** argv) {
 
         auto generatorStr = vm["generator"].as<std::string>();
         if (generatorStr == "cpp") {
-            generator = std::unique_ptr<autordf::codegen::CodeGenerator>(new autordf::codegen::cpp::CppCodeGenerator(&f, generateAllInOne));
+            generator = std::unique_ptr<autordf::codegen::CodeGenerator>(new autordf::codegen::cpp::CppCodeGenerator(&f, generateAllInOne, separatedHeaders));
         } else if (generatorStr == "python") {
             generator = std::unique_ptr<autordf::codegen::CodeGenerator>(new autordf::codegen::python::PythonCodeGenerator(&f));
         } else {

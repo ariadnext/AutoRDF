@@ -23,7 +23,7 @@ void Environment::createOutDirectory(const std::string& relativeDirName) {
         if (mkdir((Environment::outdir + '/' + relativeDirName).c_str(), S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
             if (errno != EEXIST) {
                 std::stringstream ss;
-                ss << "Error while creating output directory: " << Environment::outdir + '/' + relativeDirName << ::strerror(errno);
+                ss << "Error while creating output directory: " << Environment::outdir + '/' + relativeDirName << " (" << ::strerror(errno) << ")";
                 throw std::runtime_error(ss.str());
             }
         }
@@ -35,7 +35,7 @@ void Environment::createDirectory(const std::string& relativeDirName) {
         if (mkdir(relativeDirName.c_str(), S_IRWXG | S_IRWXU | S_IRWXO) != 0) {
             if (errno != EEXIST) {
                 std::stringstream ss;
-                ss << "Error while creating output directory: " << Environment::outdir + '/' + relativeDirName << ::strerror(errno);
+                ss << "Error while creating output directory: " << Environment::outdir + '/' + relativeDirName  << " (" << ::strerror(errno) << ")";
                 throw std::runtime_error(ss.str());
             }
         }
