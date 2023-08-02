@@ -76,6 +76,11 @@ public:
     AUTORDF_EXPORT static void popFactory();
 
     /**
+     * Allow to know if a factory is already loaded
+     */
+    AUTORDF_EXPORT static bool isFactoryLoaded();
+
+    /**
      * Creates new object, to given iri.
      * @param iri object IRI. If empty, creates an anonymous (aka blank) object
      * @param rdfTypeIRI If not empty, will write rdf type property when object is written

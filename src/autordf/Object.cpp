@@ -35,6 +35,10 @@ void Object::popFactory() {
     _factories.pop();
 }
 
+bool Object::isFactoryLoaded() {
+    return !_factories.empty();
+}
+
 Object::Object(const Uri &iri, const Uri& rdfTypeIRI, Factory* f)
     : _r(iri.empty() ? (f ? f : factory())->createBlankNodeResource() : (f ? f : factory())->createIRIResource(iri)) {
     construct(rdfTypeIRI);
