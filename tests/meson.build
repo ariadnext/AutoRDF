@@ -25,7 +25,7 @@ unittests_exe = executable(
 custom_target(
   'check',
   output: 'unittests.xml',
-  command: [unittests_exe, '-gtest_output="@OUTPUT@"']
+  command: [unittests_exe, '--gtest_output="xml:@OUTPUT@"']
 )
 
 executable(
