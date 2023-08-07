@@ -1,4 +1,4 @@
-FROM gitlab.rennes.ariadnext.com:4567/ocr-docker-utils/axt-certs:latest as axt-certs
+FROM registry.hpc.ariadnext.com/research-common/ocr-docker-utils/axt-certs:latest as axt-certs
 
 FROM registry.rennes.ariadnext.com/docker-hub/debian:bullseye
 
