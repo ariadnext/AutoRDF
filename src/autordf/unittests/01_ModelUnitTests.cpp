@@ -10,9 +10,7 @@ using namespace autordf;
 
 TEST(_01_Model, SupportedFormats) {
     Model m;
-    for ( auto f: m.supportedFormat() ) {
-        std::cout << f << std::endl;
-    }
+    ASSERT_FALSE(m.supportedFormat().empty());
 }
 
 
@@ -143,29 +141,30 @@ TEST(_01_Model, AddSaveEraseStatement) {
 
 TEST(_01_Model, TypeLiterals) {
     Model ts;
+    std::string subject("http://mydomain/me");
     Statement st;
-    st.subject.setIri("http://mydomain/me");
+    st.subject.setIri(subject);
     st.predicate.setIri("http://mydomain/firstName");
     st.object.setLiteral("Fabien", "", "http://www.w3.org/2001/XMLSchema#string");
     ts.add(&st);
 
-    st.subject.setIri("http://mydomain/me");
+    st.subject.setIri(subject);
     st.predicate.setIri("http://mydomain/town");
     st.object.setLiteral("Fabien", "fr");
     ts.add(&st);
 
     const StatementList& stmtList = ts.find();
 
-    std::cout << stmtList << std::endl;
+    for ( const auto &stmt : stmtList) {
+        EXPECT_EQ(stmt.subject.iri(), subject);
+    }
 }
 
 TEST(DISABLED_01_Model, All) {
     Model ts;
     ts.loadFromFile(boost::filesystem::path(__FILE__).parent_path().string() + "/foafExample.ttl");
     const StatementList& stmtList = ts.find();
-    for(const Statement& stmt: stmtList) {
-        std::cout << stmt << std::endl;
-    }
+    ASSERT_FALSE(stmtList.empty());
 }
 
 TEST(_01_Model, QName) {
@@ -185,17 +184,17 @@ TEST(_01_Model, LoadSaveMem) {
     st.predicate.setIri("http://mydomain/town");
     st.object.setLiteral("Fabien", "fr");
     ts.add(&st);
-
+    ASSERT_FALSE(ts.find().empty());
     std::shared_ptr<std::string> data = ts.saveToMemory("turtle");
 
     Model n;
     n.loadFromMemory(data->c_str(), "turtle");
-
+    ASSERT_FALSE(n.find().empty());
     Statement st2;
     st2.subject.setIri("http://mydomain/me");
     st2.predicate.setIri("http://mydomain/town");
     st2.object.setLiteral("Fabien", "fr");
-    n.remove(&st2);
+    EXPECT_NO_THROW(n.remove(&st2));
 }
 
 
@@ -226,7 +225,7 @@ TEST(_01_Model, LoadSave) {
     st2.subject.setIri("http://mydomain/me");
     st2.predicate.setIri("http://mydomain/town");
     st2.object.setLiteral("Rennes", "fr");
-    n.remove(&st2);
+    EXPECT_NO_THROW(n.remove(&st2));
 }
 
 TEST(_01_Model, LoadSaveMultiBlankNodes) {
@@ -237,7 +236,7 @@ TEST(_01_Model, LoadSaveMultiBlankNodes) {
     // We should have 2 distinct subjects
     std::set<std::string> subjects;
 
-    for ( auto stmts : m.find() ) {
+    for ( const auto& stmts : m.find() ) {
         std::string id = stmts.subject.type() == NodeType::RESOURCE ? stmts.subject.iri() : stmts.subject.bNodeId();
         subjects.insert(id);
     }
@@ -250,5 +249,5 @@ TEST(_01_Model, LoadSaveMultiBlankNodes) {
     Model reloaded;
     reloaded.loadFromMemory(serialized.c_str(), "turtle");
 
-    std::cout << *reloaded.saveToMemory("turtle") << std::endl;
+    EXPECT_FALSE(reloaded.saveToMemory("turtle")->empty());
 }
