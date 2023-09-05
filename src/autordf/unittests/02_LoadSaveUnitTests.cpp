@@ -28,7 +28,7 @@ TEST(_02_LoadSave, PropertyNotThere) {
     Resource r = f.createIRIResource("http://jimmycricket.com/me");
     ASSERT_THROW(r.getProperty("http://notthereuri"), PropertyNotFound);
 
-    ASSERT_EQ(nullptr, r.getOptionalProperty("http://notthereuri"));
+    ASSERT_EQ(std::nullopt, r.getOptionalProperty("http://notthereuri"));
 
     std::shared_ptr<Property> p = f.createProperty("http://notthereuri");
     p->setValue("1");

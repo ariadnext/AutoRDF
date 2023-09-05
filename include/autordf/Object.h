@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <functional>
+#include <optional>
 
 #include <autordf/Factory.h>
 #include <autordf/PropertyValue.h>
@@ -133,7 +134,7 @@ public:
      * If property is instanciated more than one, return one of the values, with no particular rule
      * @returns pointer if property exists, null otherwise
      */
-    AUTORDF_EXPORT std::shared_ptr<Object> getOptionalObject(const Uri& propertyIRI) const;
+    AUTORDF_EXPORT std::optional<Object> getOptionalObject(const Uri& propertyIRI) const;
 
     /**
      * Returns the list of object. If no object found returns empty vector
@@ -190,7 +191,7 @@ public:
      * @param f : if provided, work on this factory object.
      * @returns pointer if property exists, null otherwise
      */
-    AUTORDF_EXPORT std::shared_ptr<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI, Factory *f = nullptr) const;
+    AUTORDF_EXPORT std::optional<PropertyValue> getOptionalPropertyValue(const Uri& propertyIRI, Factory *f = nullptr) const;
 
     /**
      * Returns the list of the values. If no value are found returns empty list
@@ -669,12 +670,12 @@ private:
     /**
      * Returns the first found reified PropertyValue, if found
      */
-    std::shared_ptr<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f = nullptr) const;
+    std::optional<PropertyValue> reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f = nullptr) const;
 
     /**
      * Returns the first found reified object, if found
      */
-    std::shared_ptr<Object> reifiedObjectOptional(const Uri& propertyIRI) const;
+    std::optional<Object> reifiedObjectOptional(const Uri& propertyIRI) const;
 
     /**
      * Removes all reified statements

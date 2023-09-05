@@ -10,6 +10,11 @@ std::shared_ptr<{{ property.class.fullClassName }}> {{ interfaceName }}::{{ prop
     auto result = object().getOptionalObject("{{ property.rdfName }}");
     return result ? std::make_shared<{{ property.class.fullClassName }}>(*result) : nullptr;
 }
+
+std::optional<{{ property.class.fullClassName }}> {{ interfaceName }}::{{ property.name }}Opt() const {
+    auto result = object().getOptionalObject("{{ property.rdfName }}");
+    return result ? std::make_optional<{{ property.class.fullClassName }}>(static_cast<{{ property.class.fullClassName }}>(*result)) : std::nullopt;
+}
     {% endif %}
 {% endif %}
 {% if property.maxCardinality > 1%}

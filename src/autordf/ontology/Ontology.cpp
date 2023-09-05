@@ -234,9 +234,9 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     }
 
     // Handle enum types
-    std::shared_ptr<Object> oneof = o.getOptionalObject(OWL_NS + "oneOf");
+    std::optional<Object> oneof = o.getOptionalObject(OWL_NS + "oneOf");
     if ( oneof ) {
-        std::shared_ptr<Object> rest = oneof;
+        auto rest = oneof;
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
             Object oneOfObject(rest->getPropertyValue(RDF_NS + "first"));
             RdfsEntity oneOfVal(this);
@@ -249,7 +249,7 @@ void Ontology::extractClass(const Object& o, Klass *kls) {
     // Handle keys
     std::vector<Object> keys = o.getObjectList(OWL_NS + "hasKey", false);
     for ( const Object& key : keys ) {
-        std::shared_ptr<Object> rest(new Object(key));
+        auto rest = std::make_optional(Object(key));
         while ( rest && rest->iri() != RDF_NS + "nil" ) {
             kls->_keys.insert(rest->getPropertyValue(RDF_NS + "first"));
             rest = rest->getOptionalObject(RDF_NS + "rest");
@@ -272,7 +272,7 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
             prop->_domains.push_back(frontDomain.iri());
         } else {
             // Anonymous class, test for Union
-            std::shared_ptr<Object> rest = frontDomain.getOptionalObject(OWL_NS + "unionOf");
+            std::optional<Object> rest = frontDomain.getOptionalObject(OWL_NS + "unionOf");
             while ( rest && rest->iri() != RDF_NS + "nil" ) {
                 Object unionOfObject(rest->getPropertyValue(RDF_NS + "first"));
                 prop->_domains.push_back(unionOfObject.iri());
@@ -297,7 +297,7 @@ void Ontology::extractProperty(const Object& o, Property *prop) {
         prop->_maxCardinality = 1;
     }
 
-    prop->_ordered = o.getOptionalPropertyValue(AUTORDF_NS + "ordered") ? true : false;
+    prop->_ordered = o.getOptionalPropertyValue(AUTORDF_NS + "ordered").has_value() ;
 }
 
 void Ontology::extractClass(const Object& rdfsClass) {
