@@ -4,6 +4,7 @@
 #include <memory>
 #include <list>
 #include <iosfwd>
+#include <optional>
 
 #include <autordf/Property.h>
 #include <autordf/Uri.h>
@@ -36,7 +37,7 @@ public:
     /**
      * @returns true if property is found, with any value
      */
-    bool hasProperty(const Uri& iri) const { return getOptionalProperty(iri).get(); }
+    bool hasProperty(const Uri& iri) const { return getOptionalProperty(iri).has_value(); }
 
     /**
      * @returns true if property is found, with given value
@@ -55,7 +56,7 @@ public:
      * @param f : if provided, work on this factory object.
      * @throws DuplicateProperty If more than 1 instance of the property is found
      */
-    AUTORDF_EXPORT std::shared_ptr<Property> getOptionalProperty(const Uri& iri, Factory *f = nullptr) const;
+    AUTORDF_EXPORT std::optional<Property> getOptionalProperty(const Uri& iri, Factory *f = nullptr) const;
 
     /**
      * Lists all values for property matching iri name

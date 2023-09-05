@@ -86,7 +86,7 @@ std::vector<Uri> Object::getTypes(const std::string& namespaceFilter) const {
 }
 
 Object Object::getObject(const Uri &propertyIRI) const {
-    std::shared_ptr<Object> obj = getOptionalObject(propertyIRI);
+    std::optional<Object> obj = getOptionalObject(propertyIRI);
     if ( obj ) {
         return *obj;
     } else {
@@ -96,16 +96,16 @@ Object Object::getObject(const Uri &propertyIRI) const {
     }
 }
 
-std::shared_ptr<Object> Object::getOptionalObject(const Uri& propertyIRI) const {
-    std::shared_ptr<Property> p(_r.getOptionalProperty(propertyIRI));
+std::optional<Object> Object::getOptionalObject(const Uri& propertyIRI) const {
+    std::optional<Property> p(_r.getOptionalProperty(propertyIRI));
     if ( p ) {
-        return std::shared_ptr<Object>(new Object(p->asResource()));
+        return std::make_optional(Object(p->asResource()));
     } else {
-        std::shared_ptr<Object> reified = reifiedObjectOptional(propertyIRI);
+        std::optional<Object> reified = reifiedObjectOptional(propertyIRI);
         if ( reified ) {
             return reified;
         } else {
-            return nullptr;
+            return std::nullopt;
         }
     }
 }
@@ -132,9 +132,9 @@ void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveO
         } else {
             long long maxVal = 0;
             reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
-                std::shared_ptr<Property> orderprop = reifiedObjectAsResource(propertyIRI, p.asResource())->getOptionalProperty(AUTORDF_ORDER);
-                if ( orderprop ) {
-                    long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+                std::optional<Property> orderProp = reifiedObjectAsResource(propertyIRI, p.asResource())->getOptionalProperty(AUTORDF_ORDER);
+                if ( orderProp ) {
+                    long long order = orderProp->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
                     maxVal = std::max(maxVal, order);
                 }
             });
@@ -161,7 +161,7 @@ void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
 }
 
 PropertyValue Object::getPropertyValue(const Uri& propertyIRI, Factory *f ) const {
-    std::shared_ptr<PropertyValue> pv = getOptionalPropertyValue(propertyIRI, f);
+    std::optional<PropertyValue> pv = getOptionalPropertyValue(propertyIRI, f);
     if ( pv ) {
         return *pv;
     } else {
@@ -171,21 +171,21 @@ PropertyValue Object::getPropertyValue(const Uri& propertyIRI, Factory *f ) cons
     }
 }
 
-std::shared_ptr<PropertyValue> Object::getOptionalPropertyValue(const Uri& propertyIRI, autordf::Factory *f ) const {
+std::optional<PropertyValue> Object::getOptionalPropertyValue(const Uri& propertyIRI, autordf::Factory *f ) const {
 
     if (nullptr == f) {
         f = factory();
     }
 
-    std::shared_ptr<Property> p(_r.getOptionalProperty(propertyIRI, f));
+    std::optional<Property> p(_r.getOptionalProperty(propertyIRI, f));
     if ( p ) {
-        return std::make_shared<PropertyValue>(p->value());
+        return std::make_optional(p->value());
     } else {
-        std::shared_ptr<PropertyValue> reified = reifiedPropertyValueOptional(propertyIRI,f);
+        std::optional<PropertyValue> reified = reifiedPropertyValueOptional(propertyIRI,f);
         if ( reified ) {
             return reified;
         } else {
-            return nullptr;
+            return std::nullopt;
         }
     }
 }
@@ -216,9 +216,9 @@ void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, 
         } else {
             long long maxVal = 0;
             reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
-                std::shared_ptr<Property> orderprop = reifiedPropertyAsResource(p)->getOptionalProperty(AUTORDF_ORDER);
-                if ( orderprop ) {
-                    long long order = orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+                std::optional<Property> orderProp = reifiedPropertyAsResource(p)->getOptionalProperty(AUTORDF_ORDER);
+                if ( orderProp ) {
+                    long long order = orderProp->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
                     maxVal = std::max(maxVal, order);
                 }
             });
@@ -400,7 +400,7 @@ std::shared_ptr<Resource> Object::reifiedPropertyAsResource(const Property& p) c
     return nullptr;
 }
 
-std::shared_ptr<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f ) const {
+std::optional<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& propertyIRI, autordf::Factory *f ) const {
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject(f);
 
     if(nullptr == f) {
@@ -415,14 +415,14 @@ std::shared_ptr<PropertyValue> Object::reifiedPropertyValueOptional(const Uri& p
         if ( predicate && predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
             if ( prop->isLiteral() ) {
-                return std::make_shared<PropertyValue>(prop->value());
+                return std::make_optional(prop->value());
             }
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
 
-std::shared_ptr<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) const {
+std::optional<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) const {
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
 
     // Iterate through statements and find ones matching predicate
@@ -433,11 +433,11 @@ std::shared_ptr<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) co
         if ( predicate && predicate->asResource().name() == propertyIRI ) {
             std::shared_ptr<Property> prop = reifiedStatement.getProperty(RDF_OBJECT);
             if ( prop->isResource() ) {
-                return std::shared_ptr<Object>(new Object(prop->asResource()));
+                return std::make_optional(Object(prop->asResource()));
             }
         }
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 void Object::removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI) {
@@ -512,11 +512,11 @@ void Object::propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std:
             typedef std::pair<long long, Property> PropertyWithOrder;
             std::vector<PropertyWithOrder> unordered;
             reifiedPropertyIterate(propertyIRI, [&](const Property& p) {
-                std::shared_ptr<Property> orderprop = reifiedPropertyAsResource(p)->getOptionalProperty(AUTORDF_ORDER);
-                if ( !orderprop ) {
+                std::optional<Property> orderProp = reifiedPropertyAsResource(p)->getOptionalProperty(AUTORDF_ORDER);
+                if ( !orderProp ) {
                     throw CannotPreserveOrder("Unable to read back statements order as there is at least one reified statement missing ordering info");
                 }
-                unordered.emplace_back(std::make_pair(orderprop->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p));
+                unordered.emplace_back(std::make_pair(orderProp->value().get<cvt::RdfTypeEnum::xsd_integer, long long>(), p));
             });
             std::sort(unordered.begin(), unordered.end(), [](const PropertyWithOrder& a, const PropertyWithOrder& b) {
                 return a.first < b.first;

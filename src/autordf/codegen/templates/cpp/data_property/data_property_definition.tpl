@@ -7,6 +7,11 @@ std::shared_ptr<{{ cppType(property.type.value) }}> {{ interfaceName }}::{{prope
     return (ptrval ? std::shared_ptr<{{ cppType(property.type.value) }}>(new {{ cppType(property.type.value) }}(ptrval->get<autordf::cvt::RdfTypeEnum::{{ property.type.rdf }}, {{ cppType(property.type.value) }}>())) : nullptr);
 }
 
+std::optional<{{ cppType(property.type.value) }}> {{ interfaceName }}::{{property.name}}Opt() const {
+    auto ptrval = object().getOptionalPropertyValue("{{ property.rdfName }}");
+    return (ptrval ? std::optional<{{cppType(property.type.value) }}>(static_cast<{{ cppType(property.type.value) }}>(ptrval->get<autordf::cvt::RdfTypeEnum::{{ property.type.rdf }}, {{ cppType(property.type.value) }}>())) : std::nullopt);
+}
+
 {{ cppType(property.type.value) }} {{ interfaceName }}::{{property.name}}(const {{ cppType(property.type.value) }}& defaultval) const {
     auto ptrval = object().getOptionalPropertyValue("{{ property.rdfName }}");
     return (ptrval ? ptrval->get<autordf::cvt::RdfTypeEnum::{{ property.type.rdf }}, {{ cppType(property.type.value) }}>() : defaultval);

@@ -25,6 +25,16 @@
             {% set comment.return = "the object instance if it is set, or nullptr if it is not set." %}
             {% include "../property_comment.tpl" %}
     std::shared_ptr<{{ property.class.fullClassName }}> {{ method }}() const;
+
+            {% set method = concat(property.name, "Opt") %}
+            {% if existsIn(property.comment, "label") or existsIn(property.comment, "comment") %}
+                {% set comment = property.comment%}
+            {% else %}
+                {% set comment = property.class.classComment %}
+            {% endif %}
+            {% set comment.return = "the object instance if it is set, or nullopt if it is not set." %}
+            {% include "../property_comment.tpl" %}
+    std::optional<{{ property.class.fullClassName }}> {{ method }}() const;
         {% endif %}
     {% else %}
         {% set method = concat(property.name, "List") %}

@@ -1,5 +1,6 @@
 
 #include <gtest/gtest.h>
+#include <optional>
 
 #include <boost/filesystem.hpp>
 
@@ -9,7 +10,7 @@
 
 using namespace autordf;
 
-void printRecurse(Object obj, int recurse) {
+void printRecurse(const Object& obj, int recurse) {
     std::cout << "Printing with recurse " << recurse << std::endl;
     std::cout << "----------------------------------------------" << std::endl;
     std::cout << "{" << std::endl;
@@ -80,14 +81,14 @@ TEST(_03_Object, Accessors) {
     std::vector<Object> objs = Object::findByType("http://xmlns.com/foaf/0.1/Person");
 
     Object person;
-    for ( auto p : objs ) {
+    for ( const auto& p : objs ) {
         if ( p.getPropertyValue("http://xmlns.com/foaf/0.1/name") == "Jimmy Wales" ) {
             person = p;
         }
     }
 
     ASSERT_NO_THROW(person.getObject("http://xmlns.com/foaf/0.1/account"));
-    ASSERT_EQ(nullptr, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
+    ASSERT_EQ(std::nullopt, person.getOptionalObject("http://xmlns.com/foaf/0.1/unexisting"));
     ASSERT_TRUE(person.getObjectList("http://xmlns.com/foaf/0.1/unexisting", false).empty());
     ASSERT_EQ(size_t{2}, person.getObjectList("http://xmlns.com/foaf/0.1/knows", false).size());
 
@@ -204,7 +205,7 @@ TEST(_03_Object, DataPropertyReification) {
     f.saveToFile("/tmp/test_UnReification1.ttl");
 
     // Test our read back support of reified statements
-    ASSERT_TRUE(obj.getOptionalPropertyValue("http://myprop1").get());
+    ASSERT_TRUE(obj.getOptionalPropertyValue("http://myprop1").has_value());
 
     // Test our read back support of reified statements
     ASSERT_EQ("1", obj.getPropertyValue("http://myprop1"));
@@ -276,7 +277,7 @@ TEST(_03_Object, ObjectPropertyReification) {
     f.saveToFile("/tmp/test_UnReification1.ttl");
 
     // Test our read back support of reified statements
-    ASSERT_TRUE(obj.getOptionalObject("http://myprop1").get());
+    ASSERT_TRUE(obj.getOptionalObject("http://myprop1").has_value());
 
     // Test our read back support of reified statements
     ASSERT_EQ(obj1, obj.getObject("http://myprop1"));

@@ -1,4 +1,4 @@
-project('autordf', 'cpp', version:'1.0.0')
+project('autordf', 'cpp', version:'1.0.0', default_options : ['cpp_std=c++20'])
 
 # Standard autordf library
 autordf_library_includes = include_directories(['include', 'src', 'src/autordf', 'meson_include'])

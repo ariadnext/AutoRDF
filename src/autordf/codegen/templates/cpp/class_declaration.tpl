@@ -4,6 +4,7 @@
 
 #include <set>
 #include <iosfwd>
+#include <optional>
 #include <autordf/Object.h>
 #include <{{ fullPackagePath }}/{{ interfaceName }}.h>
 {% for ancestor in ancestors %}

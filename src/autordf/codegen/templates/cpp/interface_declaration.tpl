@@ -6,6 +6,7 @@
 #include <array>
 #include <tuple>
 #include <ostream>
+#include <optional>
 {% endif %}
 #include <autordf/Object.h>
 
