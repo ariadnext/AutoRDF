@@ -106,6 +106,12 @@ public:
      * @brief returns the object this interface object applies to
      */
     virtual const autordf::Object& object() const = 0;
+
+    /**
+     * @brief Default virtual destructor
+     */
+    virtual ~{{ interfaceName }}() = default;
+
 {% if hasOneOf %}
 
 private:
