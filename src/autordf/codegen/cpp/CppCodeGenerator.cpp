@@ -31,10 +31,14 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
 
     for (auto const& klassMapItem: ontology.classUri2Ptr()) {
         auto klass = CppKlass(*klassMapItem.second, renderer);
+        klass.setSeparateHeaders(_separateHeaders);
         klass.buildTemplateData();
 
         // created directory if needed
         Environment::createOutDirectory(klass.packagePath());
+        if (_separateHeaders) {
+            Environment::createOutDirectory("include/" + klass.packagePath());
+        }
         cppNameSpaces.insert(klass.basePackageName());
 
         if (Environment::verbose) {
@@ -47,15 +51,22 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
     }
 
     // Generate all inclusions files
+    std::string headerPrefixPath;
+    if (_separateHeaders) {
+        headerPrefixPath = "include/";
+    }
+
     if (Environment::verbose) {
         std::cout << "Generating all inclusions files..." << std::endl;
     }
     for (const std::string& cppNameSpace : cppNameSpaces) {
         std::ofstream out;
+
         if (!Environment::namespace_.empty()) {
-            Environment::createFile(Environment::namespace_ + "/" +cppNameSpace + "/" + cppNameSpace + ".h", out);
+            Environment::createFile(
+                    headerPrefixPath + Environment::namespace_ + "/" + cppNameSpace + "/" + cppNameSpace + ".h", out);
         } else {
-            Environment::createFile(cppNameSpace + "/" + cppNameSpace + ".h", out);
+            Environment::createFile(headerPrefixPath + cppNameSpace + "/" + cppNameSpace + ".h", out);
         }
 
         nlohmann::json data;
@@ -69,6 +80,7 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
 
         for (auto const& klassMapItem: ontology.classUri2Ptr()) {
             auto klass = CppKlass(*klassMapItem.second, renderer);
+            klass.setSeparateHeaders(_separateHeaders);
             klass.buildTemplateData(false);
             if (klass.basePackageName() == cppNameSpace) {
                 data["classes"].push_back(klass.templateData());
@@ -76,7 +88,7 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
         }
 
         if (Environment::verbose) {
-            std::cout << "Rendering template 'cpp/all_inclusions.tpl' to '" << Environment::outdir << "/" << cppNameSpace << "/" << cppNameSpace << ".h'...";
+            std::cout << "Rendering template 'cpp/all_inclusions.tpl' to '" << Environment::outdir << "/" << headerPrefixPath << cppNameSpace << "/" << cppNameSpace << ".h'...";
         }
         auto tpl = renderer.parse_template("cpp/all_inclusions.tpl");
         renderer.render_to(out, tpl, data);
@@ -107,6 +119,7 @@ void CppCodeGenerator::runInternal(const ontology::Ontology& ontology, inja::Env
 
         for (auto const& klassMapItem: ontology.classUri2Ptr()) {
             auto klass = CppKlass(*klassMapItem.second, renderer);
+            klass.setSeparateHeaders(_separateHeaders);
             klass.buildTemplateData(false);
             data["classes"].push_back(klass.templateData());
         }
