@@ -1,3 +1,4 @@
+#include <autordf/NodeType.h>
 #include <autordf/Object.h>
 
 #include <autordf/Factory.h>
@@ -809,6 +810,11 @@ std::set<Object> Object::findReified() const {
         }
     }
     return allReifiedValues;
+}
+
+Object Object::createFromNode(const Node& node) {
+    Resource resource = factory()->createResourceFromNode(node);
+    return Object(resource);
 }
 
 //TODO : add a version that also clone ressources

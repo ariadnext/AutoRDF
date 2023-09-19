@@ -26,3 +26,8 @@ pkgconfig.generate(
   autordf_ontology_lib,
   libraries: autordf_lib,
 )
+
+autordf_ontology_dep = declare_dependency(
+    link_with: [autordf_ontology_lib],
+    include_directories: autordf_ontology_includes
+)
