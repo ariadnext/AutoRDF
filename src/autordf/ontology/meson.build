@@ -9,3 +9,8 @@ autordf_ontology_lib = library(
     link_with: autordf_library,
     install: true
 )
+
+autordf_ontology_dep = declare_dependency(
+    link_with: [autordf_ontology_lib],
+    include_directories: autordf_ontology_includes
+)

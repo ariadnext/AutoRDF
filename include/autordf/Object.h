@@ -619,6 +619,12 @@ public:
      */
     Object cloneRecursiveStopAtResources(const Uri& newIri = "", bool(*doNotClone)(const Object &currentObject, const std::string &sourcePredicateIri, const Object *parentObject) = nullptr) const;
 
+    /**
+    * Create an Object directly from a Node.
+    * @param node The node to create the Object from
+    */
+    static Object createFromNode(const Node& node);
+
 private:
     /**
      * The resource this object is based on
