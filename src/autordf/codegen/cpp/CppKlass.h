@@ -12,7 +12,11 @@ public:
 
     void generate() const override;
 
+    void setSeparateHeaders(bool state);
+
 private:
+    bool _separateHeaders = false;
+
     std::unique_ptr<Klass> buildDependency(const ontology::Klass& ontology) const override;
 };
 }
