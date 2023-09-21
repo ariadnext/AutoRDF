@@ -1,6 +1,7 @@
 # add a target to generate API documentation with Doxygen
 FIND_PACKAGE(Doxygen)
 IF(DOXYGEN_FOUND)
+    set(PROJECT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
     CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     ADD_CUSTOM_TARGET(doc ALL
         ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
@@ -8,7 +9,7 @@ IF(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM
         )
     INSTALL(DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/html
+        ${CMAKE_CURRENT_BINARY_DIR}/autordf/html
         DESTINATION ${CMAKE_INSTALL_DOCDIR}
         )
 ENDIF(DOXYGEN_FOUND)
