@@ -2,7 +2,7 @@ foaf_src = custom_target(
   'foaf',
   input: 'foaf_20140114.ttl',
   output : ['AllInOne.cpp'],
-  command : [autordf_codegen_exe, '-a', '-t', '@SOURCE_ROOT@/src/autordf/codegen/templates', '-l en', '-o', meson.current_build_dir(), '@INPUT@']
+  command : [autordf_codegen_exe, '-a', '-t', '@CURRENT_SOURCE_DIR@/../../templates', '-l en', '-o', meson.current_build_dir(), '@INPUT@']
 )
 
 executable(

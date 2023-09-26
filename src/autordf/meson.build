@@ -39,10 +39,13 @@ autordf_lib = library(
   dependencies: [boost_dep, sord_dep],
   install: true,
 )
+
 autordf_dep = declare_dependency(
   link_with: autordf_lib,
+  compile_args: '-DUSE_SORD',
   include_directories: autordf_include_directories,
   dependencies: [boost_dep, sord_dep],
+  variables: {'templates_path': meson.current_source_dir() / 'codegen' / 'templates'},
 )
 
 # Pkgconfig file installation
