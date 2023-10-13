@@ -21,3 +21,6 @@ conda build recipe
 ```
 - The Conda Python Package is now available under: /home/developer/conda-bld/linux-64/autordf-1.0.0-py310h3fd9d12_0.tar.bz2
 Note that the conda build can be exectued by using Dockerfile.buildconda as a Dev Container.
+
+To change the version of the package, modify `version` variable in `recipe/meta.yaml`
+
