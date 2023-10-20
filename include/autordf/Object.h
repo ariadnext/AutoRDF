@@ -61,6 +61,11 @@ public:
     AUTORDF_EXPORT static const std::string RDF_OBJECT;
 
     /**
+     * Returns the associated factory, or throws if nullptr
+     */
+    AUTORDF_EXPORT static Factory *factory();
+
+    /**
      * All newly Objects, and new values will be created in this Factory
      */
     AUTORDF_EXPORT static void setFactory(Factory *f);
@@ -791,10 +796,6 @@ private:
      * @return
      */
     Object cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Object &currentObject, const std::string &sourcePredicateIri, const Object *parentObject), bool first = false) const;
-    /**
-     * Returns the associated factory, or throws if nullptr
-     */
-    AUTORDF_EXPORT static Factory *factory();
 
     /**
      * Full namespace for RDF, including #
