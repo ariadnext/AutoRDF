@@ -6,6 +6,8 @@
 
 namespace autordf {
 
+Factory::Factory() : Model() {}
+
 Resource Factory::createBlankNodeResource(const std::string &bnodeid) {
     std::string id = bnodeid;
     if ( id.empty() ) {

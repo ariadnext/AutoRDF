@@ -17,6 +17,7 @@
 #include <autordf/Resource.h>
 #include <autordf/Exception.h>
 #include <autordf/Uri.h>
+#include <autordf/notification/NotifierLocker.h>
 
 #include <autordf/autordf_export.h>
 
@@ -164,6 +165,15 @@ public:
     AUTORDF_EXPORT void addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering);
 
     /**
+     * Replace the given oldObj by newObj
+     * @param propertyIRI Internationalized Resource Identifiers property to set
+     * @param oldObj object to be replaced for the propertyIRI property
+     * @param newObj substitute object for the propertyIRI property
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
+     */
+    AUTORDF_EXPORT void replaceObject(const Uri& propertyIRI, const Object& oldObj, const Object& newObj);
+
+    /**
      * Sets list of objects to given property
      * @param propertyIRI Internationalized Resource Identifiers property to set value of
      * @param values list of values
@@ -238,6 +248,15 @@ public:
      * @throw CannotUnreify if value is store as a reified statement and statement cannot be unreified
      */
     AUTORDF_EXPORT void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+
+    /**
+     * Replace the given oldVal by newVal
+     * @param propertyIRI Internationalized Resource Identifiers property to set
+     * @param oldVal PropertyValue to be replaced for the propertyIRI property
+     * @param newObj substitute PropertyValue for the propertyIRI property
+     * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
+     */
+    AUTORDF_EXPORT void replacePropertyValue(const Uri& propertyIRI, const PropertyValue& oldVal, const PropertyValue& newVal);
 
     /**
      * Writes a data property in reified form.
@@ -551,6 +570,7 @@ public:
      * @throw InvalidIRI if propertyIRI is empty
      */
     template<typename T> void setObjectListImpl(const Uri& propertyIRI, const std::vector<T>& values, bool preserveOrdering) {
+        notification::NotifierLocker locker(factory()->notifier());
         writeRdfType();
         removeAllReifiedObjectPropertyStatements(propertyIRI);
         std::shared_ptr<Property> p =factory()->createProperty(propertyIRI);
@@ -590,6 +610,7 @@ public:
      * @throw InvalidIRI if propertyIRI is empty
      */
     template<cvt::RdfTypeEnum rdftype, typename T> void setValueListImpl(const Uri& propertyIRI, const std::vector<T>& values, bool preserveOrdering) {
+        notification::NotifierLocker locker(factory()->notifier());
         writeRdfType();
         removeAllReifiedDataPropertyStatements(propertyIRI);
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);

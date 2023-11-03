@@ -291,17 +291,17 @@ Node Model::findTarget(const Node& source, const Node& arc) const {
     return Node(librdf_model_get_target(_model->get(), source.get(), arc.get()), true);
 }
 
-INotifier *Model::notifier() const {
+ANotifier *Model::notifier() const {
     return _notifier;
 }
 
-void Model::setNotifier(INotifier *notifier) {
+void Model::setNotifier(ANotifier *notifier) {
     _notifier = notifier;
 }
 
 #elif defined(USE_SORD)
 
-Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false) {
+Model::Model() : _world(new World()), _model(new ModelPrivate()), _readOnly(false), _notifier(std::make_shared<notification::DefaultNotifier>()) {
 }
 
 std::string guessFormat(const std::string& path) {
@@ -605,11 +605,11 @@ void Model::addNamespacePrefix(const std::string& prefix, const std::string& ns)
     }
 }
 
-INotifier *Model::notifier() const {
-    return _notifier;
+notification::ANotifier &Model::notifier() const {
+    return *_notifier;
 }
 
-void Model::setNotifier(INotifier *notifier) {
+void Model::setNotifier(std::shared_ptr<notification::ANotifier> notifier) {
     _notifier = notifier;
 }
 }

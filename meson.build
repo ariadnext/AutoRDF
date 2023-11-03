@@ -19,7 +19,6 @@ install_headers(
   include_folder / 'Factory.h',
   include_folder / 'I18String.h',
   include_folder / 'I18StringVector.h',
-  include_folder / 'INotifier.h',
   include_folder / 'Model.h',
   include_folder / 'Node.h',
   include_folder / 'NodeList.h',
@@ -55,6 +54,12 @@ install_headers(
   ontology_include_folder / 'Validator.h',
   'meson_include' / 'autordf' / 'ontology' / 'autordf-ontology_export.h',
   subdir: 'autordf/ontology',
+)
+
+notification_include_folder = 'include' / 'autordf' / 'notification'
+install_headers(
+  notification_include_folder / 'ANotifier.h',
+  subdir: 'autordf/notification'
 )
 
 subdir('src/autordf')

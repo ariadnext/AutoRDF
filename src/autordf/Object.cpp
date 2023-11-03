@@ -116,6 +116,7 @@ std::vector<Object> Object::getObjectList(const Uri& propertyIRI, bool preserveO
 }
 
 void Object::setObject(const Uri& propertyIRI, const Object& obj) {
+    notification::NotifierLocker locker(factory()->notifier());
     // First remove all reified statements
     removeAllReifiedObjectPropertyStatements(propertyIRI);
     writeRdfType();
@@ -126,6 +127,7 @@ void Object::setObject(const Uri& propertyIRI, const Object& obj) {
 }
 
 void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveOrdering) {
+    notification::NotifierLocker locker(factory()->notifier());
     writeRdfType();
     if ( !reifiedObjectAsResource(propertyIRI, obj) ) {
         if (!preserveOrdering) {
@@ -147,11 +149,42 @@ void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveO
     }
 }
 
+void Object::replaceObject(const Uri& propertyIRI, const Object& oldObj, const Object& newObj) {
+    notification::NotifierLocker locker(factory()->notifier());
+
+    // Check if the given object is ordered. If ordered, store it index
+    long long order = -1;
+    if (std::shared_ptr<Property> resource = factory()->createProperty(propertyIRI)) {
+        resource->setValue(oldObj._r);
+        if (std::shared_ptr<Resource> reified = reifiedPropertyAsResource(*resource)) {
+            if (std::optional<Property> orderProperty = reified->getOptionalProperty(AUTORDF_ORDER)) {
+                order = orderProperty->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+            }
+        }
+    }
+
+    // Remove the existing object
+    removeObject(propertyIRI, oldObj);
+
+    if (order > -1) {
+        // If the object is ordered, get all object of it type, insert the new object at the same index
+        // of the one that got removed then set the new list
+        std::vector<Object> values = getObjectList(propertyIRI, true);
+        values.insert(values.begin() + (order - 1), newObj);
+        setObjectList(propertyIRI, values, true);
+    } else {
+        // If the object is not ordered, simply add it to it parent
+        addObject(propertyIRI, newObj, false);
+    }
+}
+
 void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &values, bool preserveOrdering) {
+    notification::NotifierLocker locker(factory()->notifier());
     setObjectListImpl(propertyIRI, values, preserveOrdering);
 }
 
 void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
+    notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     if ( !unReifyObject(propertyIRI, obj, false) ) {
         // No reified object to remove, use std removal
@@ -200,6 +233,7 @@ std::vector<PropertyValue> Object::getPropertyValueList(const Uri& propertyIRI, 
 }
 
 void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+    notification::NotifierLocker locker(factory()->notifier());
     // First remove all reified statements
     removeAllReifiedDataPropertyStatements(propertyIRI);
     writeRdfType();
@@ -210,6 +244,7 @@ void Object::setPropertyValue(const Uri& propertyIRI, const PropertyValue& val) 
 }
 
 void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool preserveOrdering) {
+    notification::NotifierLocker locker(factory()->notifier());
     writeRdfType();
     if (!reifiedPropertyValueAsResource(propertyIRI, val)) {
         if (!preserveOrdering) {
@@ -232,6 +267,7 @@ void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, 
 }
 
 void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+    notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     if ( !unReifyPropertyValue(propertyIRI, val, false) ) {
         // No reified object to remove, use std removal
@@ -241,7 +277,37 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
     }
 }
 
+void Object::replacePropertyValue(const Uri& propertyIRI, const PropertyValue& oldVal, const PropertyValue& newVal) {
+    notification::NotifierLocker locker(factory()->notifier());
+
+    // Check if the given property is ordered. If ordered, store it index
+    long long order = -1;
+    if (std::shared_ptr<Property> resource = factory()->createProperty(propertyIRI)) {
+        resource->setValue(oldVal, true);
+        if (std::shared_ptr<Resource> reified = reifiedPropertyAsResource(*resource)) {
+            if (std::optional<Property> orderProperty = reified->getOptionalProperty(AUTORDF_ORDER)) {
+                order = orderProperty->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
+            }
+        }
+    }
+
+    // Remove the existing property
+    removePropertyValue(propertyIRI, oldVal);
+
+    if (order > -1) {
+        // If the property is ordered, get all property of it type, insert the new property at the same index
+        // of the one that got removed then set the new list
+        std::vector<PropertyValue> values = getPropertyValueList(propertyIRI, true);
+        values.insert(values.begin() + (order - 1), newVal);
+        setPropertyValueList(propertyIRI, values, true);
+    } else {
+        // If the property is not ordered, simply add it to it parent
+        addPropertyValue(propertyIRI, newVal, false);
+    }
+}
+
 Resource Object::createReificationResource(const Uri& propertyIRI, const PropertyValue& val) {
+    notification::NotifierLocker locker(factory()->notifier());
     Resource reified = factory()->createBlankNodeResource();
     reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(factory()->createIRIResource(RDF_STATEMENT)));
     reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
@@ -251,6 +317,7 @@ Resource Object::createReificationResource(const Uri& propertyIRI, const Propert
 }
 
 Resource Object::createReificationResource(const Uri& propertyIRI, const Resource& val) {
+    notification::NotifierLocker locker(factory()->notifier());
     Resource reified = factory()->createBlankNodeResource();
     reified.addProperty(factory()->createProperty(RDF_TYPE)->setValue(factory()->createIRIResource(RDF_STATEMENT)));
     reified.addProperty(factory()->createProperty(RDF_SUBJECT)->setValue(_r));
@@ -260,6 +327,7 @@ Resource Object::createReificationResource(const Uri& propertyIRI, const Resourc
 }
 
 Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+    notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     std::shared_ptr<Resource> alreadyReified = reifiedPropertyValueAsResource(propertyIRI, val);
 
@@ -281,6 +349,7 @@ Object Object::reifyPropertyValue(const Uri& propertyIRI, const PropertyValue& v
 
 
 Object Object::reifyObject(const Uri& propertyIRI, const Object& object) {
+    notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     std::shared_ptr<Resource> alreadyReified = reifiedObjectAsResource(propertyIRI, object);
 
@@ -315,6 +384,7 @@ void Object::ensureUnreificationIsPossible(const std::shared_ptr<Resource>& alre
 }
 
 bool Object::unReify(std::shared_ptr<Resource> alreadyReified, bool keep) {
+    notification::NotifierLocker locker(factory()->notifier());
     if ( alreadyReified ) {
         ensureUnreificationIsPossible(alreadyReified);
         //TODO: we would like some kind of transactional database to prevent inconsistencies in failure case scenarios
@@ -332,16 +402,17 @@ bool Object::unReify(std::shared_ptr<Resource> alreadyReified, bool keep) {
         alreadyReified->remove();
 
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 bool Object::unReifyObject(const Uri& propertyIRI, const Object& object, bool keep) {
+    notification::NotifierLocker locker(factory()->notifier());
     return unReify(reifiedObjectAsResource(propertyIRI, object), keep);
 }
 
 bool Object::unReifyPropertyValue(const Uri& propertyIRI, const PropertyValue& val, bool keep) {
+    notification::NotifierLocker locker(factory()->notifier());
     return unReify(reifiedPropertyValueAsResource(propertyIRI, val), keep);
 }
 
@@ -381,6 +452,12 @@ std::shared_ptr<Resource> Object::reifiedPropertyAsResource(const Property& p) c
         std::shared_ptr<Property> predicate = reifiedStatement.getProperty(RDF_PREDICATE);
         if ( predicate->asResource().name() == p.iri() ) {
             std::shared_ptr<Property> object = reifiedStatement.getProperty(RDF_OBJECT);
+            std::string tmp1;
+            std::string tmp2;
+            if (p.type() == NodeType::BLANK || p.type() == NodeType::RESOURCE) {
+                    tmp1 = object->asResource().name();
+                    tmp2 = p.asResource().name();
+            }
             switch (p.type()) {
                 case NodeType::LITERAL:
                     if ( object->isLiteral() && (object->value() == p.value()) ) {
@@ -389,7 +466,7 @@ std::shared_ptr<Resource> Object::reifiedPropertyAsResource(const Property& p) c
                     break;
                 case NodeType::RESOURCE:
                 case NodeType::BLANK:
-                    if ( object->asResource().name() == p.asResource().name() ){
+                    if (  object->asResource().name() == p.asResource().name() ){
                         return std::make_shared<Resource>(reifiedStatement);
                     }
                     break;
@@ -442,18 +519,21 @@ std::optional<Object> Object::reifiedObjectOptional(const Uri& propertyIRI) cons
 }
 
 void Object::removeAllReifiedObjectPropertyStatements(const Uri& propertyIRI) {
+    notification::NotifierLocker locker(factory()->notifier());
     reifiedPropertyIterate(propertyIRI, [this](const Property& p) {
         unReifyObject(p.iri(), p.asResource(), false);
     });
 }
 
 void Object::removeAllReifiedDataPropertyStatements(const Uri& propertyIRI) {
+    notification::NotifierLocker locker(factory()->notifier());
     reifiedPropertyIterate(propertyIRI, [this](const Property& p) {
         unReifyPropertyValue(p.iri(), p.value(), false);
     });
 }
 
 void Object::reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (const Property& p)> cb) const {
+    notification::NotifierLocker locker(factory()->notifier());
     const NodeList nodesReferingToThisObject = reificationResourcesForCurrentObject();
 
     // Iterate through statements and find ones matching predicate
@@ -470,6 +550,7 @@ void Object::reifiedPropertyIterate(const Uri& propertyIRI, std::function<void (
 }
 
 void Object::setPropertyValueList(const Uri& propertyIRI, const std::vector<PropertyValue>& values, bool preserveOrdering) {
+    notification::NotifierLocker locker(factory()->notifier());
     writeRdfType();
     removeAllReifiedDataPropertyStatements(propertyIRI);
     std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
@@ -492,6 +573,7 @@ void Object::setPropertyValueList(const Uri& propertyIRI, const std::vector<Prop
 }
 
 void Object::propertyIterate(const Uri& propertyIRI, bool preserveOrdering, std::function<void (const Property& prop)> cb) const {
+    notification::NotifierLocker locker(factory()->notifier());
     if ( propertyIRI.empty() ) {
         throw InvalidIRI("Calling propertyIterate() with empty IRI is forbidden");
     }
@@ -534,6 +616,7 @@ bool Object::isA(const Uri& typeIRI) const {
 }
 
 void Object::remove(bool bRecursive /*= false*/) {
+    notification::NotifierLocker locker(factory()->notifier());
 
     if(bRecursive){
         if (isA(RDF_STATEMENT)) {
@@ -572,6 +655,7 @@ void Object::remove(bool bRecursive /*= false*/) {
 }
 
 Object Object::clone(const Uri& iri) const {
+    notification::NotifierLocker locker(factory()->notifier());
     const std::shared_ptr<std::list<Property>>& props = _r.getPropertyValues();
     Object res;
     if ( !iri.empty() ) {
@@ -819,10 +903,12 @@ Object Object::createFromNode(const Node& node) {
 
 //TODO : add a version that also clone ressources
 Object Object::cloneRecursiveStopAtResources(const Uri& newIri, bool(*doNotClone)(const Object &, const std::string &, const Object *)) const {
+    notification::NotifierLocker locker(factory()->notifier());
     return cloneRecursiveStopAtResourcesInternal(newIri, doNotClone, true);
 }
 
 Object Object::cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Object &, const std::string &, const Object *), bool first) const {
+    notification::NotifierLocker locker(factory()->notifier());
     Object res(newIri, this->_rdfTypeIRI);
     copyPropertiesInternal(doNotClone, res, first);
     copyReifiedProperties(doNotClone, res);
@@ -830,6 +916,7 @@ Object Object::cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*do
 }
 
 void Object::copyReifiedProperties(bool(*doNotClone)(const Object &, const std::string &, const Object *), Object& to) const {
+    notification::NotifierLocker locker(factory()->notifier());
     NodeList reifiedNodes = reificationResourcesForCurrentObject();
     for (const Node & node : reifiedNodes) {
         Resource reifiedStatement(factory()->createResourceFromNode(node));
@@ -859,6 +946,7 @@ void Object::copyReifiedProperties(bool(*doNotClone)(const Object &, const std::
 }
 
 void Object::copyPropertiesInternal(bool(*doNotClone)(const Object &, const std::string &, const Object *), Object& to, bool first) const {
+    notification::NotifierLocker locker(factory()->notifier());
     if (first && doNotClone && doNotClone(_r, "", nullptr)) {
         return;
     }
