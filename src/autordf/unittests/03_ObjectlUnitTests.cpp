@@ -581,3 +581,166 @@ TEST(_03_Object, removeObjectRecursive2) {
 
     EXPECT_TRUE(f.find().empty()) << debugInfo.str();
 }
+
+TEST(_03_Object, replaceObject) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http:///child");
+    const autordf::Uri substituteIRI("http://my/child/substitute");
+    Object parent("http://my/parent/object");
+    Object child(Object("http://my/child/object"));
+    Object substitute(substituteIRI);
+
+    parent.setObject(propertyIRI, child);
+
+    ASSERT_NO_THROW(parent.replaceObject(propertyIRI, child, substitute));
+
+    auto obj = parent.getOptionalObject(propertyIRI);
+    ASSERT_TRUE(obj != std::nullopt);
+    ASSERT_EQ(obj->iri(), substituteIRI);
+}
+
+TEST(_03_Object, replaceObjectInList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://non-ordered/childs");
+    Object parent("http://my/parent/object");
+    Object bad("http://2object");
+    Object good("http://object2");
+    std::vector<Object> childs;
+    childs.emplace_back(Object("http://object1"));
+    childs.emplace_back(bad);
+    childs.emplace_back(Object ("http://object3"));
+    parent.setObjectList(propertyIRI, childs, false);
+    ASSERT_NO_THROW(parent.getObjectList(propertyIRI, false));
+
+    std::vector<Object> read = parent.getObjectList(propertyIRI, false);
+    std::vector<autordf::Uri> iris { "http://object1", "http://2object", "http://object3" };
+    for (Object o : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), o.iri()), 1);
+    }
+
+    parent.replaceObject(propertyIRI, bad, good);
+
+    read = parent.getObjectList(propertyIRI, false);
+    iris = { "http://object1", "http://object2", "http://object3" };
+    for (Object o : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), o.iri()), 1);
+    }
+}
+
+TEST(_03_Object, replaceObjectInOrderedList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://ordered/childs");
+    Object parent("http://my/parent/object");
+    Object bad("http://fourth");
+    Object good("http://second");
+    std::vector<Object> childs;
+    childs.emplace_back(Object("http://first"));
+    childs.emplace_back(bad);
+    childs.emplace_back(Object("http://third"));
+    parent.setObjectList(propertyIRI, childs, true);
+    ASSERT_NO_THROW(parent.getObjectList(propertyIRI, true));
+
+    std::vector<Object> read = parent.getObjectList(propertyIRI, true);
+    ASSERT_EQ(childs.size(), read.size());
+    EXPECT_EQ(childs[0], read[0]);
+    EXPECT_EQ(bad, read[1]);
+    EXPECT_EQ(childs[2], read[2]);
+
+    parent.replaceObject(propertyIRI, bad, good);
+
+    ASSERT_NO_THROW(parent.getObjectList(propertyIRI, true));
+    read = parent.getObjectList(propertyIRI, true);
+    ASSERT_EQ(childs.size(), read.size());
+    EXPECT_EQ(childs[0], read[0]);
+    EXPECT_EQ(good, read[1]);
+    EXPECT_EQ(childs[2], read[2]);
+}
+
+TEST(_03_Object, replacePropertyValue) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http:///child");
+    autordf::PropertyValue bad("odg");
+    autordf::PropertyValue good("dog");
+    Object parent("http://my/parent/object");
+
+    parent.setPropertyValue(propertyIRI, bad);
+
+    ASSERT_NO_THROW(parent.replacePropertyValue(propertyIRI, bad, good));
+
+    auto pv = parent.getOptionalPropertyValue(propertyIRI);
+    ASSERT_TRUE(pv != std::nullopt);
+    ASSERT_EQ(pv, good);
+}
+
+TEST(_03_Object, replacePropertyValueInList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://non-ordered/childs");
+    Object parent("http://my/parent/object");
+    PropertyValue bad("zozo");
+    PropertyValue good("toto");
+    std::vector<PropertyValue> childs;
+    childs.emplace_back("titi");
+    childs.emplace_back(bad);
+    childs.emplace_back("tata");
+    parent.setPropertyValueList(propertyIRI, childs, false);
+    ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, false));
+
+    std::vector<PropertyValue> read = parent.getPropertyValueList(propertyIRI, false);
+    std::vector<autordf::Uri> iris { "titi", "tata", "zozo" };
+    for (PropertyValue pv : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), pv), 1);
+    }
+
+    parent.replacePropertyValue(propertyIRI, bad, good);
+
+    read = parent.getPropertyValueList(propertyIRI, false);
+    iris = { "titi", "tata", "toto" };
+    for (PropertyValue pv : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), pv), 1);
+    }
+}
+
+TEST(_03_Object, replacePropertyValueInOrderedList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://ordered/childs");
+    Object parent("http://my/parent/object");
+    PropertyValue bad("4");
+    PropertyValue good("2");
+    std::vector<PropertyValue> childs;
+    childs.emplace_back(PropertyValue("1"));
+    childs.emplace_back(bad);
+    childs.emplace_back("3");
+    parent.setPropertyValueList(propertyIRI, childs, true);
+
+    ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, true));
+    std::vector<PropertyValue> read = parent.getPropertyValueList(propertyIRI, true);
+    ASSERT_EQ(read[0], "1");
+    ASSERT_EQ(read[1], bad);
+    ASSERT_EQ(read[2], "3");
+
+    parent.replacePropertyValue(propertyIRI, bad, good);
+
+    ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, true));
+    read = parent.getPropertyValueList(propertyIRI, true);
+    ASSERT_EQ(read[0], "1");
+    ASSERT_EQ(read[1], good);
+    ASSERT_EQ(read[2], "3");
+}

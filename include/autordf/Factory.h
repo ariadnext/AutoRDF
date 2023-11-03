@@ -18,6 +18,8 @@ class Factory : public Model {
 public:
     using Model::Model;
 
+    Factory();
+
     /**
      * Create blank (anonymous) resource
      */

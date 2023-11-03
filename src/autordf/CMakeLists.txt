@@ -49,6 +49,9 @@ ADD_LIBRARY(
     cvt/RdfTypeEnum.cpp
     I18String.cpp
     I18StringVector.cpp
+    notification/ANotifier.cpp
+    notification/NotifierLocker.cpp
+    notification/DefaultNotifier.cpp
 )
 
 include(GenerateExportHeader)

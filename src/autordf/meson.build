@@ -32,9 +32,16 @@ autordf_cvt_src = [
   cvt_src_folder / 'RdfTypeEnum.cpp',
 ]
 
+notification_src_folder = 'notification'
+autordf_notification_src = [
+  notification_src_folder / 'ANotifier.cpp',
+  notification_src_folder / 'NotifierLocker.cpp',
+  notification_src_folder / 'DefaultNotifier.cpp'
+]
+
 autordf_lib = library(
   meson.project_name(),
-  sources: [autordf_src, autordf_internal_src, autordf_cvt_src],
+  sources: [autordf_src, autordf_internal_src, autordf_cvt_src, autordf_notification_src],
   include_directories: [autordf_include_directories, autordf_private_include_directories],
   dependencies: [boost_dep, sord_dep],
   install: true,
