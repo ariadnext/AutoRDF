@@ -107,6 +107,25 @@ AUTORDFEXCEPTION(InternalError)
  * Function called on read only model requested to change dataset
  */
 AUTORDFEXCEPTION(ReadOnlyError)
+
+/**
+ * Function called when Object Order does not exist
+ */
+AUTORDFEXCEPTION(ObjectWithoutOrder)
+
+
+/**
+ * Function called when PropertyValue Order does not existt
+ */
+AUTORDFEXCEPTION(PropertyValueWithoutOrder)
+
+/**
+ * Function called when PropertyValue Order does not existt
+ */
+AUTORDFEXCEPTION(InvalidPosition)
+
 }
+
+
 
 #endif //AUTORDF_EXCEPTION_H

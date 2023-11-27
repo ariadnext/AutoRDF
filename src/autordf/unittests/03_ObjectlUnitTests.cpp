@@ -665,6 +665,30 @@ TEST(_03_Object, replaceObjectInOrderedList) {
     EXPECT_EQ(childs[2], read[2]);
 }
 
+TEST(_03_Object, moveObjectInList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://non-ordered/childs");
+    Object parent("http://my/parent/object");
+    Object objectToMove("http://objectToMove");
+    std::vector<Object> childs;
+    childs.emplace_back(Object("http://first"));
+    childs.emplace_back(objectToMove);
+    childs.emplace_back(Object("http://third"));
+    parent.setObjectList(propertyIRI, childs, true);
+    //ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, false));
+
+    parent.moveObject(propertyIRI, objectToMove,2);
+    std::vector<Object> read = parent.getObjectList(propertyIRI, true);
+    std::vector<autordf::Uri> iris { "http://first", "http://third", objectToMove.iri() };
+    for (Object object : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), object), 1);
+    }
+
+}
+
 TEST(_03_Object, replacePropertyValue) {
     Factory f;
     f.addNamespacePrefix("rdf", Object::RDF_NS);
@@ -714,6 +738,31 @@ TEST(_03_Object, replacePropertyValueInList) {
         EXPECT_EQ(std::count(iris.begin(), iris.end(), pv), 1);
     }
 }
+
+TEST(_03_Object, movePropertyValueInList) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    const autordf::Uri propertyIRI("http://non-ordered/childs");
+    Object parent("http://my/parent/object");
+    PropertyValue propertyToMove("propertytoMove");
+    std::vector<PropertyValue> childs;
+    childs.emplace_back("titi");
+    childs.emplace_back(propertyToMove);
+    childs.emplace_back("tata");
+    parent.setPropertyValueList(propertyIRI, childs, true);
+    //ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, false));
+
+    parent.movePropertyValue(propertyIRI, propertyToMove,2);
+    std::vector<PropertyValue> read = parent.getPropertyValueList(propertyIRI, true);
+    std::vector<autordf::Uri> iris { "titi", "tata", propertyToMove };
+    for (PropertyValue pv : read) {
+        EXPECT_EQ(std::count(iris.begin(), iris.end(), pv), 1);
+    }
+
+}
+
 
 TEST(_03_Object, replacePropertyValueInOrderedList) {
     Factory f;
