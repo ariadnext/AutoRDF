@@ -59,6 +59,8 @@ install_headers(
 notification_include_folder = 'include' / 'autordf' / 'notification'
 install_headers(
   notification_include_folder / 'ANotifier.h',
+  notification_include_folder / 'DefaultNotifier.h',
+  notification_include_folder / 'NotifierLocker.h',
   subdir: 'autordf/notification'
 )
 

@@ -250,6 +250,14 @@ public:
     AUTORDF_EXPORT void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
 
     /**
+     * Get Index of a PropertyValue if there is reification on this PropertyValue
+     * @param propertyIRI
+     * @param propertyValue
+     * @return -1 if no reification
+     */
+    AUTORDF_EXPORT long long getPropertyValueIndexWithReification(const Uri& propertyIRI, const PropertyValue& propertyValue);
+
+    /**
      * Replace the given oldVal by newVal
      * @param propertyIRI Internationalized Resource Identifiers property to set
      * @param oldVal PropertyValue to be replaced for the propertyIRI property
@@ -257,6 +265,20 @@ public:
      * @param preserveOrdering if true, order of values will be store in RDF model. This is a non standard AutoRDF extension.
      */
     AUTORDF_EXPORT void replacePropertyValue(const Uri& propertyIRI, const PropertyValue& oldVal, const PropertyValue& newVal);
+
+
+    /**
+     * Get order of an Object (only if this Object was reiified) else it returns -1
+     * @param propertyIRI
+     * @param obj
+     * @return -1 if index is not found
+     */
+    AUTORDF_EXPORT long long getObjectIndexWithReiification(const Uri& propertyIRI, const Object& obj);
+
+
+    AUTORDF_EXPORT void movePropertyValue(const Uri& propertyIRI, const PropertyValue& val, int newPosition);
+
+    AUTORDF_EXPORT void moveObject(const Uri& propertyIRI, const Object& val, int newPosition);
 
     /**
      * Writes a data property in reified form.

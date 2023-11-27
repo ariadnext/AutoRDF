@@ -149,19 +149,27 @@ void Object::addObject(const Uri& propertyIRI, const Object& obj, bool preserveO
     }
 }
 
-void Object::replaceObject(const Uri& propertyIRI, const Object& oldObj, const Object& newObj) {
+long long Object::getObjectIndexWithReiification(const Uri& propertyIRI, const Object& object){
     notification::NotifierLocker locker(factory()->notifier());
 
     // Check if the given object is ordered. If ordered, store it index
     long long order = -1;
     if (std::shared_ptr<Property> resource = factory()->createProperty(propertyIRI)) {
-        resource->setValue(oldObj._r);
+        resource->setValue(object._r);
         if (std::shared_ptr<Resource> reified = reifiedPropertyAsResource(*resource)) {
             if (std::optional<Property> orderProperty = reified->getOptionalProperty(AUTORDF_ORDER)) {
                 order = orderProperty->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
             }
         }
     }
+    return order;
+}
+
+void Object::replaceObject(const Uri& propertyIRI, const Object& oldObj, const Object& newObj) {
+    notification::NotifierLocker locker(factory()->notifier());
+
+    // Check if the given object is ordered. If ordered, store it index
+    long long order = getObjectIndexWithReiification(propertyIRI,oldObj);
 
     // Remove the existing object
     removeObject(propertyIRI, oldObj);
@@ -277,19 +285,27 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
     }
 }
 
-void Object::replacePropertyValue(const Uri& propertyIRI, const PropertyValue& oldVal, const PropertyValue& newVal) {
-    notification::NotifierLocker locker(factory()->notifier());
-
+long long Object::getPropertyValueIndexWithReification(const Uri& propertyIRI, const PropertyValue& propertyValue)
+{
     // Check if the given property is ordered. If ordered, store it index
     long long order = -1;
     if (std::shared_ptr<Property> resource = factory()->createProperty(propertyIRI)) {
-        resource->setValue(oldVal, true);
+        resource->setValue(propertyValue, true);
         if (std::shared_ptr<Resource> reified = reifiedPropertyAsResource(*resource)) {
             if (std::optional<Property> orderProperty = reified->getOptionalProperty(AUTORDF_ORDER)) {
                 order = orderProperty->value().get<cvt::RdfTypeEnum::xsd_integer, long long>();
             }
         }
     }
+    return order;
+
+}
+
+void Object::replacePropertyValue(const Uri& propertyIRI, const PropertyValue& oldVal, const PropertyValue& newVal) {
+    notification::NotifierLocker locker(factory()->notifier());
+
+    long long order = getPropertyValueIndexWithReification(propertyIRI,oldVal);
+
 
     // Remove the existing property
     removePropertyValue(propertyIRI, oldVal);
@@ -305,6 +321,59 @@ void Object::replacePropertyValue(const Uri& propertyIRI, const PropertyValue& o
         addPropertyValue(propertyIRI, newVal, false);
     }
 }
+
+
+void Object::movePropertyValue(const Uri& propertyIRI, const PropertyValue& val, int newPosition) {
+
+    long long currentIndex =  getPropertyValueIndexWithReification(propertyIRI,val);
+
+    if (currentIndex == -1) {
+        throw PropertyValueWithoutOrder("Property Value without Order");
+    }
+
+    if (newPosition < 0)
+    {
+        throw InvalidPosition("Invalid Position when trying to reordering Property Value");
+    }
+
+    std::vector<PropertyValue> values = getPropertyValueList(propertyIRI, true);
+    if (newPosition >= values.size()) {
+        newPosition = values.size() - 1;  // Adjust if newPosition is out of bounds
+    }
+
+    PropertyValue tempVal = values[currentIndex];
+    values.erase(values.begin() + currentIndex);  // Remove from old position
+    values.insert(values.begin() + newPosition, tempVal); // Insert at new position
+
+    setPropertyValueList(propertyIRI, values, true);
+}
+
+
+void Object::moveObject(const Uri& propertyIRI, const Object& object, int newPosition) {
+
+    long long currentIndex = getObjectIndexWithReiification(propertyIRI,object);
+
+    if (currentIndex == -1) {
+        throw ObjectWithoutOrder("Object without Order");
+    }
+
+    if (newPosition < 0)
+    {
+        throw InvalidPosition("Invalid Position when trying to reordering object");
+    }
+
+    std::vector<Object> objects = getObjectList(propertyIRI, true);
+    if (newPosition >= objects.size()) {
+        newPosition = objects.size() - 1;  // Adjust if newPosition is out of bounds
+    }
+
+    Object tempVal = objects[currentIndex];
+    objects.erase(objects.begin() + currentIndex);  // Remove from old position
+    objects.insert(objects.begin() + newPosition, tempVal); // Insert at new position
+
+    setObjectList(propertyIRI, objects, true);
+}
+
 
 Resource Object::createReificationResource(const Uri& propertyIRI, const PropertyValue& val) {
     notification::NotifierLocker locker(factory()->notifier());
