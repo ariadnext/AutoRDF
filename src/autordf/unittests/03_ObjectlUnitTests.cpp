@@ -680,13 +680,12 @@ TEST(_03_Object, moveObjectInList) {
     parent.setObjectList(propertyIRI, childs, true);
     //ASSERT_NO_THROW(parent.getPropertyValueList(propertyIRI, false));
 
-    parent.moveObject(propertyIRI, objectToMove,2);
+    parent.moveObject(propertyIRI, objectToMove, 0);
     std::vector<Object> read = parent.getObjectList(propertyIRI, true);
-    std::vector<autordf::Uri> iris { "http://first", "http://third", objectToMove.iri() };
+    std::vector<autordf::Uri> iris { objectToMove.iri(), "http://first", "http://third" };
     for (Object object : read) {
         EXPECT_EQ(std::count(iris.begin(), iris.end(), object), 1);
     }
-
 }
 
 TEST(_03_Object, replacePropertyValue) {

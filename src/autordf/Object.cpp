@@ -341,8 +341,8 @@ void Object::movePropertyValue(const Uri& propertyIRI, const PropertyValue& val,
         newPosition = values.size() - 1;  // Adjust if newPosition is out of bounds
     }
 
-    PropertyValue tempVal = values[currentIndex];
-    values.erase(values.begin() + currentIndex);  // Remove from old position
+    PropertyValue tempVal = values[currentIndex - 1];
+    values.erase(values.begin() + currentIndex - 1);  // Remove from old position
     values.insert(values.begin() + newPosition, tempVal); // Insert at new position
 
     setPropertyValueList(propertyIRI, values, true);
@@ -367,8 +367,8 @@ void Object::moveObject(const Uri& propertyIRI, const Object& object, int newPos
         newPosition = objects.size() - 1;  // Adjust if newPosition is out of bounds
     }
 
-    Object tempVal = objects[currentIndex];
-    objects.erase(objects.begin() + currentIndex);  // Remove from old position
+    Object tempVal = objects[currentIndex - 1];
+    objects.erase(objects.begin() + currentIndex -1);  // Remove from old position
     objects.insert(objects.begin() + newPosition, tempVal); // Insert at new position
 
     setObjectList(propertyIRI, objects, true);
