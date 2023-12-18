@@ -19,6 +19,7 @@ const std::string Object::RDF_OBJECT = RDF_NS + "object";
 
 const std::string Object::AUTORDF_NS = "http://github.com/ariadnext/AutoRDF#";
 const std::string Object::AUTORDF_ORDER = AUTORDF_NS + "order";
+const std::string Object::AUTORDF_ORDERED = AUTORDF_NS + "ordered";
 
 void Object::setFactory(Factory *f) {
     if ( _factories.empty() ) {
@@ -191,7 +192,7 @@ void Object::setObjectList(const Uri& propertyIRI, const std::vector<Object> &va
     setObjectListImpl(propertyIRI, values, preserveOrdering);
 }
 
-void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
+void Object::removeObject(const Uri& propertyIRI, const Object& obj, const bool recomputeOrder) {
     notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     if ( !unReifyObject(propertyIRI, obj, false) ) {
@@ -199,6 +200,8 @@ void Object::removeObject(const Uri& propertyIRI, const Object& obj) {
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
         p->setValue(obj._r);
         _r.removeSingleProperty(*p);
+    } else if (recomputeOrder && isPropertyOrdered(propertyIRI)) {
+        recomputeObjectListOrder(propertyIRI);
     }
 }
 
@@ -274,7 +277,7 @@ void Object::addPropertyValue(const Uri& propertyIRI, const PropertyValue& val, 
     }
 }
 
-void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val) {
+void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& val, const bool recomputeOrder) {
     notification::NotifierLocker locker(factory()->notifier());
     // Check for reified object
     if ( !unReifyPropertyValue(propertyIRI, val, false) ) {
@@ -282,6 +285,8 @@ void Object::removePropertyValue(const Uri& propertyIRI, const PropertyValue& va
         std::shared_ptr<Property> p = factory()->createProperty(propertyIRI);
         p->setValue(val);
         _r.removeSingleProperty(*p);
+    } else if (recomputeOrder && isPropertyOrdered(propertyIRI)) {
+        recomputePropertyValueListOrder(propertyIRI);
     }
 }
 
@@ -372,6 +377,26 @@ void Object::moveObject(const Uri& propertyIRI, const Object& object, int newPos
     objects.insert(objects.begin() + newPosition, tempVal); // Insert at new position
 
     setObjectList(propertyIRI, objects, true);
+}
+
+bool Object::isPropertyOrdered( const Uri& propertyIRI ) {
+    autordf::Statement stmt;
+    stmt.subject.setIri(propertyIRI);
+    stmt.predicate.setIri(AUTORDF_ORDERED);
+    autordf::StatementList result = factory()->find(stmt);
+    return !result.empty();
+}
+
+void Object::recomputeObjectListOrder(const Uri& propertyIRI) {
+    notification::NotifierLocker locker(factory()->notifier());
+    std::vector<Object> objects = getObjectList(propertyIRI, true);    //recompute the order 
+    setObjectList(propertyIRI, objects, true);
+}
+
+void Object::recomputePropertyValueListOrder(const Uri& propertyIRI) {
+    notification::NotifierLocker locker(factory()->notifier());
+    std::vector<PropertyValue> values = getPropertyValueList(propertyIRI, true);    //recompute the order 
+    setPropertyValueList(propertyIRI, values, true);
 }
 
 

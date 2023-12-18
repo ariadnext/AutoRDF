@@ -185,9 +185,10 @@ public:
      * Remove the first value matching val for this object property
      * @param propertyIRI Internationalized Resource Identifiers property to remove one value from
      * @param obj object to remove from property value
+     * @param recomputeOrder if the property is ordered, recompute to insure consistant and continuous index
      * @throw PropertyNotFound if propertyIRI has not obj as value
      */
-    AUTORDF_EXPORT void removeObject(const Uri& propertyIRI, const Object& obj);
+    AUTORDF_EXPORT void removeObject(const Uri& propertyIRI, const Object& obj, const bool recomputeOrder = false);
 
     /**
      * Gets given property value
@@ -244,10 +245,11 @@ public:
      * Remove the first value matching val for this property
      * @param propertyIRI Internationalized Resource Identifiers property to remove one value from
      * @param val value to remove
+     * @param recomputeOrder if the property is ordered, recompute to insure consistant and continuous index
      * @throw PropertyNotFound if propertyIRI has not val as value
      * @throw CannotUnreify if value is store as a reified statement and statement cannot be unreified
      */
-    AUTORDF_EXPORT void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val);
+    AUTORDF_EXPORT void removePropertyValue(const Uri& propertyIRI, const PropertyValue& val, const bool recomputeOrder = false);
 
     /**
      * Get Index of a PropertyValue if there is reification on this PropertyValue
@@ -279,6 +281,8 @@ public:
     AUTORDF_EXPORT void movePropertyValue(const Uri& propertyIRI, const PropertyValue& val, int newPosition);
 
     AUTORDF_EXPORT void moveObject(const Uri& propertyIRI, const Object& val, int newPosition);
+
+    AUTORDF_EXPORT static bool isPropertyOrdered(const Uri& propertyIRI);
 
     /**
      * Writes a data property in reified form.
@@ -841,6 +845,13 @@ private:
     Object cloneRecursiveStopAtResourcesInternal(const Uri& newIri, bool(*doNotClone)(const Object &currentObject, const std::string &sourcePredicateIri, const Object *parentObject), bool first = false) const;
 
     /**
+     * Recompute list order to remove missing value after deletion 
+     */
+    AUTORDF_EXPORT void recomputeObjectListOrder(const Uri& propertyIRI);
+
+    AUTORDF_EXPORT void recomputePropertyValueListOrder(const Uri& propertyIRI);
+
+    /**
      * Full namespace for RDF, including #
      */
     static const std::string AUTORDF_NS;
@@ -848,6 +859,10 @@ private:
      * IRI for AutoRDF index extension
      */
     AUTORDF_EXPORT static const std::string AUTORDF_ORDER;
+    /**
+     * IRI for AutoRDF ordered label
+     */
+    AUTORDF_EXPORT static const std::string AUTORDF_ORDERED;
 };
 
 /**
