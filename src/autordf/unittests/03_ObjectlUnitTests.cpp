@@ -792,3 +792,43 @@ TEST(_03_Object, replacePropertyValueInOrderedList) {
     ASSERT_EQ(read[1], good);
     ASSERT_EQ(read[2], "3");
 }
+
+TEST(_03_Object, checkIfPropertyOrdered) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    Object propertyIRI("http://ordered/childs");
+    const Uri ordered("http://github.com/ariadnext/AutoRDF#ordered");
+
+    propertyIRI.setPropertyValue(ordered, "");
+
+    auto stmts = Object::factory()->find();
+
+    EXPECT_TRUE(Object::isPropertyOrdered(propertyIRI.iri()));
+}
+
+TEST(_03_Object, recomputeOrderDuringDeletion) {
+    Factory f;
+    f.addNamespacePrefix("rdf", Object::RDF_NS);
+    Object::setFactory(&f);
+
+    Object propertyIRI("http://ordered/childs");
+    const Uri ordered("http://github.com/ariadnext/AutoRDF#ordered");
+    propertyIRI.setPropertyValue(ordered, "");
+    Object parent("http://my/parent/object");
+    PropertyValue four("4");
+    PropertyValue three("3");
+    PropertyValue two("2");
+    PropertyValue one("1");
+    std::vector<PropertyValue> childs;
+    childs.emplace_back(one);
+    childs.emplace_back(two);
+    childs.emplace_back(three);
+    childs.emplace_back(four);
+    parent.setPropertyValueList(propertyIRI.iri(), childs, true);
+    parent.removePropertyValue(propertyIRI.iri(), three);
+    EXPECT_EQ(4, parent.getPropertyValueIndexWithReification(propertyIRI.iri(), four));
+    parent.removePropertyValue(propertyIRI.iri(), two, true);
+    EXPECT_EQ(2, parent.getPropertyValueIndexWithReification(propertyIRI.iri(), four));
+}
